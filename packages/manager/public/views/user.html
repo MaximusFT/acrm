@@ -6,7 +6,7 @@
             <th data-ng-repeat="field in userSchema" data-ng-if="field.inTable">{{field.title}}</th>
         </tr>
         <tr data-ng-repeat="user in users">
-            <td class="table-editable-cell" data-ng-repeat="field in userSchema" data-ng-if="field.inTable && user['_id'] === userId">
+            <td class="table-editable-cell" data-ng-repeat="field in userSchema" data-ng-if="field.inTable && user['username'] === userId">
                 <span data-ng-if="(field['type'] == 'text')" class="editable-span" data-ng-editable="update(user)" data-ng-editable-model="user[field['schemaKey']]"></span>
                 <span data-ng-click="beforeSelect(field['schemaKey'], user)" data-ng-if="(field['type'] == 'select')" class="editable-span" data-ng-editable-select="update(user, field['schemaKey'])" data-ng-editable-select-model="user[field['schemaKey']]" data-ng-editable-select-options="field['options']">
                 </span>

@@ -51,7 +51,7 @@ angular.module('mean.passwords').controller('PassController', ['$scope', 'Global
 			$scope.init = function () {
 				Passwords.query({}, function (passwords) {
 					$scope.passwords = passwords;
-					$log.info(passwords);
+					//$log.info(passwords);
 				});
 			};
 

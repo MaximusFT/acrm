@@ -17,4 +17,7 @@ module.exports = function(Manager, app, auth, database) {
     app.post('/manager/users', auth.requiresAdmin, users.create);
     app.put('/manager/users/:userId', auth.requiresAdmin, users.update);
     app.delete('/manager/users/:userId', auth.requiresAdmin, users.destroy);
+	
+	app.get('/api/user', auth.requiresLogin, users.user);
+	app.get('/api/fromDepartment', auth.requiresLogin, users.department);
 };
