@@ -5,18 +5,18 @@ module.exports = function(Manager, app, auth, database) {
 
     //Setting up the passwords api
     var passwords = require('../controllers/passwords');
-    app.get('/manager/passes', auth.requiresAdmin, passwords.all);
-	app.get('/manager/passes/:passId', auth.requiresAdmin, passwords.pass);
-    app.post('/manager/passes', auth.requiresAdmin, passwords.create);
-    app.put('/manager/passes/:passId', auth.requiresAdmin, passwords.update);
-    app.delete('/manager/passes/:passId', auth.requiresAdmin, passwords.destroy);
+    app.get('/api/passes', auth.requiresAdmin, passwords.all);
+	app.get('/api/passes/:passId', auth.requiresAdmin, passwords.pass);
+    app.post('/api/passes', auth.requiresAdmin, passwords.create);
+    app.put('/api/passes/:passId', auth.requiresAdmin, passwords.update);
+    app.delete('/api/passes/:passId', auth.requiresAdmin, passwords.destroy);
 	
 	 //Setting up the users api
     var users = require('../controllers/users');
-    app.get('/manager/users', auth.requiresAdmin, users.all);
-    app.post('/manager/users', auth.requiresAdmin, users.create);
-    app.put('/manager/users/:userId', auth.requiresAdmin, users.update);
-    app.delete('/manager/users/:userId', auth.requiresAdmin, users.destroy);
+    app.get('/api/users', auth.requiresAdmin, users.all);
+    app.post('/api/users', auth.requiresAdmin, users.create);
+    app.put('/api/users/:userId', auth.requiresAdmin, users.update);
+    app.delete('/api/users/:userId', auth.requiresAdmin, users.destroy);
 	
 	app.get('/api/user', auth.requiresLogin, users.user);
 	app.get('/api/fromDepartment', auth.requiresLogin, users.department);

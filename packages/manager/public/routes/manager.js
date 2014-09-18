@@ -21,6 +21,10 @@ angular.module('mean.manager').config(['$stateProvider',
 	  .state('manager user page', {
       url: '/manager/users/:userId',
       templateUrl: 'manager/views/user.html'
+    })
+	  .state('otherwise', {
+      url: '*path',
+      templateUrl: 'manager/views/404.html'
     });
   }
 ]);

@@ -29,7 +29,7 @@ angular.module('mean.manager').controller('UsersController', ['$scope', 'Global'
             title: 'Roles',
             schemaKey: 'roles',
             type: 'select',
-            options: ['admin', 'manager', 'employeer', 'authenticated'],
+            options: window.user.roles.indexOf('admin') > -1 ? ['admin', 'manager', 'employeer', 'authenticated'] : (window.user.roles.indexOf('manager') > -1 ? ['manager', 'employeer', 'authenticated'] : (window.user.roles.indexOf('employeer') ? ['employeer', 'authenticated'] : ['authenticated'])),
             inTable: true
         }, {
             title: 'Password',

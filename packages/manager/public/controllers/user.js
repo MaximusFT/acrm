@@ -4,6 +4,8 @@ angular.module('mean.manager').controller('UserController', ['$scope', 'Global',
     function($scope, Global, Menus, $rootScope, $http, $log, $stateParams, Users) {
         $scope.global = Global;
 		$scope.userId = $stateParams.userId;
+		$scope.mode = window.user.roles.indexOf('admin') > -1 ? 0 : (window.user.roles.indexOf('manager') > -1 ? 1 : (window.user.roles.indexOf('employeer') > -1 ? 2 : (window.user.roles.indexOf('authenticated') > -1 ? 3 : 4)));
+		$log.info($scope.mode);
         $scope.userSchema = [{
             title: 'Email',
             schemaKey: 'email',
@@ -25,10 +27,15 @@ angular.module('mean.manager').controller('UserController', ['$scope', 'Global',
 			type : 'text',
 			inTable : true
 		}, {
+			title: 'Phone',
+			schemaKey : 'phone',
+			type : 'text',
+			inTable : true
+		}, {
             title: 'Roles',
             schemaKey: 'roles',
             type: 'select',
-            options: ['admin', 'manager', 'employeer', 'authenticated'],
+            options: window.user.roles.indexOf('admin') > -1 ? ['admin', 'manager', 'employeer', 'authenticated'] : (window.user.roles.indexOf('manager') > -1 ? ['manager', 'employeer', 'authenticated'] : (window.user.roles.indexOf('employeer') > -1 ? ['employeer', 'authenticated'] : ['authenticated'])),
             inTable: true
         }, {
             title: 'Password',

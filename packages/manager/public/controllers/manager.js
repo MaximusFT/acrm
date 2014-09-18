@@ -35,10 +35,15 @@ angular.module('mean.manager').controller('AllController', ['$scope', 'Global', 
 					type : 'text',
 					inTable : true
 				}, {
+					title: 'Phone',
+					schemaKey : 'phone',
+					type : 'text',
+					inTable : true
+				}, {
 					title : 'Roles',
 					schemaKey : 'roles',
 					type : 'select',
-					options : ['admin', 'manager', 'employeer', 'authenticated'],
+					options : window.user.roles.indexOf('admin') > -1 ? ['admin', 'manager', 'employeer', 'authenticated'] : (window.user.roles.indexOf('manager') > -1 ? ['manager', 'employeer', 'authenticated'] : (window.user.roles.indexOf('employeer') ? ['employeer', 'authenticated'] : ['authenticated'])),
 					inTable : false
 				}, {
 					title : 'Password',
@@ -84,10 +89,13 @@ angular.module('mean.manager').controller('AllController', ['$scope', 'Global', 
 							userId : window.user._id
 						}
 					}).success(function (data) {
-						$scope.users = data;
+						$scope.users = [data];
 					}).error(function () {
 						$log.error('error');
 					});
+				} else if ($scope.mode === 3) {
+					$scope.users = [];
+					//$log.error($scope.users.length);
 				}
 			};
 
@@ -155,8 +163,13 @@ angular.module('mean.manager').controller('AllController', ['$scope', 'Global', 
 						type : 'text',
 						inTable : true
 					}, {
-						title : 'Username',
+						title : 'Login',
 						schemaKey : 'login',
+						type : 'text',
+						inTable : true
+					}, {
+						title : 'Target',
+						schemaKey : 'target',
 						type : 'text',
 						inTable : true
 					}, {

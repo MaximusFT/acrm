@@ -49,7 +49,7 @@ angular.module('mean.passwords').controller('PasswordsController', ['$scope', 'G
 			$scope.init = function () {
 				Passwords.query({}, function (passwords) {
 					$scope.passwords = passwords;
-					$log.info(passwords);
+					//$log.info(passwords);
 				});
 			};
 
