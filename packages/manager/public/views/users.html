@@ -1,8 +1,9 @@
 <section data-ng-controller="UsersController">
+	<div data-ng-if="mode == 0">Admin View
     <form id="user-add-form" class="row-fluid form-inline" name="addUserForm" data-ng-submit="add()">
         <div class="">
             <span data-ng-repeat="field in userSchema">
-                <input data-ng-if="(field['type'] == 'text' || field['type'] == 'password')" type="{{field['type']}}" class="span2" data-ng-model="user[field['schemaKey']]" placeholder="{{field['title']}}" id="user-add-title" />
+                <input data-ng-if="(field['type'] == 'text' || field['type'] == 'password' || field['type'] == 'number')" type="{{field['type']}}" class="span2" data-ng-model="user[field['schemaKey']]" placeholder="{{field['title']}}" id="user-add-title" />
                 <select data-ng-if="field['type'] == 'select'" data-ng-model="user[field['schemaKey']]" ng-multiple="true" multiple ng-options="option for option in field['options']">
                     <option value="">-- Choose Role --</option>
                 </select>
@@ -29,10 +30,15 @@
                 </button>
             </td>
             <td class="table-editable-cell" data-ng-repeat="field in userSchema" data-ng-if="field.inTable">
-                <span data-ng-if="(field['type'] == 'text')" class="editable-span" data-ng-editable="update(user)" data-ng-editable-model="user[field['schemaKey']]"></span>
+                <span data-ng-click="beforeSelect(field['schemaKey'], user)" data-ng-if="(field['type'] == 'text')" class="editable-span" data-ng-editable="update(user, field['schemaKey'])" data-ng-editable-model="user[field['schemaKey']]"></span>
                 <span data-ng-click="beforeSelect(field['schemaKey'], user)" data-ng-if="(field['type'] == 'select')" class="editable-span" data-ng-editable-select="update(user, field['schemaKey'])" data-ng-editable-select-model="user[field['schemaKey']]" data-ng-editable-select-options="field['options']">
                 </span>
             </td>
         </tr>
     </table>
+	</div>
+	<div data-ng-if="mode == 1">Manager View
+	</div>
+	<div data-ng-if="mode == 2">Employeer</div>
+	<div data-ng-if="mode == 3">Simply authenticated</div>
 </section>

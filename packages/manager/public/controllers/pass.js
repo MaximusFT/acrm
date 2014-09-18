@@ -22,8 +22,13 @@ angular.module('mean.passwords').controller('PassController', ['$scope', 'Global
 						type : 'text',
 						inTable : true
 					}, {
-						title : 'Username',
+						title : 'Login',
 						schemaKey : 'login',
+						type : 'text',
+						inTable : true
+					}, {
+						title : 'Target',
+						schemaKey : 'target',
 						type : 'text',
 						inTable : true
 					}, {
@@ -51,7 +56,7 @@ angular.module('mean.passwords').controller('PassController', ['$scope', 'Global
 			$scope.init = function () {
 				Passwords.query({}, function (passwords) {
 					$scope.passwords = passwords;
-					$log.info(passwords);
+					//$log.info(passwords);
 				});
 			};
 

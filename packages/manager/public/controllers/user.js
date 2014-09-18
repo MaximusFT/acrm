@@ -4,6 +4,8 @@ angular.module('mean.manager').controller('UserController', ['$scope', 'Global',
     function($scope, Global, Menus, $rootScope, $http, $log, $stateParams, Users) {
         $scope.global = Global;
 		$scope.userId = $stateParams.userId;
+		$scope.mode = window.user.roles.indexOf('admin') > -1 ? 0 : (window.user.roles.indexOf('manager') > -1 ? 1 : (window.user.roles.indexOf('employeer') > -1 ? 2 : (window.user.roles.indexOf('authenticated') > -1 ? 3 : 4)));
+		$log.info($scope.mode);
         $scope.userSchema = [{
             title: 'Email',
             schemaKey: 'email',
@@ -20,10 +22,20 @@ angular.module('mean.manager').controller('UserController', ['$scope', 'Global',
             type: 'text',
             inTable: true
         }, {
+			title : 'Department ID',
+			schemaKey : 'department',
+			type : 'text',
+			inTable : true
+		}, {
+			title: 'Phone',
+			schemaKey : 'phone',
+			type : 'text',
+			inTable : true
+		}, {
             title: 'Roles',
             schemaKey: 'roles',
             type: 'select',
-            options: ['authenticated', 'admin'],
+            options: window.user.roles.indexOf('admin') > -1 ? ['admin', 'manager', 'employeer', 'authenticated'] : (window.user.roles.indexOf('manager') > -1 ? ['manager', 'employeer', 'authenticated'] : (window.user.roles.indexOf('employeer') > -1 ? ['employeer', 'authenticated'] : ['authenticated'])),
             inTable: true
         }, {
             title: 'Password',
@@ -76,20 +88,45 @@ angular.module('mean.manager').controller('UserController', ['$scope', 'Global',
         };
 
         $scope.update = function(user, userField) {
-            if (userField && userField === 'roles' && user.roles.indexOf('admin') === -1) {
-                if (confirm('Are you sure you want to remove "admin" role?')) {
-                    user.$update();
-                } else {
-                    user.roles = user.tmpRoles;
-                }
-            } else
-                user.$update();
+			var ret = false;
+            if (userField && userField === 'roles' && user.roles.length === 0) {		
+                user.roles = user.tmpRoles;
+            }
+			if (userField && userField === 'roles' && user.roles.length !== 0) {		
+				user.roles = user.roles[0] === 'authenticated' ? user.tmpRoles : user.tmpRoles.concat(user.roles);
+			}
+			if (userField && userField === 'email' && user.email === '') {
+				user.email = user.tmpEmail;
+				ret = true;
+			}
+			if (userField && userField === 'name' && user.name === '') {
+				user.name = user.tmpName;
+				ret = true;
+			}
+			if (userField && userField === 'username' && user.username === '') {
+				user.username = user.tmpUsername;
+				ret = true;
+			}
+			if (userField && userField === 'department' && user.department === '') {
+				user.email = user.tmpDepartment;
+				ret = true;
+			}
+			if(!ret) {
+				user.$update();
+			}
         };
 
         $scope.beforeSelect = function(userField, user) {
-            if (userField === 'roles') {
-                user.tmpRoles = user.roles;
-            }
+			if(userField === 'email')
+				user.tmpEmail = user.email;
+			if(userField === 'name')
+				user.tmpName = user.name;
+			if(userField === 'username')
+				user.tmpUsername = user.username;
+			if(userField === 'department')
+				user.tmpDepartment = user.department;
+			if(userField === 'roles')
+				user.tmpRoles = ['authenticated'];//user.roles;
         };
     }
 ]);

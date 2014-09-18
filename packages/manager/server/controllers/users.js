@@ -105,3 +105,33 @@ exports.all = function(req, res) {
         }
     });
 };
+
+exports.user = function(req, res) {
+	var id = req.query.userId;
+	User.findOne(
+		{ '_id' : id },
+		function (err, user) {
+			if(err) {
+				res.render('error', {
+					status : 500
+				});
+			} else {
+				res.jsonp(user);
+			}
+	});
+};
+
+exports.department = function(req, res) {
+	var department = req.query.department;
+	User.find(
+		{ 'department' : department },
+		function (err, user) {
+			if(err) {
+				res.render('error', {
+					status : 500
+				});
+			} else {
+				res.jsonp(user);
+			}
+	});
+};

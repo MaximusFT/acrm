@@ -50,6 +50,10 @@ var PassSchema = new Schema({
     //unique: true,
     required: true
   },
+  target : {
+	type : String,
+	default : '—'
+  },
   hashed_password: {
     type: String
   },

@@ -51,9 +51,18 @@ var UserSchema = new Schema({
     unique: true,
     required: true
   },
+  department: {
+	type: String,
+	required: true,
+	default: 0
+  },
+  phone: {
+	type: String,
+	required: true
+  },
   roles: {
     type: Array,
-    default: ['authenticated']
+	required: true
   },
   hashed_password: {
     type: String,
@@ -107,6 +116,7 @@ UserSchema.methods = {
    */
   hasRole: function(role) {
     var roles = this.roles;
+	//console.log('!!!!!' + role + '<>' + roles);
     return roles.indexOf('admin') !== -1 || roles.indexOf(role) !== -1;
   },
 

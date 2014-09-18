@@ -41,10 +41,19 @@ th {
 	text-align:center;
 }
 </style>
-<a href="#!/manager/users" style="float:left"><h2>Users Manager</h2></a>
-<a href="#!/manager/passes" style="float:right"><h2>Passwords Manager</h2></a>
 <section data-ng-controller="AllController">
+	<div data-ng-if="mode == 0">
+		<a href="#!/manager/users" style="float:left"><h2>Users Manager</h2></a>
+		<a href="#!/manager/passes" style="float:right"><h2>Passwords Manager</h2></a>
+	</div>
+	<div data-ng-if="mode == 1">
+		<h1>Department "{{curUser.department}}"</h1>
+	</div>
+	<div data-ng-if="mode == 2">
+		<h1>Your accounts</h1>
+	</div>
 	<div class="loader" data-ng-init="initusers()" data-ng-hide="users.length"></div>
+	<div data-ng-if="users.length > 0">
 	<div class="loader" data-ng-init="initpasses()" data-ng-hide="passwords.length"></div>
 	<table class="table table-striped table-bordered table-hover">
 		<tr>
@@ -54,7 +63,7 @@ th {
 		<tr data-ng-repeat="user in users">
 			<td>
 				<div>
-					<a href="#!/manager/users/{{user['_id']}}">{{user['email']}}</a>
+					<a href="#!/manager/users/{{user['username']}}">{{user['email']}}</a>
 				</div>
 			</td>
 			<td>
@@ -69,6 +78,16 @@ th {
 			</td>
 			<td>
 				<div>
+					{{user['department']}}
+				</div>
+			</td>
+			<td>
+				<div>
+					{{user['phone']}}
+				</div>
+			</td>
+			<td>
+				<div>
 					<table class="table table-hover table-condensed table-bordered">
 						<!--<tr>
 							<th data-ng-repeat="field2 in passSchema" data-ng-if="field2.inTable">{{field2.title}}</th>
@@ -78,6 +97,7 @@ th {
 							<td data-ng-if="(pass['accessedFor'].indexOf(user.username) > -1)"><a href="#!/manager/passes/{{pass['_id']}}">{{pass['resourceName']}}</a></td>
 							<td data-ng-if="(pass['accessedFor'].indexOf(user.username) > -1)">{{pass['resourceUrl']}}</td>
 							<td data-ng-if="(pass['accessedFor'].indexOf(user.username) > -1)">{{pass['login']}}</td>
+							<td data-ng-if="(pass['accessedFor'].indexOf(user.username) > -1)">{{pass['target']}}</td>
 							<td data-ng-if="(pass['accessedFor'].indexOf(user.username) > -1)">{{pass['comment']}}</td>
 							<!--<td data-ng-if="(pass['accessedFor'].indexOf(user.username) > -1)">{{pass['accessedFor']}}</td>-->
 						</tr>
@@ -86,4 +106,6 @@ th {
 			</td>		
 		</tr>
 	</table>
+	</div>
+	<div data-ng-if="users.length == 0"><h1>K</h1></div>
 </section>

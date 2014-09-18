@@ -12,6 +12,8 @@ angular.module('mean.manager').controller('ManagerController', ['$scope', 'Globa
 angular.module('mean.manager').controller('AllController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', 'Users', 'Passwords',
 		function ($scope, Global, Menus, $rootScope, $http, $log, Users, Passwords) {
 			$scope.global = Global;
+			$scope.mode = window.user.roles.indexOf('admin') > -1 ? 0 : (window.user.roles.indexOf('manager') > -1 ? 1 : (window.user.roles.indexOf('employeer') > -1 ? 2 : (window.user.roles.indexOf('authenticated') > -1 ? 3 : 4)));
+			
 			$scope.userSchema = [{
 					title : 'Email',
 					schemaKey : 'email',
@@ -28,10 +30,20 @@ angular.module('mean.manager').controller('AllController', ['$scope', 'Global', 
 					type : 'text',
 					inTable : true
 				}, {
+					title : 'Department ID',
+					schemaKey : 'department',
+					type : 'text',
+					inTable : true
+				}, {
+					title: 'Phone',
+					schemaKey : 'phone',
+					type : 'text',
+					inTable : true
+				}, {
 					title : 'Roles',
 					schemaKey : 'roles',
 					type : 'select',
-					options : ['authenticated', 'admin'],
+					options : window.user.roles.indexOf('admin') > -1 ? ['admin', 'manager', 'employeer', 'authenticated'] : (window.user.roles.indexOf('manager') > -1 ? ['manager', 'employeer', 'authenticated'] : (window.user.roles.indexOf('employeer') ? ['employeer', 'authenticated'] : ['authenticated'])),
 					inTable : false
 				}, {
 					title : 'Password',
@@ -48,10 +60,43 @@ angular.module('mean.manager').controller('AllController', ['$scope', 'Global', 
 			$scope.user = {};
 
 			$scope.initusers = function () {
-				Users.query({}, function (users) {
-					$scope.users = users;
-				});
-
+				if($scope.mode === 0) {
+					Users.query({}, function (users) {
+						$scope.users = users;
+					});
+				} else if ($scope.mode === 1) {
+					$http.get('api/user', {
+						params : {
+							userId : window.user._id
+						}
+					}).success(function (data) {
+						$scope.curUser = data;
+						$http.get('api/fromDepartment', {
+							params : {
+								department : $scope.curUser.department
+							}
+						}).success(function (data) {
+							$scope.users = data;
+						}).error(function () {
+							$log.error('error');
+						});
+					}).error(function () {
+						$log.error('error');
+					});
+				} else if ($scope.mode === 2) {
+					$http.get('api/user', {
+						params : {
+							userId : window.user._id
+						}
+					}).success(function (data) {
+						$scope.users = [data];
+					}).error(function () {
+						$log.error('error');
+					});
+				} else if ($scope.mode === 3) {
+					$scope.users = [];
+					//$log.error($scope.users.length);
+				}
 			};
 
 			$scope.adduser = function () {
@@ -85,13 +130,13 @@ angular.module('mean.manager').controller('AllController', ['$scope', 'Global', 
 			};
 
 			$scope.updateuser = function (user, userField) {
-				if (userField && userField === 'roles' && user.roles.indexOf('admin') === -1) {
+				/*if (userField && userField === 'roles' && user.roles.indexOf('admin') === -1) {
 					if (confirm('Are you sure you want to remove "admin" role?')) {
 						user.$update();
 					} else {
 						user.roles = user.tmpRoles;
 					}
-				} else
+				} else*/
 					user.$update();
 			};
 
@@ -118,8 +163,13 @@ angular.module('mean.manager').controller('AllController', ['$scope', 'Global', 
 						type : 'text',
 						inTable : true
 					}, {
-						title : 'Username',
+						title : 'Login',
 						schemaKey : 'login',
+						type : 'text',
+						inTable : true
+					}, {
+						title : 'Target',
+						schemaKey : 'target',
 						type : 'text',
 						inTable : true
 					}, {

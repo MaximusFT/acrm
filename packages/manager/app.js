@@ -20,7 +20,7 @@ Manager.register(function(app, auth, database) {
   Manager.menus.add({
     title: 'Password Management',
     link: 'manager example page',
-    roles: ['admin'],
+    roles: ['admin', 'manager'],
     menu: 'main'
   });
 

@@ -124,3 +124,30 @@ exports.all = function (req, res) {
 		}
 	});
 };
+/*
+exports.pass = function(req, res) {
+	var name = 'Exiliot';
+	Pass.findOne(
+		{ '_id' : '540f0dfeae2f577c1b10b926' },
+		function (err, pass) {
+			console.log(err);
+			if(err) {
+				res.render('error', {
+					status : 500
+				});
+			} else {
+				res.jsonp(pass);
+			}
+	});
+*/
+/*
+	Pass.find().sort('-created').populate('pass', 'name username').exec(function (err, passwords) {
+		if (err) {
+			res.render('error', {
+				status : 500
+			});
+		} else {
+			res.jsonp(passwords);
+		}
+	});*/
+//};
