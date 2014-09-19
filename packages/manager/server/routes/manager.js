@@ -20,4 +20,7 @@ module.exports = function(Manager, app, auth, database) {
 	
 	app.get('/api/user', auth.requiresLogin, users.user);
 	app.get('/api/fromDepartment', auth.requiresLogin, users.department);
+	
+	app.get('/api/getGroups', auth.requiresLogin, passwords.groups);
+	app.get('/api/getPassesByGroup', auth.requiresLogin, passwords.passesByGroup);
 };

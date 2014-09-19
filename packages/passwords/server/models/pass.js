@@ -35,6 +35,10 @@ var mongoose = require('mongoose'),
  */
 
 var PassSchema = new Schema({
+  group : {
+	type : String,
+	default : '—'
+  },
   resourceName: {
     type: String,
     required: true
@@ -49,10 +53,6 @@ var PassSchema = new Schema({
     type: String,
     //unique: true,
     required: true
-  },
-  target : {
-	type : String,
-	default : '—'
   },
   hashed_password: {
     type: String

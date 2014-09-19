@@ -5,7 +5,7 @@ angular.module('mean.passwords').controller('PasswordsController', ['$scope', 'G
 			$scope.global = Global;
 			Users.query({}, function (users) {
 				var lols = [];
-				users.forEach(function(item) {
+				users.forEach(function (item) {
 					//$log.info(item);
 					lols.push(item.username);
 				});
@@ -47,10 +47,29 @@ angular.module('mean.passwords').controller('PasswordsController', ['$scope', 'G
 			});
 
 			$scope.init = function () {
-				Passwords.query({}, function (passwords) {
-					$scope.passwords = passwords;
-					//$log.info(passwords);
+				$scope.passwords = [];
+				$http.get('api/getGroups').success(function (data) {
+					$scope.groups = data;
+					
+					$scope.groups.forEach(function (group) {
+						$http.get('api/getPassesByGroup', {
+							params : {
+								groupId : group
+							}
+						}).success(function (data) {						
+							$scope.passwords.push(data);
+							$log.info($scope.passwords);
+						}).error(function () {
+							$log.error('error');
+						});
+					});
+				}).error(function () {
+					$log.error('error');
 				});
+				/*Passwords.query({}, function (passwords) {
+				$scope.passwords = passwords;
+				});*/
+				
 			};
 
 			$scope.add = function () {

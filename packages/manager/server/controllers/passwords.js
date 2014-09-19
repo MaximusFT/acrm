@@ -114,34 +114,7 @@ exports.destroy = function (req, res) {
  * List of Users
  */
 exports.all = function (req, res) {
-	Pass.find().sort('-created').populate('pass', 'name username').exec(function (err, passwords) {
-		if (err) {
-			res.render('error', {
-				status : 500
-			});
-		} else {
-			res.jsonp(passwords);
-		}
-	});
-};
-/*
-exports.pass = function(req, res) {
-	var name = 'Exiliot';
-	Pass.findOne(
-		{ '_id' : '540f0dfeae2f577c1b10b926' },
-		function (err, pass) {
-			console.log(err);
-			if(err) {
-				res.render('error', {
-					status : 500
-				});
-			} else {
-				res.jsonp(pass);
-			}
-	});
-*/
-/*
-	Pass.find().sort('-created').populate('pass', 'name username').exec(function (err, passwords) {
+	/*Pass.find().sort('-created').populate('pass', 'name username').exec(function (err, passwords) {
 		if (err) {
 			res.render('error', {
 				status : 500
@@ -150,4 +123,64 @@ exports.pass = function(req, res) {
 			res.jsonp(passwords);
 		}
 	});*/
-//};
+	Pass.find().sort('group').exec(
+		function (err, pass) {
+			if(err) {
+				res.render('error', {
+					status : 500
+				});
+			} else {
+				//console.log(pass);
+				res.jsonp(pass);
+			}
+	});
+};
+
+exports.groups = function(req, res) {
+	/*Pass.find(
+		{ },
+		{ group: 1, _id: 0 }
+	).sort('group').exec(
+		function (err, pass) {
+			if(err) {
+				res.render('error', {
+					status : 500
+				});
+			} else {
+				var temp = [];
+				pass.forEach(function(t) {
+					if(pass.indexOf(t) === -1)
+						temp.push(t);
+				});
+				console.log(temp);
+				res.jsonp(temp);
+			}
+	});*/
+	Pass.distinct('group').exec(
+		function (err, passes) {
+			if(err) {
+				res.render('error', {
+					status : 500
+				});
+			} else {
+				passes.sort(function(a,b) { return a > b; } );
+				res.jsonp(passes);
+			}
+	});
+};
+
+exports.passesByGroup = function(req, res) {
+	var groupId = req.query.groupId;
+	Pass.find(
+		{ group: groupId},
+		function (err, pass) {
+			if(err) {
+				res.render('error', {
+					status : 500
+				});
+			} else {
+				//console.log(pass);
+				res.jsonp(pass);
+			}
+	});
+};

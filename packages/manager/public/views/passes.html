@@ -15,14 +15,16 @@
         <input type="button" class="btn btn-danger" data-ng-hide="edit" data-ng-click="edit=!edit" value="Edit">
         <input type="button" class="btn btn-primary" data-ng-show="edit" data-ng-click="edit=!edit" value="Done">
     </div>
-    <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="passwords.length">
+	<div data-ng-repeat="group in groups">
+	<h1>{{group}}</h1>
+    <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="passwords[$index].length">
         <tr>
             <th data-ng-show="edit">
                 Edit
             </th>
             <th data-ng-repeat="field in passSchema" data-ng-if="field.inTable">{{field.title}}</th>
         </tr>
-        <tr data-ng-repeat="pass in passwords">
+        <tr data-ng-repeat="pass in passwords[$index]">
             <td data-ng-show="edit">
                 <button class="glyphicon glyphicon-trash" data-ng-click="remove(pass)" value="del">
                     <i class="icon-trash icon-white"></i>
@@ -35,4 +37,5 @@
             </td>
         </tr>
     </table>
+	</div>
 </section>

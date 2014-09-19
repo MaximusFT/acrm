@@ -152,7 +152,12 @@ angular.module('mean.manager').controller('AllController', ['$scope', 'Global', 
 					//$log.info(item);
 					lols.push(item.username);
 				});
-				$scope.passSchema = [{
+				$scope.passSchema = [ {
+						title : 'Group',
+						schemaKey : 'group',
+						type : 'text',
+						inTable : false
+					}, {
 						title : 'Resource Title',
 						schemaKey : 'resourceName',
 						type : 'text',
@@ -165,11 +170,6 @@ angular.module('mean.manager').controller('AllController', ['$scope', 'Global', 
 					}, {
 						title : 'Login',
 						schemaKey : 'login',
-						type : 'text',
-						inTable : true
-					}, {
-						title : 'Target',
-						schemaKey : 'target',
 						type : 'text',
 						inTable : true
 					}, {
