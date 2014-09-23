@@ -27,6 +27,11 @@ angular.module('mean.passmanager').controller('PassController', ['$scope', 'Glob
 						type : 'text',
 						inTable : true
 					}, {
+						title : 'Email',
+						schemaKey : 'email',
+						type : 'text',
+						inTable : true
+					}, {
 						title : 'Login',
 						schemaKey : 'login',
 						type : 'text',
@@ -73,6 +78,7 @@ angular.module('mean.passmanager').controller('PassController', ['$scope', 'Glob
 						group : $scope.pass.group,
 						resourceName : $scope.pass.resourceName,
 						resourceUrl : $scope.pass.resourceUrl,
+						email : $scope.pass.email,
 						login : $scope.pass.login,
 						password : $scope.pass.password,
 						comment : $scope.pass.comment,

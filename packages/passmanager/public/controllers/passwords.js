@@ -35,6 +35,11 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 						type : 'text',
 						inTable : true
 					}, {
+						title : 'Email',
+						schemaKey : 'email',
+						type : 'text',
+						inTable : true
+					}, {
 						title : 'Username',
 						schemaKey : 'login',
 						type : 'text',
@@ -83,6 +88,7 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 						group : $scope.pass.group,
 						resourceName : $scope.pass.resourceName,
 						resourceUrl : $scope.pass.resourceUrl,
+						email: $scope.pass.email,
 						login : $scope.pass.login,
 						password : $scope.pass.password,
 						comment : $scope.pass.comment,
@@ -105,11 +111,11 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 						$scope.groups.sort(function(a, b){
 							return a.group > b.group;
 						});
-						$log.info($scope.groups);
+						//$log.info($scope.groups);
 					}
 				});
 
-				$scope.pass.group = $scope.pass.resourceName = $scope.pass.resourceUrl = $scope.pass.login = $scope.pass.hashed_password = $scope.pass.comment = $scope.pass.accessedFor = '';
+				//$scope.pass.group = $scope.pass.resourceName = $scope.pass.resourceUrl = $scope.pass.login = $scope.pass.hashed_password = $scope.pass.comment = $scope.pass.accessedFor = '';
 			};
 
 			$scope.remove = function (pass) {
@@ -124,7 +130,9 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 				Passwords.remove({ passId:pass._id });
 			};
 
-			$scope.update = function (pass, passField) {				
+			$scope.update = function (pass, passField) {	
+				//$log.info(pass);
+				//$log.info(passField);
 				//pass.$update();
 				Passwords.update({ passId:pass._id }, pass);
 			};

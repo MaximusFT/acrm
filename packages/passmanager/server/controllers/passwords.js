@@ -131,7 +131,7 @@ exports.all = function (req, res) {
 };
 
 exports.groups = function (req, res) {
-	Pass.find({}).sort('group').exec(
+	Pass.find({}).sort({'group':1, 'resourceName':1, 'email':1}).exec(
 		function (err, pass) {
 		if (err) {
 			res.render('error', {

@@ -3,26 +3,30 @@
 	<div class="panel-heading">Adding new passwords</div>
 	<div class="panel-body">
     <form id="pass-add-form" class="row-fluid form-inline" name="addPassForm" data-ng-submit="add()">
-        <div>
+        <div class="row">
+			<div class="col-md-8">
             <span data-ng-repeat="field in passSchema">
                 <input data-ng-if="(field['type'] == 'text' || field['type'] == 'password')" type="{{field['type']}}" class="span2" data-ng-model="pass[field['schemaKey']]" placeholder="{{field['title']}}" id="pass-add-title" />
-                <select data-ng-if="field['type'] == 'select'" data-ng-model="pass[field['schemaKey']]" ng-multiple="true" multiple ng-options="option for option in field['options']">
+                <select class="form-control" data-ng-if="field['type'] == 'select'" data-ng-model="pass[field['schemaKey']]" ng-multiple="true" multiple ng-options="option for option in field['options']">
                     <option value="">-- Choose Role --</option>
                 </select>
             </span>
+			</div>
+			<div class="col-md-4">
             <input type="submit" class="btn span1" value="Add" />
 			<div class="loader" data-ng-init="init()" data-ng-hide="groups.length"></div>
-			<div class="input-group actions-bar" style="padding: 10px;" data-ng-show="groups.length">
+			<div class="btn-group" style="padding: 10px;" data-ng-show="groups.length">
 				<input type="button" class="btn btn-danger" data-ng-hide="edit" data-ng-click="edit=!edit" value="Enable edit mode">
 				<input type="button" class="btn btn-primary" data-ng-show="edit" data-ng-click="edit=!edit" value="Disable edit mode">
-				<input type="text" style="padding: 5px; margin-left: 12px" placeholder="Search" ng-model="search">
+			</div>
+			<input type="text" style="padding: 5px; margin-left: 12px" placeholder="Search" ng-model="search">
 			</div>
         </div>
     </form>
 	</div>
 	</div>
-	</br></br>
-	<div data-ng-repeat="group in groups | filter:search:strict">
+	
+	<div data-ng-repeat="group in groups">
 	<h1 data-ng-show="group.passes.length">{{group.group}}</h1>
     <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="group.passes.length">
         <tr>
@@ -34,7 +38,7 @@
 			</th>
             <th data-ng-repeat="field in passSchema" data-ng-if="field.inTable">{{field.title}}</th>
         </tr>
-        <tr data-ng-repeat="pass in group.passes">
+        <tr data-ng-repeat="pass in group.passes | filter:search:strict">
             <td data-ng-show="edit">
                 <button class="glyphicon glyphicon-trash" data-ng-click="remove(pass)" value="del">
                     <i class="icon-trash icon-white"></i>
@@ -45,7 +49,7 @@
 			</td>
             <td class="table-editable-cell" data-ng-repeat="field in passSchema" data-ng-if="field.inTable">
                 <span data-ng-if="(field['type'] == 'text')" class="editable-span" data-ng-editable="update(pass, field['schemaKey'])" data-ng-editable-model="pass[field['schemaKey']]"></span>
-                <span data-ng-click="beforeSelect(field['schemaKey'], pass)" data-ng-if="(field['type'] == 'select')" class="editable-span" data-ng-editable-select="update(pass, field['schemaKey'])" data-ng-editable-select-model="pass[field['schemaKey']]" data-ng-editable-select-options="field['options']">
+				<span data-ng-click="beforeSelect(field['schemaKey'], pass)" data-ng-if="(field['type'] == 'select')" class="editable-span" data-ng-editable-select="update(pass, field['schemaKey'])" data-ng-editable-select-model="pass[field['schemaKey']]" data-ng-editable-select-options="field['options']">
                 </span>
             </td>
         </tr>
