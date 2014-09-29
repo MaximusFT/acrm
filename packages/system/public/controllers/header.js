@@ -1,9 +1,12 @@
 'use strict';
 
-angular.module('mean.system').controller('HeaderController', ['$scope', '$rootScope', 'Global', 'Menus',
-  function($scope, $rootScope, Global, Menus) {
+angular.module('mean.system').controller('HeaderController', ['$scope', '$rootScope', '$cookies', 'Global', 'Menus',
+  function($scope, $rootScope, $cookies, Global, Menus) {
     $scope.global = Global;
     $scope.menus = {};
+	
+	if(!$scope.global.mode)
+		$scope.global.mode = $cookies.mode;
 
     // Default hard coded menu items for main menu
     var defaultMainMenu = [];
@@ -30,9 +33,9 @@ angular.module('mean.system').controller('HeaderController', ['$scope', '$rootSc
 
       $scope.global = {
         authenticated: !! $rootScope.user,
-        user: $rootScope.user
+        user: $rootScope.user,
+		mode: $cookies.mode
       };
     });
-
   }
 ]);

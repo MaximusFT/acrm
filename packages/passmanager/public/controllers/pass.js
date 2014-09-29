@@ -37,11 +37,6 @@ angular.module('mean.passmanager').controller('PassController', ['$scope', 'Glob
 						type : 'text',
 						inTable : true
 					}, {
-						title : 'Target',
-						schemaKey : 'target',
-						type : 'text',
-						inTable : true
-					}, {
 						title : 'Password',
 						schemaKey : 'hashed_password',
 						type : 'text',
@@ -64,10 +59,16 @@ angular.module('mean.passmanager').controller('PassController', ['$scope', 'Glob
 			});
 
 			$scope.init = function () {
-				Passwords.query({}, function (passwords) {
-					$scope.passwords = passwords;
-					//$log.info(passwords);
+				$log.info($scope.passId);
+				$scope.passwords = [];
+				$http.get('api/passes/' . $scope.passId).success(function (data) {
+					$scope.passwords = data;
+				}).error(function () {
+					$log.error('error');
 				});
+				/*Passwords.query({}, function (passwords) {
+					$scope.passwords = passwords;
+				});*/
 			};
 
 			$scope.add = function () {
@@ -80,7 +81,7 @@ angular.module('mean.passmanager').controller('PassController', ['$scope', 'Glob
 						resourceUrl : $scope.pass.resourceUrl,
 						email : $scope.pass.email,
 						login : $scope.pass.login,
-						password : $scope.pass.password,
+						hash_password : $scope.pass.hash_password,
 						comment : $scope.pass.comment,
 						accessedFor : $scope.pass.accessedFor
 					});

@@ -10,11 +10,11 @@ angular.module('mean.usermanager').controller('UsermanagerController', ['$scope'
 ]);
 
 
-angular.module('mean.usermanager').controller('UsersController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', 'Users',
-    function($scope, Global, Menus, $rootScope, $http, $log, Users) {
+angular.module('mean.usermanager').controller('UsersController', ['$scope', '$cookies', 'Global', 'Menus', '$rootScope', '$http', '$log', 'Users',
+    function($scope, $cookies, Global, Menus, $rootScope, $http, $log, Users) {
         $scope.global = Global;
-		$scope.mode = window.user.roles.indexOf('admin') > -1 ? 0 : (window.user.roles.indexOf('manager') > -1 ? 1 : (window.user.roles.indexOf('employeer') > -1 ? 2 : (window.user.roles.indexOf('authenticated') > -1 ? 3 : 4)));
-        //$log.warn($scope.mode);
+		$scope.mode = $cookies.mode;
+
 		$scope.userSchema = [{
             title: 'Email',
             schemaKey: 'email',
@@ -39,8 +39,8 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', 'Glo
             title: 'Roles',
             schemaKey: 'roles',
             type: 'select',
-            options: window.user.roles.indexOf('admin') > -1 ? ['admin', 'manager', 'employeer', 'authenticated'] : (window.user.roles.indexOf('manager') > -1 ? ['manager', 'employeer', 'authenticated'] : (window.user.roles.indexOf('employeer') ? ['employeer', 'authenticated'] : ['authenticated'])),
-            inTable: true
+            options: $cookies.mode === 'Administrator' ? ['admin', 'manager', 'employeer', 'authenticated'] : ($cookies.mode === 'Manager' ? ['manager', 'employeer', 'authenticated'] : ($cookies.mode === 'Employeer' ? ['employeer', 'authenticated'] : ['authenticated'])),
+			inTable: true
         }, {
             title: 'Password',
             schemaKey: 'password',
