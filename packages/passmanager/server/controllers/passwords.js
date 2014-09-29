@@ -190,3 +190,16 @@ exports.delPass = function (req, res) {
 		});
 	});
 };
+
+exports.getPass = function (req, res) {
+	var passId = req.query.passId;
+	console.log(passId);
+	Pass
+	.findOne({
+		_id : passId
+	})
+	.exec(function (err, pass) {
+		//req.profile = pass;
+		res.jsonp(pass);
+	});
+};

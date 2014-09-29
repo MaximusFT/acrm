@@ -31,8 +31,13 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
             type: 'text',
             inTable: true
         }, {
-			title : 'Department ID',
+			title : 'Department',
 			schemaKey : 'department',
+			type : 'text',
+			inTable : true
+		}, {
+			title : 'Phone',
+			schemaKey : 'phone',
 			type : 'text',
 			inTable : true
 		}, {
@@ -55,21 +60,26 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
         $scope.user = {};
 
         $scope.init = function() {			
-            Users.query({}, function(users) {
+            /*Users.query({}, function(users) {
                 $scope.users = users;
-				//$log.info(users);
-            });
-			
+            });*/
+			$http.get('api/getUsers').success(function (data) {
+					$scope.departments = data;
+					//$log.info($scope.departments);
+				}).error(function () {
+					$log.error('error');
+				});
         };
 
         $scope.add = function() {
-            if (!$scope.users) $scope.users = [];
+            /*if (!$scope.users) $scope.users = [];
 
             var user = new Users({
                 email: $scope.user.email,
                 name: $scope.user.name,
                 username: $scope.user.username,
 				department: $scope.user.department,
+				phone: $scope.user.phone,
                 password: $scope.user.password,
                 confirmPassword: $scope.user.confirmPassword,
                 roles: $scope.user.roles
@@ -77,18 +87,64 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 			
             user.$save(function(response) {
                 $scope.users.push(response);
-				$scope.user.email = $scope.user.name = $scope.user.username = $scope.user.department = $scope.user.password = $scope.user.confirmPassword = $scope.user.roles = '';
-            });
+				$scope.user.email = $scope.user.name = $scope.user.username = $scope.user.department = $scope.phone = $scope.user.password = $scope.user.confirmPassword = $scope.user.roles = '';
+            });*/
+			
+			if (!$scope.passwords)
+				$scope.passwords = [];
+
+			var user = new Users({
+				email: $scope.user.email,
+                name: $scope.user.name,
+                username: $scope.user.username,
+				department: $scope.user.department,
+				phone: $scope.user.phone,
+                password: $scope.user.password,
+                confirmPassword: $scope.user.confirmPassword,
+                roles: $scope.user.roles
+			});
+
+			user.$save(function (response) {
+				var ret = false;
+				$scope.departments.forEach(function (department) {
+					if (department.department === response.department) {
+						ret = true;
+						department.users.splice(department.users.length, 0, response);
+					}
+				});
+				if (!ret) {
+					var u = [response];
+					var o = {
+						'department' : response.department,
+						'users' : u
+					};
+					$scope.departments.splice($scope.departments.length, 0, o);
+					$scope.departments.sort(function (a, b) {
+						return a.department > b.department;
+					});
+					//$log.info($scope.groups);
+				}
+			});
         };
 
         $scope.remove = function(user) {
-            for (var i in $scope.users) {
+            /*for (var i in $scope.users) {
                 if ($scope.users[i] === user) {
                     $scope.users.splice(i, 1);
                 }
             }
 
-            user.$remove();
+            user.$remove();*/
+			$scope.departments.forEach(function (department) {
+				department.users.forEach(function (u) {
+					if (u === user) {
+						department.users.splice(department.users.indexOf(u), 1);
+					}
+				});
+			});
+			Users.remove({
+				userId : user._id
+			});
         };
 
         $scope.update = function(user, userField) {
@@ -108,7 +164,8 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 			if (userField && userField === 'department' && user.department === '') {
 				user.email = user.tmpDepartment;
 			}
-			user.$update();
+			//user.$update();
+			Users.update({ userId:user._id }, user);
         };
 
         $scope.beforeSelect = function(userField, user) {

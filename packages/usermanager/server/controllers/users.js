@@ -12,7 +12,6 @@ var mongoose = require('mongoose'),
  */
 exports.create = function(req, res, next) {
     var user = new User(req.body);
-
     user.provider = 'local';
 
     // because we set our user.provider to local our models/user.js validation will always be true
@@ -40,7 +39,7 @@ exports.create = function(req, res, next) {
                 default:
                     res.status(400).send('Please fill all the required fields');
             }
-
+			console.log(err);
             return res.status(400);
         }
         res.jsonp(user);
@@ -106,10 +105,30 @@ exports.all = function(req, res) {
     });
 };
 
-exports.user = function(req, res) {
+exports.groups = function(req, res) {
+	User.find({}).sort({'department':1, 'name':1, 'username':1}).exec(
+		function (err, user) {
+		if (err) {
+			res.render('error', {
+				status : 500
+			});
+		} else {
+			var result = _.chain(user)
+				.groupBy('department')
+				.pairs()
+				.map(function (currentItem) {
+					return _.object(_.zip(['department', 'users'], currentItem));
+				})
+				.value();
+			res.jsonp(result);
+		}
+	});
+};
+
+exports.getUser = function(req, res) {
 	var id = req.query.userId;
 	User.findOne(
-		{ '_id' : id },
+		{ 'username' : id },
 		function (err, user) {
 			if(err) {
 				res.render('error', {

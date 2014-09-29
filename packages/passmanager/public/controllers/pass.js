@@ -59,10 +59,10 @@ angular.module('mean.passmanager').controller('PassController', ['$scope', 'Glob
 			});
 
 			$scope.init = function () {
-				$log.info($scope.passId);
 				$scope.passwords = [];
-				$http.get('api/passes/' . $scope.passId).success(function (data) {
-					$scope.passwords = data;
+				$http.get('api/getPass', {params: {passId: $scope.passId}
+				}).success(function (data) {
+					$scope.passwords = [data];
 				}).error(function () {
 					$log.error('error');
 				});
@@ -71,7 +71,7 @@ angular.module('mean.passmanager').controller('PassController', ['$scope', 'Glob
 				});*/
 			};
 
-			$scope.add = function () {
+			/*$scope.add = function () {
 				if (!$scope.passwords)
 					$scope.passwords = [];
 
@@ -91,9 +91,9 @@ angular.module('mean.passmanager').controller('PassController', ['$scope', 'Glob
 				});
 
 				//this.firstName = this.lastName = this.email = this.password = this.role = '';
-			};
+			};*/
 
-			$scope.remove = function (pass) {
+			/*$scope.remove = function (pass) {
 				for (var i in $scope.passwords) {
 					if ($scope.passwords[i] === pass) {
 						$scope.passwords.splice(i, 1);
@@ -101,10 +101,11 @@ angular.module('mean.passmanager').controller('PassController', ['$scope', 'Glob
 				}
 
 				pass.$remove();
-			};
+			};*/
 
 			$scope.update = function (pass, passField) {
-				pass.$update();
+				//pass.$update();
+				Passwords.update({ passId:pass._id }, pass);
 			};
 		}
 	]);

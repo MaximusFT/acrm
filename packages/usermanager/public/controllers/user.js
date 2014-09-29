@@ -22,7 +22,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
             type: 'text',
             inTable: true
         }, {
-			title : 'Department ID',
+			title : 'Department',
 			schemaKey : 'department',
 			type : 'text',
 			inTable : true
@@ -50,15 +50,23 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
         }];
         $scope.user = {};
 
-        $scope.init = function() {
-            Users.query({}, function(users) {
-                $scope.users = users;
-				//$log.info(users);
-            });
-			
+        $scope.init = function () {
+        	/*Users.query({}, function(users) {
+        	$scope.users = users;
+        	});*/
+        	$scope.users = [];
+        	$http.get('api/getUser', {
+        		params : {
+        			userId : $scope.userId
+        		}
+        	}).success(function (data) {
+        		$scope.users = [data];
+        	}).error(function () {
+        		$log.error('error');
+        	});
         };
 
-        $scope.add = function() {
+        /*$scope.add = function() {
             if (!$scope.users) $scope.users = [];
 
             var user = new Users({
@@ -75,9 +83,9 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
             });
 
             this.firstName = this.lastName = this.email = this.password = this.role = '';
-        };
+        };*/
 
-        $scope.remove = function(user) {
+        /*$scope.remove = function(user) {
             for (var i in $scope.users) {
                 if ($scope.users[i] === user) {
                     $scope.users.splice(i, 1);
@@ -85,7 +93,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
             }
 
             user.$remove();
-        };
+        };*/
 
         $scope.update = function(user, userField) {
 			if (userField && userField === 'roles') {		
@@ -104,7 +112,8 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 			if (userField && userField === 'department' && user.department === '') {
 				user.department = user.tmpDepartment;
 			}
-			user.$update();
+			//user.$update();
+			Users.update({ userId:user._id }, user);
         };
 
         $scope.beforeSelect = function(userField, user) {
