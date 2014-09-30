@@ -49,6 +49,45 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
             inTable: false
         }];
         $scope.user = {};
+		
+		$scope.passSchema = [{
+				title : 'Group',
+				schemaKey : 'group',
+				type : 'text',
+				inTable : false
+			}, {
+				title : 'Resource Title',
+				schemaKey : 'resourceName',
+				type : 'text',
+				inTable : true
+			}, {
+				title : 'Resource URL',
+				schemaKey : 'resourceUrl',
+				type : 'text',
+				inTable : true
+			}, {
+				title : 'Email',
+				schemaKey : 'email',
+				type : 'text',
+				inTable : true
+			}, {
+				title : 'Login',
+				schemaKey : 'login',
+				type : 'text',
+				inTable : true
+			}, {
+				title : 'Password',
+				schemaKey : 'hashed_password',
+				type : 'text',
+				inTable : true
+			}, {
+				title : 'Comment',
+				schemaKey : 'comment',
+				type : 'text',
+				inTable : true
+			}
+		];
+		$scope.pass = {};
 
         $scope.init = function () {
         	/*Users.query({}, function(users) {
@@ -57,10 +96,24 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
         	$scope.users = [];
         	$http.get('api/getUser', {
         		params : {
-        			userId : $scope.userId
+        			userId : $stateParams.userId
         		}
         	}).success(function (data) {
         		$scope.users = [data];
+        	}).error(function () {
+        		$log.error('error');
+        	});
+        };
+		
+		$scope.p_init = function () {
+        	$scope.groups = [];
+        	$http.get('api/getPassesByUser', {
+        		params : {
+        			userId : $scope.userId
+        		}
+        	}).success(function (data) {
+				//$log.info(data);
+        		$scope.groups = data;
         	}).error(function () {
         		$log.error('error');
         	});

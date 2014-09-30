@@ -1,5 +1,5 @@
 <section data-ng-controller="UserController">
-	<h1>User account</h1>
+	<h1>User information</h1>
     <div class="loader" data-ng-init="init()" data-ng-hide="users.length"></div>
     <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="users.length">
         <tr>
@@ -14,5 +14,26 @@
                 </span>
             </td>
         </tr>
+    </table>	
+	<div class="loader" data-ng-init="p_init()" data-ng-hide="groups.length"></div>
+	<h1>Accessible passwords</h1>
+	<div data-ng-repeat="group in groups">
+	<h3 data-ng-show="group.passes.length">{{$index+1}}. {{group.group}} ({{group.passes.length}})</h3>
+    <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="group.passes.length">
+        <tr>
+			<th>
+				#
+			</th>
+            <th data-ng-repeat="field in passSchema" data-ng-if="field.inTable">{{field.title}}</th>
+        </tr>
+        <tr data-ng-repeat="pass in group.passes | filter:search:strict">
+			<td>
+				<a href="#!/manager/passwords/{{pass['_id']}}">#</a>
+			</td>
+            <td data-ng-repeat="field in passSchema" data-ng-if="field.inTable">
+                <span>{{pass[field['schemaKey']]}}</span>
+            </td>
+        </tr>
     </table>
+	</div>
 </section>
