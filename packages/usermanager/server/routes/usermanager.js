@@ -15,4 +15,8 @@ module.exports = function(Usermanager, app, auth, database) {
 	
   var passwords = require('../controllers/passwords');
 	app.get('/api/getPassesByUser', auth.requiresAdmin, passwords.getPassesByUser);
+	
+  var departments = require('../controllers/departments');
+	app.get('/api/departments', auth.requiresLogin, departments.all);
+	app.get('/api/getDepartments', auth.requiresLogin, departments.allNames);
 };

@@ -31,7 +31,8 @@
 				<a href="#!/manager/passwords/{{pass['_id']}}">#</a>
 			</td>
             <td data-ng-repeat="field in passSchema" data-ng-if="field.inTable">
-                <span>{{pass[field['schemaKey']]}}</span>
+                <span data-ng-if="pass[field['schemaKey']] == ''">---</span>
+				<span data-ng-if="pass[field['schemaKey']] != ''">{{pass[field['schemaKey']]}}</span>
             </td>
         </tr>
     </table>

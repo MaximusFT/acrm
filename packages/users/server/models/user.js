@@ -52,9 +52,8 @@ var UserSchema = new Schema({
     required: true
   },
   department: {
-	type: String,
-	required: true,
-	default: 0
+	type: Array,
+	required: true
   },
   phone: {
 	type: String,
