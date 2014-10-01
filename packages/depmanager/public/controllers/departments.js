@@ -41,7 +41,7 @@ angular.module('mean.depmanager').controller('DepartmentsController', ['$scope',
 				$scope.departments = [];
 				$http.get('api/departments', {}).success(function (data) {
 					$scope.departments = data;
-					$log.info(data);
+					//$log.info(data);
 				}).error(function () {
 					$log.error('error');
 				});

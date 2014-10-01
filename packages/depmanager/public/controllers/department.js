@@ -1,74 +1,43 @@
 'use strict';
 
-angular.module('mean.passmanager').controller('PassController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$stateParams', 'Passwords', 'Users',
-		function ($scope, Global, Menus, $rootScope, $http, $log, $stateParams, Passwords, Users) {
+angular.module('mean.passmanager').controller('DepartmentController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$stateParams', 'Passwords', 'Users', 'Departments',
+		function ($scope, Global, Menus, $rootScope, $http, $log, $stateParams, Passwords, Users, Departments) {
 			$scope.global = Global;
-			$scope.passId = $stateParams.passId;
+			$scope.departmentId = $stateParams.departmentId;
 			
-			Users.query({}, function (users) {
-				var lols = [];
-				users.forEach(function(item) {
-					//$log.info(item);
-					lols.push(item.username);
-				});
-				$scope.passSchema = [{
-						title : 'Group',
-						schemaKey : 'group',
-						type : 'text',
-						inTable : false
-					}, {
-						title : 'Resource Title',
-						schemaKey : 'resourceName',
-						type : 'text',
-						inTable : true
-					}, {
-						title : 'Resource URL',
-						schemaKey : 'resourceUrl',
-						type : 'text',
-						inTable : true
-					}, {
-						title : 'Email',
-						schemaKey : 'email',
-						type : 'text',
-						inTable : true
-					}, {
-						title : 'Login',
-						schemaKey : 'login',
-						type : 'text',
-						inTable : true
-					}, {
-						title : 'Password',
-						schemaKey : 'hashed_password',
-						type : 'text',
-						inTable : true
-					}, {
-						title : 'Comment',
-						schemaKey : 'comment',
-						type : 'text',
-						inTable : true
-					}, {
-						title : 'Users with access',
-						schemaKey : 'accessedFor',
-						type : 'select',
-						//options: ['none', 'me'],
-						options : lols,
-						inTable : true
-					}
-				];
-				$scope.pass = {};
-			});
+			$scope.departmentSchema = [{
+					title : 'Name',
+					schemaKey : 'name',
+					type : 'text',
+					inTable : true
+				}, {
+					title : 'Parent',
+					schemaKey : 'parent',
+					type : 'text',
+					inTable : true
+				}, {
+					title : 'Left',
+					schemaKey : 'left',
+					type : 'text',
+					inTable : true
+				}, {
+					title : 'Right',
+					schemaKey : 'right',
+					type : 'text',
+					inTable : true
+				}
+			];
+			$scope.department = {};
 
 			$scope.init = function () {
-				$scope.passwords = [];
-				$http.get('api/getPass', {params: {passId: $scope.passId}
+				$scope.departments = [];
+				$http.get('api/getDepartment', {params: {departmentId: $scope.departmentId}
 				}).success(function (data) {
-					$scope.passwords = [data];
+					//$log.info(data);
+					$scope.departments = [data];
 				}).error(function () {
 					$log.error('error');
 				});
-				/*Passwords.query({}, function (passwords) {
-					$scope.passwords = passwords;
-				});*/
 			};
 
 			/*$scope.add = function () {
@@ -103,9 +72,9 @@ angular.module('mean.passmanager').controller('PassController', ['$scope', 'Glob
 				pass.$remove();
 			};*/
 
-			$scope.update = function (pass, passField) {
+			$scope.update = function (department, departmentField) {
 				//pass.$update();
-				Passwords.update({ passId:pass._id }, pass);
+				Departments.update({ departmentId:department._id }, department);
 			};
 		}
 	]);

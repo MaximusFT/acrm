@@ -123,3 +123,15 @@ exports.all = function (req, res) {
 		}
 	});
 };
+
+exports.getDepartment = function (req, res) {
+	var departmentId = req.query.departmentId;
+	console.log(departmentId);
+	Department
+	.findOne({
+		_id : departmentId
+	})
+	.exec(function (err, department) {
+		res.jsonp(department);
+	});
+};

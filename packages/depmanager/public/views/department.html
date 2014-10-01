@@ -1,14 +1,14 @@
-<section data-ng-controller="PassController">
-    <h1>Password account</h1>
-    <div class="loader" data-ng-init="init()" data-ng-hide="passwords.length"></div>
-    <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="passwords.length">
+<section data-ng-controller="DepartmentController">
+    <h1>Department info</h1>
+    <div class="loader" data-ng-init="init()" data-ng-hide="departments.length"></div>
+    <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="departments.length">
         <tr>
-            <th data-ng-repeat="field in passSchema" data-ng-if="field.inTable">{{field.title}}</th>
+            <th data-ng-repeat="field in departmentSchema" data-ng-if="field.inTable">{{field.title}}</th>
         </tr>
-        <tr data-ng-repeat="pass in passwords">
-            <td class="table-editable-cell" data-ng-repeat="field in passSchema" data-ng-if="field.inTable">
-                <span data-ng-if="(field['type'] == 'text')" class="editable-span" data-ng-editable="update(pass)" data-ng-editable-model="pass[field['schemaKey']]"></span>
-                <span data-ng-click="beforeSelect(field['schemaKey'], pass)" data-ng-if="(field['type'] == 'select')" class="editable-span" data-ng-editable-select="update(pass, field['schemaKey'])" data-ng-editable-select-model="pass[field['schemaKey']]" data-ng-editable-select-options="field['options']">
+        <tr data-ng-repeat="department in departments">
+            <td class="table-editable-cell" data-ng-repeat="field in departmentSchema" data-ng-if="field.inTable">
+                <span data-ng-if="(field['type'] == 'text')" class="editable-span" data-ng-editable="update(department)" data-ng-editable-model="department[field['schemaKey']]"></span>
+                <span data-ng-click="beforeSelect(field['schemaKey'], department)" data-ng-if="(field['type'] == 'select')" class="editable-span" data-ng-editable-select="update(department, field['schemaKey'])" data-ng-editable-select-model="department[field['schemaKey']]" data-ng-editable-select-options="field['options']">
                 </span>
             </td>
         </tr>
