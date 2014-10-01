@@ -1,11 +1,10 @@
 'use strict';
 
-angular.module('mean.usermanager').controller('UserController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$stateParams', 'Users',
-		function ($scope, Global, Menus, $rootScope, $http, $log, $stateParams, Users) {
+angular.module('mean.usermanager').controller('UserController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$stateParams', '$cookies', 'Users',
+		function ($scope, Global, Menus, $rootScope, $http, $log, $stateParams, $cookies, Users) {
 			$scope.global = Global;
 			$scope.userId = $stateParams.userId;
-			$scope.mode = window.user.roles.indexOf('admin') > -1 ? 0 : (window.user.roles.indexOf('manager') > -1 ? 1 : (window.user.roles.indexOf('employeer') > -1 ? 2 : (window.user.roles.indexOf('authenticated') > -1 ? 3 : 4)));
-			//$log.info($scope.mode);
+			$scope.mode = $cookies.mode;
 
 			$http.get('api/getDepartments').success(function (data) {
 				//$log.info(data);
@@ -40,7 +39,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 						title : 'Roles',
 						schemaKey : 'roles',
 						type : 'select',
-						options : window.user.roles.indexOf('admin') > -1 ? ['admin', 'manager', 'employeer', 'authenticated'] : (window.user.roles.indexOf('manager') > -1 ? ['manager', 'employeer', 'authenticated'] : (window.user.roles.indexOf('employeer') > -1 ? ['employeer', 'authenticated'] : ['authenticated'])),
+						options : $cookies.mode === 'Administrator' ? ['admin', 'manager', 'employeer', 'authenticated'] : ($cookies.mode === 'Manager' ? ['manager', 'employeer', 'authenticated'] : ($cookies.mode === 'Employeer' ? ['employeer', 'authenticated'] : ['authenticated'])),
 						inTable : true
 					}, {
 						title : 'Password',

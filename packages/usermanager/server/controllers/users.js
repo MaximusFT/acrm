@@ -105,22 +105,67 @@ exports.all = function(req, res) {
     });
 };
 
-exports.groups = function(req, res) {
-	User.find({}).sort({'department':1, 'name':1, 'username':1}).exec(
+exports.groups = function (req, res) {
+	User.findOne({
+		_id : req.user._id
+	}, {
+		'_id' : 0,
+		'department' : 1,
+		'roles' : 1
+	}).exec(
 		function (err, user) {
 		if (err) {
 			res.render('error', {
 				status : 500
 			});
 		} else {
-			var result = _.chain(user)
-				.groupBy('department')
-				.pairs()
-				.map(function (currentItem) {
-					return _.object(_.zip(['department', 'users'], currentItem));
-				})
-				.value();
-			res.jsonp(result);
+			var roles = user.roles;
+			if (roles.indexOf('admin') !== -1) {
+				User.find({}).sort({
+					'department' : 1,
+					'name' : 1,
+					'username' : 1
+				}).exec(
+					function (err, user) {
+					if (err) {
+						res.render('error', {
+							status : 500
+						});
+					} else {
+						var result = _.chain(user)
+							.groupBy('department')
+							.pairs()
+							.map(function (currentItem) {
+								return _.object(_.zip(['department', 'users'], currentItem));
+							})
+							.value();
+						res.jsonp(result);
+					}
+				});
+			}
+			if (roles.indexOf('manager') !== -1 || roles.indexOf('employeer') !== -1) {
+				User.find({department: user.department}).sort({
+					'department' : 1,
+					'name' : 1,
+					'username' : 1
+				}).exec(
+					function (err, user) {
+					if (err) {
+						res.render('error', {
+							status : 500
+						});
+					} else {
+						var result = _.chain(user)
+							.groupBy('department')
+							.pairs()
+							.map(function (currentItem) {
+								return _.object(_.zip(['department', 'users'], currentItem));
+							})
+							.value();
+						res.jsonp(result);
+					}
+				});
+			}
 		}
 	});
 };
