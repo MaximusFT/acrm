@@ -1,10 +1,11 @@
 'use strict';
 
-angular.module('mean.usermanager').controller('UserController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$stateParams', '$cookies', 'Users',
-		function ($scope, Global, Menus, $rootScope, $http, $log, $stateParams, $cookies, Users) {
+angular.module('mean.usermanager').controller('UserController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$stateParams', '$cookies', '$location', 'Users',
+		function ($scope, Global, Menus, $rootScope, $http, $log, $stateParams, $cookies, $location, Users) {
 			$scope.global = Global;
 			$scope.userId = $stateParams.userId;
 			$scope.mode = $cookies.mode;
+			$scope.isPasses = false;
 
 			$http.get('api/getDepartments').success(function (data) {
 				//$log.info(data);
@@ -120,10 +121,11 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 						userId : $scope.userId
 					}
 				}).success(function (data) {
-					//$log.info(data);
 					$scope.groups = data;
-				}).error(function () {
-					$log.error('error');
+					if(data.length > 0) $scope.isPasses = true;
+				}).error(function (data, status) {
+					if(status === 400)
+						$location.path('manager/users');
 				});
 			};
 

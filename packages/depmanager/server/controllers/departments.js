@@ -126,6 +126,10 @@ exports.all = function (req, res) {
 
 exports.getDepartment = function (req, res) {
 	var departmentId = req.query.departmentId;
+	if(departmentId === '') {
+		res.status(400).send('Invalid URI');
+		return;
+	}
 	console.log(departmentId);
 	Department
 	.findOne({

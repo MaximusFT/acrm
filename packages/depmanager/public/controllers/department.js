@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('mean.passmanager').controller('DepartmentController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$stateParams', 'Passwords', 'Users', 'Departments',
-		function ($scope, Global, Menus, $rootScope, $http, $log, $stateParams, Passwords, Users, Departments) {
+angular.module('mean.passmanager').controller('DepartmentController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$stateParams', '$location', 'Passwords', 'Users', 'Departments',
+		function ($scope, Global, Menus, $rootScope, $http, $log, $stateParams, $location, Passwords, Users, Departments) {
 			$scope.global = Global;
 			$scope.departmentId = $stateParams.departmentId;
 			
@@ -35,8 +35,9 @@ angular.module('mean.passmanager').controller('DepartmentController', ['$scope',
 				}).success(function (data) {
 					//$log.info(data);
 					$scope.departments = [data];
-				}).error(function () {
-					$log.error('error');
+				}).error(function (data, status) {
+					if(status === 400)
+						$location.path('manager/departments');
 				});
 			};
 

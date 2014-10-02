@@ -193,7 +193,10 @@ exports.delPass = function (req, res) {
 
 exports.getPass = function (req, res) {
 	var passId = req.query.passId;
-	console.log(passId);
+	if(passId === '') {
+		res.status(400).send('Invalid URI');
+		return;
+	}
 	Pass
 	.findOne({
 		_id : passId
