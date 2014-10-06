@@ -10,8 +10,9 @@ angular.module('mean.passmanager').controller('PassmanagerController', ['$scope'
 ]);
 
 
-angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', 'Passwords', 'Users',
-		function ($scope, Global, Menus, $rootScope, $http, $log, Passwords, Users) {
+angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$cookies', 'Passwords', 'Users',
+		function ($scope, Global, Menus, $rootScope, $http, $log, $cookies, Passwords, Users) {
+			$scope.mode = $cookies.mode;
 			$scope.global = Global;
 			Users.query({}, function (users) {
 				var lols = [];
@@ -65,7 +66,7 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 				];
 				$scope.pass = {};
 			});
-
+			
 			$scope.init = function () {
 				$scope.groups = [];
 				$http.get('api/getGroups').success(function (data) {
@@ -78,6 +79,20 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 				$scope.passwords = passwords;
 				});*/
 				
+			};
+			
+			$scope.init_ = function () {
+				$scope.groups = [];
+				$http.get('api/getAcsGroups').success(function (data) {
+					$scope.groups = data;
+					//$log.warn($scope.groups);
+				}).error(function () {
+					$log.error('error');
+				});				
+			};
+			
+			$scope.sendRequest = function(passId) {
+				$log.info(passId);
 			};
 
 			$scope.add = function () {

@@ -12,9 +12,9 @@
 					<span data-ng-click="beforeSelect(field['schemaKey'], user)" data-ng-if="(field['type'] == 'select')" class="editable-span" data-ng-editable-select="update(user, field['schemaKey'])" data-ng-editable-select-model="user[field['schemaKey']]" data-ng-editable-select-options="field['options']"></span>
 				</div>
 				<div data-ng-if="mode === 'Manager'">
-					<span data-ng-click="beforeSelect(field['schemaKey'], user)" data-ng-if="(field['type'] == 'text')" class="editable-span" data-ng-editable="update(user, field['schemaKey'])" data-ng-editable-model="user[field['schemaKey']]"></span>
+					<span data-ng-click="beforeSelect(field['schemaKey'], user)" data-ng-if="(field['type'] == 'text' && field['schemaKey'] !== 'email' && field['schemaKey'] !== 'username')" class="editable-span" data-ng-editable="update(user, field['schemaKey'])" data-ng-editable-model="user[field['schemaKey']]"></span>
 					<span data-ng-click="beforeSelect(field['schemaKey'], user)" data-ng-if="(field['type'] == 'select' && field['schemaKey'] === 'roles')" class="editable-span" data-ng-editable-select="update(user, field['schemaKey'])" data-ng-editable-select-model="user[field['schemaKey']]" data-ng-editable-select-options="field['options']"></span>
-					<span data-ng-if="(field['type'] == 'select' && field['schemaKey'] === 'department')">{{user[field['schemaKey']]}}</span>
+					<span data-ng-if="(field['type'] == 'select' && field['schemaKey'] === 'department') || field['schemaKey'] === 'email' || field['schemaKey'] === 'username'">{{user[field['schemaKey']]}}</span>
 				</div>
 				<div data-ng-if="mode === 'Employeer' || mode === 'Not verified'">
 					<span>{{user[field['schemaKey']]}}</span>

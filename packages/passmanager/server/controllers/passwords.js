@@ -5,6 +5,7 @@
  */
 var mongoose = require('mongoose'),
 Pass = mongoose.model('Pass'),
+User = mongoose.model('User'),
 _ = require('lodash');
 
 /**
@@ -73,20 +74,20 @@ exports.update = function (req, res) {
 	});
 };
 /*exports.update = function (req, res) {
-	if (req.body._id) {
-		delete req.body._id;
-	}
-	Pass.findById(req.params.passId, function (err, pass) {
-		//if (err) { return handleError(res, err); }
-		if (!pass) {
-			return res.send(404);
-		}
-		_.extend(pass, req.body);
-		pass.save(function (err) {
-			//if (err) { return handleError(res, err); }
-			return res.json(200, pass);
-		});
-	});
+if (req.body._id) {
+delete req.body._id;
+}
+Pass.findById(req.params.passId, function (err, pass) {
+//if (err) { return handleError(res, err); }
+if (!pass) {
+return res.send(404);
+}
+_.extend(pass, req.body);
+pass.save(function (err) {
+//if (err) { return handleError(res, err); }
+return res.json(200, pass);
+});
+});
 };*/
 
 /**
@@ -131,21 +132,156 @@ exports.all = function (req, res) {
 };
 
 exports.groups = function (req, res) {
-	Pass.find({}).sort({'group':1, 'resourceName':1, 'email':1}).exec(
-		function (err, pass) {
+	User.findOne({
+		_id : req.user._id
+	}, {
+		'_id' : 0,
+		'department' : 1,
+		'roles' : 1
+	}).exec(
+		function (err, user) {
 		if (err) {
 			res.render('error', {
 				status : 500
 			});
 		} else {
-			var result = _.chain(pass)
-				.groupBy('group')
-				.pairs()
-				.map(function (currentItem) {
-					return _.object(_.zip(['group', 'passes'], currentItem));
-				})
-				.value();
-			res.jsonp(result);
+			var roles = user.roles;
+			if (roles.indexOf('admin') !== -1) {
+				Pass.find({}).sort({
+					'group' : 1,
+					'resourceName' : 1,
+					'email' : 1
+				}).exec(
+					function (err, pass) {
+					if (err) {
+						res.render('error', {
+							status : 500
+						});
+					} else {
+						var result = _.chain(pass)
+							.groupBy('group')
+							.pairs()
+							.map(function (currentItem) {
+								return _.object(_.zip(['group', 'passes'], currentItem));
+							})
+							.value();
+						res.jsonp(result);
+					}
+				});
+			}
+			if (roles.indexOf('manager') !== -1) {
+				Pass.find({
+					accessedFor : {$in : [req.user._id]}
+				}).sort({
+					'group' : 1,
+					'resourceName' : 1,
+					'email' : 1
+				}).exec(
+					function (err, pass) {
+					if (err) {
+						res.render('error', {
+							status : 500
+						});
+					} else {
+						var result = _.chain(pass)
+							.groupBy('group')
+							.pairs()
+							.map(function (currentItem) {
+								return _.object(_.zip(['group', 'passes'], currentItem));
+							})
+							.value();
+						res.jsonp(result);
+					}
+				});
+			}
+			if (roles.indexOf('employeer') !== -1) {
+				Pass.find({
+					accessedFor : { $in : [req.user.username] }
+				}).sort({
+					'group' : 1,
+					'resourceName' : 1,
+					'email' : 1
+				}).exec(
+					function (err, pass) {
+					if (err) {
+						res.render('error', {
+							status : 500
+						});
+					} else {
+						var result = _.chain(pass)
+							.groupBy('group')
+							.pairs()
+							.map(function (currentItem) {
+								return _.object(_.zip(['group', 'passes'], currentItem));
+							})
+							.value();
+						res.jsonp(result);
+					}
+				});
+			}
+		}
+	});
+};
+
+exports.acsgroups = function (req, res) {
+	User.findOne({
+		_id : req.user._id
+	}, {
+		'_id' : 0,
+		'department' : 1,
+		'roles' : 1
+	}).exec(
+		function (err, user) {
+		if (err) {
+			res.render('error', {
+				status : 500
+			});
+		} else {
+			var roles = user.roles;
+			if (roles.indexOf('manager') !== -1) {
+				User.find({
+					department : user.department
+				}, {
+					'_id' : 0,
+					'username' : 1
+				}).exec(
+					function (err, users) {
+					if (err) {
+						res.render('error', {
+							status : 500
+						});
+						return false;
+					} else {
+						var uids = _.map(users, 'username');
+						Pass.find({})
+						.exec(
+							function (err, passes) {
+							if (err) {
+								res.render('error', {
+									status : 500
+								});
+							} else {
+								var acsp = [];
+								_(passes).forEach(function (pass) {
+									_(uids).forEach(function (uid) {
+										if (_.contains(pass.accessedFor, uid))
+											acsp.splice(acsp.length === 0 ? 1 : acsp.length, 0, pass);
+									});
+								});
+								acsp = _.uniq(acsp);
+								var result = _.chain(acsp)
+									.groupBy('group')
+									.pairs()
+									.map(function (currentItem) {
+										return _.object(_.zip(['group', 'passes'], currentItem));
+									})
+									.value();
+								res.jsonp(result);
+							}
+						});
+					}
+				});
+			}
 		}
 	});
 };
@@ -193,7 +329,7 @@ exports.delPass = function (req, res) {
 
 exports.getPass = function (req, res) {
 	var passId = req.query.passId;
-	if(passId === '') {
+	if (passId === '') {
 		res.status(400).send('Invalid URI');
 		return;
 	}
