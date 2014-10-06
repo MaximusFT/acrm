@@ -107,8 +107,9 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 					params : {
 						userId : $stateParams.userId
 					}
-				}).success(function (data) {
+				}).success(function (data) {				
 					$scope.users = [data];
+					//$log.info($scope.users);
 				}).error(function () {
 					$log.error('error');
 				});
@@ -122,6 +123,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 					}
 				}).success(function (data) {
 					$scope.groups = data;
+					//$log.info($scope.groups);
 					if(data.length > 0) $scope.isPasses = true;
 				}).error(function (data, status) {
 					if(status === 400)
