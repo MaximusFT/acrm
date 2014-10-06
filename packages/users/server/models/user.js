@@ -53,11 +53,11 @@ var UserSchema = new Schema({
   },
   department: {
 	type: Array,
-	required: true
+	required: false
   },
   phone: {
 	type: String,
-	required: true
+	required: false
   },
   roles: {
     type: Array,
