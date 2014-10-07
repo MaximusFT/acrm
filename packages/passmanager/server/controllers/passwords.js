@@ -170,9 +170,7 @@ exports.groups = function (req, res) {
 				});
 			}
 			if (roles.indexOf('manager') !== -1) {
-				Pass.find({
-					accessedFor : {$in : [req.user._id]}
-				}).sort({
+				Pass.find({}).sort({
 					'group' : 1,
 					'resourceName' : 1,
 					'email' : 1

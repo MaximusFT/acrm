@@ -14,6 +14,7 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 		function ($scope, Global, Menus, $rootScope, $http, $log, $cookies, Passwords, Users) {
 			$scope.mode = $cookies.mode;
 			$scope.global = Global;
+			$scope.btn_class = new Array([]);
 			Users.query({}, function (users) {
 				var lols = [];
 				users.forEach(function (item) {
@@ -91,8 +92,10 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 				});				
 			};
 			
-			$scope.sendRequest = function(passId) {
-				$log.info(passId);
+			$scope.sendRequest = function(sectionIndex,id) {
+				if(!$scope.btn_class[sectionIndex])
+					$scope.btn_class[sectionIndex] = [];
+				$scope.btn_class[sectionIndex][id] = 'btn btn-success';
 			};
 
 			$scope.add = function () {
