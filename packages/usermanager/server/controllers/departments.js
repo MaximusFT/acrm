@@ -4,8 +4,6 @@
  * Module dependencies.
  */
 var mongoose = require('mongoose'),
-//Pass = mongoose.model('Pass'),
-//User = mongoose.model('User'),
 Department = mongoose.model('Department'),
 _ = require('lodash');
 

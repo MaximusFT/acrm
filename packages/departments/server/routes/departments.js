@@ -3,9 +3,9 @@
 // User routes use departments controller
 var departments = require('../controllers/departments');
 
-module.exports = function(MeanPass, app, auth, database, passport) {
+module.exports = function(MeanDepartment, app, auth, database, passport) {
 
-  // Setting up the userId param
+  // Setting up the departmentId param
   app.param('departmentId', departments.department);
 
 };

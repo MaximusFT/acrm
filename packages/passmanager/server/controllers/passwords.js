@@ -170,18 +170,22 @@ exports.groups = function (req, res) {
 				});
 			}
 			if (roles.indexOf('manager') !== -1) {
-				Pass.find({}).sort({
+				Pass.find({}, {
+					'group' : 1,
+					'resourceName' : 1,
+					'resourceUrl' : 1
+				}).sort({
 					'group' : 1,
 					'resourceName' : 1,
 					'email' : 1
 				}).exec(
-					function (err, pass) {
+					function (err, passes) {
 					if (err) {
 						res.render('error', {
 							status : 500
 						});
 					} else {
-						var result = _.chain(pass)
+						var result = _.chain(passes)
 							.groupBy('group')
 							.pairs()
 							.map(function (currentItem) {
@@ -195,7 +199,9 @@ exports.groups = function (req, res) {
 			if (roles.indexOf('employeer') !== -1) {
 				Pass.find({
 					accessedFor : { $in : [req.user.username] }
-				}).sort({
+				}/*, {
+					accessedFor : 0
+				}*/).sort({
 					'group' : 1,
 					'resourceName' : 1,
 					'email' : 1
@@ -265,8 +271,30 @@ exports.acsgroups = function (req, res) {
 										if (_.contains(pass.accessedFor, uid))
 											acsp.splice(acsp.length === 0 ? 1 : acsp.length, 0, pass);
 									});
+
 								});
 								acsp = _.uniq(acsp);
+
+								/*_(acsp).forEach(function (pass) {
+									_(pass.accessedFor).forEach(function (accessed) {
+										User.findOne({
+											username : accessed
+										}, {
+											_id : 0,
+											department : 1
+										}).exec(function (err, u) {
+											if (err) {
+												res.render('error', {
+													status : 500
+												});
+											} else {
+												if(!_.contains(u.department, user.department))
+													pass.accessedFor = _.without(pass.accessedFor, accessed);
+											}
+										});
+									});
+								});*/
+								
 								var result = _.chain(acsp)
 									.groupBy('group')
 									.pairs()

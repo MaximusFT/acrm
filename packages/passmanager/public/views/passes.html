@@ -1,5 +1,5 @@
 <section data-ng-controller="PasswordsController">
-	<div class="panel panel-default">
+	<div class="panel panel-default" data-ng-if="mode !== 'Employeer'">
 	<div class="panel-heading">Adding new passwords</div>
 	<div class="panel-body">
     <form id="pass-add-form" class="row-fluid form-inline" name="addPassForm" data-ng-submit="add()">
@@ -27,36 +27,82 @@
 	</div>
 	
 	<div data-ng-if="mode === 'Administrator'">
-	<div class="loader" data-ng-init="init()" data-ng-hide="groups.length"></div>
-	<div data-ng-repeat="group in groups">
-	<h1 data-ng-show="group.passes.length">{{group.group}}</h1>
-    <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="group.passes.length">
-        <tr>
-            <th data-ng-show="edit">
-                Edit
-            </th>
-			<th>
-				#
-			</th>
-            <th data-ng-repeat="field in passSchema" data-ng-if="field.inTable">{{field.title}}</th>
-        </tr>
-        <tr data-ng-repeat="pass in group.passes | filter:search:strict">
-            <td data-ng-show="edit">
-                <button class="glyphicon glyphicon-trash" data-ng-click="remove(pass)" value="del">
-                    <i class="icon-trash icon-white"></i>
-                </button>
-            </td>
-			<td>
-				<a href="#!/manager/passwords/{{pass['_id']}}">#</a>
-			</td>
-            <td class="table-editable-cell" data-ng-repeat="field in passSchema" data-ng-if="field.inTable">
-                <span data-ng-if="(field['type'] == 'text')" class="editable-span" data-ng-editable="update(pass, field['schemaKey'])" data-ng-editable-model="pass[field['schemaKey']]"></span>
-				<span data-ng-click="beforeSelect(field['schemaKey'], pass)" data-ng-if="(field['type'] == 'select')" class="editable-span" data-ng-editable-select="update(pass, field['schemaKey'])" data-ng-editable-select-model="pass[field['schemaKey']]" data-ng-editable-select-options="field['options']">
-                </span>
-            </td>
-        </tr>
-    </table>
-	</div>
+		<tabset>
+			<tab select="init()">
+				<tab-heading>
+					<i class="glyphicon glyphicon-eye-open"></i> All
+				</tab-heading>
+				<div data-ng-repeat="group in groups">
+					<h1 data-ng-show="group.passes.length">{{group.group}}</h1>
+					<table class="table table-striped table-bordered table-hover editable-table" data-ng-show="group.passes.length">
+						<tr>
+							<th data-ng-show="edit">
+								Edit
+							</th>
+							<th>
+								#
+							</th>
+							<th data-ng-repeat="field in passSchema" data-ng-if="field.inTable">{{field.title}}</th>
+						</tr>
+						<tr data-ng-repeat="pass in group.passes | filter:search:strict">
+							<td data-ng-show="edit">
+								<button class="glyphicon glyphicon-trash" data-ng-click="remove(pass)" value="del">
+									<i class="icon-trash icon-white"></i>
+								</button>
+							</td>
+							<td>
+								<a href="#!/manager/passwords/{{pass['_id']}}">#</a>
+							</td>
+							<td class="table-editable-cell" data-ng-repeat="field in passSchema" data-ng-if="field.inTable">
+								<span data-ng-if="(field['type'] == 'text' || field['type'] == 'password')" class="editable-span" data-ng-editable="update(pass, field['schemaKey'])" data-ng-editable-model="pass[field['schemaKey']]"></span>
+								<span data-ng-click="beforeSelect(field['schemaKey'], pass)" data-ng-if="(field['type'] == 'select')" class="editable-span" data-ng-editable-select="update(pass, field['schemaKey'])" data-ng-editable-select-model="pass[field['schemaKey']]" data-ng-editable-select-options="field['options']"></span>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</tab>
+			<tab select="init__()">
+				<tab-heading>
+					<i class="glyphicon glyphicon-share"></i> Requests
+				</tab-heading>
+				<div>
+					<table class="table table-striped table-bordered table-hover editable-table" data-ng-show="requests.length">
+						<tr>
+							<th colspan="6" style="text-transform: uppercase;">Requests from managers</th>
+						</tr>
+						<tr>
+							<th>
+								#
+							</th>
+							<th>Who</th>
+							<th>What</th>
+							<th>When</th>
+							<th>Comment</th>
+						</tr>
+						<tr data-ng-repeat="request in requests | filter:search:strict">
+							<td>
+								<a href="#!/manager/passwords/{{request['what']._id}}">{{$index+1}}</a>								
+							</td>
+							<td>
+								<span>{{request['who']}}</span>
+							</td>
+							<td>
+								<span>{{request['what'].resourceName}} ({{request['what'].resourceUrl}})</span>
+							</td>
+							<td>
+								<span>{{request['when']}}</span>
+							</td>
+							<td>
+								<span>{{request['comment']}}</span>
+							</td>
+							<td style="text-align: center;">
+								<button ng-class="btn_class[$index] == null ? 'btn btn-danger' : btn_class[$index]" data-ng-click="provideAccess($index)" data-ng-disabled="!btn_class[$index] ? false : true">Provide Access</button>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</tab>
+		</tabset>
 	</div>
 	<div data-ng-if="mode === 'Manager'">
 		<tabset>
@@ -86,7 +132,7 @@
 								<a href="#!/manager/passwords/{{pass['_id']}}">#</a>
 							</td>
 							<td class="table-editable-cell" data-ng-repeat="field in passSchema" data-ng-if="field.inTable">
-								<span data-ng-if="(field['type'] == 'text')" class="editable-span" data-ng-editable="update(pass, field['schemaKey'])" data-ng-editable-model="pass[field['schemaKey']]"></span>
+								<span data-ng-if="(field['type'] == 'text' || field['type'] == 'password')" class="editable-span" data-ng-editable="update(pass, field['schemaKey'])" data-ng-editable-model="pass[field['schemaKey']]"></span>
 								<span data-ng-click="beforeSelect(field['schemaKey'], pass)" data-ng-if="(field['type'] == 'select')" class="editable-span" data-ng-editable-select="update(pass, field['schemaKey'])" data-ng-editable-select-model="pass[field['schemaKey']]" data-ng-editable-select-options="field['options']"></span>
 							</td>
 						</tr>
@@ -121,7 +167,7 @@
 								<span>{{pass['resourceUrl']}}</span>
 							</td>
 							<td style="text-align: center;">
-								<button ng-class="btn_class[sectionIndex][$index] == null ? 'btn btn-primary' : btn_class[sectionIndex][$index]" data-ng-click="sendRequest(sectionIndex,$index)" data-ng-disabled="!btn_class[sectionIndex][$index] ? false : true">{{!btn_class[sectionIndex][$index] ? 'Request Access' : 'Request was sent'}}</button>
+								<button ng-class="btn_class[sectionIndex][$index] == null ? 'btn btn-primary' : btn_class[sectionIndex][$index]" data-ng-click="sendRequest(sectionIndex,$index,pass['_id'])" data-ng-disabled="!btn_class[sectionIndex][$index] ? false : true">{{!btn_class[sectionIndex][$index] ? 'Request Access' : 'Request was sent'}}</button>
 							</td>
 						</tr>
 					</table>
@@ -132,32 +178,23 @@
 	<div data-ng-if="mode === 'Employeer'">
 	<div class="loader" data-ng-init="init()" data-ng-hide="groups.length"></div>
 	<div data-ng-repeat="group in groups">
-					<h1 data-ng-show="group.passes.length">{{group.group}}</h1>
-					<table class="table table-striped table-bordered table-hover editable-table" data-ng-show="group.passes.length">
-						<tr>
-							<th data-ng-show="edit">
-								Edit
-							</th>
-							<th>
-								#
-							</th>
-							<th data-ng-repeat="field in passSchema" data-ng-if="field.inTable">{{field.title}}</th>
-						</tr>
-						<tr data-ng-repeat="pass in group.passes | filter:search:strict">
-							<td data-ng-show="edit">
-								<button class="glyphicon glyphicon-trash" data-ng-click="remove(pass)" value="del">
-									<i class="icon-trash icon-white"></i>
-								</button>
-							</td>
-							<td>
-								<a href="#!/manager/passwords/{{pass['_id']}}">#</a>
-							</td>
-							<td class="table-editable-cell" data-ng-repeat="field in passSchema" data-ng-if="field.inTable">
-								<span data-ng-if="(field['type'] == 'text')" class="editable-span" data-ng-editable="update(pass, field['schemaKey'])" data-ng-editable-model="pass[field['schemaKey']]"></span>
-								<span data-ng-click="beforeSelect(field['schemaKey'], pass)" data-ng-if="(field['type'] == 'select')" class="editable-span" data-ng-editable-select="update(pass, field['schemaKey'])" data-ng-editable-select-model="pass[field['schemaKey']]" data-ng-editable-select-options="field['options']"></span>
-							</td>
-						</tr>
-					</table>
-				</div>
+		<h1 data-ng-show="group.passes.length">{{group.group}}</h1>
+		<table class="table table-striped table-bordered table-hover editable-table" data-ng-show="group.passes.length">
+			<tr>
+				<th>
+					#
+				</th>
+				<th data-ng-repeat="field in passSchema" data-ng-if="field.inTable && field['schemaKey'] !== 'accessedFor'">{{field.title}}</th>
+			</tr>
+			<tr data-ng-repeat="pass in group.passes | filter:search:strict">
+				<td>
+					<a href="#!/manager/passwords/{{pass['_id']}}">#</a>
+				</td>
+				<td data-ng-repeat="field in passSchema" data-ng-if="field.inTable && field['schemaKey'] !== 'accessedFor'">
+					<span>{{!pass[field['schemaKey']] ? '---' : pass[field['schemaKey']]}}</span>
+				</td>
+			</tr>
+		</table>
+	</div>
 	</div>
 </section>
