@@ -13,7 +13,6 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 		function ($scope, $cookies, Global, Menus, $rootScope, $http, $log, Users) {
 			$scope.global = Global;
 			$scope.mode = $cookies.mode;
-
 			$http.get('api/getDepartments').success(function (data) {
 				$scope.departments = data;
 

@@ -1,6 +1,4 @@
-'use strict';
-
-angular.module('mean.usermanager').directive('ngEnter', function() {
+angular.module('mean.mean-admin').directive('ngEnter', function() {
     return function(scope, elm, attrs) {
         elm.bind('keypress', function(e) {
             if (e.charCode === 13 && !e.ctrlKey) scope.$apply(attrs.ngEnter);
@@ -8,11 +6,11 @@ angular.module('mean.usermanager').directive('ngEnter', function() {
     };
 });
 
-angular.module('mean.usermanager').directive('ngEditable', function() {
+angular.module('mean.mean-admin').directive('ngEditable', function() {
     return {
         // can be in-lined or async loaded by xhr
         // or inlined as JS string (using template property)
-        template: '<span class="editable-wrapper">' + '<span data-ng-hide="edit" data-ng-click="edit=true;value=model;">{{model === "" ? "---" : model}}</span>' + '<input type="text" data-ng-model="value" data-ng-blur="edit = false; model = value" data-ng-show="edit" data-ng-enter="model=value;edit=false;"/>' + '</span>',
+        template: '<span class="editable-wrapper">' + '<span data-ng-hide="edit" data-ng-click="edit=true;value=model;">{{model}}</span>' + '<input type="text" data-ng-model="value" data-ng-blur="edit = false; model = value" data-ng-show="edit" data-ng-enter="model=value;edit=false;"/>' + '</span>',
         scope: {
             model: '=ngEditableModel',
             update: '&ngEditable'
@@ -20,20 +18,20 @@ angular.module('mean.usermanager').directive('ngEditable', function() {
         replace: true,
         link: function(scope, element, attrs) {
             scope.focus = function() {
-                element.find('input').focus();
+                element.find("input").focus();
             };
             scope.$watch('edit', function(isEditable) {
                 if (isEditable === false) {
                     scope.update();
-                } /*else {
+                } else {
                     // scope.focus();
-                }*/
+                }
             });
         }
     };
 });
 
-angular.module('mean.usermanager').directive('ngEditableParagraph', function() {
+angular.module('mean.mean-admin').directive('ngEditableParagraph', function() {
     return {
         // can be in-lined or async loaded by xhr
         // or inlined as JS string (using template property)
@@ -45,7 +43,7 @@ angular.module('mean.usermanager').directive('ngEditableParagraph', function() {
         replace: true,
         link: function(scope, element, attrs) {
             scope.focus = function() {
-                element.find('input').focus();
+                element.find("input").focus();
             };
             scope.$watch('edit', function(isEditable) {
                 if (isEditable === false) {
@@ -58,9 +56,9 @@ angular.module('mean.usermanager').directive('ngEditableParagraph', function() {
     };
 });
 
-angular.module('mean.usermanager').directive('ngEditableSelect', function() {
+angular.module('mean.mean-admin').directive('ngEditableSelect', function() {
     return {
-        template: '<span class="editable-wrapper">' + '<span data-ng-hide="edit" data-ng-click="edit=true;value=model;"><span data-ng-repeat="m in model">{{m}};</span></span>' + '<select class="form-control" data-ng-model="value" data-ng-show="edit" data-ng-multiple="true" multiple data-ng-options="option for option in options" data-ng-change="model=value;edit=false;">' + '<option value="">Choose Option</option>' + '</select>' + '</span>',
+        template: '<span class="editable-wrapper">' + '<span data-ng-hide="edit" data-ng-click="edit=true;value=model;"><span data-ng-repeat="m in model">{{m}};</span></span>' + '<select data-ng-model="value" data-ng-show="edit" data-ng-multiple="true" multiple data-ng-options="option for option in options" data-ng-change="model=value;edit=false;">' + '<option value="">Choose Option</option>' + '</select>' + '</span>',
         scope: {
             text: '&ngEditableSelectText',
             model: '=ngEditableSelectModel',

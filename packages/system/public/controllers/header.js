@@ -33,8 +33,7 @@ angular.module('mean.system').controller('HeaderController', ['$scope', '$rootSc
 
       $scope.global = {
         authenticated: !! $rootScope.user,
-        user: $rootScope.user,
-		mode: $cookies.mode
+        user: $rootScope.user
       };
     });
   }
