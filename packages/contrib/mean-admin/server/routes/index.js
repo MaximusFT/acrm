@@ -36,4 +36,5 @@ module.exports = function(Admin, app, auth, database) {
     var settings = require('../controllers/settings');
     app.get('/admin/settings', auth.requiresAdmin, settings.get);
     app.put('/admin/settings', auth.requiresAdmin, settings.save);
+	
 };

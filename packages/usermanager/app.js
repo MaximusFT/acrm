@@ -17,12 +17,12 @@ Usermanager.register(function(app, auth, database) {
   Usermanager.routes(app, auth, database);
 
   //We are adding a link to the main menu for all authenticated users
-  /*Usermanager.menus.add({
+  Usermanager.menus.add({
     title: 'Users manager',
     link: 'users manager page',
-    roles: ['admin', 'manager', 'employeer'],
+    roles: ['manager', 'employeer'],
     menu: 'main'
-  });*/
+  });
 
   /**
     //Uncomment to use. Requires meanio@0.3.7 or above
