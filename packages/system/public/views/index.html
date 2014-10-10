@@ -1,4 +1,15 @@
 <section data-ng-controller="IndexController">
+	<div style="height: 300px">
+		<carousel interval="myInterval">
+			<slide ng-repeat="slide in slides" active="slide.active">
+				<img ng-src="{{slide.image}}" style="margin:auto;">
+				<div class="carousel-caption">
+					<h4>Password Storage System greets you!</h4>
+					<!--<p>{{slide.text}}</p>-->
+				</div>
+			</slide>
+		</carousel>
+	</div>
     <h1 mean-token="'home-default'">Introduction</h1>
     <p>Password management system, built on this site is intended for management of employee access to different operating resources.</p>
     <p>It is strongly recommended to keep database up to date.</p>
