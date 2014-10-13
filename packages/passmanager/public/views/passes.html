@@ -16,8 +16,8 @@
             <input type="submit" class="btn span1" value="Add" />
 			<!--<div class="loader" data-ng-init="init()" data-ng-hide="groups.length"></div>-->
 			<div class="btn-group" style="padding: 10px;" data-ng-show="groups.length">
-				<input type="button" class="btn btn-danger" data-ng-hide="edit" data-ng-click="edit=!edit" value="Enable edit mode">
-				<input type="button" class="btn btn-primary" data-ng-show="edit" data-ng-click="edit=!edit" value="Disable edit mode">
+				<input type="button" class="btn btn-danger" data-ng-hide="edit" data-ng-click="toogleEditMode()" value="Enable edit mode">
+				<input type="button" class="btn btn-primary" data-ng-show="edit" data-ng-click="toogleEditMode()" value="Disable edit mode">
 			</div>
 			<input type="text" style="padding: 5px; margin-left: 12px" placeholder="Search" ng-model="search">
 			</div>
@@ -78,6 +78,7 @@
 							<th>What</th>
 							<th>When</th>
 							<th>Comment</th>
+							<th style="text-align: center;"><i class="glyphicon glyphicon-flag"></i></th>
 						</tr>
 						<tr data-ng-repeat="request in requests | filter:search:strict">
 							<td>
@@ -96,7 +97,7 @@
 								<span>{{request['comment']}}</span>
 							</td>
 							<td style="text-align: center;">
-								<button ng-class="btn_class[$index] == null ? 'btn btn-danger' : btn_class[$index]" data-ng-click="provideAccess($index)" data-ng-disabled="!btn_class[$index] ? false : true">Provide Access</button>
+								<button ng-class="btn_class[$index] == null ? 'btn btn-danger' : btn_class[$index]" data-ng-click="provideAccess($index)" data-ng-disabled="!btn_class[$index] ? false : true">{{!btn_class[$index] ? 'Provide Access' : 'Access was shared'}}</button>
 							</td>
 						</tr>
 					</table>

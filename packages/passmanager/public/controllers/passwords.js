@@ -24,7 +24,7 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function ($sc
 angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$cookies', 'modalService', 'Passwords', 'Users', 'Requests',
 		function ($scope, Global, Menus, $rootScope, $http, $log, $cookies, modalService, Passwords, Users, Requests) {
 			$scope.mode = $cookies.mode;
-			$scope.global = Global;
+			$scope.global = Global;			
 			if($scope.mode === 'Administrator')
 				$scope.btn_class = [];
 			else
@@ -147,6 +147,10 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 			$scope.provideAccess = function(id) {
 				$scope.btn_class[id] = 'btn btn-success';
 			};
+			
+			$scope.toogleEditMode = function() {
+				$scope.edit = !$scope.edit;
+			};
 
 			$scope.add = function () {
 				if (!$scope.passwords)
@@ -211,6 +215,5 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 					passId : pass._id
 				}, pass);
 			};
-
 		}
 	]);
