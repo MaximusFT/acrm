@@ -20,12 +20,11 @@
 	</div>
 	</div>
 	<div class="panel panel-default">
-	<div class="panel-heading">{{mode}} control panel</div>
 	<div class="panel-body">
 	<div class="loader" data-ng-init="init()" data-ng-hide="departments.length"></div>
 	<div class="btn-department" style="padding: 10px;" data-ng-show="departments.length">
-		<input data-ng-if="mode !== 'Employeer'" type="button" class="btn btn-danger" data-ng-hide="edit" data-ng-click="edit=!edit" value="Enable edit mode">
-		<input data-ng-if="mode !== 'Employeer'" type="button" class="btn btn-primary" data-ng-show="edit" data-ng-click="edit=!edit" value="Disable edit mode">
+		<input type="button" class="btn btn-danger" data-ng-hide="edit" data-ng-click="edit=!edit" data-ng-disabled="mode === 'Employeer'" value="Enable edit mode">
+		<input type="button" class="btn btn-primary" data-ng-show="edit" data-ng-click="edit=!edit" value="Disable edit mode">
 		<input type="text" style="padding: 5px; margin-left: 12px" placeholder="Search" ng-model="search">
 	</div>
 	</div>
