@@ -9,8 +9,8 @@ angular.module('mean.depmanager').controller('DepmanagerController', ['$scope', 
 		}
 	]);
 
-angular.module('mean.depmanager').controller('DepartmentsController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', 'Passwords', 'Users', 'Departments',
-		function ($scope, Global, Menus, $rootScope, $http, $log, Passwords, Users, Departments) {
+angular.module('mean.depmanager').controller('DepartmentsController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$location', 'Passwords', 'Users', 'Departments',
+		function ($scope, Global, Menus, $rootScope, $http, $log, $location, Passwords, Users, Departments) {
 			$scope.global = Global;
 
 			$scope.departmentSchema = [{
@@ -42,8 +42,9 @@ angular.module('mean.depmanager').controller('DepartmentsController', ['$scope',
 				$http.get('api/departments', {}).success(function (data) {
 					$scope.departments = data;
 					//$log.info(data);
-				}).error(function () {
-					$log.error('error');
+				}).error(function (data, status) {
+					if(status === 500 || status === 400)
+						$location.path('/');
 				});
 				/*Passwords.query({}, function (passwords) {
 				$scope.passwords = passwords;

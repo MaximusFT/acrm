@@ -20,7 +20,7 @@ Passmanager.register(function(app, auth, database) {
   Passmanager.menus.add({
     title: 'Passwords manager',
     link: 'passwords manager page',
-    roles: ['admin', 'manager', 'employeer'],
+    roles: ['admin', 'manager'],
     menu: 'main'
   });
 

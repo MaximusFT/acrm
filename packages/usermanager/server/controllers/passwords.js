@@ -203,22 +203,82 @@ exports.getPassesByUser = function (req, res) {
 		username : userId
 	})
 	.exec(function (err, user) {
-		Pass
-		.find({
-			accessedFor : user.username
-		})
-		.sort({'group':1, 'resourceName':1, 'email':1})
-		.exec(function (err, passes) {
-			//req.profile = pass;
-			var result = _.chain(passes)
-				.groupBy('group')
-				.pairs()
-				.map(function (currentItem) {
-					return _.object(_.zip(['group', 'passes'], currentItem));
-				})
-				.value();
-			res.jsonp(result);
-			//res.jsonp(passes);
-		});
+		if(!user) {
+			res.status(500).send('Invalid User');
+			return;
+		}
+		if (req.user.roles.indexOf('admin') !== -1) {
+			Pass
+			.find({
+				accessedFor : user.username
+			})
+			.sort({
+				'group' : 1,
+				'resourceName' : 1,
+				'email' : 1
+			})
+			.exec(function (err, passes) {
+				//req.profile = pass;
+				var result = _.chain(passes)
+					.groupBy('group')
+					.pairs()
+					.map(function (currentItem) {
+						return _.object(_.zip(['group', 'passes'], currentItem));
+					})
+					.value();
+				res.jsonp(result);
+				//res.jsonp(passes);
+			});
+		}
+		if (req.user.roles.indexOf('manager') !== -1) {
+			Pass
+			.find({
+				accessedFor : user.username
+			})
+			.sort({
+				'group' : 1,
+				'resourceName' : 1,
+				'email' : 1
+			})
+			.exec(function (err, passes) {
+				//req.profile = pass;
+				var result = _.chain(passes)
+					.groupBy('group')
+					.pairs()
+					.map(function (currentItem) {
+						return _.object(_.zip(['group', 'passes'], currentItem));
+					})
+					.value();
+				res.jsonp(result);
+				//res.jsonp(passes);
+			});
+		}
+		if (req.user.roles.indexOf('employeer') !== -1) {
+			if(req.query.userId !== req.user.username) {
+				res.status(500).send('Permission denied');
+				return;
+			}
+			Pass
+			.find({
+				accessedFor : user.username
+			})
+			.sort({
+				'group' : 1,
+				'resourceName' : 1,
+				'email' : 1
+			})
+			.exec(function (err, passes) {
+				//req.profile = pass;
+				var result = _.chain(passes)
+					.groupBy('group')
+					.pairs()
+					.map(function (currentItem) {
+						return _.object(_.zip(['group', 'passes'], currentItem));
+					})
+					.value();
+				res.jsonp(result);
+				//res.jsonp(passes);
+			});
+		}
 	});
 };

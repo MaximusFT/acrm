@@ -162,7 +162,7 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 						resourceUrl : $scope.pass.resourceUrl,
 						email : $scope.pass.email,
 						login : $scope.pass.login,
-						password : $scope.pass.password,
+						password : $scope.pass.hashed_password,
 						comment : $scope.pass.comment,
 						accessedFor : $scope.pass.accessedFor
 					});

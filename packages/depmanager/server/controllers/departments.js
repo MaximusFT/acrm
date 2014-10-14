@@ -112,19 +112,39 @@ exports.destroy = function (req, res) {
  * List of departments
  */
 exports.all = function (req, res) {
-	Department.find().sort('name').exec(
-		function (err, department) {
-		if (err) {
-			res.render('error', {
-				status : 500
-			});
-		} else {
-			res.jsonp(department);
-		}
-	});
+	if (req.user.roles.indexOf('admin') !== -1) {
+		Department.find().sort('name').exec(
+			function (err, department) {
+			if (err) {
+				res.render('error', {
+					status : 500
+				});
+			} else {
+				res.jsonp(department);
+			}
+		});
+	}
+	if (req.user.roles.indexOf('manager') !== -1) {
+		Department.find().sort('name').exec(
+			function (err, department) {
+			if (err) {
+				res.render('error', {
+					status : 500
+				});
+			} else {
+				res.jsonp(department);
+			}
+		});
+	}
+	if (req.user.roles.indexOf('employeer') !== -1) {
+		res.status(500).send('Permission denied');
+	}
 };
 
 exports.getDepartment = function (req, res) {
+	if (req.user.roles.indexOf('employeer') !== -1) {
+		res.status(500).send('Permission denied');
+	}
 	var departmentId = req.query.departmentId;
 	if(departmentId === '') {
 		res.status(400).send('Invalid URI');

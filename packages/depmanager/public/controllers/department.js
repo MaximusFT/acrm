@@ -36,8 +36,8 @@ angular.module('mean.passmanager').controller('DepartmentController', ['$scope',
 					//$log.info(data);
 					$scope.departments = [data];
 				}).error(function (data, status) {
-					if(status === 400)
-						$location.path('manager/departments');
+					if(status === 500 || status === 400)
+						$location.path('/');
 				});
 			};
 

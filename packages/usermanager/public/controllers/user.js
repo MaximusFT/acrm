@@ -6,6 +6,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 			$scope.userId = $stateParams.userId;
 			$scope.mode = $cookies.mode;
 			$scope.isPasses = false;
+			$scope.permsg = 'You have not access for any password account.';
 
 			$http.get('api/getDepartments').success(function (data) {
 				//$log.info(data);
@@ -110,8 +111,9 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 				}).success(function (data) {				
 					$scope.users = [data];
 					//$log.info($scope.users);
-				}).error(function () {
-					$log.error('error');
+				}).error(function (data, status) {
+					if(status === 500)
+						$location.path('manager/users');
 				});
 			};
 
@@ -126,8 +128,10 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 					//$log.info($scope.groups);
 					if(data.length > 0) $scope.isPasses = true;
 				}).error(function (data, status) {
-					if(status === 400)
-						$location.path('manager/users');
+					if(status === 500) {
+						$scope.permsg = 'You have not access for this view.';
+						$scope.groups = [];//$location.path('manager/users');
+					}
 				});
 			};
 
