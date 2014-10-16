@@ -24,7 +24,9 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function ($sc
 angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$cookies', 'modalService', 'Passwords', 'Users', 'Requests',
 		function ($scope, Global, Menus, $rootScope, $http, $log, $cookies, modalService, Passwords, Users, Requests) {
 			$scope.mode = $cookies.mode;
-			$scope.global = Global;			
+			$scope.global = Global;		
+			$scope.isSomeSelected = true;
+			$scope.isPassSelected = [];
 			if($scope.mode === 'Administrator')
 				$scope.btn_class = [];
 			else
@@ -75,14 +77,14 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 						schemaKey : 'comment',
 						type : 'text',
 						inTable : false
-					}, {
+					}/*, {
 						title : 'Users with access',
 						schemaKey : 'accessedFor',
 						type : 'select',
 						//options: ['none', 'me'],
 						options : lols,
 						inTable : true
-					}
+					}*/
 				];
 				$scope.pass = {};
 			});
@@ -153,8 +155,51 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 				$scope.btn_class[id] = 'btn btn-success';
 			};
 			
-			$scope.toogleEditMode = function() {
-				$scope.edit = !$scope.edit;
+			$scope.assignToPerson = function() {
+				$log.error('per');
+			};
+			
+			$scope.assignToDepartment = function() {
+				$log.error('dep');
+			};
+			
+			$scope.selectAll = function(sectionIndex) {
+				if(!$scope.isPassSelected[sectionIndex])
+					$scope.isPassSelected[sectionIndex] = [];
+				var ret = false;
+				angular.forEach($scope.isPassSelected, function(group) {
+					angular.forEach(group, function(pass) {
+						if(pass === true)
+							ret = true;
+					});
+				});
+				angular.forEach($scope.groups[sectionIndex].passes, function (item, index) {
+					$scope.isPassSelected[sectionIndex][index] = !ret;
+					item.Selected = !ret;
+				});
+				$scope.isSomeSelected = checkSelections();
+			};
+			
+			function checkSelections() {		
+				var ret = false;
+				angular.forEach($scope.isPassSelected, function(group) {
+					angular.forEach(group, function(pass) {
+						if(pass === true)
+							ret = true;
+					});
+				});			
+				return !ret;
+			}
+			
+			$scope.checkPass = function(sectionIndex, index, pass) {				
+				if(!pass.Selected) {
+					if(!$scope.isPassSelected[sectionIndex])
+						$scope.isPassSelected[sectionIndex] = [];
+					$scope.isPassSelected[sectionIndex][index] = true;
+				} else {
+					$scope.isPassSelected[sectionIndex][index] = false;
+				}
+				$scope.isSomeSelected = checkSelections();
 			};
 
 			$scope.add = function () {
