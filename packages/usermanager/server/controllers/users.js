@@ -175,22 +175,6 @@ exports.groups = function (req, res) {
 };
 
 exports.getUser = function (req, res) {
-	/*var id = req.query.userId;
-	User.findOne({ 'username' : id },
-	function (err, user) {
-	if(err) {
-	res.render('error', {
-	status : 500
-	});
-	} else {
-	if(!user)
-	res.render('error', {
-	status : 500
-	});
-	else
-	res.jsonp(user);
-	}
-	});*/
 	User.findOne({
 		_id : req.user._id
 	}, {
@@ -202,17 +186,37 @@ exports.getUser = function (req, res) {
 				status : 500
 			});
 		} else {
-			if (curUser.roles.indexOf('manager') !== -1 || curUser.roles.indexOf('employeer') !== -1) {
+			console.log(curUser);
+			if (curUser.roles.indexOf('admin') !== -1) {
 				User.findOne({
 					'username' : req.query.userId
 				},
-					function (err, user) {				
+					function (err, user) {
 					if (err) {
 						res.render('error', {
 							status : 500
 						});
 					} else {
-						if(user.department[0] !== curUser.department[0]) {
+						if (!user)
+							res.render('error', {
+								status : 500
+							});
+						else
+							res.jsonp(user);
+					}
+				});
+			}
+			if (curUser.roles.indexOf('manager') !== -1 || curUser.roles.indexOf('employeer') !== -1) {
+				User.findOne({
+					'username' : req.query.userId
+				},
+					function (err, user) {
+					if (err) {
+						res.render('error', {
+							status : 500
+						});
+					} else {
+						if (user.department[0] !== curUser.department[0]) {
 							res.status(500).send('Permission denied');
 							return;
 						} else {
