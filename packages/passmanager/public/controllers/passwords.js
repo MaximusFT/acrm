@@ -41,6 +41,11 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 						type : 'text',
 						inTable : false
 					}, {
+						title : 'Implement',
+						schemaKey : 'implement',
+						type : 'text',
+						inTable : true,
+					}, {
 						title : 'Resource Title',
 						schemaKey : 'resourceName',
 						type : 'text',
@@ -63,7 +68,7 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 					}, {
 						title : 'Password',
 						schemaKey : 'hashed_password',
-						type : 'password',
+						type : 'text',
 						inTable : true
 					}, {
 						title : 'Comment',
@@ -158,6 +163,7 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 
 				var pass = new Passwords({
 						group : $scope.pass.group,
+						implement : $scope.pass.implement,
 						resourceName : $scope.pass.resourceName,
 						resourceUrl : $scope.pass.resourceUrl,
 						email : $scope.pass.email,

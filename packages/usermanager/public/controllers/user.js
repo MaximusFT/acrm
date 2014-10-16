@@ -108,31 +108,36 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 					params : {
 						userId : $stateParams.userId
 					}
-				}).success(function (data) {				
+				}).success(function (data) {
 					$scope.users = [data];
 					//$log.info($scope.users);
 				}).error(function (data, status) {
-					if(status === 500)
+					if (status === 500)
 						$location.path('manager/users');
 				});
 			};
 
 			$scope.p_init = function () {
 				$scope.groups = [];
-				$http.get('api/getPassesByUser', {
-					params : {
-						userId : $scope.userId
-					}
-				}).success(function (data) {
-					$scope.groups = data;
-					//$log.info($scope.groups);
-					if(data.length > 0) $scope.isPasses = true;
-				}).error(function (data, status) {
-					if(status === 500) {
-						$scope.permsg = 'You have not access for this view.';
-						$scope.groups = [];//$location.path('manager/users');
-					}
-				});
+				if ($scope.global.mode === 'Employeer' && $scope.global.user.username !== $scope.userId) {
+					$scope.permsg = 'You have not access for this view.';
+				} else {
+					$http.get('api/getPassesByUser', {
+						params : {
+							userId : $scope.userId
+						}
+					}).success(function (data) {
+						$scope.groups = data;
+						//$log.info($scope.groups);
+						if (data.length > 0)
+							$scope.isPasses = true;
+					}).error(function (data, status) {
+						if (status === 500) {
+							$scope.permsg = 'You have not access for this view.';
+							//$location.path('manager/users');
+						}
+					});
+				}
 			};
 
 			/*$scope.add = function() {

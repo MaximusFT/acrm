@@ -33,12 +33,12 @@ module.exports = {
     clientSecret: 'SECRET_KEY',
     callbackURL: 'http://mapqo.com:3000/auth/linkedin/callback'
   },
-  emailFrom: 'SENDER EMAIL ADDRESS', // sender address like ABC <abc@example.com>
+  emailFrom: 'lolmailsuptest@gmail.com', // sender address like ABC <abc@example.com>
   mailer: {
-    service: 'SERVICE_PROVIDER', // Gmail, SMTP
+    service: 'Gmail', // Gmail, SMTP
     auth: {
-      user: 'EMAIL_ID',
-      pass: 'PASSWORD'
+      user: 'lolmailsuptest@gmail.com',
+      pass: 'kbknsG8PzVz04oQU'
     }
   }
 };

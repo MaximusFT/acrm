@@ -174,10 +174,15 @@ exports.resetpassword = function(req, res, next) {
  * Send reset password email
  */
 function sendMail(mailOptions) {
+	console.log(config.mailer);
   var transport = nodemailer.createTransport(config.mailer);
   transport.sendMail(mailOptions, function(err, response) {
-    if (err) return err;
-    return response;
+    if (err) {
+		console.log(err);
+		return err;
+    }
+	console.log(response);
+	return response;
   });
 }
 
@@ -216,7 +221,7 @@ exports.forgotpassword = function(req, res, next) {
         var mailOptions = {
           to: user.email,
           from: config.emailFrom
-        };
+        };	
         mailOptions = templates.forgot_password_email(user, req, token, mailOptions);
         sendMail(mailOptions);
         done(null, true);

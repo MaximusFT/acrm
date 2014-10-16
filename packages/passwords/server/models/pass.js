@@ -39,6 +39,10 @@ var PassSchema = new Schema({
 	type : String,
 	default : 'Uncategorized'
   },
+  implement : {
+	type : String,
+	default : '---'
+  },
   resourceName: {
     type: String,
     required: true

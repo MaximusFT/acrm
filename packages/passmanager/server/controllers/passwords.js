@@ -149,6 +149,7 @@ exports.groups = function (req, res) {
 			if (roles.indexOf('admin') !== -1) {
 				Pass.find({}).sort({
 					'group' : 1,
+					'implement' : 1,
 					'resourceName' : 1,
 					'email' : 1
 				}).exec(
@@ -176,6 +177,7 @@ exports.groups = function (req, res) {
 					'resourceUrl' : 1
 				}).sort({
 					'group' : 1,
+					'implement' : 1,
 					'resourceName' : 1,
 					'email' : 1
 				}).exec(
@@ -203,6 +205,7 @@ exports.groups = function (req, res) {
 					accessedFor : 0
 				}*/).sort({
 					'group' : 1,
+					'implement' : 1,
 					'resourceName' : 1,
 					'email' : 1
 				}).exec(
