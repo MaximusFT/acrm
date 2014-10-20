@@ -66,6 +66,11 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 					type : 'text',
 					inTable : false
 				}, {
+					title : 'Implement',
+					schemaKey : 'implement',
+					type : 'text',
+					inTable : true
+				}, {
 					title : 'Resource Title',
 					schemaKey : 'resourceName',
 					type : 'text',
@@ -128,7 +133,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 						}
 					}).success(function (data) {
 						$scope.groups = data;
-						//$log.info($scope.groups);
+						$log.info(JSON.stringify($scope.groups));
 						if (data.length > 0)
 							$scope.isPasses = true;
 					}).error(function (data, status) {
