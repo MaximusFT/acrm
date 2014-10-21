@@ -26,7 +26,7 @@
 	<h1>Accessible passwords</h1>
 	<accordion close-others="true">
 	<div data-ng-repeat="group in groups">
-	<accordion-group data-ng-show="group.passes.length" heading="{{$index+1}}. {{group.group}}">
+	<accordion-group data-ng-show="group.passes.length" heading="{{$index+1}}. {{group.group}}  ({{group.passes.length}})">
     <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="group.passes.length">
         <tr>
 			<th>

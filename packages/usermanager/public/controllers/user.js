@@ -28,9 +28,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 					}, {
 						title : 'Department',
 						schemaKey : 'department',
-						/*type : 'text',*/
-						type : 'select',
-						options : data,
+						type : 'text',
 						inTable : true
 					}, {
 						title : 'Phone',
@@ -114,6 +112,8 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 						userId : $stateParams.userId
 					}
 				}).success(function (data) {
+					//$log.info(data);
+					data.department = data.department.name;
 					$scope.users = [data];
 					//$log.info($scope.users);
 				}).error(function (data, status) {
@@ -132,8 +132,8 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 							userId : $scope.userId
 						}
 					}).success(function (data) {
+						//$log.info(data);
 						$scope.groups = data;
-						$log.info(JSON.stringify($scope.groups));
 						if (data.length > 0)
 							$scope.isPasses = true;
 					}).error(function (data, status) {

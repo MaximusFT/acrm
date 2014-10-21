@@ -276,28 +276,7 @@ exports.acsgroups = function (req, res) {
 									});
 
 								});
-								acsp = _.uniq(acsp);
-
-								/*_(acsp).forEach(function (pass) {
-									_(pass.accessedFor).forEach(function (accessed) {
-										User.findOne({
-											username : accessed
-										}, {
-											_id : 0,
-											department : 1
-										}).exec(function (err, u) {
-											if (err) {
-												res.render('error', {
-													status : 500
-												});
-											} else {
-												if(!_.contains(u.department, user.department))
-													pass.accessedFor = _.without(pass.accessedFor, accessed);
-											}
-										});
-									});
-								});*/
-								
+								acsp = _.uniq(acsp);							
 								var result = _.chain(acsp)
 									.groupBy('group')
 									.pairs()

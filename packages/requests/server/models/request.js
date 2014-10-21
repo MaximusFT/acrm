@@ -12,12 +12,12 @@ var mongoose = require('mongoose'),
 
 var RequestSchema = new Schema({
   who : {
-	type : String,
-	required : true
+	type : Schema.ObjectId,
+	ref : 'User'
   },
   what : {
-	type : String,
-	required : true
+	type : Schema.ObjectId,
+	ref : 'Pass'
   },
   when: {
     type : String,

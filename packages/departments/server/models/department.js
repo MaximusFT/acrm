@@ -17,7 +17,8 @@ var DepartmentSchema = new Schema({
 	required : true
   },
   manager : {
-	type : Schema.Types.ObjectId
+	type : Schema.Types.ObjectId,
+	ref : 'User'
   },
   parent: {
     type: Number,

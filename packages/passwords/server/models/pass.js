@@ -69,10 +69,10 @@ var PassSchema = new Schema({
     type: String,
     default: '—'
   },
-  accessedFor: {
-    type: Array
-    //default: ['nobody']
-  },
+  accessedFor: [{
+	type: Schema.Types.ObjectId, 
+	ref: 'User'
+  }],
   salt: String
 });
 

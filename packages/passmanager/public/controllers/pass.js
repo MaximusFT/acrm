@@ -46,13 +46,6 @@ angular.module('mean.passmanager').controller('PassController', ['$scope', 'Glob
 						schemaKey : 'comment',
 						type : 'text',
 						inTable : true
-					}, {
-						title : 'Users with access',
-						schemaKey : 'accessedFor',
-						type : 'select',
-						//options: ['none', 'me'],
-						options : lols,
-						inTable : true
 					}
 				];
 				$scope.pass = {};

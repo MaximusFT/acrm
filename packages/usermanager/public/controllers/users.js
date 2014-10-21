@@ -32,12 +32,6 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 						type : 'text',
 						inTable : true
 					}, {
-						title : 'Department',
-						schemaKey : 'department',
-						type : 'select',
-						options : $scope.departments,
-						inTable : true
-					}, {
 						title : 'Phone',
 						schemaKey : 'phone',
 						type : 'text',
@@ -71,7 +65,7 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 				});*/
 				$http.get('api/getUsers').success(function (data) {
 					$scope.departments = data;
-					//$log.info($scope.departments);
+					//$log.info($scope.departments[0].);
 				}).error(function () {
 					$log.error('error');
 				});

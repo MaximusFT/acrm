@@ -5,7 +5,7 @@
  */
 var mongoose = require('mongoose'),
 Request = mongoose.model('Request'),
-User = mongoose.model('User'),
+//User = mongoose.model('User'),
 Pass = mongoose.model('Pass'),
 _ = require('lodash');
 
@@ -110,108 +110,80 @@ exports.destroy = function (req, res) {
  * List of Requests
  */
 exports.all = function (req, res) {
-	var ureses = [];
-	Request.find().sort('who').exec(
+	/*Request.find().sort({'when' : -1}).exec(
 		function (err, requests) {
 		if (err) {
 			res.render('error', {
 				status : 500
 			});
 		} else {
-			//var ureses = [];
-			_(requests).forEach(function (request, index, array) {
-				var ures = {};
-				User.findOne({
-					_id : request.who
-				}, {
-					'_id' : 0,
-					'username' : 1
-				})
-				.exec(function (err, user) {
-					if (err) {
-						res.render('error', {
-							status : 500
-						});
-					} else {
-						ures.who = user.username;
-						Pass.findOne({
-							_id : request.what
-						}, {
-							'resourceName' : 1,
-							'resourceUrl' : 1
-						}).exec(function (err, pass) {
-							if (err) {
-								res.render('error', {
-									status : 500
-								});
-							} else {
-								ures.what = {};
-								ures.what = pass;
-								ures.when = request.when;
-								ures.comment = request.comment;
-								ureses.splice(ureses.length === 0 ? 1 : ureses.length, 0, ures);
-								if (index === array.length - 1) {
-									res.jsonp(_.sortBy(ureses, 'when').reverse());
-								}
-							}
-						});					
-					}
-				});
+			res.jsonp(requests);
+		}
+	});*/
+	Request
+	.find()
+	.populate('what')
+	.populate('who')
+	.exec(function (err, requests) {
+		if (err) {
+			res.render('error', {
+				status : 500
+			});
+		} else {
+			res.jsonp(requests);
+		}
+	});
+};
+
+exports.provideAccess = function(req, res) {
+	var reqId = req.query.reqId;
+	Request
+	.findOne({_id : reqId})
+	.populate('what')
+	.exec(function (err, request) {
+		if (err) {
+			res.render('error', {
+				status : 500
+			});
+		} else {
+			Pass
+			.update({
+				_id : request.what._id
+			}, {
+				$push : {'accessedFor' : request.who}
+			})
+			.exec(function (err) {
+				if(err) {
+					return res.json(500, {
+						error : err
+					});
+				}
+				exports.rejectRequest(req, res);
 			});
 		}
 	});
 };
 
-/*exports.passesByGroup = function (req, res) {
-var groupId = req.query.groupId;
-Pass.find({
-group : groupId
-},
-function (err, pass) {
-if (err) {
-res.render('error', {
-status : 500
-});
-} else {
-//console.log(pass);
-res.jsonp(pass);
-}
-});
-};*/
-
-/*exports.delPass = function (req, res) {
-//console.log(req);
-var passId = req.query.passId;
-if (req.body._id) {
-delete req.body._id;
-}
-Pass.findById(passId, function (err, pass) {
-//if (err) { return handleError(res, err); }
-if (!pass) {
-return res.send(404);
-}
-_.extend(pass, req.body);
-pass.remove(function (err) {
-if (err) {
-res.render('error', {
-status : 500
-});
-} else {
-res.jsonp(pass);
-}
-});
-});
-};*/
-
-/*exports.getPass = function (req, res) {
-var passId = req.query.passId;
-console.log(passId);
-Pass
-.findOne({
-_id : passId
-})
-.exec(function (err, pass) {
-//req.profile = pass;
-res.jsonp(pass);
-});
-};*/
+exports.rejectRequest = function(req, res) {
+	var reqId = req.query.reqId;
+	Request.findById(reqId, function (err, request) {
+		if(err) {
+			res.render('error', {
+				status : 500
+			});
+		}
+		if (!request) {
+			return res.send(404);
+		}
+		_.extend(request, req.body);
+		request.remove(function (err) {
+			if (err) {
+				res.render('error', {
+					status : 500
+				});
+			} else {
+				res.jsonp(request);
+			}
+		});
+	});
+};

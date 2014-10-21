@@ -74,20 +74,20 @@ exports.update = function (req, res) {
 	});
 };
 /*exports.update = function (req, res) {
-	if (req.body._id) {
-		delete req.body._id;
-	}
-	Pass.findById(req.params.passId, function (err, pass) {
-		//if (err) { return handleError(res, err); }
-		if (!pass) {
-			return res.send(404);
-		}
-		_.extend(pass, req.body);
-		pass.save(function (err) {
-			//if (err) { return handleError(res, err); }
-			return res.json(200, pass);
-		});
-	});
+if (req.body._id) {
+delete req.body._id;
+}
+Pass.findById(req.params.passId, function (err, pass) {
+//if (err) { return handleError(res, err); }
+if (!pass) {
+return res.send(404);
+}
+_.extend(pass, req.body);
+pass.save(function (err) {
+//if (err) { return handleError(res, err); }
+return res.json(200, pass);
+});
+});
 };*/
 
 /**
@@ -132,7 +132,11 @@ exports.all = function (req, res) {
 };
 
 exports.groups = function (req, res) {
-	Pass.find({}).sort({'group':1, 'resourceName':1, 'email':1}).exec(
+	Pass.find({}).sort({
+		'group' : 1,
+		'resourceName' : 1,
+		'email' : 1
+	}).exec(
 		function (err, pass) {
 		if (err) {
 			res.render('error', {
@@ -194,7 +198,7 @@ exports.delPass = function (req, res) {
 
 exports.getPassesByUser = function (req, res) {
 	var userId = req.query.userId;
-	if(userId === '') {
+	if (userId === '') {
 		res.status(400).send('Invalid URI');
 		return;
 	}
@@ -203,82 +207,115 @@ exports.getPassesByUser = function (req, res) {
 		username : userId
 	})
 	.exec(function (err, user) {
-		if(!user) {
+		if (!user) {
 			res.status(500).send('Invalid User');
 			return;
 		}
-		if (req.user.roles.indexOf('admin') !== -1) {
-			Pass
-			.find({
-				accessedFor : user.username
-			})
-			.sort({
-				'group' : 1,
-				'resourceName' : 1,
-				'email' : 1
-			})
-			.exec(function (err, passes) {
-				//req.profile = pass;
-				var result = _.chain(passes)
-					.groupBy('group')
-					.pairs()
-					.map(function (currentItem) {
-						return _.object(_.zip(['group', 'passes'], currentItem));
+		User.findOne({
+			_id : req.user._id
+		}, {
+			'_id' : 0,
+			'roles' : 1
+		}).exec(
+			function (err, curuser) {
+			if (err) {
+				res.render('error', {
+					status : 500
+				});
+			} else {
+				var roles = curuser.roles;
+				if (roles.indexOf('admin') !== -1) {
+					if (JSON.stringify(curuser._id) === JSON.stringify(user._id)) {
+						Pass
+						.find()
+						.sort({
+							'group' : 1,
+							'resourceName' : 1,
+							'email' : 1
+						})
+						.exec(function (err, passes) {
+							var result = _.chain(passes)
+								.groupBy('group')
+								.pairs()
+								.map(function (currentItem) {
+									return _.object(_.zip(['group', 'passes'], currentItem));
+								})
+								.value();
+							res.jsonp(result);
+						});
+					} else {
+						Pass
+						.find({
+							accessedFor : user._id
+						})
+						.sort({
+							'group' : 1,
+							'resourceName' : 1,
+							'email' : 1
+						})
+						.exec(function (err, passes) {
+							var result = _.chain(passes)
+								.groupBy('group')
+								.pairs()
+								.map(function (currentItem) {
+									return _.object(_.zip(['group', 'passes'], currentItem));
+								})
+								.value();
+							res.jsonp(result);
+						});
+					}
+				}
+				if (roles.indexOf('manager') !== -1) {
+					Pass
+					.find({
+						accessedFor : user.username
 					})
-					.value();
-				res.jsonp(result);
-				//res.jsonp(passes);
-			});
-		}
-		if (req.user.roles.indexOf('manager') !== -1) {
-			Pass
-			.find({
-				accessedFor : user.username
-			})
-			.sort({
-				'group' : 1,
-				'resourceName' : 1,
-				'email' : 1
-			})
-			.exec(function (err, passes) {
-				//req.profile = pass;
-				var result = _.chain(passes)
-					.groupBy('group')
-					.pairs()
-					.map(function (currentItem) {
-						return _.object(_.zip(['group', 'passes'], currentItem));
+					.sort({
+						'group' : 1,
+						'resourceName' : 1,
+						'email' : 1
 					})
-					.value();
-				res.jsonp(result);
-				//res.jsonp(passes);
-			});
-		}
-		if (req.user.roles.indexOf('employeer') !== -1) {
-			if(req.query.userId !== req.user.username) {
-				res.status(500).send('Permission denied');
-				return;
+					.exec(function (err, passes) {
+						//req.profile = pass;
+						var result = _.chain(passes)
+							.groupBy('group')
+							.pairs()
+							.map(function (currentItem) {
+								return _.object(_.zip(['group', 'passes'], currentItem));
+							})
+							.value();
+						res.jsonp(result);
+						//res.jsonp(passes);
+					});
+				}
+				if (roles.indexOf('employeer') !== -1) {
+					if (req.query.userId !== req.user.username) {
+						return res.jsonp([]);
+					}
+					Pass
+					.find({
+						accessedFor : user.username
+					})
+					.sort({
+						'group' : 1,
+						'resourceName' : 1,
+						'email' : 1
+					})
+					.exec(function (err, passes) {
+						//req.profile = pass;
+						var result = _.chain(passes)
+							.groupBy('group')
+							.pairs()
+							.map(function (currentItem) {
+								return _.object(_.zip(['group', 'passes'], currentItem));
+							})
+							.value();
+						res.jsonp(result);
+						//res.jsonp(passes);
+					});
+				}
+
 			}
-			Pass
-			.find({
-				accessedFor : user.username
-			})
-			.sort({
-				'group' : 1,
-				'resourceName' : 1,
-				'email' : 1
-			})
-			.exec(function (err, passes) {
-				//req.profile = pass;
-				var result = _.chain(passes)
-					.groupBy('group')
-					.pairs()
-					.map(function (currentItem) {
-						return _.object(_.zip(['group', 'passes'], currentItem));
-					})
-					.value();
-				res.jsonp(result);
-				//res.jsonp(passes);
-			});
-		}
+		});
 	});
 };

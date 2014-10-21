@@ -127,13 +127,18 @@ exports.groups = function (req, res) {
 					'department' : 1,
 					'name' : 1,
 					'username' : 1
-				}).exec(
+				})
+				.populate('department')
+				.exec(
 					function (err, user) {
 					if (err) {
 						res.render('error', {
 							status : 500
 						});
 					} else {
+						_(user).forEach(function(u) {
+							u.roles.splice(0,1);
+						});
 						var result = _.chain(user)
 							.groupBy('department')
 							.pairs()
@@ -152,13 +157,20 @@ exports.groups = function (req, res) {
 					'department' : 1,
 					'name' : 1,
 					'username' : 1
-				}).exec(
+				})
+				.populate('department')
+				.exec(
 					function (err, user) {
 					if (err) {
 						res.render('error', {
 							status : 500
 						});
 					} else {
+						_(user).forEach(function(u) {
+							//_.mapValues(u , function(num) { return num.name; });
+							u.roles.splice(0,1);
+						});
+						
 						var result = _.chain(user)
 							.groupBy('department')
 							.pairs()
@@ -186,12 +198,13 @@ exports.getUser = function (req, res) {
 				status : 500
 			});
 		} else {
-			console.log(curUser);
 			if (curUser.roles.indexOf('admin') !== -1) {
-				User.findOne({
+				User
+				.findOne({
 					'username' : req.query.userId
-				},
-					function (err, user) {
+				})
+				.populate('department')
+				.exec(function (err, user) {
 					if (err) {
 						res.render('error', {
 							status : 500
@@ -207,10 +220,12 @@ exports.getUser = function (req, res) {
 				});
 			}
 			if (curUser.roles.indexOf('manager') !== -1 || curUser.roles.indexOf('employeer') !== -1) {
-				User.findOne({
+				User
+				.findOne({
 					'username' : req.query.userId
-				},
-					function (err, user) {
+				})
+				.populate('department')
+				.exec(function (err, user) {
 					if (err) {
 						res.render('error', {
 							status : 500

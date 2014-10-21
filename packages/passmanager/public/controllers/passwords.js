@@ -27,10 +27,12 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 			$scope.global = Global;		
 			$scope.isSomeSelected = true;
 			$scope.isPassSelected = [];
-			if($scope.mode === 'Administrator')
+			$scope.isRequests = false;
+			if($scope.mode === 'Administrator') {
 				$scope.btn_class = [];
-			else
+			} else {
 				$scope.btn_class = new Array([]);
+			}
 			Users.query({}, function (users) {
 				var lols = [];
 				users.forEach(function (item) {
@@ -122,6 +124,8 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 						value.when = date.toLocaleString();
 					});
 					$scope.requests = data;
+					if (data.length > 0)
+						$scope.isRequests = true;
 				}).error(function () {
 					$log.error('error');
 				});
@@ -152,7 +156,33 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 			};
 			
 			$scope.provideAccess = function(id) {
-				$scope.btn_class[id] = 'btn btn-success';
+				var rId = $scope.requests[id]._id;
+				$http.get('/api/provideAccess', {
+					params : {
+						reqId: rId
+					}
+				}).success(function (data) {
+					$log.info(data);
+					$scope.btn_class[id] = 'btn btn-success';
+				}).error(function (data, status) {
+					if (status === 500)
+						$log.error('error :(');
+				});
+			};
+			
+			$scope.rejectAccess = function(id) {
+				var rId = $scope.requests[id]._id;
+				$http.get('/api/rejectRequest', {
+					params : {
+						reqId: rId
+					}
+				}).success(function (data) {
+					$log.info(data);
+					$scope.btn_class[id] = 'btn btn-info';
+				}).error(function (data, status) {
+					if (status === 500)
+						$log.error('error :(');
+				});
 			};
 			
 			$scope.assignToPerson = function() {
