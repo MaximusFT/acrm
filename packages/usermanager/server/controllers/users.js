@@ -159,19 +159,20 @@ exports.groups = function (req, res) {
 					'username' : 1
 				})
 				.populate('department')
+				.lean()
 				.exec(
-					function (err, user) {
+					function (err, users) {
 					if (err) {
 						res.render('error', {
 							status : 500
 						});
 					} else {
-						_(user).forEach(function(u) {
-							//_.mapValues(u , function(num) { return num.name; });
+						_(users).forEach(function(u) {
+							u.department = u.department.name;
 							u.roles.splice(0,1);
 						});
 						
-						var result = _.chain(user)
+						var result = _.chain(users)
 							.groupBy('department')
 							.pairs()
 							.map(function (currentItem) {
