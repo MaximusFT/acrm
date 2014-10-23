@@ -129,6 +129,7 @@ exports.groups = function (req, res) {
 					'username' : 1
 				})
 				.populate('department')
+				.lean()
 				.exec(
 					function (err, user) {
 					if (err) {
@@ -137,6 +138,7 @@ exports.groups = function (req, res) {
 						});
 					} else {
 						_(user).forEach(function(u) {
+							u.department = u.department.name;
 							u.roles.splice(0,1);
 						});
 						var result = _.chain(user)
@@ -258,5 +260,32 @@ exports.department = function (req, res) {
 		} else {
 			res.jsonp(user);
 		}
+	});
+};
+
+exports.searchUsers = function (req, res) {
+	var val = req.query.value;
+	User.find(
+		{},
+		{'name' : 1, 'email' : 1, 'username' : 1, 'department' : 1}
+	)
+	.or([
+		{'name' : {'$regex': val}},
+		{'email' : {'$regex': val}},
+		{'username' : {'$regex': val}}
+	])
+	.lean()
+	.populate('department')
+	.exec(function (err, users) {
+		if(err) {
+			res.render('error', {
+				status : 500
+			});
+		} else {
+			_(users).forEach(function(u) {
+				u.department = u.department.name;
+			});
+			return res.jsonp(users);
+		}		
 	});
 };

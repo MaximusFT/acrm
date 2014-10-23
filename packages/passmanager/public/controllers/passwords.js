@@ -9,18 +9,6 @@ angular.module('mean.passmanager').controller('PassmanagerController', ['$scope'
 		}
 	]);
 
-angular.module('mean.passmanager').controller('ModalInstanceCtrl', function ($scope, $log, $modalInstance) {
-	$scope.ok = function () {
-		$log.info('ok');
-		//$modalInstance.close($scope.selected.item);
-	};
-
-	$scope.cancel = function () {
-		$log.info('cancel');
-		//$modalInstance.dismiss('cancel');
-	};
-});
-
 angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$cookies', 'modalService', 'Passwords', 'Users', 'Requests',
 		function ($scope, Global, Menus, $rootScope, $http, $log, $cookies, modalService, Passwords, Users, Requests) {
 			$scope.mode = $cookies.mode;
@@ -186,27 +174,49 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 			};
 			
 			$scope.assignToPerson = function() {
-				$log.error('per');
+				var modalOptions = {
+					closeButtonText : 'Cancel',
+					actionButtonText : 'Confirm',
+					headerText : 'Choose person(s)',
+					bodyText : 'Specify what employee you want to grant access.',
+					type : 1
+				};
+
+				modalService.showModal({}, modalOptions).then(function (result) {			
+					$log.info(result);
+				});
 			};
 			
 			$scope.assignToDepartment = function() {
-				$log.error('dep');
+				var modalOptions = {
+					closeButtonText : 'Cancel',
+					actionButtonText : 'Confirm',
+					headerText : 'Choose department',
+					bodyText : 'Specify what department you want to grant access.',
+					type : 2
+				};
+
+				modalService.showModal({}, modalOptions).then(function (result) {			
+					$log.info(result);
+				});
 			};
 			
-			$scope.selectAll = function(sectionIndex) {
-				if(!$scope.isPassSelected[sectionIndex])
-					$scope.isPassSelected[sectionIndex] = [];
+			$scope.selectAll = function(sectionIndex) {		
+				if(!$scope.isPassSelected[sectionIndex]) {
+					$scope.isPassSelected[sectionIndex] = [];				
+				}
 				var ret = false;
-				angular.forEach($scope.isPassSelected, function(group) {
-					angular.forEach(group, function(pass) {
-						if(pass === true)
-							ret = true;
-					});
+				// checking is already the selection in section
+				angular.forEach($scope.isPassSelected[sectionIndex], function(pass) {
+					if(pass === true) {
+						ret = true;
+					}
 				});
-				angular.forEach($scope.groups[sectionIndex].passes, function (item, index) {
+				// if selection exists - remove it, doesn't exist – select all
+				angular.forEach($scope.groups[sectionIndex].passes, function (item, index) {				
 					$scope.isPassSelected[sectionIndex][index] = !ret;
 					item.Selected = !ret;
-				});
+				});			
 				$scope.isSomeSelected = checkSelections();
 			};
 			

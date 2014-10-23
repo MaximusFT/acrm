@@ -35,7 +35,7 @@
 								<div class="btn-group dropdown">
 									<button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" data-ng-disabled="isSomeSelected">Assign selected <span class="caret"></span></button>
 									<ul class="dropdown-menu">
-										<li data-ng-click="assignToPerson()"><a href="">To person</a></li>
+										<li data-ng-click="assignToPerson()"><a href="">To person(s)</a></li>
 										<li data-ng-click="assignToDepartment()"><a href="">To department</a></li>
 									</ul>
 								</div>
@@ -61,7 +61,7 @@
 								<i class="glyphicon glyphicon-sort-by-order"></i>
 							</th>
 							<th>
-								<i class="glyphicon glyphicon-ok" data-ng-click="selectAll(sectionIndex, $index)"></i>
+								<i class="glyphicon glyphicon-ok" data-ng-click="selectAll(sectionIndex)"></i>
 							</th>
 							<th data-ng-repeat="field in passSchema" data-ng-if="field.inTable">{{field.title}}</th>
 						</tr>
