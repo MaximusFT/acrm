@@ -1,7 +1,7 @@
 <div>
-	<pre>Choosen: {{selectedUsers.join('\n')}}</pre>
+	<pre>--> {{selectedLabels.join('\n--> ')}}</pre>
 	<div class="input-group">
-		<input class="form-control" type="text" ng-model="asyncSelected" placeholder="Type name, email or username" typeahead="user for user in getUsers($viewValue)" typeahead-loading="loadingLocations" typeahead-on-select="selectedUser($item, $model, $label)">
+		<input class="form-control" type="text" ng-model="asyncSelected" placeholder="Type name, email or username" typeahead="user as (user.name + ' (' + user.username + '), ' + user.email + ', ' + user.department) for user in getUsers($viewValue)" typeahead-loading="loadingLocations" typeahead-on-select="selectedUser($item, $model, $label)">
 		<i data-ng-class="loadingLocations ? 'glyphicon glyphicon-refresh input-group-addon' : 'glyphicon glyphicon-hand-left input-group-addon'"></i>
 	</div>
 </div>

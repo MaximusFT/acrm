@@ -20,7 +20,7 @@ Depmanager.register(function(app, auth, database) {
   Depmanager.menus.add({
     title: 'Departments manager',
     link: 'departments manager page',
-    roles: ['admin', 'manager'],
+    roles: ['admin'],
     menu: 'main'
   });
 

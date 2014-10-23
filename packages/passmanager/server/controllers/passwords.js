@@ -249,8 +249,7 @@ exports.acsgroups = function (req, res) {
 				User.find({
 					department : user.department
 				}, {
-					'_id' : 0,
-					'username' : 1
+					'_id' : 1
 				}).exec(
 					function (err, users) {
 					if (err) {
@@ -259,8 +258,10 @@ exports.acsgroups = function (req, res) {
 						});
 						return false;
 					} else {
-						var uids = _.map(users, 'username');
-						Pass.find({})
+						var uids = _.map(users, '_id');
+						Pass.find({
+							accessedFor : { $in : uids }
+						})
 						.exec(
 							function (err, passes) {
 							if (err) {
@@ -268,15 +269,7 @@ exports.acsgroups = function (req, res) {
 									status : 500
 								});
 							} else {
-								var acsp = [];
-								_(passes).forEach(function (pass) {
-									_(uids).forEach(function (uid) {
-										if (_.contains(pass.accessedFor, uid))
-											acsp.splice(acsp.length === 0 ? 1 : acsp.length, 0, pass);
-									});
-
-								});
-								acsp = _.uniq(acsp);							
+								var acsp = _.uniq(passes);							
 								var result = _.chain(acsp)
 									.groupBy('group')
 									.pairs()
@@ -348,5 +341,62 @@ exports.getPass = function (req, res) {
 	.exec(function (err, pass) {
 		//req.profile = pass;
 		res.jsonp(pass);
+	});
+};
+
+exports.provideAccess = function (req, res) {
+	var users = req.body.users;
+	var passes = req.body.passes;
+	_(passes).forEach(function(pid) {
+		Pass
+		.findById(pid, function(err, pass) {
+			_(users).forEach(function(uid) {
+				if(pass.accessedFor.indexOf(uid) === -1) {
+					Pass
+					.update({
+						_id : pid
+					}, {
+						$push : {'accessedFor' : uid}
+					})
+					.exec(function (err) {
+						if(err) {
+							return res.json(500, {
+								error : err
+							});
+						}
+						//res.jsonp('ok');
+					});
+				}
+			});
+		});
+	});
+};
+
+exports.revokeAccess = function (req, res) {
+	var users = req.body.users;
+	var passes = req.body.passes;
+	_(passes).forEach(function(pid) {
+		Pass
+		.findById(pid, function(err, pass) {
+			_(users).forEach(function(uid) {
+				if(pass.accessedFor.indexOf(uid) === -1) {
+					Pass
+					.update({
+						_id : pid
+					}, {
+						$pull : {'accessedFor' : uid}
+					})
+					.exec(function (err) {
+						if(err) {
+							return res.json(500, {
+								error : err
+							});
+						}
+						console.log('ok');
+						//res.jsonp('ok');
+					});
+				}
+			});
+		});
 	});
 };

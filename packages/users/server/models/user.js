@@ -118,9 +118,7 @@ UserSchema.methods = {
 	 * @api public
 	 */
 	hasRole : function (role) {
-		var roles = this.roles;
-		//console.log('!!!!!' + role + '<>' + roles);
-		return roles.indexOf('admin') !== -1 || roles.indexOf(role) !== -1;
+		return this.roles.indexOf(role);
 	},
 
 	/**

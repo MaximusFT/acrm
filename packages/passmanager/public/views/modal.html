@@ -8,7 +8,6 @@
 </div>
 <div data-ng-if="modalOptions.type === 1" class="modal-body">
   <p>{{modalOptions.bodyText}}</p>
-  <!--<input type="text" class="form-control" data-ng-model="comment" />-->
   <div ng-include src="'passmanager/views/addpersons.html'" />
 </div>
 <div data-ng-if="modalOptions.type === 2" class="modal-body">
@@ -20,6 +19,6 @@
   <button type="button" class="btn" 
           data-ng-click="modalOptions.close()">{{modalOptions.closeButtonText}}</button>
   <button class="btn btn-primary" 
-          data-ng-click="modalOptions.ok(comment);">{{modalOptions.actionButtonText}}</button>
+          data-ng-click="modalOptions.ok(modalOptions.type === 1 ? selectedUsers : comment);">{{modalOptions.actionButtonText}}</button>
 </div>
 </div>

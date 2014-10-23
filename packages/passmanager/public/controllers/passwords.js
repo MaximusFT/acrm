@@ -9,8 +9,8 @@ angular.module('mean.passmanager').controller('PassmanagerController', ['$scope'
 		}
 	]);
 
-angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$cookies', 'modalService', 'Passwords', 'Users', 'Requests',
-		function ($scope, Global, Menus, $rootScope, $http, $log, $cookies, modalService, Passwords, Users, Requests) {
+angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$cookies', '$q', 'modalService', 'Passwords', 'Users', 'Requests',
+		function ($scope, Global, Menus, $rootScope, $http, $log, $cookies, $q, modalService, Passwords, Users, Requests) {
 			$scope.mode = $cookies.mode;
 			$scope.global = Global;		
 			$scope.isSomeSelected = true;
@@ -182,8 +182,28 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 					type : 1
 				};
 
-				modalService.showModal({}, modalOptions).then(function (result) {			
-					$log.info(result);
+				modalService.showModal({}, modalOptions).then(function (result) {
+					var passes = [];
+					angular.forEach($scope.isPassSelected, function(group, gind) {
+						angular.forEach(group, function(pass, pind) {
+							if(pass === true)
+								passes.splice(passes.length, 0, $scope.groups[gind].passes[pind]._id);
+						});
+					});
+					$http({
+						url: '/api/provideAccess',
+						method: 'POST',
+						data: { 
+							'users' : result,
+							'passes' : passes
+						}
+					})
+					.then(function(response) {
+						
+					}, 
+					function(response) {
+						$log.error('error');
+					});
 				});
 			};
 			
@@ -198,6 +218,40 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 
 				modalService.showModal({}, modalOptions).then(function (result) {			
 					$log.info(result);
+				});
+			};
+			
+			$scope.revoke = function() {
+				var modalOptions = {
+					closeButtonText : 'Cancel',
+					actionButtonText : 'Confirm',
+					headerText : 'Choose person(s)',
+					bodyText : 'Specify what employee you want to revoke access.',
+					type : 1
+				};
+
+				modalService.showModal({}, modalOptions).then(function (result) {
+					var passes = [];
+					angular.forEach($scope.isPassSelected, function(group, gind) {
+						angular.forEach(group, function(pass, pind) {
+							if(pass === true)
+								passes.splice(passes.length, 0, $scope.groups[gind].passes[pind]._id);
+						});
+					});
+					$http({
+						url: '/api/revokeAccess',
+						method: 'POST',
+						data: { 
+							'users' : result,
+							'passes' : passes
+						}
+					})
+					.success(function(response) {
+						$log.info('success');
+					})
+					.error(function(response) {
+						$log.error('error');
+					});
 				});
 			};
 			
@@ -284,18 +338,27 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 				//$scope.pass.group = $scope.pass.resourceName = $scope.pass.resourceUrl = $scope.pass.login = $scope.pass.hashed_password = $scope.pass.comment = $scope.pass.accessedFor = '';
 			};
 
-			$scope.remove = function (pass) {
+			$scope.remove = function () {
+				var passes = [];
+				angular.forEach($scope.isPassSelected, function(group, gind) {
+					angular.forEach(group, function(pass, pind) {
+						if(pass === true)
+							passes.splice(passes.length, 0, $scope.groups[gind].passes[pind]._id);
+					});
+				});
+				Passwords.remove({
+					passId : { 
+						'$in' : passes
+					}
+				});
+			/*
 				$scope.groups.forEach(function (group) {
 					group.passes.forEach(function (p) {
 						if (p === pass) {
 							group.passes.splice(group.passes.indexOf(p), 1);
 						}
 					});
-				});
-				//pass.$remove();
-				Passwords.remove({
-					passId : pass._id
-				});
+				});*/			
 			};
 
 			$scope.update = function (pass, passField) {

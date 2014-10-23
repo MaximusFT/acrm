@@ -1,8 +1,10 @@
 'use strict';
 
-angular.module('mean.passmanager').controller('ModalInstanceCtrl', function ($scope, $log, $http, $modalInstance) {
+angular.module('mean.passmanager').controller('ModalInstanceCtrl', function ($scope, $log, $http, $q, $modalInstance) {
+	$scope.asyncSelected = '';
 	$scope.users = [];
 	$scope.selectedUsers = [];
+	$scope.selectedLabels = [];
 	$scope.ok = function () {
 		$log.info('ok');
 		//$modalInstance.close($scope.selected.item);
@@ -12,26 +14,27 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function ($sc
 		$log.info('cancel');
 		//$modalInstance.dismiss('cancel');
 	};
-	
 	$scope.getUsers = function (val) {
-		if (val.length > 0) {
-			$http.get('/api/searchUsers', {
-				params : {
-					value : val
-				}
-			}).then(function ($response) {
-				var users = [];
-				$response.data.objects.forEach(function (person, index) {
-					users.push(person.name + '(' + person.username + '), ' + person.email + ', ' + person.department);
-					if(index === $response.data.length-1)
-						return users;
-				});
-			});
-		}
+		var defer = $q.defer();
+		$http.get('/api/searchUsers', {
+			params: {
+				value: val
+			}
+		})
+		.success(function (data) {
+			defer.resolve(data);
+		})
+		.error(function () {
+			$log.error('error');
+		});
+		return defer.promise;
 	};
 	
 	$scope.selectedUser = function(item, model, label) {
-		$scope.selectedUsers.splice($scope.selectedUsers.length, 0, item);
+		if($scope.selectedLabels.indexOf(label) === -1) {
+			$scope.selectedUsers.splice($scope.selectedUsers.length, 0, model._id);
+			$scope.selectedLabels.splice($scope.selectedLabels.length, 0, label);
+		}
 	};
 	
 });
