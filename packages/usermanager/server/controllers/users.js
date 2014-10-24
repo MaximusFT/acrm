@@ -31,6 +31,7 @@ exports.create = function (req, res, next) {
 	user.roles = req.body.roles;
 	user.save(function (err) {
 		if (err) {
+			console.log(err);
 			switch (err.code) {
 			case 11000:
 			case 11001:

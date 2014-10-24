@@ -6,6 +6,7 @@
 var mongoose = require('mongoose'),
 Schema = mongoose.Schema,
 crypto = require('crypto');
+var ObjectId = mongoose.Types.ObjectId;
 
 /**
  * Validations
@@ -54,7 +55,9 @@ var UserSchema = new Schema({
 		},
 		department : {
 			type : Schema.Types.ObjectId,
-			ref : 'Department'
+			ref : 'Department',
+		default:
+			new ObjectId('542bdb4d91bd08f4250ffc20')
 		},
 		phone : {
 			type : String,

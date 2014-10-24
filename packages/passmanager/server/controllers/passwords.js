@@ -13,24 +13,11 @@ _ = require('lodash');
  */
 exports.create = function (req, res, next) {
 	var pass = new Pass(req.body);
-
-	//pass.provider = 'local';
-
-	// because we set our pass.provider to local our models/pass.js validation will always be true
-	/*req.assert('email', 'You must enter a valid email address').isEmail();
-	req.assert('password', 'Password must be between 8-20 characters long').len(8, 20);
-	req.assert('username', 'Username cannot be more than 20 characters').len(1, 20);
-	req.assert('confirmPassword', 'Passwords do not match').equals(req.body.password);*/
-
 	var errors = req.validationErrors();
 	console.log(errors);
 	if (errors) {
 		return res.status(400).send(errors);
 	}
-
-	// Hard coded for now. Will address this with the pass permissions system in v0.3.5
-	//pass.roles = ['authenticated'];
-	//pass.roles = req.body.roles;
 	pass.save(function (err) {
 		console.log(err);
 		if (err) {
@@ -73,22 +60,6 @@ exports.update = function (req, res) {
 		res.jsonp(pass);
 	});
 };
-/*exports.update = function (req, res) {
-if (req.body._id) {
-delete req.body._id;
-}
-Pass.findById(req.params.passId, function (err, pass) {
-//if (err) { return handleError(res, err); }
-if (!pass) {
-return res.send(404);
-}
-_.extend(pass, req.body);
-pass.save(function (err) {
-//if (err) { return handleError(res, err); }
-return res.json(200, pass);
-});
-});
-};*/
 
 /**
  * Delete an pass
@@ -98,7 +69,12 @@ exports.destroy = function (req, res) {
 		delete req.body._id;
 	}
 	Pass.findById(req.params.passId, function (err, pass) {
-		//if (err) { return handleError(res, err); }
+		if (err) {
+			console.log(err);
+			res.render('error', {
+				status : 500
+			});
+		}
 		if (!pass) {
 			return res.send(404);
 		}
@@ -131,6 +107,31 @@ exports.all = function (req, res) {
 	});
 };
 
+function nest(collection, keys) {
+	if (!keys.length) {
+		return collection;
+	} else {
+		return _(collection).groupBy(keys[0]).mapValues(function (values) {
+			return nest(values, keys.slice(1));
+		}).value();
+	}
+}
+
+function groupBy(data) {
+	return _.chain(nest(data, ['group', 'implement']))
+	.pairs()
+	.map(function (currentItem) {
+		var implement = _.chain(currentItem[1])
+			.pairs()
+			.map(function (curIt) {
+				return _.object(_.zip(['implement', 'passes'], curIt));
+			})
+			.value();
+		return _.object(_.zip(['group', 'implement'], [currentItem[0], implement]));
+	})
+	.value();
+}
+
 exports.groups = function (req, res) {
 	User.findOne({
 		_id : req.user._id
@@ -159,13 +160,16 @@ exports.groups = function (req, res) {
 							status : 500
 						});
 					} else {
-						var result = _.chain(pass)
-							.groupBy('group')
-							.pairs()
-							.map(function (currentItem) {
-								return _.object(_.zip(['group', 'passes'], currentItem));
-							})
-							.value();
+						/*var result = _.chain(pass)
+						.groupBy('group')
+						.pairs()
+						.map(function (currentItem) {
+						return _.object(_.zip(['group', 'passes'], currentItem));
+						})
+						.value();
+						res.jsonp(result);*/
+
+						var result = groupBy(pass);
 						res.jsonp(result);
 					}
 				});
@@ -187,23 +191,17 @@ exports.groups = function (req, res) {
 							status : 500
 						});
 					} else {
-						var result = _.chain(passes)
-							.groupBy('group')
-							.pairs()
-							.map(function (currentItem) {
-								return _.object(_.zip(['group', 'passes'], currentItem));
-							})
-							.value();
+						var result = groupBy(passes);
 						res.jsonp(result);
 					}
 				});
 			}
 			if (roles.indexOf('employeer') !== -1) {
 				Pass.find({
-					accessedFor : { $in : [req.user.username] }
-				}/*, {
-					accessedFor : 0
-				}*/).sort({
+					accessedFor : {
+						$in : [req.user._id]
+					}
+				}).sort({
 					'group' : 1,
 					'implement' : 1,
 					'resourceName' : 1,
@@ -215,13 +213,7 @@ exports.groups = function (req, res) {
 							status : 500
 						});
 					} else {
-						var result = _.chain(pass)
-							.groupBy('group')
-							.pairs()
-							.map(function (currentItem) {
-								return _.object(_.zip(['group', 'passes'], currentItem));
-							})
-							.value();
+						var result = groupBy(pass);
 						res.jsonp(result);
 					}
 				});
@@ -260,7 +252,9 @@ exports.acsgroups = function (req, res) {
 					} else {
 						var uids = _.map(users, '_id');
 						Pass.find({
-							accessedFor : { $in : uids }
+							accessedFor : {
+								$in : uids
+							}
 						})
 						.exec(
 							function (err, passes) {
@@ -269,14 +263,7 @@ exports.acsgroups = function (req, res) {
 									status : 500
 								});
 							} else {
-								var acsp = _.uniq(passes);							
-								var result = _.chain(acsp)
-									.groupBy('group')
-									.pairs()
-									.map(function (currentItem) {
-										return _.object(_.zip(['group', 'passes'], currentItem));
-									})
-									.value();
+								var result = groupBy(_.uniq(passes));
 								res.jsonp(result);
 							}
 						});
@@ -347,19 +334,21 @@ exports.getPass = function (req, res) {
 exports.provideAccess = function (req, res) {
 	var users = req.body.users;
 	var passes = req.body.passes;
-	_(passes).forEach(function(pid) {
+	_(passes).forEach(function (pid) {
 		Pass
-		.findById(pid, function(err, pass) {
-			_(users).forEach(function(uid) {
-				if(pass.accessedFor.indexOf(uid) === -1) {
+		.findById(pid, function (err, pass) {
+			_(users).forEach(function (uid) {
+				if (pass.accessedFor.indexOf(uid) === -1) {
 					Pass
 					.update({
 						_id : pid
 					}, {
-						$push : {'accessedFor' : uid}
+						$push : {
+							'accessedFor' : uid
+						}
 					})
 					.exec(function (err) {
-						if(err) {
+						if (err) {
 							return res.json(500, {
 								error : err
 							});
@@ -375,28 +364,37 @@ exports.provideAccess = function (req, res) {
 exports.revokeAccess = function (req, res) {
 	var users = req.body.users;
 	var passes = req.body.passes;
-	_(passes).forEach(function(pid) {
+	_(passes).forEach(function (pid) {
 		Pass
-		.findById(pid, function(err, pass) {
-			_(users).forEach(function(uid) {
-				if(pass.accessedFor.indexOf(uid) === -1) {
+		.findById(pid, function (err, pass) {
+			if (err) {
+				res.render('error', {
+					status : 500
+				});
+			}
+			if (!pass) {
+				return res.jsonp('empty result');
+			}
+			_(users).forEach(function (uid) {
+				if (pass.accessedFor.indexOf(uid) !== -1) {
 					Pass
 					.update({
 						_id : pid
 					}, {
-						$pull : {'accessedFor' : uid}
+						$pull : {
+							'accessedFor' : uid
+						}
 					})
 					.exec(function (err) {
-						if(err) {
+						if (err) {
 							return res.json(500, {
 								error : err
 							});
 						}
-						console.log('ok');
-						//res.jsonp('ok');
 					});
 				}
 			});
+			//res.jsonp('ok');
 		});
 	});
 };

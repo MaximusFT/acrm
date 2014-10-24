@@ -131,6 +131,31 @@ exports.all = function (req, res) {
 	});
 };
 
+function nest(collection, keys) {
+	if (!keys.length) {
+		return collection;
+	} else {
+		return _(collection).groupBy(keys[0]).mapValues(function (values) {
+			return nest(values, keys.slice(1));
+		}).value();
+	}
+}
+
+function groupBy(data) {
+	return _.chain(nest(data, ['group', 'implement']))
+	.pairs()
+	.map(function (currentItem) {
+		var implement = _.chain(currentItem[1])
+			.pairs()
+			.map(function (curIt) {
+				return _.object(_.zip(['implement', 'passes'], curIt));
+			})
+			.value();
+		return _.object(_.zip(['group', 'implement'], [currentItem[0], implement]));
+	})
+	.value();
+}
+
 exports.groups = function (req, res) {
 	Pass.find({}).sort({
 		'group' : 1,
@@ -143,13 +168,7 @@ exports.groups = function (req, res) {
 				status : 500
 			});
 		} else {
-			var result = _.chain(pass)
-				.groupBy('group')
-				.pairs()
-				.map(function (currentItem) {
-					return _.object(_.zip(['group', 'passes'], currentItem));
-				})
-				.value();
+			var result = groupBy(pass);
 			res.jsonp(result);
 		}
 	});
@@ -234,13 +253,7 @@ exports.getPassesByUser = function (req, res) {
 							'email' : 1
 						})
 						.exec(function (err, passes) {
-							var result = _.chain(passes)
-								.groupBy('group')
-								.pairs()
-								.map(function (currentItem) {
-									return _.object(_.zip(['group', 'passes'], currentItem));
-								})
-								.value();
+							var result = groupBy(passes);
 							res.jsonp(result);
 						});
 					} else {
@@ -254,13 +267,7 @@ exports.getPassesByUser = function (req, res) {
 							'email' : 1
 						})
 						.exec(function (err, passes) {
-							var result = _.chain(passes)
-								.groupBy('group')
-								.pairs()
-								.map(function (currentItem) {
-									return _.object(_.zip(['group', 'passes'], currentItem));
-								})
-								.value();
+							var result = groupBy(passes);
 							res.jsonp(result);
 						});
 					}
@@ -276,16 +283,8 @@ exports.getPassesByUser = function (req, res) {
 						'email' : 1
 					})
 					.exec(function (err, passes) {
-						//req.profile = pass;
-						var result = _.chain(passes)
-							.groupBy('group')
-							.pairs()
-							.map(function (currentItem) {
-								return _.object(_.zip(['group', 'passes'], currentItem));
-							})
-							.value();
+						var result = groupBy(passes);
 						res.jsonp(result);
-						//res.jsonp(passes);
 					});
 				}
 				if (roles.indexOf('employeer') !== -1) {
@@ -302,16 +301,8 @@ exports.getPassesByUser = function (req, res) {
 						'email' : 1
 					})
 					.exec(function (err, passes) {
-						//req.profile = pass;
-						var result = _.chain(passes)
-							.groupBy('group')
-							.pairs()
-							.map(function (currentItem) {
-								return _.object(_.zip(['group', 'passes'], currentItem));
-							})
-							.value();
+						var result = groupBy(passes);
 						res.jsonp(result);
-						//res.jsonp(passes);
 					});
 				}
 

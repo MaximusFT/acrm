@@ -36,12 +36,6 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 						type : 'text',
 						inTable : true
 					}, {
-						title : 'Roles',
-						schemaKey : 'roles',
-						type : 'select',
-						options : $cookies.mode === 'Administrator' ? ['admin', 'manager', 'employeer', 'authenticated'] : ($cookies.mode === 'Manager' ? ['manager', 'employeer', 'authenticated'] : ($cookies.mode === 'Employeer' ? ['employeer', 'authenticated'] : ['authenticated'])),
-						inTable : true
-					}, {
 						title : 'Password',
 						schemaKey : 'password',
 						type : 'password',
@@ -63,11 +57,6 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 					schemaKey : 'group',
 					type : 'text',
 					inTable : false
-				}, {
-					title : 'Implement',
-					schemaKey : 'implement',
-					type : 'text',
-					inTable : true
 				}, {
 					title : 'Resource Title',
 					schemaKey : 'resourceName',
@@ -208,6 +197,16 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 					user.tmpDepartment = user.department;
 				if (userField === 'roles')
 					user.tmpRoles = ['authenticated']; //user.roles;
+			};
+			
+			$scope.getSumLength = function(arr) {
+				var length = 0;
+				angular.forEach(arr, function(item, ind) {
+					angular.forEach(item.passes, function(item2, ind2) {
+						length += 1;
+					});
+				});
+				return length;
 			};
 		}
 	]);

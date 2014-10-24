@@ -13,6 +13,8 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 		function ($scope, $cookies, Global, Menus, $rootScope, $http, $log, Users) {
 			$scope.global = Global;
 			$scope.mode = $cookies.mode;
+			$scope.isSomeSelected = true;
+			$scope.isUserSelected = [];
 			$http.get('api/getDepartments').success(function (data) {
 				$scope.departments = data;
 
@@ -37,12 +39,6 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 						type : 'text',
 						inTable : true
 					}, {
-						title : 'Roles',
-						schemaKey : 'roles',
-						type : 'select',
-						options : $cookies.mode === 'Administrator' ? ['admin', 'manager', 'employeer', 'authenticated'] : ($cookies.mode === 'Manager' ? ['manager', 'employeer', 'authenticated'] : ($cookies.mode === 'Employeer' ? ['employeer', 'authenticated'] : ['authenticated'])),
-						inTable : true
-					}, {
 						title : 'Password',
 						schemaKey : 'password',
 						type : 'password',
@@ -65,7 +61,7 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 				});*/
 				$http.get('api/getUsers').success(function (data) {
 					$scope.departments = data;
-					//$log.info($scope.departments[0].);
+					//$log.info($scope.departments);
 				}).error(function () {
 					$log.error('error');
 				});
@@ -83,42 +79,62 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 						phone : $scope.user.phone,
 						password : $scope.user.password,
 						confirmPassword : $scope.user.confirmPassword,
-						roles : $scope.user.roles
+						roles : ['authenticated']
 					});
 
 				user.$save(function (response) {
 					var ret = false;
-					$scope.departments.forEach(function (department) {
-						if (department.department === response.department) {
+					//$log.info('search the same departments');
+					angular.forEach($scope.departments, function (department) {
+						if (department.department === response.department.name) {
+							//$log.info('found such implement. added to it');
 							ret = true;
 							department.users.splice(department.users.length, 0, response);
 						}
 					});
+
 					if (!ret) {
-						var u = [response];
+						//$log.info('not found anything. added new group');
 						var o = {
-							'department' : response.department,
-							'users' : u
+							'department' : response.department.name,
+							'users' : [response]
 						};
 						$scope.departments.splice($scope.departments.length, 0, o);
 						$scope.departments.sort(function (a, b) {
 							return a.department > b.department;
 						});
 					}
+
 				});
 			};
 
-			$scope.remove = function (user) {
-				$scope.departments.forEach(function (department) {
-					department.users.forEach(function (u) {
-						if (u === user) {
-							department.users.splice(department.users.indexOf(u), 1);
+			$scope.remove = function () {
+				var deleted = [];
+				angular.forEach($scope.isUserSelected, function (department, did) {
+					angular.forEach(department, function (user, uid) {
+						if (user === true) {
+							Users.remove({
+								userId : $scope.departments[did].users[uid]._id
+							});
+							if (!deleted[did])
+								deleted[did] = [];
+							deleted[did][uid] = true;
 						}
 					});
 				});
-				Users.remove({
-					userId : user._id
+				angular.forEach(deleted, function (department, did) {
+					angular.forEach(department, function (user, uid) {
+						if (user === true) {
+							$scope.departments[did].users.splice($scope.departments[did].users.indexOf($scope.departments[did].users[uid]), 1);
+						}
+					});
 				});
+				angular.forEach($scope.departments, function (department) {
+					angular.forEach(department.users, function (user) {
+						user.Selected = false;
+					});
+				});
+				$scope.isUserSelected = [];
 			};
 
 			$scope.update = function (user, userField) {
@@ -155,6 +171,47 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 					user.tmpDepartment = user.department;
 				if (userField === 'roles')
 					user.tmpRoles = ['authenticated']; //user.roles;
+			};
+
+			$scope.selectAll = function (sectionIndex) {
+				if (!$scope.isUserSelected[sectionIndex]) {
+					$scope.isUserSelected[sectionIndex] = [];
+				}
+				var ret = false;
+				// checking is already the selection in section
+				angular.forEach($scope.isUserSelected, function (department) {
+					angular.forEach(department, function (user) {
+						if (user === true)
+							ret = true;
+					});
+				});
+				// if selection exists - remove it, doesn't exist – select all
+				angular.forEach($scope.departments[sectionIndex].users, function (user, uid) {
+					$scope.isUserSelected[sectionIndex][uid] = !ret;
+					user.Selected = !ret;
+				});
+				$scope.isSomeSelected = checkSelections();
+			};
+
+			function checkSelections() {
+				var ret = false;
+				angular.forEach($scope.isUserSelected, function (department) {
+					angular.forEach(department, function (user) {
+						if (user === true)
+							ret = true;
+					});
+				});
+				return !ret;
+			}
+
+			$scope.checkUser = function (sectionIndex, index, user) {
+				if (!$scope.isUserSelected[sectionIndex])
+					$scope.isUserSelected[sectionIndex] = [];
+				if (!user.Selected)
+					$scope.isUserSelected[sectionIndex][index] = true;
+				else
+					$scope.isUserSelected[sectionIndex][index] = false;
+				$scope.isSomeSelected = checkSelections();
 			};
 		}
 	]);
