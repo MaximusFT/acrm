@@ -68,14 +68,6 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 						type : 'text',
 						inTable : false
 					}
-					/*, {
-					title : 'Users with access',
-					schemaKey : 'accessedFor',
-					type : 'select',
-					//options: ['none', 'me'],
-					options : lols,
-					inTable : true
-					}*/
 				];
 				$scope.pass = {};
 			});
@@ -88,10 +80,6 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 				}).error(function () {
 					$log.error('error');
 				});
-				/*Passwords.query({}, function (passwords) {
-				$scope.passwords = passwords;
-				});*/
-
 			};
 
 			$scope.init_ = function () {

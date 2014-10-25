@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('mean.usermanager').controller('ModalInstanceCtrl', function ($scope, $log, $http, $q, $modalInstance) {
+angular.module('mean.usermanager').controller('ModalInstanceCtrl1', function ($scope, $log, $http, $q, $modalInstance) {
 	$scope.asyncSelected = '';
 	$scope.users = [];
 	$scope.selectedDepartments = [];
