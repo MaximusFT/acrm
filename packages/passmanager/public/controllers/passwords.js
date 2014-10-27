@@ -117,7 +117,8 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 				};
 
 				modalService.showModal({}, modalOptions).then(function (result) {
-					var request = new Requests({
+					$log.info(result);
+					/*var request = new Requests({
 							//who : window.user._id,
 							what : passId,
 							when : new Date().getTime() / 1000,
@@ -128,7 +129,7 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 						if (!$scope.btn_class[sectionIndex])
 							$scope.btn_class[sectionIndex] = [];
 						$scope.btn_class[sectionIndex][id] = 'btn btn-success';
-					});
+					});*/
 				});
 			};
 
@@ -206,7 +207,27 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 				};
 
 				modalService.showModal({}, modalOptions).then(function (result) {
-					$log.info(result);
+					var passes = [];
+					angular.forEach($scope.isPassSelected, function (group, gind) {
+						angular.forEach(group, function (implement, impind) {
+							angular.forEach(implement, function (pass, pind) {
+								if (pass === true)
+									passes.splice(passes.length, 0, $scope.groups[gind].implement[impind].passes[pind]._id);
+							});
+						});
+					});
+					$http({
+						url : '/api/provideAccess',
+						method : 'POST',
+						data : {
+							'deps' : result,
+							'passes' : passes
+						}
+					})
+					.then(function (response) {},
+						function (response) {
+						$log.error('error');
+					});
 				});
 			};
 

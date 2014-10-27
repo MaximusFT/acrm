@@ -6,6 +6,7 @@
 var mongoose = require('mongoose'),
 Pass = mongoose.model('Pass'),
 User = mongoose.model('User'),
+Department = mongoose.model('Department'),
 _ = require('lodash');
 
 /**
@@ -177,6 +178,7 @@ exports.groups = function (req, res) {
 			if (roles.indexOf('manager') !== -1) {
 				Pass.find({}, {
 					'group' : 1,
+					'implement' : 1,
 					'resourceName' : 1,
 					'resourceUrl' : 1
 				}).sort({
@@ -333,17 +335,18 @@ exports.getPass = function (req, res) {
 
 exports.provideAccess = function (req, res) {
 	var users = req.body.users;
+	var deps = req.body.deps;
 	var passes = req.body.passes;
-	_(passes).forEach(function (pid) {
-		Pass
-		.findById(pid, function (err, pass) {
-			_(users).forEach(function (uid) {
-				if (pass.accessedFor.indexOf(uid) === -1) {
+	if (users) {
+		_(passes).forEach(function (pid) {
+			Pass
+			.findById(pid, function (err, pass) {
+				_(users).forEach(function (uid) {
 					Pass
 					.update({
 						_id : pid
 					}, {
-						$push : {
+						$addToSet : {
 							'accessedFor' : uid
 						}
 					})
@@ -355,10 +358,50 @@ exports.provideAccess = function (req, res) {
 						}
 						//res.jsonp('ok');
 					});
-				}
+				});
 			});
 		});
-	});
+	}
+	if (deps) {
+		_(passes).forEach(function (pid) {
+			Pass
+			.findById(pid, function (err, pass) {
+				_(deps).forEach(function (dep) {
+					User
+					.find({
+						department : dep._id
+					}, {
+						_id : 1
+					})
+					.exec(function (err, users) {
+						if (err) {
+							res.render('error', {
+								status : 500
+							});
+						}
+						_(users).forEach(function (uid) {
+							Pass
+							.update({
+								_id : pid
+							}, {
+								$addToSet : {
+									'accessedFor' : uid
+								}
+							})
+							.exec(function (err) {
+								if (err) {
+									return res.json(500, {
+										error : err
+									});
+								}
+								//res.jsonp('ok');
+							});
+						});
+					});
+				});
+			});
+		});
+	}
 };
 
 exports.revokeAccess = function (req, res) {
@@ -396,5 +439,23 @@ exports.revokeAccess = function (req, res) {
 			});
 			//res.jsonp('ok');
 		});
+	});
+};
+
+exports.getDeps = function (req, res) {
+	Department
+	.find({}, {
+		'_id' : 1,
+		'name' : 1
+	})
+	.lean()
+	.exec(function (err, deps) {
+		_(deps).forEach(function (dep) {
+			dep = {
+				_id : dep._id,
+				name : dep.name
+			};
+		});
+		res.jsonp(deps);
 	});
 };

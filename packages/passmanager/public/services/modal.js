@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('mean.passmanager').service('modalService', ['$modal',
-		function ($modal) {
+angular.module('mean.passmanager').service('modalService', ['$modal', '$log',
+		function ($modal, $log) {
 
 			var modalDefaults = {
 				backdrop : true,

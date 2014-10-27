@@ -5,6 +5,7 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function ($sc
 	$scope.users = [];
 	$scope.selectedUsers = [];
 	$scope.selectedLabels = [];
+	$scope.comment = '';
 	$scope.ok = function () {
 		$log.info('ok');
 		//$modalInstance.close($scope.selected.item);
@@ -30,6 +31,17 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function ($sc
 		return defer.promise;
 	};
 	
+	$scope.initDeps = function () {
+		$http.get('/api/getDeps')
+		.success(function (data) {
+			//$log.info(data);
+			$scope.departments = data;
+		})
+		.error(function () {
+			$log.error('error');
+		});
+	};
+	
 	$scope.selectedUser = function(item, model, label) {
 		if($scope.selectedLabels.indexOf(label) === -1) {
 			$scope.selectedUsers.splice($scope.selectedUsers.length, 0, model._id);
@@ -37,4 +49,7 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function ($sc
 		}
 	};
 	
+	$scope.setComment = function(value) {
+		$scope.comment = value;
+	};
 });

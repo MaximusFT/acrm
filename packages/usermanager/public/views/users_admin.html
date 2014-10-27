@@ -21,20 +21,42 @@
 	<div class="panel panel-default">
 	<div class="panel-heading">Control panel</div>
 	<div class="panel-body">
-	<div class="row">
-          <div class="col-md-8">
-			<div class="btn-group" style="padding: 5px;">         
-              <input type="button" class="btn btn-warning" value="Assign role" data-ng-disabled="isSomeSelected" data-ng-click="assignRole()">
+	<div>
+			 <div class="btn-group dropdown">
+              <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" data-ng-disabled="isSomeSelected">
+                Assign role 
+                <span class="caret">
+                </span>
+              </button>
+              <ul class="dropdown-menu">
+                <li data-ng-click="assignRole(1)">
+                  <a href="">
+                    Administrator
+                  </a>
+                </li>
+                <li data-ng-click="assignRole(2)">
+                  <a href="">
+                    Manager
+                  </a>
+                </li>
+				<li data-ng-click="assignRole(3)">
+                  <a href="">
+                    Employeer
+                  </a>
+                </li>
+              </ul>
             </div>
             <div class="btn-group" style="padding: 5px;">         
               <input type="button" class="btn btn-info" value="Bind to the department" data-ng-disabled="isSomeSelected" data-ng-click="bind2dep()">
             </div>
 			<div class="btn-group" style="padding: 5px;">   
+			  <input type="button" class="btn btn-primary" value="Clear accesses" data-ng-disabled="isSomeSelected" data-ng-click="clearAccesses()">
+			</div>
+			<div class="btn-group" style="padding: 5px;">   
 			  <input type="button" class="btn btn-danger" value="Remove" data-ng-disabled="isSomeSelected" data-ng-click="remove()">
 			</div>
             <input type="text" style="padding: 5px; margin-left: 12px" placeholder="Search" ng-model="search">
           </div>
-        </div>
 	</div>
 </div>
 <div class="loader" data-ng-init="init()" data-ng-hide="departments.length"></div>
@@ -53,7 +75,7 @@
         </tr>
         <tr data-ng-repeat="user in department.users | filter:search:strict">
             <td>
-                <a href="#!/manager/users/{{user['_id']}}">
+                <a href="#!/manager/users/{{user['username']}}">
 					{{$index+1}}
                 </a>
             </td>
@@ -64,7 +86,7 @@
 				<span data-ng-click="beforeSelect(field['schemaKey'], user)" data-ng-if="(field['type'] == 'text')" class="editable-span" data-ng-editable="update(user, field['schemaKey'])" data-ng-editable-model="user[field['schemaKey']]"></span>
 				<span data-ng-click="beforeSelect(field['schemaKey'], user)" data-ng-if="(field['type'] == 'select')" class="editable-span" data-ng-editable-select="update(user, field['schemaKey'])" data-ng-editable-select-model="user[field['schemaKey']]" data-ng-editable-select-options="field['options']"></span>
             </td>
-			<td>{{user.roles}}</td>
+			<td style="text-align:center;font-weight:bold;">{{user.roles}}</td>
         </tr>
     </table>
 </div>

@@ -1,0 +1,4 @@
+<div>
+	<!--<input type="text" class="form-control" data-ng-model="comment" data-ng-change="setComment(comment)"  />-->
+	<select class="form-control" data-ng-init="initDeps()" data-ng-model="comment" data-ng-options="department as department.name for department in departments" data-ng-change="setComment(comment)"></select>
+</div>

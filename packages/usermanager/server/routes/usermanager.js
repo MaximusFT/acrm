@@ -13,6 +13,9 @@ module.exports = function(Usermanager, app, auth, database) {
 	app.get('/api/fromDepartment', auth.requiresLogin, users.department);
 	app.get('/api/getUsers', auth.requiresLogin, users.groups);
 	app.get('/api/searchUsers', auth.requiresLogin, users.searchUsers);
+	app.post('/api/assignRole', auth.requiresAdmin, users.assignRole);
+	app.post('/api/bindToDep', auth.requiresAdmin, users.bindToDep);
+	app.post('/api/clearAccesses', auth.requiresAdmin, users.clearAccesses);
 	
   var passwords = require('../controllers/passwords');
 	app.get('/api/getPassesByUser', auth.requiresLogin, passwords.getPassesByUser);

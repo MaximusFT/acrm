@@ -5,6 +5,7 @@
  */
 var mongoose = require('mongoose'),
 User = mongoose.model('User'),
+Pass = mongoose.model('Pass'),
 _ = require('lodash');
 
 /**
@@ -138,9 +139,9 @@ exports.groups = function (req, res) {
 							status : 500
 						});
 					} else {
-						_(user).forEach(function(u) {
+						_(user).forEach(function (u) {
 							u.department = u.department.name;
-							u.roles.splice(0,1);
+							u.roles = u.roles[1].substring(0, 1).toUpperCase();
 						});
 						var result = _.chain(user)
 							.groupBy('department')
@@ -170,11 +171,11 @@ exports.groups = function (req, res) {
 							status : 500
 						});
 					} else {
-						_(users).forEach(function(u) {
+						_(users).forEach(function (u) {
 							u.department = u.department.name;
-							u.roles.splice(0,1);
+							u.roles = u.roles[1].substring(0, 1).toUpperCase();
 						});
-						
+
 						var result = _.chain(users)
 							.groupBy('department')
 							.pairs()
@@ -266,27 +267,114 @@ exports.department = function (req, res) {
 
 exports.searchUsers = function (req, res) {
 	var val = req.query.value;
-	User.find(
-		{},
-		{'name' : 1, 'email' : 1, 'username' : 1, 'department' : 1}
-	)
-	.or([
-		{'name' : {'$regex': val}},
-		{'email' : {'$regex': val}},
-		{'username' : {'$regex': val}}
-	])
+	User.find({}, {
+		'name' : 1,
+		'email' : 1,
+		'username' : 1,
+		'department' : 1
+	})
+	.or([{
+				'name' : {
+					'$regex' : val
+				}
+			}, {
+				'email' : {
+					'$regex' : val
+				}
+			}, {
+				'username' : {
+					'$regex' : val
+				}
+			}
+		])
 	.lean()
 	.populate('department')
 	.exec(function (err, users) {
-		if(err) {
+		if (err) {
 			res.render('error', {
 				status : 500
 			});
 		} else {
-			_(users).forEach(function(u) {
+			_(users).forEach(function (u) {
 				u.department = u.department.name;
 			});
 			return res.jsonp(users);
-		}		
+		}
 	});
+};
+
+exports.assignRole = function (req, res) {
+	var users = req.body.users;
+	var role = req.body.role === 1 ? 'admin' : (req.body.role === 2 ? 'manager' : (req.body.role === 3 ? 'employeer' : ''));
+	_(users).forEach(function (user) {
+		User
+		.update({
+			_id : user
+		}, {
+			$set : {
+				roles : ['authenticated', role]
+			}
+		})
+		.exec(function (err) {
+			if (err) {
+				return res.json(500, {
+					error : err
+				});
+			}
+		});
+	});
+	return res.jsonp(role);
+};
+
+exports.bindToDep = function (req, res) {
+	var users = req.body.users;
+	var dep = req.body.dep;
+	if (!users || !dep) {
+		return res.jsonp(500, {
+			error : 'empty request'
+		});
+	}
+	_(users).forEach(function (uid) {
+		User
+		.update({
+			_id : uid
+		}, {
+			$set : {
+				department : dep
+			}
+		})
+		.exec(function (err) {
+			if (err) {
+				//console.log(err);
+				return res.json(500, {
+					error : err
+				});
+			}
+			/*if (uid === users[users.length - 1]) {
+				User
+				.find({
+					_id : {
+						$in : users
+					}
+				})
+				.exec(function (err, us) {
+					return res.jsonp(us);
+				});
+			}*/
+		});
+	});
+	return res.jsonp('ok');
+};
+
+exports.clearAccesses = function (req, res) {
+	var users = req.body.users;
+	/*if(!users) {
+		return res.jsonp(500, {
+			error : 'empty request'
+		});
+	}
+	_(users).forEach(function (uid) {
+		Pass
+		.update
+	});*/
 };

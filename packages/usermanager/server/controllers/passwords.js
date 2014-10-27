@@ -275,7 +275,7 @@ exports.getPassesByUser = function (req, res) {
 				if (roles.indexOf('manager') !== -1) {
 					Pass
 					.find({
-						accessedFor : user.username
+						accessedFor : user._id
 					})
 					.sort({
 						'group' : 1,
@@ -289,11 +289,12 @@ exports.getPassesByUser = function (req, res) {
 				}
 				if (roles.indexOf('employeer') !== -1) {
 					if (req.query.userId !== req.user.username) {
+						console.log('ne sovpalo');
 						return res.jsonp([]);
 					}
 					Pass
 					.find({
-						accessedFor : user.username
+						accessedFor : user._id
 					})
 					.sort({
 						'group' : 1,
@@ -301,6 +302,11 @@ exports.getPassesByUser = function (req, res) {
 						'email' : 1
 					})
 					.exec(function (err, passes) {
+						if(err) {
+							res.render('error', {
+								status : 500
+							});
+						}
 						var result = groupBy(passes);
 						res.jsonp(result);
 					});

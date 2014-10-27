@@ -9,8 +9,8 @@ angular.module('mean.usermanager').controller('UsermanagerController', ['$scope'
 		}
 	]);
 
-angular.module('mean.usermanager').controller('UsersController', ['$scope', '$cookies', 'Global', 'Menus', '$rootScope', '$http', '$log', 'Users',
-		function ($scope, $cookies, Global, Menus, $rootScope, $http, $log, Users) {
+angular.module('mean.usermanager').controller('UsersController', ['$scope', '$cookies', 'Global', 'Menus', '$rootScope', '$http', '$log', 'Users', 'modalService',
+		function ($scope, $cookies, Global, Menus, $rootScope, $http, $log, Users, modalService) {
 			$scope.global = Global;
 			$scope.mode = $cookies.mode;
 			$scope.isSomeSelected = true;
@@ -212,6 +212,107 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 				else
 					$scope.isUserSelected[sectionIndex][index] = false;
 				$scope.isSomeSelected = checkSelections();
+			};
+
+			$scope.assignRole = function (role) {
+				$scope.ttt = false;
+				var users = [];
+				angular.forEach($scope.isUserSelected, function (department, did) {
+					angular.forEach(department, function (user, uid) {
+						if (user === true)
+							users.splice(users.length, 0, $scope.departments[did].users[uid]._id);
+					});
+				});
+				$http({
+					url : '/api/assignRole',
+					method : 'POST',
+					data : {
+						'users' : users,
+						'role' : role
+					}
+				})
+				.then(function (response) {
+					var r = response.data.split('\"').join('');
+					angular.forEach($scope.departments, function (department) {
+						angular.forEach(department.users, function (user) {
+							if (user.Selected === true) {
+								user.roles = [r];
+								user.Selected = false;
+							}
+						});
+					});
+					$scope.isUserSelected = [];
+					$scope.checkSelections();
+				},
+					function (response) {
+					$log.error('error');
+				});
+			};
+
+			$scope.bind2dep = function () {
+				var modalOptions = {
+					closeButtonText : 'Cancel',
+					actionButtonText : 'Confirm',
+					headerText : 'Choose department',
+					bodyText : 'Specify what department you want to bind with user(s).',
+					type : 3
+				};
+
+				modalService.showModal({}, modalOptions).then(function (result) {
+					var users = [];
+					angular.forEach($scope.isUserSelected, function (department, did) {
+						angular.forEach(department, function (user, uid) {
+							if (user === true)
+								users.splice(users.length, 0, $scope.departments[did].users[uid]._id);
+						});
+					});
+					$http({
+						url : '/api/bindToDep',
+						method : 'POST',
+						data : {
+							'users' : users,
+							'dep' : result._id
+						}
+					})
+					.then(function (response) {
+						angular.forEach($scope.departments, function (department) {
+							angular.forEach(department.users, function (user) {
+								if (user.Selected === true) {
+									user.Selected = false;
+								}
+							});
+						});
+						$scope.init();
+						$scope.isUserSelected = [];
+						$scope.isSomeSelected = false;
+					},
+						function (response) {
+						$log.error('error');
+					});
+				});
+			};
+
+			$scope.clearAccesses = function () {
+				var users = [];
+				angular.forEach($scope.isUserSelected, function (department, did) {
+					angular.forEach(department, function (user, uid) {
+						if (user === true)
+							users.splice(users.length, 0, $scope.departments[did].users[uid]._id);
+					});
+				});
+				$http({
+					url : '/api/clearAccesses',
+					method : 'POST',
+					data : {
+						'users' : users
+					}
+				})
+				.then(function (response) {
+					$log.info(response);
+				},
+					function (response) {
+					$log.error('error');
+				});
 			};
 		}
 	]);
