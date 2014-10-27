@@ -161,15 +161,6 @@ exports.groups = function (req, res) {
 							status : 500
 						});
 					} else {
-						/*var result = _.chain(pass)
-						.groupBy('group')
-						.pairs()
-						.map(function (currentItem) {
-						return _.object(_.zip(['group', 'passes'], currentItem));
-						})
-						.value();
-						res.jsonp(result);*/
-
 						var result = groupBy(pass);
 						res.jsonp(result);
 					}
@@ -341,6 +332,12 @@ exports.provideAccess = function (req, res) {
 		_(passes).forEach(function (pid) {
 			Pass
 			.findById(pid, function (err, pass) {
+				if(err) {
+					console.log(err);
+					return res.json(500, {
+						error : err
+					});
+				}
 				_(users).forEach(function (uid) {
 					Pass
 					.update({
@@ -352,11 +349,12 @@ exports.provideAccess = function (req, res) {
 					})
 					.exec(function (err) {
 						if (err) {
+							console.log(err);
 							return res.json(500, {
 								error : err
 							});
 						}
-						//res.jsonp('ok');
+						res.jsonp('ok');
 					});
 				});
 			});
@@ -366,7 +364,7 @@ exports.provideAccess = function (req, res) {
 		_(passes).forEach(function (pid) {
 			Pass
 			.findById(pid, function (err, pass) {
-				_(deps).forEach(function (dep) {
+				_(deps).forEach(function (dep, ind) {
 					User
 					.find({
 						department : dep._id
@@ -379,7 +377,7 @@ exports.provideAccess = function (req, res) {
 								status : 500
 							});
 						}
-						_(users).forEach(function (uid) {
+						_(users).forEach(function (uid, ind2) {
 							Pass
 							.update({
 								_id : pid
@@ -394,7 +392,8 @@ exports.provideAccess = function (req, res) {
 										error : err
 									});
 								}
-								//res.jsonp('ok');
+								if(ind === deps.length-1 && ind2 === users.length-1)
+									res.jsonp('ok');
 							});
 						});
 					});
@@ -407,7 +406,7 @@ exports.provideAccess = function (req, res) {
 exports.revokeAccess = function (req, res) {
 	var users = req.body.users;
 	var passes = req.body.passes;
-	_(passes).forEach(function (pid) {
+	_(passes).forEach(function (pid, ind) {
 		Pass
 		.findById(pid, function (err, pass) {
 			if (err) {
@@ -418,7 +417,7 @@ exports.revokeAccess = function (req, res) {
 			if (!pass) {
 				return res.jsonp('empty result');
 			}
-			_(users).forEach(function (uid) {
+			_(users).forEach(function (uid, ind2) {
 				if (pass.accessedFor.indexOf(uid) !== -1) {
 					Pass
 					.update({
@@ -436,8 +435,9 @@ exports.revokeAccess = function (req, res) {
 						}
 					});
 				}
+				if(ind === passes.length-1 && ind2 === users.length-1)
+					res.jsonp('ok');
 			});
-			//res.jsonp('ok');
 		});
 	});
 };

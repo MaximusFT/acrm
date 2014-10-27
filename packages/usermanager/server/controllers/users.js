@@ -295,10 +295,11 @@ exports.searchUsers = function (req, res) {
 				status : 500
 			});
 		} else {
-			_(users).forEach(function (u) {
+			_(users).forEach(function (u, uid) {
 				u.department = u.department.name;
+				if (uid === users.length - 1)
+					return res.jsonp(users);
 			});
-			return res.jsonp(users);
 		}
 	});
 };
@@ -306,7 +307,7 @@ exports.searchUsers = function (req, res) {
 exports.assignRole = function (req, res) {
 	var users = req.body.users;
 	var role = req.body.role === 1 ? 'admin' : (req.body.role === 2 ? 'manager' : (req.body.role === 3 ? 'employeer' : ''));
-	_(users).forEach(function (user) {
+	_(users).forEach(function (user, uid) {
 		User
 		.update({
 			_id : user
@@ -321,9 +322,10 @@ exports.assignRole = function (req, res) {
 					error : err
 				});
 			}
+			if (uid === users.length - 1)
+				return res.jsonp(role);
 		});
 	});
-	return res.jsonp(role);
 };
 
 exports.bindToDep = function (req, res) {
@@ -350,31 +352,50 @@ exports.bindToDep = function (req, res) {
 					error : err
 				});
 			}
-			/*if (uid === users[users.length - 1]) {
-				User
-				.find({
-					_id : {
-						$in : users
-					}
-				})
-				.exec(function (err, us) {
-					return res.jsonp(us);
-				});
-			}*/
+			if (uid === users[users.length - 1]) {
+				return res.jsonp('ok');
+			}
 		});
 	});
-	return res.jsonp('ok');
 };
 
 exports.clearAccesses = function (req, res) {
 	var users = req.body.users;
-	/*if(!users) {
+	console.log(users);
+	if (!users) {
 		return res.jsonp(500, {
 			error : 'empty request'
 		});
 	}
-	_(users).forEach(function (uid) {
-		Pass
-		.update
-	});*/
+	Pass
+	.find({
+		accessedFor : {
+			$in : users
+		}
+	}, {
+		'_id' : 1
+	})
+	.exec(function (err, passes) {
+		var pids = _.map(passes, '_id');
+		_(pids).forEach(function (pid, ind) {
+			Pass
+			.update({
+				_id : pid
+			}, {
+				$pullAll : {
+					accessedFor : users
+				}
+			})
+			.exec(function (err) {
+				if (err) {
+					console.log(err);
+					return res.json(500, {
+						error : err
+					});
+				}
+				if(ind === pids.length-1)
+					res.jsonp('ok');
+			});
+		});
+	});
 };

@@ -117,8 +117,8 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 				};
 
 				modalService.showModal({}, modalOptions).then(function (result) {
-					$log.info(result);
-					/*var request = new Requests({
+					//$log.info(result);
+					var request = new Requests({
 							//who : window.user._id,
 							what : passId,
 							when : new Date().getTime() / 1000,
@@ -129,7 +129,7 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 						if (!$scope.btn_class[sectionIndex])
 							$scope.btn_class[sectionIndex] = [];
 						$scope.btn_class[sectionIndex][id] = 'btn btn-success';
-					});*/
+					});
 				});
 			};
 
@@ -140,7 +140,7 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 						reqId : rId
 					}
 				}).success(function (data) {
-					$log.info(data);
+					//$log.info(data);
 					$scope.btn_class[id] = 'btn btn-success';
 				}).error(function (data, status) {
 					if (status === 500)
@@ -155,7 +155,7 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 						reqId : rId
 					}
 				}).success(function (data) {
-					$log.info(data);
+					//$log.info(data);
 					$scope.btn_class[id] = 'btn btn-info';
 				}).error(function (data, status) {
 					if (status === 500)
