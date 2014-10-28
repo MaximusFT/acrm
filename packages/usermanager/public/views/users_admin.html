@@ -28,7 +28,7 @@
                 <span class="caret">
                 </span>
               </button>
-              <ul class="dropdown-menu">
+              <ul class="dropdown-menu" data-ng-hide="isSomeSelected">
                 <li data-ng-click="assignRole(1)">
                   <a href="">
                     Administrator
@@ -68,7 +68,7 @@
                 <i class="glyphicon glyphicon-sort-by-order"></i>
             </th>
             <th>
-                <i class="glyphicon glyphicon-ok" data-ng-click="selectAll(sectionIndex, implementIndex)"></i>
+                <i class="glyphicon glyphicon-ok" data-ng-click="selectAll(sectionIndex)"></i>
             </th>
             <th data-ng-repeat="field in userSchema" data-ng-if="field.inTable">{{field.title}}</th>
 			<th>Role</th>

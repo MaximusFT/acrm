@@ -6,6 +6,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 			$scope.userId = $stateParams.userId;
 			$scope.mode = $cookies.mode;
 			$scope.isPasses = false;
+			$scope.isUser = true;
 			$scope.permsg = 'You have not access for any password account.';
 
 			$http.get('api/getDepartments').success(function (data) {
@@ -102,8 +103,11 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 					}
 				}).success(function (data) {
 					//$log.info(data);
-					data.department = data.department.name;
-					$scope.users = [data];
+					if(data !== 'null') {
+						data.department = data.department.name;
+						$scope.users = [data];
+					} else
+						$scope.isUser = false;
 					//$log.info($scope.users);
 				}).error(function (data, status) {
 					if (status === 500)
@@ -133,35 +137,6 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 					});
 				}
 			};
-
-			/*$scope.add = function() {
-			if (!$scope.users) $scope.users = [];
-
-			var user = new Users({
-			email: $scope.user.email,
-			name: $scope.user.name,
-			username: $scope.user.username,
-			password: $scope.user.password,
-			confirmPassword: $scope.user.confirmPassword,
-			roles: $scope.user.roles
-			});
-
-			user.$save(function(response) {
-			$scope.users.push(response);
-			});
-
-			this.firstName = this.lastName = this.email = this.password = this.role = '';
-			};*/
-
-			/*$scope.remove = function(user) {
-			for (var i in $scope.users) {
-			if ($scope.users[i] === user) {
-			$scope.users.splice(i, 1);
-			}
-			}
-
-			user.$remove();
-			};*/
 
 			$scope.update = function (user, userField) {
 				if (userField && userField === 'roles') {

@@ -234,7 +234,8 @@ exports.getPassesByUser = function (req, res) {
 			_id : req.user._id
 		}, {
 			'_id' : 0,
-			'roles' : 1
+			'roles' : 1,
+			'department' : 1
 		}).exec(
 			function (err, curuser) {
 			if (err) {
@@ -273,9 +274,11 @@ exports.getPassesByUser = function (req, res) {
 					}
 				}
 				if (roles.indexOf('manager') !== -1) {
+					console.log(curuser);
 					Pass
 					.find({
-						accessedFor : user._id
+						accessedFor : user._id,
+						department : curuser.department
 					})
 					.sort({
 						'group' : 1,

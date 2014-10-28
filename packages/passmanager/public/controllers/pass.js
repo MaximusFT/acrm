@@ -1,9 +1,11 @@
 'use strict';
 
-angular.module('mean.passmanager').controller('PassController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$stateParams', '$location', 'Passwords', 'Users',
-		function ($scope, Global, Menus, $rootScope, $http, $log, $stateParams, $location, Passwords, Users) {
+angular.module('mean.passmanager').controller('PassController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$cookies', '$stateParams', '$location', 'Passwords', 'Users',
+		function ($scope, Global, Menus, $rootScope, $http, $log, $cookies, $stateParams, $location, Passwords, Users) {
 			$scope.global = Global;
 			$scope.passId = $stateParams.passId;
+			$scope.mode = $cookies.mode;
+			$scope.isPasses = false;
 			
 			Users.query({}, function (users) {
 				var lols = [];
@@ -55,7 +57,9 @@ angular.module('mean.passmanager').controller('PassController', ['$scope', 'Glob
 				$scope.passwords = [];
 				$http.get('api/getPass', {params: {passId: $scope.passId}
 				}).success(function (data) {
-					$scope.passwords = [data];
+					$scope.passwords = data;
+					if(data.length > 0)
+						$scope.isPasses = true;
 				}).error(function (data, status) {
 					if(status === 400)
 						$location.path('manager/passwords');

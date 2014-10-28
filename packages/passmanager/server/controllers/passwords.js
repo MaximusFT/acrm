@@ -29,7 +29,7 @@ exports.create = function (req, res, next) {
 
 			return res.status(400);
 		}
-		res.jsonp(pass);
+		return res.jsonp(pass);
 	});
 };
 
@@ -58,7 +58,13 @@ exports.update = function (req, res) {
 	//console.log(pass);
 	pass = _.extend(pass, req.body);
 	pass.save(function (err) {
-		res.jsonp(pass);
+		if (err) {
+			return res.render('error', {
+				status : 500
+			});
+		} else {
+			return res.jsonp(pass);
+		}
 	});
 };
 
@@ -82,11 +88,11 @@ exports.destroy = function (req, res) {
 		_.extend(pass, req.body);
 		pass.remove(function (err) {
 			if (err) {
-				res.render('error', {
+				return res.render('error', {
 					status : 500
 				});
 			} else {
-				res.jsonp(pass);
+				return res.jsonp(pass);
 			}
 		});
 	});
@@ -99,11 +105,11 @@ exports.all = function (req, res) {
 	Pass.find().sort('group').exec(
 		function (err, pass) {
 		if (err) {
-			res.render('error', {
+			return res.render('error', {
 				status : 500
 			});
 		} else {
-			res.jsonp(pass);
+			return res.jsonp(pass);
 		}
 	});
 };
@@ -149,7 +155,9 @@ exports.groups = function (req, res) {
 		} else {
 			var roles = user.roles;
 			if (roles.indexOf('admin') !== -1) {
-				Pass.find({}).sort({
+				Pass.find({}, {
+					'accessedFor' : 0
+				}).sort({
 					'group' : 1,
 					'implement' : 1,
 					'resourceName' : 1,
@@ -157,12 +165,12 @@ exports.groups = function (req, res) {
 				}).exec(
 					function (err, pass) {
 					if (err) {
-						res.render('error', {
+						return res.render('error', {
 							status : 500
 						});
 					} else {
 						var result = groupBy(pass);
-						res.jsonp(result);
+						return res.jsonp(result);
 					}
 				});
 			}
@@ -180,12 +188,12 @@ exports.groups = function (req, res) {
 				}).exec(
 					function (err, passes) {
 					if (err) {
-						res.render('error', {
+						return res.render('error', {
 							status : 500
 						});
 					} else {
 						var result = groupBy(passes);
-						res.jsonp(result);
+						return res.jsonp(result);
 					}
 				});
 			}
@@ -194,6 +202,8 @@ exports.groups = function (req, res) {
 					accessedFor : {
 						$in : [req.user._id]
 					}
+				}, {
+					'accessedFor' : 0
 				}).sort({
 					'group' : 1,
 					'implement' : 1,
@@ -202,12 +212,12 @@ exports.groups = function (req, res) {
 				}).exec(
 					function (err, pass) {
 					if (err) {
-						res.render('error', {
+						return res.render('error', {
 							status : 500
 						});
 					} else {
 						var result = groupBy(pass);
-						res.jsonp(result);
+						return res.jsonp(result);
 					}
 				});
 			}
@@ -248,16 +258,18 @@ exports.acsgroups = function (req, res) {
 							accessedFor : {
 								$in : uids
 							}
+						}, {
+							'accessedFor' : 0
 						})
 						.exec(
 							function (err, passes) {
 							if (err) {
-								res.render('error', {
+								return res.render('error', {
 									status : 500
 								});
 							} else {
 								var result = groupBy(_.uniq(passes));
-								res.jsonp(result);
+								return res.jsonp(result);
 							}
 						});
 					}
@@ -271,15 +283,17 @@ exports.passesByGroup = function (req, res) {
 	var groupId = req.query.groupId;
 	Pass.find({
 		group : groupId
-	},
-		function (err, pass) {
+	}, {
+		'accessedFor' : 0
+	})
+	.exec(function (err, pass) {
 		if (err) {
-			res.render('error', {
+			return res.render('error', {
 				status : 500
 			});
 		} else {
 			//console.log(pass);
-			res.jsonp(pass);
+			return res.jsonp(pass);
 		}
 	});
 };
@@ -298,11 +312,11 @@ exports.delPass = function (req, res) {
 		_.extend(pass, req.body);
 		pass.remove(function (err) {
 			if (err) {
-				res.render('error', {
+				return res.render('error', {
 					status : 500
 				});
 			} else {
-				res.jsonp(pass);
+				return res.jsonp(pass);
 			}
 		});
 	});
@@ -314,13 +328,93 @@ exports.getPass = function (req, res) {
 		res.status(400).send('Invalid URI');
 		return;
 	}
-	Pass
-	.findOne({
-		_id : passId
-	})
-	.exec(function (err, pass) {
-		//req.profile = pass;
-		res.jsonp(pass);
+	User.findOne({
+		_id : req.user._id
+	}, {
+		'_id' : 1,
+		'department' : 1,
+		'roles' : 1
+	}).exec(
+		function (err, user) {
+		if (err) {
+			res.render('error', {
+				status : 500
+			});
+		} else {
+			var roles = user.roles;
+			if (roles.indexOf('admin') !== -1) {
+				Pass
+				.findOne({
+					_id : passId
+				})
+				.exec(function (err, pass) {
+					if (err) {
+						return res.json(500, {
+							error : err
+						});
+					} else {
+						return res.jsonp([pass]);
+					}
+				});
+			}
+			if (roles.indexOf('manager') !== -1) {
+				User
+				.find({
+					department : user.department
+				})
+				.exec(function (err, users) {
+					if (err) {
+						return res.json(500, {
+							error : err
+						});
+					} else {
+						var uids = _.map(users, '_id');
+						Pass
+						.findOne({
+							$and : [{
+									_id : passId
+								}, {
+									accessedFor : {
+										$in : uids
+									}
+								}
+							]
+						})
+						.exec(function (err, pass) {
+							if (err) {
+								return res.json(500, {
+									error : err
+								});
+							} else {
+								//req.profile = pass;
+								return res.jsonp(!pass ? [] : [pass]);
+							}
+						});
+					}
+				});
+			}
+			if (roles.indexOf('employeer') !== -1) {
+				Pass
+				.findOne({
+					$and : [{
+							_id : passId
+						}, {
+							accessedFor : user._id
+						}
+					]
+				})
+				.exec(function (err, pass) {
+					if (err) {
+						console.log(err);
+						return res.json(500, {
+							error : err
+						});
+					} else {
+						return res.jsonp(!pass ? [] : [pass]);
+					}
+				});
+			}
+		}
 	});
 };
 
@@ -329,75 +423,71 @@ exports.provideAccess = function (req, res) {
 	var deps = req.body.deps;
 	var passes = req.body.passes;
 	if (users) {
-		_(passes).forEach(function (pid) {
+		Pass
+		.update({
+			_id : {
+				$in : passes
+			}
+		}, {
+			$addToSet : {
+				'accessedFor' : {
+					$each : users
+				}
+			}
+		}, {
+			multi : true
+		})
+		.exec(function (err) {
+			if (err) {
+				return res.json(500, {
+					error : err
+				});
+			} else {
+				return res.jsonp('ok');
+			}
+		});
+	}
+	if (deps) {
+		deps = _.map(deps, '_id');
+		User
+		.find({
+			department : {
+				$in : deps
+			}
+		}, {
+			_id : 1
+		})
+		.exec(function (err, users) {
+			if (err) {
+				console.log(err);
+				res.render('error', {
+					status : 500
+				});
+			}
+			var uids = _.map(users, '_id');
 			Pass
-			.findById(pid, function (err, pass) {
-				if(err) {
+			.update({
+				_id : {
+					$in : passes
+				}
+			}, {
+				$addToSet : {
+					'accessedFor' : {
+						$each : uids
+					}
+				}
+			}, {
+				multi : true
+			})
+			.exec(function (err) {
+				if (err) {
 					console.log(err);
 					return res.json(500, {
 						error : err
 					});
+				} else {
+					return res.jsonp('ok');
 				}
-				_(users).forEach(function (uid) {
-					Pass
-					.update({
-						_id : pid
-					}, {
-						$addToSet : {
-							'accessedFor' : uid
-						}
-					})
-					.exec(function (err) {
-						if (err) {
-							console.log(err);
-							return res.json(500, {
-								error : err
-							});
-						}
-						res.jsonp('ok');
-					});
-				});
-			});
-		});
-	}
-	if (deps) {
-		_(passes).forEach(function (pid) {
-			Pass
-			.findById(pid, function (err, pass) {
-				_(deps).forEach(function (dep, ind) {
-					User
-					.find({
-						department : dep._id
-					}, {
-						_id : 1
-					})
-					.exec(function (err, users) {
-						if (err) {
-							res.render('error', {
-								status : 500
-							});
-						}
-						_(users).forEach(function (uid, ind2) {
-							Pass
-							.update({
-								_id : pid
-							}, {
-								$addToSet : {
-									'accessedFor' : uid
-								}
-							})
-							.exec(function (err) {
-								if (err) {
-									return res.json(500, {
-										error : err
-									});
-								}
-								if(ind === deps.length-1 && ind2 === users.length-1)
-									res.jsonp('ok');
-							});
-						});
-					});
-				});
 			});
 		});
 	}
@@ -406,39 +496,26 @@ exports.provideAccess = function (req, res) {
 exports.revokeAccess = function (req, res) {
 	var users = req.body.users;
 	var passes = req.body.passes;
-	_(passes).forEach(function (pid, ind) {
-		Pass
-		.findById(pid, function (err, pass) {
-			if (err) {
-				res.render('error', {
-					status : 500
-				});
-			}
-			if (!pass) {
-				return res.jsonp('empty result');
-			}
-			_(users).forEach(function (uid, ind2) {
-				if (pass.accessedFor.indexOf(uid) !== -1) {
-					Pass
-					.update({
-						_id : pid
-					}, {
-						$pull : {
-							'accessedFor' : uid
-						}
-					})
-					.exec(function (err) {
-						if (err) {
-							return res.json(500, {
-								error : err
-							});
-						}
-					});
-				}
-				if(ind === passes.length-1 && ind2 === users.length-1)
-					res.jsonp('ok');
+	Pass
+	.update({
+		_id : {
+			$in : passes
+		}
+	}, {
+		$pullAll : {
+			'accessedFor' : users
+		}
+	}, {
+		multi : true
+	})
+	.exec(function (err) {
+		if (err) {
+			return res.json(500, {
+				error : err
 			});
-		});
+		} else {
+			return res.jsonp('ok');
+		}
 	});
 };
 
@@ -450,12 +527,18 @@ exports.getDeps = function (req, res) {
 	})
 	.lean()
 	.exec(function (err, deps) {
-		_(deps).forEach(function (dep) {
-			dep = {
-				_id : dep._id,
-				name : dep.name
-			};
-		});
-		res.jsonp(deps);
+		if (err) {
+			return res.json(500, {
+				error : err
+			});
+		} else {
+			_(deps).forEach(function (dep) {
+				dep = {
+					_id : dep._id,
+					name : dep.name
+				};
+			});
+			return res.jsonp(deps);
+		}
 	});
 };

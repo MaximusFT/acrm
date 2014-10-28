@@ -104,7 +104,7 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 							return a.department > b.department;
 						});
 					}
-
+					$scope.init();
 				});
 			};
 
@@ -232,17 +232,17 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 					}
 				})
 				.then(function (response) {
-					var r = response.data.split('\"').join('');
+					var r = response.data.substring(1, 2).toUpperCase();
 					angular.forEach($scope.departments, function (department) {
 						angular.forEach(department.users, function (user) {
 							if (user.Selected === true) {
-								user.roles = [r];
+								user.roles = r;
 								user.Selected = false;
 							}
 						});
 					});
 					$scope.isUserSelected = [];
-					$scope.checkSelections();
+					$scope.isSomeSelected = true;
 				},
 					function (response) {
 					$log.error('error');
@@ -284,7 +284,7 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 						});
 						$scope.init();
 						$scope.isUserSelected = [];
-						$scope.isSomeSelected = false;
+						$scope.isSomeSelected = true;
 					},
 						function (response) {
 						$log.error('error');
@@ -308,7 +308,16 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 					}
 				})
 				.then(function (response) {
-					$log.info(response);
+					//$log.info(response);
+					angular.forEach($scope.departments, function (department) {
+						angular.forEach(department.users, function (user) {
+							if (user.Selected === true) {
+								user.Selected = false;
+							}
+						});
+					});
+					$scope.isUserSelected = [];
+					$scope.isSomeSelected = true;
 				},
 					function (response) {
 					$log.error('error');

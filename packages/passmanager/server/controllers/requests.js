@@ -7,6 +7,7 @@ var mongoose = require('mongoose'),
 Request = mongoose.model('Request'),
 //User = mongoose.model('User'),
 Pass = mongoose.model('Pass'),
+Department = mongoose.model('Department'),
 _ = require('lodash');
 
 /**
@@ -110,27 +111,31 @@ exports.destroy = function (req, res) {
  * List of Requests
  */
 exports.all = function (req, res) {
-	/*Request.find().sort({'when' : -1}).exec(
-		function (err, requests) {
-		if (err) {
-			res.render('error', {
-				status : 500
-			});
-		} else {
-			res.jsonp(requests);
-		}
-	});*/
 	Request
 	.find()
 	.populate('what')
 	.populate('who')
+	.lean()
 	.exec(function (err, requests) {
 		if (err) {
 			res.render('error', {
 				status : 500
 			});
 		} else {
-			res.jsonp(requests);
+			_(requests).forEach(function(r, ind) {
+				Department
+				.findById(r.who.department, function(err, dep) {
+					if (err) {
+						res.render('error', {
+							status : 500
+						});
+					} else {
+						r.who.department = dep.name;
+						if(ind === requests.length-1)
+							return res.jsonp(requests);
+					}
+				});
+			});		
 		}
 	});
 };

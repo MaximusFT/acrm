@@ -16,6 +16,10 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 			$scope.isSomeSelected = true;
 			$scope.isPassSelected = [];
 			$scope.isRequests = false;
+			$scope.isPasses = false;
+			$scope.alerts = [
+				{ type: 'danger', msg: 'Attention! Now, being authorized as a department manager, you have access to the passwords, which are assigned to at least one of your employee. If you take away access to the employee and it was the only employee of the department who had access to the password, the password will disappear from this list.' }
+			];
 			if ($scope.mode === 'Administrator') {
 				$scope.btn_class = [];
 			} else {
@@ -86,6 +90,8 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 				$scope.groups = [];
 				$http.get('api/getAcsGroups').success(function (data) {
 					$scope.groups = data;
+					if(data.length > 0)
+						$scope.isPasses = true;
 					//$log.warn($scope.groups);
 				}).error(function () {
 					$log.error('error');
@@ -190,7 +196,9 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 							'passes' : passes
 						}
 					})
-					.then(function (response) {},
+					.then(function (response) {
+						unselectAll();
+					},
 						function (response) {
 						$log.error('error');
 					});
@@ -224,7 +232,9 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 							'passes' : passes
 						}
 					})
-					.then(function (response) {},
+					.then(function (response) {
+						unselectAll();
+					},
 						function (response) {
 						$log.error('error');
 					});
@@ -259,7 +269,8 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 						}
 					})
 					.success(function (response) {
-						$log.info('success');
+						//$log.info('success');
+						unselectAll();
 					})
 					.error(function (response) {
 						$log.error('error');
@@ -302,6 +313,20 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 					});
 				});
 				return !ret;
+			}
+			
+			function unselectAll() {
+				angular.forEach($scope.groups, function (group) {
+					angular.forEach(group.implement, function (implement) {
+						angular.forEach(implement.passes, function (pass) {
+							if (pass.Selected === true) {
+								pass.Selected = false;
+							}
+						});
+					});
+				});
+				$scope.isPassSelected = [];
+				$scope.isSomeSelected = true;
 			}
 
 			$scope.checkPass = function (sectionIndex, implementIndex, index, pass) {
@@ -425,6 +450,10 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 					});
 				});
 				return length;
+			};
+			
+			$scope.closeAlert = function(index) {
+				$scope.alerts.splice(index, 1);
 			};
 		}
 	]);

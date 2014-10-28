@@ -1,3 +1,4 @@
+<div class="loader" data-ng-init="init()" data-ng-hide="departments.length"></div>
 <div data-ng-repeat="department in departments">
 	<h1 data-ng-show="department.users.length">{{department.department}}</h1>
     <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="department.users.length">
@@ -9,6 +10,7 @@
                 #
             </th>
             <th data-ng-repeat="field in userSchema" data-ng-if="field.inTable">{{field.title}}</th>
+			<th>Role</th>
         </tr>
         <tr data-ng-repeat="user in department.users | filter:search:strict">
             <td data-ng-show="edit">
@@ -22,6 +24,7 @@
             <td class="table-editable-cell" data-ng-repeat="field in userSchema" data-ng-if="field.inTable">
 				<span>{{user[field['schemaKey']]}}</span>
             </td>
+			<td style="text-align:center;font-weight:bold;">{{user.roles}}</td>
         </tr>
     </table>
 </div>

@@ -173,7 +173,10 @@ exports.groups = function (req, res) {
 					} else {
 						_(users).forEach(function (u) {
 							u.department = u.department.name;
-							u.roles = u.roles[1].substring(0, 1).toUpperCase();
+							if(u.roles.length > 1)
+								u.roles = u.roles[1].substring(0, 1).toUpperCase();
+							else
+								u.roles = 'N/v';
 						});
 
 						var result = _.chain(users)
@@ -211,37 +214,30 @@ exports.getUser = function (req, res) {
 				.populate('department')
 				.exec(function (err, user) {
 					if (err) {
-						res.render('error', {
+						return res.render('error', {
 							status : 500
 						});
 					} else {
 						if (!user)
-							res.render('error', {
-								status : 500
-							});
-						else
-							res.jsonp(user);
+							return res.jsonp(user);
+						return res.jsonp('empty');
 					}
 				});
 			}
 			if (curUser.roles.indexOf('manager') !== -1 || curUser.roles.indexOf('employeer') !== -1) {
 				User
 				.findOne({
-					'username' : req.query.userId
+					'username' : req.query.userId,
+					'department' : curUser.department
 				})
 				.populate('department')
 				.exec(function (err, user) {
 					if (err) {
-						res.render('error', {
+						return res.render('error', {
 							status : 500
 						});
 					} else {
-						if (user.department[0] !== curUser.department[0]) {
-							res.status(500).send('Permission denied');
-							return;
-						} else {
-							res.jsonp(user);
-						}
+						return res.jsonp(user);
 					}
 				});
 			}
@@ -267,39 +263,101 @@ exports.department = function (req, res) {
 
 exports.searchUsers = function (req, res) {
 	var val = req.query.value;
-	User.find({}, {
-		'name' : 1,
-		'email' : 1,
-		'username' : 1,
-		'department' : 1
-	})
-	.or([{
-				'name' : {
-					'$regex' : val
-				}
-			}, {
-				'email' : {
-					'$regex' : val
-				}
-			}, {
-				'username' : {
-					'$regex' : val
-				}
-			}
-		])
-	.lean()
-	.populate('department')
-	.exec(function (err, users) {
+
+	User.findOne({
+		_id : req.user._id
+	}, {
+		'_id' : 0,
+		'department' : 1,
+		'roles' : 1
+	}).exec(
+		function (err, user) {
 		if (err) {
 			res.render('error', {
 				status : 500
 			});
 		} else {
-			_(users).forEach(function (u, uid) {
-				u.department = u.department.name;
-				if (uid === users.length - 1)
-					return res.jsonp(users);
-			});
+			var roles = user.roles;
+			if (roles.indexOf('admin') !== -1) {
+
+				User.find({}, {
+					'name' : 1,
+					'email' : 1,
+					'username' : 1,
+					'department' : 1
+				})
+				.or([{
+							'name' : {
+								'$regex' : val
+							}
+						}, {
+							'email' : {
+								'$regex' : val
+							}
+						}, {
+							'username' : {
+								'$regex' : val
+							}
+						}
+					])
+				.lean()
+				.populate('department')
+				.exec(function (err, users) {
+					if (err) {
+						res.render('error', {
+							status : 500
+						});
+					} else {
+						_(users).forEach(function (u, uid) {
+							u.department = u.department.name;
+							if (uid === users.length - 1)
+								return res.jsonp(users);
+						});
+					}
+				});
+			}
+			if(roles.indexOf('manager') !== -1) {
+				User.find({
+					department : user.department
+				}, {
+					'name' : 1,
+					'email' : 1,
+					'username' : 1,
+					'department' : 1
+				})
+				.or([{
+							'name' : {
+								'$regex' : val
+							}
+						}, {
+							'email' : {
+								'$regex' : val
+							}
+						}, {
+							'username' : {
+								'$regex' : val
+							}
+						}
+					])
+				.lean()
+				.populate('department')
+				.exec(function (err, users) {
+					if (err) {
+						res.render('error', {
+							status : 500
+						});
+					} else {
+						_(users).forEach(function (u, uid) {
+							u.department = u.department.name;
+							if (uid === users.length - 1)
+								return res.jsonp(users);
+						});
+					}
+				});
+			}
+			if(roles.indexOf('employeer') !== -1) {
+				return res.jsonp('permission denied');
+			}
 		}
 	});
 };
@@ -307,24 +365,25 @@ exports.searchUsers = function (req, res) {
 exports.assignRole = function (req, res) {
 	var users = req.body.users;
 	var role = req.body.role === 1 ? 'admin' : (req.body.role === 2 ? 'manager' : (req.body.role === 3 ? 'employeer' : ''));
-	_(users).forEach(function (user, uid) {
-		User
-		.update({
-			_id : user
-		}, {
-			$set : {
-				roles : ['authenticated', role]
-			}
-		})
-		.exec(function (err) {
-			if (err) {
-				return res.json(500, {
-					error : err
-				});
-			}
-			if (uid === users.length - 1)
-				return res.jsonp(role);
-		});
+	User
+	.update({
+		_id : {
+			$in : users
+		}
+	}, {
+		$set : {
+			roles : ['authenticated', role]
+		}
+	}, {
+		multi : true
+	})
+	.exec(function (err) {
+		if (err) {
+			return res.json(500, {
+				error : err
+			});
+		}
+		return res.jsonp(role);
 	});
 };
 
@@ -336,66 +395,55 @@ exports.bindToDep = function (req, res) {
 			error : 'empty request'
 		});
 	}
-	_(users).forEach(function (uid) {
-		User
-		.update({
-			_id : uid
-		}, {
-			$set : {
-				department : dep
-			}
-		})
-		.exec(function (err) {
-			if (err) {
-				//console.log(err);
-				return res.json(500, {
-					error : err
-				});
-			}
-			if (uid === users[users.length - 1]) {
-				return res.jsonp('ok');
-			}
-		});
+	User
+	.update({
+		_id : {
+			$in : users
+		}
+	}, {
+		$set : {
+			department : dep
+		}
+	}, {
+		multi : true
+	})
+	.exec(function (err) {
+		if (err) {
+			//console.log(err);
+			return res.json(500, {
+				error : err
+			});
+		}
+		return res.jsonp('ok');
 	});
 };
 
 exports.clearAccesses = function (req, res) {
 	var users = req.body.users;
-	console.log(users);
 	if (!users) {
 		return res.jsonp(500, {
 			error : 'empty request'
 		});
 	}
 	Pass
-	.find({
+	.update({
 		accessedFor : {
 			$in : users
 		}
 	}, {
-		'_id' : 1
+		$pullAll : {
+			accessedFor : users
+		}
+	}, {
+		multi : true
 	})
-	.exec(function (err, passes) {
-		var pids = _.map(passes, '_id');
-		_(pids).forEach(function (pid, ind) {
-			Pass
-			.update({
-				_id : pid
-			}, {
-				$pullAll : {
-					accessedFor : users
-				}
-			})
-			.exec(function (err) {
-				if (err) {
-					console.log(err);
-					return res.json(500, {
-						error : err
-					});
-				}
-				if(ind === pids.length-1)
-					res.jsonp('ok');
+	.exec(function (err) {
+		if (err) {
+			console.log(err);
+			return res.json(500, {
+				error : err
 			});
-		});
+		}
+		res.jsonp('ok');
 	});
 };
