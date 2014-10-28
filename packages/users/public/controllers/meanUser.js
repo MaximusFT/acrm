@@ -72,8 +72,8 @@ angular.module('mean.users')
       };
     }
   ])
-  .controller('RegisterCtrl', ['$scope', '$rootScope', '$http', '$location', 'Global',
-    function($scope, $rootScope, $http, $location, Global) {
+  .controller('RegisterCtrl', ['$scope', '$rootScope', '$http', '$log', '$location', 'Global',
+    function($scope, $rootScope, $http, $log, $location, Global) {
       $scope.user = {};
       $scope.global = Global;
       $scope.global.registerForm = true;
@@ -118,6 +118,7 @@ angular.module('mean.users')
           })
           .error(function(error) {
             // Error: authentication failed
+			//$log.error(error);
             if (error === 'Username already taken') {
               $scope.usernameError = error;
             } else if (error === 'Email already taken') {

@@ -57,9 +57,8 @@ exports.create = function(req, res, next) {
   req.assert('password', 'Password must be between 8-20 characters long').len(8, 20);
   req.assert('username', 'Username cannot be more than 20 characters').len(1, 20);
   req.assert('confirmPassword', 'Passwords do not match').equals(req.body.password);
-
   var errors = req.validationErrors();
-  if (errors) {
+  if (errors) {	
     return res.status(400).send(errors);
   }
 
@@ -67,19 +66,20 @@ exports.create = function(req, res, next) {
   user.roles = ['authenticated'];
   user.save(function(err) {
     if (err) {
+	  //console.log(err);
       switch (err.code) {
         case 11000:
-          res.status(400).send([{
-            msg: 'Email already taken',
-            param: 'email'
-          }]);
-          break;
-        case 11001:
           res.status(400).send([{
             msg: 'Username already taken',
             param: 'username'
           }]);
           break;
+        /*case 11001:
+          res.status(400).send([{
+            msg: 'Username already taken',
+            param: 'username'
+          }]);
+          break;*/
         default:
           var modelErrors = [];
 
