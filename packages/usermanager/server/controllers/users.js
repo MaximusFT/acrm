@@ -219,8 +219,9 @@ exports.getUser = function (req, res) {
 						});
 					} else {
 						if (!user)
+							return res.jsonp('empty');
+						else
 							return res.jsonp(user);
-						return res.jsonp('empty');
 					}
 				});
 			}
