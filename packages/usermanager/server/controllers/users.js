@@ -154,7 +154,7 @@ exports.groups = function (req, res) {
 					}
 				});
 			}
-			if (roles.indexOf('manager') !== -1 || roles.indexOf('employeer') !== -1) {
+			if (roles.indexOf('manager') !== -1 || roles.indexOf('employee') !== -1) {
 				User.find({
 					department : user.department
 				}).sort({
@@ -225,7 +225,7 @@ exports.getUser = function (req, res) {
 					}
 				});
 			}
-			if (curUser.roles.indexOf('manager') !== -1 || curUser.roles.indexOf('employeer') !== -1) {
+			if (curUser.roles.indexOf('manager') !== -1 || curUser.roles.indexOf('employee') !== -1) {
 				User
 				.findOne({
 					'username' : req.query.userId,
@@ -356,7 +356,7 @@ exports.searchUsers = function (req, res) {
 					}
 				});
 			}
-			if(roles.indexOf('employeer') !== -1) {
+			if(roles.indexOf('employee') !== -1) {
 				return res.jsonp('permission denied');
 			}
 		}
@@ -365,7 +365,7 @@ exports.searchUsers = function (req, res) {
 
 exports.assignRole = function (req, res) {
 	var users = req.body.users;
-	var role = req.body.role === 1 ? 'admin' : (req.body.role === 2 ? 'manager' : (req.body.role === 3 ? 'employeer' : ''));
+	var role = req.body.role === 1 ? 'admin' : (req.body.role === 2 ? 'manager' : (req.body.role === 3 ? 'employee' : ''));
 	User
 	.update({
 		_id : {

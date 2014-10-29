@@ -136,13 +136,13 @@ exports.all = function (req, res) {
 			}
 		});
 	}
-	if (req.user.roles.indexOf('employeer') !== -1) {
+	if (req.user.roles.indexOf('employee') !== -1) {
 		res.status(500).send('Permission denied');
 	}
 };
 
 exports.getDepartment = function (req, res) {
-	if (req.user.roles.indexOf('employeer') !== -1) {
+	if (req.user.roles.indexOf('employee') !== -1) {
 		res.status(500).send('Permission denied');
 	}
 	var departmentId = req.query.departmentId;

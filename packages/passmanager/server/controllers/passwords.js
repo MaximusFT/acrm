@@ -197,7 +197,7 @@ exports.groups = function (req, res) {
 					}
 				});
 			}
-			if (roles.indexOf('employeer') !== -1) {
+			if (roles.indexOf('employee') !== -1) {
 				Pass.find({
 					accessedFor : {
 						$in : [req.user._id]
@@ -393,7 +393,7 @@ exports.getPass = function (req, res) {
 					}
 				});
 			}
-			if (roles.indexOf('employeer') !== -1) {
+			if (roles.indexOf('employee') !== -1) {
 				Pass
 				.findOne({
 					$and : [{

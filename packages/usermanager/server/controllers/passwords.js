@@ -297,7 +297,7 @@ exports.getPassesByUser = function (req, res) {
 									status : 500
 								});
 							} else {
-								console.log(passes);
+								//console.log(passes);
 								var result = groupBy(passes);
 								return res.jsonp(result);
 							}
@@ -306,7 +306,7 @@ exports.getPassesByUser = function (req, res) {
 						return res.jsonp([]);
 					}
 				}
-				if (roles.indexOf('employeer') !== -1) {
+				if (roles.indexOf('employee') !== -1) {
 					if (req.query.userId !== req.user.username) {
 						//console.log('ne sovpalo');
 						return res.jsonp([]);

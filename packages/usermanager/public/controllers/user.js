@@ -117,7 +117,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 
 			$scope.p_init = function () {
 				$scope.groups = [];
-				if ($scope.global.mode === 'Employeer' && $scope.global.user.username !== $scope.userId) {
+				if ($scope.global.mode === 'Employee' && $scope.global.user.username !== $scope.userId) {
 					$scope.permsg = 'You have not access for this view.';
 				} else {
 					$http.get('api/getPassesByUser', {

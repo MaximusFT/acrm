@@ -20,7 +20,7 @@ Usermanager.register(function(app, auth, database) {
   Usermanager.menus.add({
     title: 'Users manager',
     link: 'users manager page',
-    roles: ['manager', 'employeer'],
+    roles: ['manager', 'employee'],
     menu: 'main'
   });
 
