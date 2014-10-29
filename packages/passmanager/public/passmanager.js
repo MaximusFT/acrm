@@ -1,3 +1,3 @@
 'use strict';
 
-angular.module('mean.passmanager', []);
+angular.module('mean.passmanager', ['cgBusy']);

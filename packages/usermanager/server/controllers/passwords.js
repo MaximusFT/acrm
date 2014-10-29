@@ -268,31 +268,47 @@ exports.getPassesByUser = function (req, res) {
 							'email' : 1
 						})
 						.exec(function (err, passes) {
-							var result = groupBy(passes);
-							res.jsonp(result);
+							if (err) {
+								res.render('error', {
+									status : 500
+								});
+							} else {
+								var result = groupBy(passes);
+								res.jsonp(result);
+							}
 						});
 					}
 				}
 				if (roles.indexOf('manager') !== -1) {
-					console.log(curuser);
-					Pass
-					.find({
-						accessedFor : user._id,
-						department : curuser.department
-					})
-					.sort({
-						'group' : 1,
-						'resourceName' : 1,
-						'email' : 1
-					})
-					.exec(function (err, passes) {
-						var result = groupBy(passes);
-						res.jsonp(result);
-					});
+					if (JSON.stringify(user.department) === JSON.stringify(curuser.department)) {
+						Pass
+						.find({
+							accessedFor : user._id
+						})
+						.sort({
+							'group' : 1,
+							'resourceName' : 1,
+							'email' : 1
+						})
+						.exec(function (err, passes) {
+							if (err) {
+								//console.log(err);
+								res.render('error', {
+									status : 500
+								});
+							} else {
+								console.log(passes);
+								var result = groupBy(passes);
+								return res.jsonp(result);
+							}
+						});
+					} else {
+						return res.jsonp([]);
+					}
 				}
 				if (roles.indexOf('employeer') !== -1) {
 					if (req.query.userId !== req.user.username) {
-						console.log('ne sovpalo');
+						//console.log('ne sovpalo');
 						return res.jsonp([]);
 					}
 					Pass
@@ -305,13 +321,14 @@ exports.getPassesByUser = function (req, res) {
 						'email' : 1
 					})
 					.exec(function (err, passes) {
-						if(err) {
+						if (err) {
 							res.render('error', {
 								status : 500
 							});
+						} else {
+							var result = groupBy(passes);
+							return res.jsonp(result);
 						}
-						var result = groupBy(passes);
-						res.jsonp(result);
 					});
 				}
 

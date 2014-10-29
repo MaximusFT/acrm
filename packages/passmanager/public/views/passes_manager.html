@@ -29,7 +29,7 @@
         <accordion-group data-ng-show="getSumLength(group.implement)" heading="{{group.group}} ({{getSumLength(group.implement)}})">
 			<accordion close-others="false">
 			<accordion-group data-ng-repeat="implement in group.implement" data-ng-init="implementIndex=$index" data-ng-show="implement.passes.length" heading="{{implement.implement==='---' ? 'Uncategorized' : implement.implement}} ({{implement.passes.length}})">
-      <table class="table table-striped table-bordered table-hover editable-table">
+      <table class="table table-striped table-bordered table-hover">
         <tr>
 			<th>
 				<i class="glyphicon glyphicon-sort-by-order"></i>
@@ -50,11 +50,8 @@
           <td>
             <input type="checkbox" data-ng-model="pass.Selected" data-ng-click="checkPass(sectionIndex, implementIndex, $index, pass)">
           </td>
-          <td class="table-editable-cell" data-ng-repeat="field in passSchema" data-ng-if="field.inTable">
-            <span data-ng-if="(field['type'] == 'text' || field['type'] == 'password')" class="editable-span" data-ng-editable="update(pass, field['schemaKey'])" data-ng-editable-model="pass[field['schemaKey']]">
-            </span>
-            <span data-ng-click="beforeSelect(field['schemaKey'], pass)" data-ng-if="(field['type'] == 'select')" class="editable-span" data-ng-editable-select="update(pass, field['schemaKey'])" data-ng-editable-select-model="pass[field['schemaKey']]" data-ng-editable-select-options="field['options']">
-            </span>
+          <td data-ng-repeat="field in passSchema" data-ng-if="field.inTable">
+            <span>{{pass[field['schemaKey']]}}</span>
           </td>
         </tr>
       </table>
