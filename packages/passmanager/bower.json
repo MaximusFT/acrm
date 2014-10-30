@@ -1,0 +1,7 @@
+{
+    "name": "passmanager",
+    "version": "0.1",
+    "dependencies": {
+        "angular-busy": "latest"
+    }
+}

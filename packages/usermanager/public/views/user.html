@@ -2,6 +2,7 @@
 	<h1>User information</h1>
 	<div data-ng-if="!isUser"><p class='bg-warning'>You have not access to this user.</p></div>
     <div class="loader" data-ng-init="init()" data-ng-hide="users.length"></div>
+	<div cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
     <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="users.length">
         <tr>
             <th data-ng-repeat="field in userSchema" data-ng-if="field.inTable">{{field.title}}</th>
@@ -23,8 +24,10 @@
             </td>
         </tr>
     </table>	
+	</div>
 	<div class="loader" data-ng-init="p_init()" data-ng-hide="groups.length"></div>
 	<h1>Accessible passwords</h1>
+	<div cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
 	<accordion close-others="true">
 	<div data-ng-repeat="group in groups">
 	<accordion-group data-ng-show="group.implement.length" heading="{{$index+1}}. {{group.group}} ({{getSumLength(group.implement)}})">
@@ -55,5 +58,6 @@
 	</accordion>	
 	<div data-ng-if="!isPasses">
 		<p class='bg-warning'>{{permsg}}</p>
+	</div>
 	</div>
 </section>

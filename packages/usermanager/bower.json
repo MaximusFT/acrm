@@ -1,0 +1,7 @@
+{
+    "name": "usermanager",
+    "version": "0.1",
+    "dependencies": {
+        "angular-busy": "latest"
+    }
+}

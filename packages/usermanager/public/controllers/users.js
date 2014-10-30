@@ -15,6 +15,7 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 			$scope.mode = $cookies.mode;
 			$scope.isSomeSelected = true;
 			$scope.isUserSelected = [];
+			$scope.getHttp1 = null;
 			$http.get('api/getDepartments').success(function (data) {
 				$scope.departments = data;
 
@@ -59,7 +60,7 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 				/*Users.query({}, function(users) {
 				$scope.users = users;
 				});*/
-				$http.get('api/getUsers').success(function (data) {
+				$scope.getHttp1 = $http.get('api/getUsers').success(function (data) {
 					$scope.departments = data;
 					//$log.info($scope.departments);
 				}).error(function () {

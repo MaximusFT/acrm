@@ -60,6 +60,7 @@
 	</div>
 </div>
 <div class="loader" data-ng-init="init()" data-ng-hide="departments.length"></div>
+<div cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
 <div data-ng-repeat="department in departments" data-ng-init="sectionIndex=$index">
 	<h1 data-ng-show="department.users.length">{{department.department}}</h1>
     <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="department.users.length">
@@ -89,4 +90,5 @@
 			<td style="text-align:center;font-weight:bold;">{{user.roles}}</td>
         </tr>
     </table>
+</div>
 </div>

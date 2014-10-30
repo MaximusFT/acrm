@@ -97,7 +97,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 				$scope.users = users;
 				});*/
 				$scope.users = [];
-				$http.get('api/getUser', {
+				$scope.getHttp1 = $http.get('api/getUser', {
 					params : {
 						userId : $stateParams.userId
 					}
@@ -120,7 +120,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 				if ($scope.global.mode === 'Employee' && $scope.global.user.username !== $scope.userId) {
 					$scope.permsg = 'You have not access for this view.';
 				} else {
-					$http.get('api/getPassesByUser', {
+					$scope.getHttp2 = $http.get('api/getPassesByUser', {
 						params : {
 							userId : $scope.userId
 						}

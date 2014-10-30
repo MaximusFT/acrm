@@ -17,6 +17,8 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 			$scope.isPassSelected = [];
 			$scope.isRequests = false;
 			$scope.isPasses = false;
+			$scope.getHttp1 = null;
+			$scope.getHttp2 = null;
 			$scope.alerts = [
 				{ type: 'danger', msg: 'Attention! Now, being authorized as a department manager, you have access to the passwords, which are assigned to at least one of your employee. If you take away access to the employee and it was the only employee of the department who had access to the password, the password will disappear from this list.' }
 			];
@@ -77,8 +79,9 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 			});
 
 			$scope.init = function () {
+				$scope.getHttp1 = null;
 				$scope.groups = [];
-				$http.get('api/getGroups').success(function (data) {
+				$scope.getHttp1 = $http.get('api/getGroups').success(function (data) {
 					$scope.groups = data;
 					//$log.info($scope.groups);
 				}).error(function () {
@@ -87,8 +90,9 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 			};
 
 			$scope.init_ = function () {
+				$scope.getHttp2 = null;
 				$scope.groups = [];
-				$http.get('api/getAcsGroups').success(function (data) {
+				$scope.getHttp2 = $http.get('api/getAcsGroups').success(function (data) {
 					$scope.groups = data;
 					if(data.length > 0)
 						$scope.isPasses = true;
@@ -99,8 +103,9 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 			};
 
 			$scope.init__ = function () {
+				$scope.getHttp2 = null;
 				$scope.requests = [];
-				$http.get('api/requests').success(function (data) {
+				$scope.getHttp2 = $http.get('api/requests').success(function (data) {
 					//$log.warn(data);
 					angular.forEach(data, function (value, key) {
 						var date = new Date(value.when * 1000);

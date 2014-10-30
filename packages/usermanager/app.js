@@ -45,6 +45,15 @@ Usermanager.register(function(app, auth, database) {
         //you now have the settings object
     });
     */
+	
+	Usermanager.angularDependencies(['cgBusy']);
+	// Aggregate css
+	Usermanager.aggregateAsset('css', 'angular-busy.min.css');
+	// Aggregate js
+	Usermanager.aggregateAsset('js', '../lib/angular-busy/dist/angular-busy.min.js', {
+		weight : 4,
+		absolute : false
+	});
 
   return Usermanager;
 });

@@ -5,7 +5,7 @@
       </i>
       Accessible for department
     </tab-heading>
-	<div class="panel panel-default" data-ng-show="groups.length">
+	<div class="panel panel-default">
       <div class="panel-heading">
         Control panel
       </div>
@@ -23,6 +23,7 @@
         </div>
       </div>
     </div>
+	<div cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
 	<alert data-ng-if="isPasses" data-ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert>
 	<accordion close-others="true">
       <div data-ng-repeat="group in groups" data-ng-init="sectionIndex=$index">
@@ -61,6 +62,7 @@
 	<div data-ng-if="!isPasses">
 		<p class='bg-warning'>There is no one password, accessible to your department.</p>
 	</div>
+	</div>
   </tab>
   <tab select="init()">
     <tab-heading>
@@ -68,6 +70,7 @@
       </i>
       All
     </tab-heading>
+	<div cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
 	<accordion close-others="true">
       <div data-ng-repeat="group in groups" data-ng-init="sectionIndex=$index">
         <accordion-group data-ng-show="getSumLength(group.implement)" heading="{{group.group}} ({{getSumLength(group.implement)}})">
@@ -112,7 +115,10 @@
         </tr>
       </table>
 	  </accordion-group>
-    </div>
+	  </accordion> 
+	  </accordion-group>
+    </div>	 
 	</accordion>  
+	</div>
   </tab>
 </tabset>
