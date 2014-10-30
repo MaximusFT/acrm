@@ -6,7 +6,7 @@ module.exports = {
     debug: true
   },
   app: {
-    name: 'New CRM'
+    name: 'ACRM'
   },
   facebook: {
     clientID: 'APP_ID',

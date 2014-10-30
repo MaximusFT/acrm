@@ -1,4 +1,6 @@
+<link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.css">
 <section data-ng-controller="IndexController">
+	<div data-ng-show="global.authenticated">
 	<div style="height: 300px">
 		<carousel interval="myInterval">
 			<slide ng-repeat="slide in slides" active="slide.active">
@@ -21,4 +23,41 @@
 	<li><strong>Visitors</strong> can only view the news. This is the default access after registering a new user. Such a user must wait until the administrators will not approve him access level employee.</li>
     </ul>
     <center><img src="/system/assets/img/square.png"/></center>
+	</div>
+	<div data-ng-show="!global.authenticated">
+	<section class="container">
+            
+  <!-- uiView:  --><section data-ui-view="" class="ng-scope"><div class="form main-form ng-scope" ng-controller="AuthCtrl" ng-class="{'register-form' : global.registerForm}">
+    <!-- uiView:  --><div class="login-form__left ng-scope" ui-view=""><div data-ng-controller="LoginCtrl" class="ng-scope">
+    <div class="alert alert-danger animated fadeIn ng-binding ng-hide" ng-show="loginerror"></div>
+    <h2>Login</h2>
+    <form id="login_form" ng-submit="login()" class="ng-pristine ng-valid-email ng-invalid ng-invalid-required">
+        <div class="input-wrapper">
+            <input required="" id="email_block" type="email" name="email" placeholder="Email Address" ng-model="user.email" class="ng-pristine ng-untouched ng-valid-email ng-invalid ng-invalid-required">
+            <div class="error_message">Please enter a correct info #</div>
+            <span class="pic email"></span>
+        </div>
+        <div class="input-wrapper">
+            <input required="" id="password_block" name="password" type="password" placeholder="Password" ng-model="user.password" class="ng-pristine ng-untouched ng-invalid ng-invalid-required">
+            <div class="error_message">Please enter a correct info #</div>
+                <span class="pic password " ng-click="togglePasswordVisible()">
+                      <div class="hide_text_password ng-binding">
+                          Show password
+                      </div>
+                </span>
+        </div>
+        <div class="forgot_password">
+            <a ui-sref="forgot-password" href="/forgot-password">Forgot your password?</a>
+        </div>
+        <div class="button_login">
+            <button type="submit" class="submit_button">Login</button>
+            <p>Don't have an account?</p>
+            <a ui-sref="auth.register" href="/auth/register">Sign up</a>
+        </div>
+    </form>
+	</div>
+	</div>
+	</div></section>
+    </section>
+	</div>
 </section>
