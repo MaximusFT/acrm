@@ -73,7 +73,14 @@ exports.update = function (req, res) {
 	user = _.extend(user, req.body);
 
 	user.save(function (err) {
-		res.jsonp(user);
+		if(err) {
+			console.log(err);
+			return res.render('error', {
+				status : 500
+			});
+		} else {
+			return res.jsonp(user);
+		}
 	});
 };
 
