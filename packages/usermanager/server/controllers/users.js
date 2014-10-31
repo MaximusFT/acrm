@@ -139,9 +139,12 @@ exports.groups = function (req, res) {
 							status : 500
 						});
 					} else {
-						_(user).forEach(function (u) {
+						_(user).forEach(function (u) {						
 							u.department = u.department.name;
-							u.roles = u.roles[1].substring(0, 1).toUpperCase();
+							if(u.roles && u.roles.length > 1)
+								u.roles = u.roles[1].substring(0, 1).toUpperCase();
+							else
+								u.roles = 'N/v';
 						});
 						var result = _.chain(user)
 							.groupBy('department')
@@ -173,7 +176,7 @@ exports.groups = function (req, res) {
 					} else {
 						_(users).forEach(function (u) {
 							u.department = u.department.name;
-							if(u.roles.length > 1)
+							if(u.roles && u.roles.length > 1)
 								u.roles = u.roles[1].substring(0, 1).toUpperCase();
 							else
 								u.roles = 'N/v';

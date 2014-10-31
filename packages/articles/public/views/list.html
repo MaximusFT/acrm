@@ -6,7 +6,7 @@
       <h2>
         <a data-ng-href="#!/news/{{article._id}}">{{article.title}}</a>
         <span data-ng-if="hasAuthorization(article)">
-          <a class="btn" href="/#!/articles/{{article._id}}/edit">
+          <a class="btn" href="/#!/news/{{article._id}}/edit">
             <i class="glyphicon glyphicon-edit"></i>
           </a>
           <a class="btn" data-ng-click="remove(article);">
