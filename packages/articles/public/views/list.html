@@ -14,7 +14,8 @@
           </a>
         </span>
       </h2>
-      <div>{{article.content}}</div>
+      <div ng-bind-html="renderHtml(article.content)"></div>
+	  <br />
     </li>
   </ul>
   <h1 data-ng-hide="!articles || articles.length">No articles yet. <br> Why don't you <a href="/#!/articles/create">Create One</a>?</h1>
