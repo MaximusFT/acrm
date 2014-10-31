@@ -26,28 +26,28 @@ angular.module('mean.articles').config(['$stateProvider',
     // states for my app
     $stateProvider
       .state('all articles', {
-        url: '/articles',
+        url: '/news',
         templateUrl: 'articles/views/list.html',
         resolve: {
           loggedin: checkLoggedin
         }
       })
       .state('create article', {
-        url: '/articles/create',
+        url: '/news/create',
         templateUrl: 'articles/views/create.html',
         resolve: {
           loggedin: checkLoggedin
         }
       })
       .state('edit article', {
-        url: '/articles/:articleId/edit',
+        url: '/news/:articleId/edit',
         templateUrl: 'articles/views/edit.html',
         resolve: {
           loggedin: checkLoggedin
         }
       })
       .state('article by id', {
-        url: '/articles/:articleId',
+        url: '/news/:articleId',
         templateUrl: 'articles/views/view.html',
         resolve: {
           loggedin: checkLoggedin
