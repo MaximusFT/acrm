@@ -19,8 +19,10 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 			$scope.isPasses = false;
 			$scope.getHttp1 = null;
 			$scope.getHttp2 = null;
-			$scope.alerts = [
-				{ type: 'danger', msg: 'Attention! Now, being authorized as a department manager, you have access to the passwords, which are assigned to at least one of your employee. If you take away access to the employee and it was the only employee of the department who had access to the password, the password will disappear from this list.' }
+			$scope.alerts = [{
+					type : 'danger',
+					msg : 'Attention! Now, being authorized as a department manager, you have access to the passwords, which are assigned to at least one of your employee. If you take away access to the employee and it was the only employee of the department who had access to the password, the password will disappear from this list.'
+				}
 			];
 			if ($scope.mode === 'Administrator') {
 				$scope.btn_class = [];
@@ -82,41 +84,41 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 				$scope.getHttp1 = null;
 				$scope.groups = [];
 				$scope.getHttp1 = $http.get('api/getGroups').success(function (data) {
-					$scope.groups = data;
-					//$log.info($scope.groups);
-				}).error(function () {
-					$log.error('error');
-				});
+						$scope.groups = data;
+						//$log.info($scope.groups);
+					}).error(function () {
+						$log.error('error');
+					});
 			};
 
 			$scope.init_ = function () {
 				$scope.getHttp2 = null;
 				$scope.groups = [];
 				$scope.getHttp2 = $http.get('api/getAcsGroups').success(function (data) {
-					$scope.groups = data;
-					if(data.length > 0)
-						$scope.isPasses = true;
-					//$log.warn($scope.groups);
-				}).error(function () {
-					$log.error('error');
-				});
+						$scope.groups = data;
+						if (data.length > 0)
+							$scope.isPasses = true;
+						//$log.warn($scope.groups);
+					}).error(function () {
+						$log.error('error');
+					});
 			};
 
 			$scope.init__ = function () {
 				$scope.getHttp2 = null;
 				$scope.requests = [];
 				$scope.getHttp2 = $http.get('api/requests').success(function (data) {
-					//$log.warn(data);
-					angular.forEach(data, function (value, key) {
-						var date = new Date(value.when * 1000);
-						value.when = date.toLocaleString();
+						//$log.warn(data);
+						angular.forEach(data, function (value, key) {
+							var date = new Date(value.when * 1000);
+							value.when = date.toLocaleString();
+						});
+						$scope.requests = data;
+						if (data.length > 0)
+							$scope.isRequests = true;
+					}).error(function () {
+						$log.error('error');
 					});
-					$scope.requests = data;
-					if (data.length > 0)
-						$scope.isRequests = true;
-				}).error(function () {
-					$log.error('error');
-				});
 			};
 
 			$scope.sendRequest = function (sectionIndex, id, passId) {
@@ -319,7 +321,7 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 				});
 				return !ret;
 			}
-			
+
 			function unselectAll() {
 				angular.forEach($scope.groups, function (group) {
 					angular.forEach(group.implement, function (implement) {
@@ -339,10 +341,10 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 					$scope.isPassSelected[sectionIndex] = [];
 				if (!$scope.isPassSelected[sectionIndex][implementIndex])
 					$scope.isPassSelected[sectionIndex][implementIndex] = [];
-				if (!pass.Selected)
-					$scope.isPassSelected[sectionIndex][implementIndex][index] = true;
-				else
+				if (pass.Selected === false)
 					$scope.isPassSelected[sectionIndex][implementIndex][index] = false;
+				if (pass.Selected === true)
+					$scope.isPassSelected[sectionIndex][implementIndex][index] = true;
 				$scope.isSomeSelected = checkSelections();
 			};
 
@@ -380,18 +382,22 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 							if (group.group === response.group) {
 								//$log.info('found such group');
 								ret = true;
-								var o =	{ 'implement' : response.implement, 'passes' : [response] };
+								var o = {
+									'implement' : response.implement,
+									'passes' : [response]
+								};
 								group.implement.splice(group.implement.length, 0, o);
 							}
 						});
-						if(!ret) {
+						if (!ret) {
 							//$log.info('not found anything. added new group');
 							var o = {
 								'group' : response.group,
 								'implement' : [{
-									'implement' : response.implement,
-									'passes' : [response]
-								}]
+										'implement' : response.implement,
+										'passes' : [response]
+									}
+								]
 							};
 							$scope.groups.splice($scope.groups.length, 0, o);
 							$scope.groups.sort(function (a, b) {
@@ -415,7 +421,7 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 								});
 								if (!deleted[gid])
 									deleted[gid] = [];
-								if(!deleted[gid][impid])
+								if (!deleted[gid][impid])
 									deleted[gid][impid] = [];
 								deleted[gid][impid][pid] = true;
 							}
@@ -456,8 +462,8 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 				});
 				return length;
 			};
-			
-			$scope.closeAlert = function(index) {
+
+			$scope.closeAlert = function (index) {
 				$scope.alerts.splice(index, 1);
 			};
 		}

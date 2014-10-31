@@ -122,28 +122,36 @@ exports.all = function (req, res) {
 				status : 500
 			});
 		} else {
-			_(requests).forEach(function(r, ind) {
-				Department
-				.findById(r.who.department, function(err, dep) {
-					if (err) {
-						res.render('error', {
-							status : 500
-						});
-					} else {
-						r.who.department = dep.name;
-						if(ind === requests.length-1)
-							return res.jsonp(requests);
-					}
+			if (!requests || requests.length === 0)
+				return res.jsonp(requests);
+			else {
+				_(requests).forEach(function (r, ind) {
+					Department
+					.findById(r.who.department, function (err, dep) {
+						if (err) {
+							res.render('error', {
+								status : 500
+							});
+						} else {
+							r.who.department = dep.name;
+							if (ind === requests.length - 1) {
+								//console.log(requests);
+								return res.jsonp(requests);
+							}
+						}
+					});
 				});
-			});		
+			}
 		}
 	});
 };
 
-exports.provideAccess = function(req, res) {
+exports.provideAccess = function (req, res) {
 	var reqId = req.query.reqId;
 	Request
-	.findOne({_id : reqId})
+	.findOne({
+		_id : reqId
+	})
 	.populate('what')
 	.exec(function (err, request) {
 		if (err) {
@@ -155,10 +163,12 @@ exports.provideAccess = function(req, res) {
 			.update({
 				_id : request.what._id
 			}, {
-				$push : {'accessedFor' : request.who}
+				$push : {
+					'accessedFor' : request.who
+				}
 			})
 			.exec(function (err) {
-				if(err) {
+				if (err) {
 					return res.json(500, {
 						error : err
 					});
@@ -169,10 +179,10 @@ exports.provideAccess = function(req, res) {
 	});
 };
 
-exports.rejectRequest = function(req, res) {
+exports.rejectRequest = function (req, res) {
 	var reqId = req.query.reqId;
 	Request.findById(reqId, function (err, request) {
-		if(err) {
+		if (err) {
 			res.render('error', {
 				status : 500
 			});

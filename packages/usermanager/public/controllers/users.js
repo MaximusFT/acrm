@@ -61,11 +61,11 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 				$scope.users = users;
 				});*/
 				$scope.getHttp1 = $http.get('api/getUsers').success(function (data) {
-					$scope.departments = data;
-					//$log.info($scope.departments);
-				}).error(function () {
-					$log.error('error');
-				});
+						$scope.departments = data;
+						//$log.info($scope.departments);
+					}).error(function () {
+						$log.error('error');
+					});
 			};
 
 			$scope.add = function () {
@@ -208,10 +208,10 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 			$scope.checkUser = function (sectionIndex, index, user) {
 				if (!$scope.isUserSelected[sectionIndex])
 					$scope.isUserSelected[sectionIndex] = [];
-				if (!user.Selected)
-					$scope.isUserSelected[sectionIndex][index] = true;
-				else
+				if (user.Selected === false)
 					$scope.isUserSelected[sectionIndex][index] = false;
+				if (user.Selected === true)
+					$scope.isUserSelected[sectionIndex][index] = true;
 				$scope.isSomeSelected = checkSelections();
 			};
 

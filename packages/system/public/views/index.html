@@ -25,10 +25,9 @@
     <center><img src="/system/assets/img/square.png"/></center>
 	</div>
 	<div data-ng-show="!global.authenticated">
-	<section class="container">
-            
-  <!-- uiView:  --><section data-ui-view="" class="ng-scope"><div class="form main-form ng-scope" ng-controller="AuthCtrl" ng-class="{'register-form' : global.registerForm}">
-    <!-- uiView:  --><div class="login-form__left ng-scope" ui-view=""><div data-ng-controller="LoginCtrl" class="ng-scope">
+	<section class="container">          
+	<section data-ui-view="" class="ng-scope"><div class="form main-form ng-scope" ng-class="{'register-form' : global.registerForm}">
+    <div class="login-form__left ng-scope" ui-view="">
     <div class="alert alert-danger animated fadeIn ng-binding ng-hide" ng-show="loginerror"></div>
     <h2>Login</h2>
     <form id="login_form" ng-submit="login()" class="ng-pristine ng-valid-email ng-invalid ng-invalid-required">
@@ -55,7 +54,6 @@
             <a ui-sref="auth.register" href="/auth/register">Sign up</a>
         </div>
     </form>
-	</div>
 	</div>
 	</div></section>
     </section>
