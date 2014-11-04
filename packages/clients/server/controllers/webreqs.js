@@ -19,6 +19,7 @@ exports.web_request_form_add = function (req, res, next) {
 	if (secret !== 'lqMZUJM76jsBBLmsPcBA86qpiVZv620b')
 		return res.jsonp('wrong secret');
 	var webreq = new Webreq();
+	webreq.debug_info = JSON.stringify(req.body);
 	webreq.webreq_inside_id = !req.body.webreq_inside_id ? -1 : req.body.webreq_inside_id;
 	switch (req.body.webreq_type) {
 	case 1:

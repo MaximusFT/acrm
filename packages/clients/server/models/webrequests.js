@@ -70,6 +70,9 @@ var WebreqSchema = new Schema({
 		},
 		ip : {
 			type : String
+		},
+		debug_info : {
+			type : String
 		}
 	});
 

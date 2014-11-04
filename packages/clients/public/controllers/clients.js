@@ -69,7 +69,7 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
 				$scope.getHttp1 = null;
 				$scope.getHttp1 = $http.get('api/webreqs').success(function (data) {
 						$scope.webreqs = data;
-						$log.info(data);
+						//$log.info(data);
 					}).error(function () {
 						$log.error('error');
 					});
