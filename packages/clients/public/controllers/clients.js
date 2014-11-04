@@ -67,12 +67,16 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
 			
 			$scope.init = function () {
 				$scope.getHttp1 = null;
-				$scope.getHttp1 = $http.get('api/webreqs').success(function (data) {
-						$scope.webreqs = data;
+				$scope.getHttp1 = $http.get('api/webreqs').success(function (data) {					
 						//$log.info(data);
+						$scope.webreqs = data;
 					}).error(function () {
 						$log.error('error');
 					});
+			};
+			
+			$scope.formatDate = function (date) {
+				return new Date(date).toLocaleString();
 			};
 		}
 	]);

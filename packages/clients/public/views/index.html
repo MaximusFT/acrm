@@ -14,7 +14,8 @@
         </td>
         <td class="table-editable-cell" data-ng-repeat="field in webreqSchema" data-ng-if="field.inTable">
 			<a data-ng-if="field['schemaKey'] === 'webreq_inside_id'" href="https://inside.teletrade-dj.com/#web_request_view/{{webreq[field['schemaKey']]}}">{{webreq[field['schemaKey']]}}</a>
-			<span data-ng-if="field['schemaKey'] !== 'webreq_inside_id'">{{webreq[field['schemaKey']]}}</span>         
+			<span data-ng-if="field['schemaKey'] === 'creation_date'">{{formatDate(webreq[field['schemaKey']])}}</span>
+			<span data-ng-if="field['schemaKey'] !== 'webreq_inside_id' && field['schemaKey'] !== 'creation_date'">{{webreq[field['schemaKey']]}}</span>         
         </td>
     </tr>
   </table>
