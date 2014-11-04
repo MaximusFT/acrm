@@ -450,7 +450,10 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 			$scope.update = function (pass, passField) {
 				Passwords.update({
 					passId : pass._id
-				}, pass);
+				}, {
+					key : passField,
+					val : pass[passField]
+				});
 			};
 
 			$scope.getSumLength = function (arr) {

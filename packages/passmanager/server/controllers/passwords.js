@@ -54,18 +54,32 @@ exports.pass = function (req, res, next, id) {
  * Update a pass
  */
 exports.update = function (req, res) {
-	var pass = req.profile;
-	//console.log(pass);
-	pass = _.extend(pass, req.body);
-	pass.save(function (err) {
-		if (err) {
-			return res.render('error', {
-				status : 500
-			});
-		} else {
-			return res.jsonp(pass);
-		}
-	});
+	var pair = req.body;
+	var passId = req.params.passId;
+	if(!pair || !passId) {
+		//console.log('Empty query');
+		return res.render('Empty query', {
+			status : 500
+		});
+	} else {
+		var up = {};
+		up[pair.key] = pair.val;
+		Pass
+		.update({
+			_id : passId
+		}, {
+			$set : up
+		})
+		.exec(function (err) {
+			if (err) {
+				return res.json(500, {
+					error : err
+				});
+			} else {
+				return res.jsonp('ok');
+			}
+		});
+	}
 };
 
 /**

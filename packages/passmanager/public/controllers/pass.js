@@ -6,10 +6,10 @@ angular.module('mean.passmanager').controller('PassController', ['$scope', 'Glob
 			$scope.passId = $stateParams.passId;
 			$scope.mode = $cookies.mode;
 			$scope.isPasses = false;
-			
+
 			Users.query({}, function (users) {
 				var lols = [];
-				users.forEach(function(item) {
+				users.forEach(function (item) {
 					//$log.info(item);
 					lols.push(item.username);
 				});
@@ -55,55 +55,62 @@ angular.module('mean.passmanager').controller('PassController', ['$scope', 'Glob
 
 			$scope.init = function () {
 				$scope.passwords = [];
-				$http.get('api/getPass', {params: {passId: $scope.passId}
+				$http.get('api/getPass', {
+					params : {
+						passId : $scope.passId
+					}
 				}).success(function (data) {
 					$scope.passwords = data;
-					if(data.length > 0)
+					if (data.length > 0)
 						$scope.isPasses = true;
 				}).error(function (data, status) {
-					if(status === 400)
+					if (status === 400)
 						$location.path('manager/passwords');
 				});
 				/*Passwords.query({}, function (passwords) {
-					$scope.passwords = passwords;
+				$scope.passwords = passwords;
 				});*/
 			};
 
 			/*$scope.add = function () {
-				if (!$scope.passwords)
-					$scope.passwords = [];
+			if (!$scope.passwords)
+			$scope.passwords = [];
 
-				var pass = new Passwords({
-						group : $scope.pass.group,
-						resourceName : $scope.pass.resourceName,
-						resourceUrl : $scope.pass.resourceUrl,
-						email : $scope.pass.email,
-						login : $scope.pass.login,
-						hash_password : $scope.pass.hash_password,
-						comment : $scope.pass.comment,
-						accessedFor : $scope.pass.accessedFor
-					});
+			var pass = new Passwords({
+			group : $scope.pass.group,
+			resourceName : $scope.pass.resourceName,
+			resourceUrl : $scope.pass.resourceUrl,
+			email : $scope.pass.email,
+			login : $scope.pass.login,
+			hash_password : $scope.pass.hash_password,
+			comment : $scope.pass.comment,
+			accessedFor : $scope.pass.accessedFor
+			});
 
-				pass.$save(function (response) {
-					$scope.passwords.push(response);
-				});
+			pass.$save(function (response) {
+			$scope.passwords.push(response);
+			});
 
-				//this.firstName = this.lastName = this.email = this.password = this.role = '';
+			//this.firstName = this.lastName = this.email = this.password = this.role = '';
 			};*/
 
 			/*$scope.remove = function (pass) {
-				for (var i in $scope.passwords) {
-					if ($scope.passwords[i] === pass) {
-						$scope.passwords.splice(i, 1);
-					}
-				}
+			for (var i in $scope.passwords) {
+			if ($scope.passwords[i] === pass) {
+			$scope.passwords.splice(i, 1);
+			}
+			}
 
-				pass.$remove();
+			pass.$remove();
 			};*/
 
 			$scope.update = function (pass, passField) {
-				//pass.$update();
-				Passwords.update({ passId:pass._id }, pass);
+				Passwords.update({
+					passId : pass._id
+				}, {
+					key : passField,
+					val : pass[passField]
+				});
 			};
 		}
 	]);

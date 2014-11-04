@@ -69,19 +69,32 @@ exports.user = function (req, res, next, id) {
  * Update a user
  */
 exports.update = function (req, res) {
-	var user = req.profile;
-	user = _.extend(user, req.body);
-
-	user.save(function (err) {
-		if(err) {
-			console.log(err);
-			return res.render('error', {
-				status : 500
-			});
-		} else {
-			return res.jsonp(user);
-		}
-	});
+	var pair = req.body;
+	var userId = req.params.userId;
+	if(!pair || !userId) {
+		//console.log('Empty query');
+		return res.render('Empty query', {
+			status : 500
+		});
+	} else {
+		var up = {};
+		up[pair.key] = pair.val;
+		User
+		.update({
+			_id : userId
+		}, {
+			$set : up
+		})
+		.exec(function (err) {
+			if (err) {
+				return res.json(500, {
+					error : err
+				});
+			} else {
+				return res.jsonp('ok');
+			}
+		});
+	}
 };
 
 /**

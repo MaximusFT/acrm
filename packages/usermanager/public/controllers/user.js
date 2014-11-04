@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('mean.usermanager').controller('UserController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$stateParams', '$cookies', '$location', 'Users',
-		function ($scope, Global, Menus, $rootScope, $http, $log, $stateParams, $cookies, $location, Users) {
+angular.module('mean.usermanager').controller('UserController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$stateParams', '$cookies', '$location', 'Users1',
+		function ($scope, Global, Menus, $rootScope, $http, $log, $stateParams, $cookies, $location, Users1) {
 			$scope.global = Global;
 			$scope.userId = $stateParams.userId;
 			$scope.mode = $cookies.mode;
@@ -139,26 +139,12 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 			};
 
 			$scope.update = function (user, userField) {
-				if (userField && userField === 'roles') {
-					if (user.roles.indexOf('authenticated') === -1)
-						user.roles.unshift('authenticated');
-				}
-				if (userField && userField === 'email' && user.email === '') {
-					user.email = user.tmpEmail;
-				}
-				if (userField && userField === 'name' && user.name === '') {
-					user.name = user.tmpName;
-				}
-				if (userField && userField === 'username' && user.username === '') {
-					user.username = user.tmpUsername;
-				}
-				if (userField && userField === 'department' && user.department === '') {
-					user.department = user.tmpDepartment;
-				}
-				//user.$update();
-				Users.update({
+				Users1.update({
 					userId : user._id
-				}, user);
+				}, {
+					key : userField,
+					val : user[userField]
+				});
 			};
 
 			$scope.beforeSelect = function (userField, user) {

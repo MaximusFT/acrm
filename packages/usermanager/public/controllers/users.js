@@ -9,52 +9,47 @@ angular.module('mean.usermanager').controller('UsermanagerController', ['$scope'
 		}
 	]);
 
-angular.module('mean.usermanager').controller('UsersController', ['$scope', '$cookies', 'Global', 'Menus', '$rootScope', '$http', '$log', 'Users', 'modalService',
-		function ($scope, $cookies, Global, Menus, $rootScope, $http, $log, Users, modalService) {
+angular.module('mean.usermanager').controller('UsersController', ['$scope', '$cookies', 'Global', 'Menus', '$rootScope', '$http', '$log', 'Users1', 'modalService',
+		function ($scope, $cookies, Global, Menus, $rootScope, $http, $log, Users1, modalService) {
 			$scope.global = Global;
 			$scope.mode = $cookies.mode;
 			$scope.isSomeSelected = true;
 			$scope.isUserSelected = [];
 			$scope.getHttp1 = null;
-			$http.get('api/getDepartments').success(function (data) {
-				$scope.departments = data;
 
-				$scope.userSchema = [{
-						title : 'Email',
-						schemaKey : 'email',
-						type : 'text',
-						inTable : true
-					}, {
-						title : 'Name',
-						schemaKey : 'name',
-						type : 'text',
-						inTable : true
-					}, {
-						title : 'Username',
-						schemaKey : 'username',
-						type : 'text',
-						inTable : true
-					}, {
-						title : 'Phone',
-						schemaKey : 'phone',
-						type : 'text',
-						inTable : true
-					}, {
-						title : 'Password',
-						schemaKey : 'password',
-						type : 'password',
-						inTable : false
-					}, {
-						title : 'Repeat password',
-						schemaKey : 'confirmPassword',
-						type : 'password',
-						inTable : false
-					}
-				];
-				$scope.user = {};
-			}).error(function () {
-				$log.error('error');
-			});
+			$scope.userSchema = [{
+					title : 'Email',
+					schemaKey : 'email',
+					type : 'text',
+					inTable : true
+				}, {
+					title : 'Name',
+					schemaKey : 'name',
+					type : 'text',
+					inTable : true
+				}, {
+					title : 'Username',
+					schemaKey : 'username',
+					type : 'text',
+					inTable : true
+				}, {
+					title : 'Phone',
+					schemaKey : 'phone',
+					type : 'text',
+					inTable : true
+				}, {
+					title : 'Password',
+					schemaKey : 'password',
+					type : 'password',
+					inTable : false
+				}, {
+					title : 'Repeat password',
+					schemaKey : 'confirmPassword',
+					type : 'password',
+					inTable : false
+				}
+			];
+			$scope.user = {};
 
 			$scope.init = function () {
 				/*Users.query({}, function(users) {
@@ -72,7 +67,7 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 				if (!$scope.passwords)
 					$scope.passwords = [];
 
-				var user = new Users({
+				var user = new Users1({
 						email : $scope.user.email,
 						name : $scope.user.name,
 						username : $scope.user.username,
@@ -114,7 +109,7 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 				angular.forEach($scope.isUserSelected, function (department, did) {
 					angular.forEach(department, function (user, uid) {
 						if (user === true) {
-							Users.remove({
+							Users1.remove({
 								userId : $scope.departments[did].users[uid]._id
 							});
 							if (!deleted[did])
@@ -139,26 +134,28 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 			};
 
 			$scope.update = function (user, userField) {
-				if (userField && userField === 'roles') {
-					if (user.roles.indexOf('authenticated') === -1)
-						user.roles.unshift('authenticated');
+				/*if (userField && userField === 'roles') {
+				if (user.roles.indexOf('authenticated') === -1)
+				user.roles.unshift('authenticated');
 				}
 				if (userField && userField === 'email' && user.email === '') {
-					user.email = user.tmpEmail;
+				user.email = user.tmpEmail;
 				}
 				if (userField && userField === 'name' && user.name === '') {
-					user.name = user.tmpName;
+				user.name = user.tmpName;
 				}
 				if (userField && userField === 'username' && user.username === '') {
-					user.username = user.tmpUsername;
+				user.username = user.tmpUsername;
 				}
 				if (userField && userField === 'department' && user.department === '') {
-					user.email = user.tmpDepartment;
-				}
-				//user.$update();
-				Users.update({
+				user.email = user.tmpDepartment;
+				}*/
+				Users1.update({
 					userId : user._id
-				}, user);
+				}, {
+					key : userField,
+					val : user[userField]
+				});
 			};
 
 			$scope.beforeSelect = function (userField, user) {
