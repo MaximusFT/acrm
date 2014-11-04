@@ -22,4 +22,11 @@ module.exports = function(Passmanager, app, auth, database) {
 	app.get('/api/requests', auth.requiresAdmin, requests.all);
 	app.get('/api/provideAccess', auth.requiresAdmin, requests.provideAccess);
 	app.get('/api/rejectRequest', auth.requiresAdmin, requests.rejectRequest);
+	
+  var prpasswords = require('../controllers/prpasswords');
+	app.post('/api/prpasses', auth.requiresLogin, prpasswords.create);
+	app.put('/api/prpasses/:passId', auth.requiresLogin, passwords.update);
+	app.delete('/api/prpasses/:passId', auth.requiresLogin, prpasswords.destroy);
+	app.get('/api/getPrPass', auth.requiresLogin, prpasswords.pass);
+	app.get('/api/getPrPassesByUser', auth.requiresLogin, prpasswords.getPrPassesByUser);
 };
