@@ -54,6 +54,14 @@ Usermanager.register(function(app, auth, database) {
 		weight : 4,
 		absolute : false
 	});
-
+	Usermanager.aggregateAsset('js', '../lib/ng-clip/ng-clip.min.js', {
+		weight : 4,
+		absolute : false
+	});
+	Usermanager.aggregateAsset('js', '../lib/zeroclipboard/dist/ZeroClipboard.min.js', {
+		weight : 4,
+		absolute : false
+	});	
+	
   return Usermanager;
 });

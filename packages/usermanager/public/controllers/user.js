@@ -1,13 +1,14 @@
 'use strict';
 
-angular.module('mean.usermanager').controller('UserController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$stateParams', '$cookies', '$location', 'Users1', 'PrPasswords',
-		function ($scope, Global, Menus, $rootScope, $http, $log, $stateParams, $cookies, $location, Users1, PrPasswords) {
+angular.module('mean.usermanager').controller('UserController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$stateParams', '$cookies', '$location', 'Users1', 'crypter', 'PrPasswords',
+		function ($scope, Global, Menus, $rootScope, $http, $log, $stateParams, $cookies, $location, Users1, crypter, PrPasswords) {
 			$scope.global = Global;
 			$scope.userId = $stateParams.userId;
 			$scope.mode = $cookies.mode;
 			$scope.isPasses = false;
 			$scope.isUser = true;
 			$scope.permsg = 'You have not access for any password account.';
+			$scope.isPassShown = [];
 
 			$scope.alerts = [{
 					type : 'info',
@@ -106,7 +107,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 				}, {
 					title : 'Password',
 					schemaKey : 'hashed_password',
-					type : 'text',
+					type : 'password',
 					inTable : true,
 					popover : 'Service password'
 				}, {
@@ -173,8 +174,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 					$scope.getHttp2 = $http.get('api/getPrPassesByUser',
 					{crypt:true}).success(function (data) {
 							//$log.info(data);
-							$scope.pr_groups = data;
-							//$crypto.decrypt(encrypted)
+							$scope.pr_groups = data;						
 							if (data.length > 0)
 								$scope.isPrPasses = true;
 						}).error(function (data, status) {
@@ -186,7 +186,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 				}
 			};
 
-			$scope.pp_add = function () {			
+			$scope.pp_add = function () {
 				var prpass = new PrPasswords({
 						group : $scope.prpass.group,
 						implement : $scope.prpass.implement,
@@ -194,7 +194,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 						resourceUrl : $scope.prpass.resourceUrl,
 						email : $scope.prpass.email,
 						login : $scope.prpass.login,
-						password : $scope.prpass.hashed_password,
+						hashed_password : crypter.encrypt($scope.prpass.hashed_password, crypter.hash($scope.global.user.username+$scope.global.user._id)),
 						comment : $scope.prpass.comment,
 						owner : $scope.global.user._id
 					});
@@ -242,7 +242,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 					}
 				});
 
-				$scope.prpass.group = $scope.prpass.resourceName = $scope.prpass.resourceUrl = $scope.prpass.login = $scope.prpass.hashed_password = $scope.prpass.comment = $scope.prpass.accessedFor = '';
+				$scope.prpass.group = $scope.prpass.resourceName = $scope.prpass.resourceUrl = $scope.prpass.login = $scope.prpass.email = $scope.prpass.implement = $scope.prpass.hashed_password = $scope.prpass.comment = '';
 			};
 
 			$scope.update = function (user, userField) {
@@ -279,6 +279,21 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 
 			$scope.closeAlert = function (index) {
 				$scope.alerts.splice(index, 1);
+			};
+			
+			$scope.showPass = function(group, implement, index) { 
+				if(!$scope.isPassShown[group])
+					$scope.isPassShown[group] = [];
+				if(!$scope.isPassShown[group][implement])
+					$scope.isPassShown[group][implement] = [];
+				if(!$scope.isPassShown[group][implement][index]) {
+					$scope.pr_groups[group].implement[implement].passes[index].hashed_password = crypter.decrypt($scope.pr_groups[group].implement[implement].passes[index].hashed_password, crypter.hash($scope.global.user.username+$scope.global.user._id));
+					$scope.isPassShown[group][implement][index] = true;
+				}
+				else {
+					$scope.pr_groups[group].implement[implement].passes[index].hashed_password = crypter.encrypt($scope.pr_groups[group].implement[implement].passes[index].hashed_password, crypter.hash($scope.global.user.username+$scope.global.user._id));
+					$scope.isPassShown[group][implement][index] = false;
+				}
 			};
 		}
 	]);

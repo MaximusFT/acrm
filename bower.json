@@ -10,7 +10,9 @@
     "angular-route": "latest",
     "bootstrap": "latest",
     "angular-bootstrap": "latest",
-    "angular-ui-router": "#master",
-    "angular-busy": "latest"
+    "angular-ui-router": "latest",
+    "angular-busy": "latest",
+    "zeroclipboard": "~2.1.6",
+    "ng-clip": "~0.2.4"
   }
 }

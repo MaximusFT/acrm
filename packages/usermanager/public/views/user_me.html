@@ -53,7 +53,7 @@
           <div class="row">
             <div class="col-md-8">
               <span data-ng-repeat="field in passSchema">
-                <input data-ng-if="(field['type'] == 'text' || field['type'] == 'password')" type="{{field['type']}}" class="span2" data-ng-model="prpass[field['schemaKey']]" placeholder="{{field['title']}}" id="pass-add-title" popover="{{field['popover']}}"  popover-trigger="focus" />
+                <input data-ng-if="(field['type'] == 'text' || field['type'] == 'password')" type="{{field['type']}}" class="span2" data-ng-model="prpass[field['schemaKey']]" placeholder="{{field['title']}}" id="pass-add-title" popover="{{field['popover']}}"  popover-trigger="focus" required />
               </span>
             </div>
             <div class="col-md-4">
@@ -65,9 +65,9 @@
     </div>
 	<div cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
 	<accordion close-others="true">
-	<div data-ng-repeat="group in pr_groups">
+	<div data-ng-repeat="group in pr_groups" data-ng-init="gind = $index">
 	<accordion-group data-ng-show="group.implement.length" heading="{{$index+1}}. {{group.group}} ({{getSumLength(group.implement)}})">
-    <table class="table table-striped table-bordered table-hover editable-table" data-ng-repeat="implement in group.implement" data-ng-show="group.implement.length">
+    <table class="table table-striped table-bordered table-hover editable-table" data-ng-repeat="implement in group.implement" data-ng-init="iind=$index" data-ng-show="group.implement.length">
 		<tr>
 			<th colspan="8">
 				{{implement.implement==='---' ? 'Uncategorized' : implement.implement}} ({{implement.passes.length}})
@@ -79,14 +79,20 @@
 			</th>
             <th data-ng-repeat="field in passSchema" data-ng-if="field.inTable">{{field.title}}</th>
         </tr>
-        <tr data-ng-repeat="pass in implement.passes | filter:search:strict">
+        <tr data-ng-repeat="pass in implement.passes | filter:search:strict" data-ng-init="pind=$index">
 			<td>
 				{{$index+1}}.
 			</td>
             <td data-ng-repeat="field in passSchema" data-ng-if="field.inTable">
-                <span data-ng-if="pass[field['schemaKey']] == ''">---</span>
-				<span data-ng-if="pass[field['schemaKey']] != ''">{{pass[field['schemaKey']]}}</span>
-            </td>
+                <span data-ng-if="pass[field['schemaKey']] == '' && field['type'] !== 'password'">---</span>
+				<span data-ng-if="pass[field['schemaKey']] != '' && field['type'] !== 'password'">{{pass[field['schemaKey']]}}</span>				
+				<div class="input-group input-group-sm"" data-ng-if="field['type'] === 'password'">
+					<input type="password" class="form-control" data-ng-if="!isPassShown[gind][iind][pind]" value="********" readonly />
+					<input type="text" class="form-control" data-ng-if="isPassShown[gind][iind][pind]" value="{{pass[field['schemaKey']]}}" readonly />	
+					<span class="input-group-addon" clip-copy="isPassShown[gind][iind][pind] ? pass[field['schemaKey']] : ''"><i class="glyphicon glyphicon-export"></i></span>
+					<span style="cursor:pointer" data-ng-class="isPassShown[gind][iind][pind] === true ? 'glyphicon glyphicon-eye-open input-group-addon' : 'glyphicon glyphicon-eye-close input-group-addon'" data-ng-click="showPass(gind,iind,pind)"></span>
+				</div>
+		   </td>
         </tr>
     </table>
 	</accordion-group>
