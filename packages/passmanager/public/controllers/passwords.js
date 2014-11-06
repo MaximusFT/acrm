@@ -24,6 +24,20 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 					msg : 'Attention! Now, being authorized as a department manager, you have access to the passwords, which are assigned to at least one of your employee. If you take away access to the employee and it was the only employee of the department who had access to the password, the password will disappear from this list.'
 				}
 			];
+			$scope.tabs = [{
+					type : 0,
+					title : 'Requests for access',
+					icon : 'glyphicon glyphicon-cog'
+				}, {
+					type : 1,
+					title : 'Request for adding',
+					icon : 'glyphicon glyphicon-plus'
+				}, {
+					type : 2,
+					title : 'Request for editing',
+					icon : 'glyphicon glyphicon-pencil'
+				}
+			];
 			if ($scope.mode === 'Administrator') {
 				$scope.btn_class = [];
 			} else {
@@ -104,11 +118,15 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 					});
 			};
 
-			$scope.init__ = function () {
+			$scope.init__ = function (t) {
 				$scope.getHttp2 = null;
 				$scope.requests = [];
-				$scope.getHttp2 = $http.get('api/requests').success(function (data) {
-						//$log.warn(data);
+				$scope.getHttp2 = $http.get('api/requests', {
+						params : {
+							type : t
+						}
+					}).success(function (data) {
+						$log.warn(data);
 						angular.forEach(data, function (value, key) {
 							var date = new Date(value.when * 1000);
 							value.when = date.toLocaleString();
@@ -116,6 +134,8 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 						$scope.requests = data;
 						if (data.length > 0)
 							$scope.isRequests = true;
+						else
+							$scope.isRequests = false;
 					}).error(function () {
 						$log.error('error');
 					});
@@ -132,7 +152,7 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 				modalService.showModal({}, modalOptions).then(function (result) {
 					//$log.info(result);
 					var request = new Requests({
-							//who : window.user._id,
+							type : 0,
 							what : passId,
 							when : new Date().getTime() / 1000,
 							comment : result

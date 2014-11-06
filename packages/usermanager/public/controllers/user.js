@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('mean.usermanager').controller('UserController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$stateParams', '$cookies', '$location', 'Users1', 'crypter', 'PrPasswords', 'modalService',
-		function ($scope, Global, Menus, $rootScope, $http, $log, $stateParams, $cookies, $location, Users1, crypter, PrPasswords, modalService) {
+angular.module('mean.usermanager').controller('UserController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$stateParams', '$cookies', '$location', 'Users1', 'crypter', 'PrPasswords', 'modalService', 'Requests',
+		function ($scope, Global, Menus, $rootScope, $http, $log, $stateParams, $cookies, $location, Users1, crypter, PrPasswords, modalService, Requests) {
 			$scope.global = Global;
 			$scope.userId = $stateParams.userId;
 			$scope.mode = $cookies.mode;
@@ -122,6 +122,58 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 			];
 			$scope.prpass = {};
 
+			$scope.passSchema1 = [{
+					title : 'Group',
+					schemaKey : 'group',
+					type : 'text',
+					inTable : false,
+					popover : 'Used for subsequent passwords grouping'
+				}, {
+					title : 'Appointment',
+					schemaKey : 'implement',
+					type : 'text',
+					inTable : false,
+					popover : 'Type of the password (social network, messenger, etc.)'
+				}, {
+					title : 'Resource Title',
+					schemaKey : 'resourceName',
+					type : 'text',
+					inTable : true,
+					popover : 'For example, \'Inside\''
+				}, {
+					title : 'Resource URL',
+					schemaKey : 'resourceUrl',
+					type : 'text',
+					inTable : true,
+					popover : 'Access link: http://...'
+				}, {
+					title : 'Email',
+					schemaKey : 'email',
+					type : 'text',
+					inTable : true,
+					popover : 'Email for accessing if necessary'
+				}, {
+					title : 'Login',
+					schemaKey : 'login',
+					type : 'text',
+					inTable : true,
+					popover : 'Username for accessing'
+				}, {
+					title : 'Password',
+					schemaKey : 'hashed_password',
+					type : 'password',
+					inTable : true,
+					popover : 'Service password'
+				}, {
+					title : 'Comment',
+					schemaKey : 'comment',
+					type : 'text',
+					inTable : true,
+					popover : 'You can specify a comment if required.'
+				}
+			];
+			$scope.pass = {};
+
 			$scope.init = function () {
 				/*Users.query({}, function(users) {
 				$scope.users = users;
@@ -204,36 +256,21 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 
 				prpass.$save(function (response) {
 					var ret = false;
-					//$log.info('search the same implements');
+					//$log.info('search the same groups');
 					angular.forEach($scope.pr_groups, function (group) {
-						angular.forEach(group.implement, function (implement) {
-							if (implement.implement === response.implement && group.group === response.group) {
-								//$log.info('found such implement. added to it');
-								ret = true;
-								implement.passes.splice(implement.passes.length, 0, response);
-							}
-						});
+						if (group.group === response.group) {
+							//$log.info('found such group');
+							ret = true;
+							group.passes.splice(group.passes.length, 0, response);
+						}
 					});
 					if (!ret) {
-						//$log.info('search the same groups');
-						angular.forEach($scope.pr_groups, function (group) {
-							if (group.group === response.group) {
-								//$log.info('found such group');
-								ret = true;
-								group.passes.splice(group.passes.length, 0, response);
-							}
-						});
-						if (!ret) {
-							//$log.info('not found anything. added new group');
-							var o = {
-								'group' : response.group,
-								'passes' : [response]
-							};
-							$scope.pr_groups.splice($scope.pr_groups.length, 0, o);
-							$scope.pr_groups.sort(function (a, b) {
-								return a.group > b.group;
-							});
-						}
+						//$log.info('not found anything. added new group');
+						var o = {
+							'group' : response.group,
+							'passes' : [response]
+						};
+						$scope.pr_groups.splice($scope.pr_groups.length, 0, o);
 					}
 				});
 
@@ -274,6 +311,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 
 			$scope.closeAlert = function (index) {
 				$scope.alerts.splice(index, 1);
+				$scope.isSent = false;
 			};
 
 			$scope.showPass = function (group, index) {
@@ -289,6 +327,9 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 			};
 
 			$scope.edit = function (gind, pind) {
+				if (!$scope.isPassShown[gind])
+					$scope.isPassShown[gind] = [];
+				$scope.isPassShown[gind][pind] = false;
 				var modalOptions = {
 					closeButtonText : 'Cancel',
 					actionButtonText : 'Confirm',
@@ -303,14 +344,34 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 					PrPasswords.update({
 						passId : result._id
 					}, result);
+					$scope.pr_groups[gind].passes[pind].hashed_password = result.hashed_password;
 				});
 			};
-			
+
 			$scope.remove = function (gind, pind) {
 				PrPasswords.remove({
 					passId : $scope.pr_groups[gind].passes[pind]._id
 				});
+				$scope.status.splice($scope.pr_groups[gind].passes.indexOf($scope.pr_groups[gind].passes[pind]), 1);
 				$scope.pr_groups[gind].passes.splice($scope.pr_groups[gind].passes.indexOf($scope.pr_groups[gind].passes[pind]), 1);
+			};
+
+			$scope.getPass = function (pass) {
+				return crypter.decrypt(pass, crypter.hash($scope.global.user.username + $scope.global.user._id));
+			};
+
+			$scope.sendRequestOnAdd = function () {
+				$scope.pass.hashed_password = crypter.encrypt($scope.pass.hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id));
+				var request = new Requests({
+						type : 1,
+						info : $scope.pass,
+						when : new Date().getTime() / 1000,
+						comment : 'User wants to add this password to system'
+					});
+				request.$save(function (response) {
+					if(response)
+						$scope.isSent = true;
+				});
 			};
 		}
 	]);

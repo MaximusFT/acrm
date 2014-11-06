@@ -9,6 +9,26 @@ th {
       <i class="glyphicon glyphicon-briefcase"></i>
       Corporate passwords
     </tab-heading>
+	<div class="panel panel-default">
+	<div class="panel-heading"><i class="glyphicon glyphicon-send"></i>&nbsp Send request for adding new passwords</div>
+	<div class="panel-body">
+    <form data-ng-show="!isSent" id="pass-add-form" class="row-fluid form-inline" name="addPassForm" data-ng-submit="sendRequestOnAdd()">
+        <div class="row">
+			<div class="col-md-8">
+            <span data-ng-repeat="field in passSchema1">
+                <input data-ng-if="(field['type'] == 'text' || field['type'] == 'password')" type="{{field['type']}}" class="span2" data-ng-model="pass[field['schemaKey']]" placeholder="{{field['title']}}" id="pass-add-title" required />
+            </span>
+			</div>
+			<div class="col-md-4">
+            <input type="submit" class="btn span1" value="Send" />			
+			</div>
+        </div>
+    </form>
+	<div data-ng-show="isSent">
+		<alert type="success" close="closeAlert($index)">The request was successfully sent!</alert>
+	</div>
+	</div>
+	</div>	
 	<div cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
 	<accordion close-others="true">
 	<div data-ng-repeat="group in groups">
@@ -42,7 +62,7 @@ th {
 		<p class='bg-warning'>{{permsg}}</p>
 	</div>
 	</div>
-	</tab>
+	</tab>	
 	<tab select="pp_init()">
 	<tab-heading>
       <i class="glyphicon glyphicon-home"></i>
@@ -98,8 +118,8 @@ th {
 				<div class="input-group input-group-sm"" data-ng-if="field['type'] === 'password'">
 					<input type="password" class="form-control" data-ng-if="!isPassShown[gind][pind]" value="********" readonly />
 					<input type="text" class="form-control" data-ng-if="isPassShown[gind][pind]" value="{{pass[field['schemaKey']]}}" readonly />	
-					<span class="input-group-addon" clip-copy="isPassShown[gind][pind] ? pass[field['schemaKey']] : ''"><i class="glyphicon glyphicon-export"></i></span>
-					<span style="cursor:pointer" data-ng-class="isPassShown[gind][pind] === true ? 'glyphicon glyphicon-eye-open input-group-addon' : 'glyphicon glyphicon-eye-close input-group-addon'" data-ng-click="showPass(gind,pind)"></span>
+					<span class="input-group-addon" clip-copy="getPass(pass[field['schemaKey']])"><i class="glyphicon glyphicon-export"></i></span>
+					<span style="cursor:pointer" class="input-group-addon" data-ng-click="showPass(gind,pind)"><i data-ng-class="isPassShown[gind][pind] === true ? 'glyphicon glyphicon-eye-open' : 'glyphicon glyphicon-eye-close'"></i></span>
 				</div>
 		   </td>
 			<td>

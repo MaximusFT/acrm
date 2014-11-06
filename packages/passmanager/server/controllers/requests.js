@@ -202,3 +202,39 @@ exports.rejectRequest = function (req, res) {
 		});
 	});
 };
+
+exports.getReqs = function (req, res) {
+	if (!req.query.type)
+		return res.render('Empty query', {
+			status : 500
+		});
+
+	Request
+	.find({
+		type : req.query.type
+	})
+	.populate('what')
+	.populate('who')
+	.exec(function (err, reqs) {
+		if (err) {
+			return res.render(err, {
+				status : 500
+			});
+		} else {
+			/*_(reqs).forEach(function(r) {
+				var ObjectId = mongoose.Types.ObjectId; 
+				var tId = new ObjectId(String(r.who.department));
+				console.log(typeof tId);*/
+				/*Department
+				.find({
+					_id : tId
+				})
+				.exec(function(dep) {
+					//r.who.department = dep.name;
+					console.log(dep);
+				});
+			});*/
+			return res.jsonp(reqs);
+		}
+	});
+};

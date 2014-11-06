@@ -134,22 +134,6 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 			};
 
 			$scope.update = function (user, userField) {
-				/*if (userField && userField === 'roles') {
-				if (user.roles.indexOf('authenticated') === -1)
-				user.roles.unshift('authenticated');
-				}
-				if (userField && userField === 'email' && user.email === '') {
-				user.email = user.tmpEmail;
-				}
-				if (userField && userField === 'name' && user.name === '') {
-				user.name = user.tmpName;
-				}
-				if (userField && userField === 'username' && user.username === '') {
-				user.username = user.tmpUsername;
-				}
-				if (userField && userField === 'department' && user.department === '') {
-				user.email = user.tmpDepartment;
-				}*/
 				Users1.update({
 					userId : user._id
 				}, {
@@ -230,7 +214,7 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 					}
 				})
 				.then(function (response) {
-					var r = response.data.substring(1, 2).toUpperCase();
+					var r = response.data.substring(0, 1).toUpperCase();
 					angular.forEach($scope.departments, function (department) {
 						angular.forEach(department.users, function (user) {
 							if (user.Selected === true) {

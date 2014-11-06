@@ -11,6 +11,13 @@ var mongoose = require('mongoose'),
  */
 
 var RequestSchema = new Schema({
+  type: {
+	type : Number
+	//0 - manager to admins (access)
+	//1 - manager/employee to admins (add)
+	//2 - manager/employee to admins (edit)
+	//3 - employee to manager (access)
+  },
   who : {
 	type : Schema.ObjectId,
 	ref : 'User'
@@ -25,6 +32,9 @@ var RequestSchema = new Schema({
   },
   comment: {
     type : String
+  },
+  info: {
+	type : Schema.Types.Mixed
   }
 });
 
