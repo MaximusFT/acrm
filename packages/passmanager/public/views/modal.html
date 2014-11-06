@@ -2,7 +2,7 @@
 <div class="modal-header">
   <h3>{{modalOptions.headerText}}</h3>
 </div>
-<div data-ng-if="modalOptions.type !== 1 && modalOptions.type !== 2 && modalOptions.type !== 3" class="modal-body">
+<div data-ng-if="modalOptions.type !== 1 && modalOptions.type !== 2 && modalOptions.type !== 3 && modalOptions.type !== 4" class="modal-body">
   <p>{{modalOptions.bodyText}}</p>
   <input type="text" class="form-control" data-ng-model="comment" data-ng-change="setComment(comment)" />
 </div>
@@ -18,8 +18,12 @@
   <p>{{modalOptions.bodyText}}</p>
   <div ng-include src="'usermanager/views/bind2dep.html'" />
 </div>
+<div data-ng-if="modalOptions.type === 4" class="modal-body">
+  <p>{{modalOptions.bodyText}}</p>
+  <div ng-include src="'usermanager/views/editprpass.html'" />
+</div>
 <div class="modal-footer">
   <button type="button" class="btn" data-ng-click="modalOptions.close()">{{modalOptions.closeButtonText}}</button>
-  <button class="btn btn-primary" data-ng-click="modalOptions.ok(modalOptions.type === 1 ? selectedUsers : comment);">{{modalOptions.actionButtonText}}</button>
+  <button class="btn btn-primary" data-ng-click="modalOptions.ok(modalOptions.type === 1 ? selectedUsers : (modalOptions.type === 4 ? editprp : comment));">{{modalOptions.actionButtonText}}</button>
 </div>
 </div>

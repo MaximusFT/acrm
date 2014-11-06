@@ -10,6 +10,7 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function ($sc
 		$log.info('ok');
 		//$modalInstance.close($scope.selected.item);
 	};
+	$scope.editprp = $scope.modalOptions.editprp;
 
 	$scope.cancel = function () {
 		$log.info('cancel');

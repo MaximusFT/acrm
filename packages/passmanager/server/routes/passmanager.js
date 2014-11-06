@@ -25,7 +25,7 @@ module.exports = function(Passmanager, app, auth, database) {
 	
   var prpasswords = require('../controllers/prpasswords');
 	app.post('/api/prpasses', auth.requiresLogin, prpasswords.create);
-	app.put('/api/prpasses/:passId', auth.requiresLogin, passwords.update);
+	app.put('/api/prpasses/:passId', auth.requiresLogin, prpasswords.update);
 	app.delete('/api/prpasses/:passId', auth.requiresLogin, prpasswords.destroy);
 	app.get('/api/getPrPass', auth.requiresLogin, prpasswords.pass);
 	app.get('/api/getPrPassesByUser', auth.requiresLogin, prpasswords.getPrPassesByUser);

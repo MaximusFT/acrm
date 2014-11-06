@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('mean.usermanager').controller('UserController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$stateParams', '$cookies', '$location', 'Users1', 'crypter', 'PrPasswords',
-		function ($scope, Global, Menus, $rootScope, $http, $log, $stateParams, $cookies, $location, Users1, crypter, PrPasswords) {
+angular.module('mean.usermanager').controller('UserController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$stateParams', '$cookies', '$location', 'Users1', 'crypter', 'PrPasswords', 'modalService',
+		function ($scope, Global, Menus, $rootScope, $http, $log, $stateParams, $cookies, $location, Users1, crypter, PrPasswords, modalService) {
 			$scope.global = Global;
 			$scope.userId = $stateParams.userId;
 			$scope.mode = $cookies.mode;
@@ -9,6 +9,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 			$scope.isUser = true;
 			$scope.permsg = 'You have not access for any password account.';
 			$scope.isPassShown = [];
+			$scope.status = [true];
 
 			$scope.alerts = [{
 					type : 'info',
@@ -74,13 +75,14 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 					type : 'text',
 					inTable : false,
 					popover : 'Used for subsequent passwords grouping'
-				}, {
-					title : 'Appointment',
-					schemaKey : 'implement',
-					type : 'text',
-					inTable : false,
-					popover : 'Type of the password (social network, messenger, etc.)'
-				}, {
+				}, /*{
+				title : 'Appointment',
+				schemaKey : 'implement',
+				type : 'text',
+				inTable : false,
+				popover : 'Type of the password (social network, messenger, etc.)'
+				},*/
+				{
 					title : 'Resource Title',
 					schemaKey : 'resourceName',
 					type : 'text',
@@ -171,10 +173,11 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 				if ($scope.global.user.username !== $scope.userId) {
 					$scope.permsg = 'You have not access for this view.';
 				} else {
-					$scope.getHttp2 = $http.get('api/getPrPassesByUser',
-					{crypt:true}).success(function (data) {
+					$scope.getHttp2 = $http.get('api/getPrPassesByUser', {
+							crypt : true
+						}).success(function (data) {
 							//$log.info(data);
-							$scope.pr_groups = data;						
+							$scope.pr_groups = data;
 							if (data.length > 0)
 								$scope.isPrPasses = true;
 						}).error(function (data, status) {
@@ -189,12 +192,12 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 			$scope.pp_add = function () {
 				var prpass = new PrPasswords({
 						group : $scope.prpass.group,
-						implement : $scope.prpass.implement,
+						//implement : $scope.prpass.implement,
 						resourceName : $scope.prpass.resourceName,
 						resourceUrl : $scope.prpass.resourceUrl,
 						email : $scope.prpass.email,
 						login : $scope.prpass.login,
-						hashed_password : crypter.encrypt($scope.prpass.hashed_password, crypter.hash($scope.global.user.username+$scope.global.user._id)),
+						hashed_password : crypter.encrypt($scope.prpass.hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id)),
 						comment : $scope.prpass.comment,
 						owner : $scope.global.user._id
 					});
@@ -217,22 +220,14 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 							if (group.group === response.group) {
 								//$log.info('found such group');
 								ret = true;
-								var o = {
-									'implement' : response.implement,
-									'passes' : [response]
-								};
-								group.implement.splice(group.implement.length, 0, o);
+								group.passes.splice(group.passes.length, 0, response);
 							}
 						});
 						if (!ret) {
 							//$log.info('not found anything. added new group');
 							var o = {
 								'group' : response.group,
-								'implement' : [{
-										'implement' : response.implement,
-										'passes' : [response]
-									}
-								]
+								'passes' : [response]
 							};
 							$scope.pr_groups.splice($scope.pr_groups.length, 0, o);
 							$scope.pr_groups.sort(function (a, b) {
@@ -280,20 +275,42 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 			$scope.closeAlert = function (index) {
 				$scope.alerts.splice(index, 1);
 			};
-			
-			$scope.showPass = function(group, implement, index) { 
-				if(!$scope.isPassShown[group])
+
+			$scope.showPass = function (group, index) {
+				if (!$scope.isPassShown[group])
 					$scope.isPassShown[group] = [];
-				if(!$scope.isPassShown[group][implement])
-					$scope.isPassShown[group][implement] = [];
-				if(!$scope.isPassShown[group][implement][index]) {
-					$scope.pr_groups[group].implement[implement].passes[index].hashed_password = crypter.decrypt($scope.pr_groups[group].implement[implement].passes[index].hashed_password, crypter.hash($scope.global.user.username+$scope.global.user._id));
-					$scope.isPassShown[group][implement][index] = true;
+				if (!$scope.isPassShown[group][index]) {
+					$scope.pr_groups[group].passes[index].hashed_password = crypter.decrypt($scope.pr_groups[group].passes[index].hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id));
+					$scope.isPassShown[group][index] = true;
+				} else {
+					$scope.pr_groups[group].passes[index].hashed_password = crypter.encrypt($scope.pr_groups[group].passes[index].hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id));
+					$scope.isPassShown[group][index] = false;
 				}
-				else {
-					$scope.pr_groups[group].implement[implement].passes[index].hashed_password = crypter.encrypt($scope.pr_groups[group].implement[implement].passes[index].hashed_password, crypter.hash($scope.global.user.username+$scope.global.user._id));
-					$scope.isPassShown[group][implement][index] = false;
-				}
+			};
+
+			$scope.edit = function (gind, pind) {
+				var modalOptions = {
+					closeButtonText : 'Cancel',
+					actionButtonText : 'Confirm',
+					headerText : 'Edit password',
+					bodyText : 'Fill the fields with new values if you want update your password information.',
+					type : 4,
+					editprp : $scope.pr_groups[gind].passes[pind]
+				};
+
+				modalService.showModal({}, modalOptions).then(function (result) {
+					result.hashed_password = crypter.encrypt(result.hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id));
+					PrPasswords.update({
+						passId : result._id
+					}, result);
+				});
+			};
+			
+			$scope.remove = function (gind, pind) {
+				PrPasswords.remove({
+					passId : $scope.pr_groups[gind].passes[pind]._id
+				});
+				$scope.pr_groups[gind].passes.splice($scope.pr_groups[gind].passes.indexOf($scope.pr_groups[gind].passes[pind]), 1);
 			};
 		}
 	]);

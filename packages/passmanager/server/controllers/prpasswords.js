@@ -17,7 +17,7 @@ exports.create = function (req, res, next) {
 	if (errors) {
 		return res.status(400).send(errors);
 	}
-	pass.save(function (err) {	
+	pass.save(function (err) {
 		if (err) {
 			console.log(err);
 			switch (err.code) {
@@ -53,11 +53,27 @@ exports.pass = function (req, res, next, id) {
  * Update a pass
  */
 exports.update = function (req, res) {
-	var pass = req.profile;
-	//console.log(pass);
-	pass = _.extend(pass, req.body);
-	pass.save(function (err) {
-		res.jsonp(pass);
+	var pass = req.body;
+	var passId = req.params.passId;
+	if (!pass || !passId) {
+		return res.render('Empty query', {
+			status : 500
+		});
+	}
+	PrPass
+	.update({
+		_id : passId
+	}, {
+		$set : pass
+	})
+	.exec(function (err) {
+		if (err) {
+			return res.json(500, {
+				error : err
+			});
+		} else {
+			return res.jsonp('ok');
+		}
 	});
 };
 
@@ -85,32 +101,32 @@ exports.destroy = function (req, res) {
 		});
 	});
 };
-
+/*
 function nest(collection, keys) {
-	if (!keys.length) {
-		return collection;
-	} else {
-		return _(collection).groupBy(keys[0]).mapValues(function (values) {
-			return nest(values, keys.slice(1));
-		}).value();
-	}
+if (!keys.length) {
+return collection;
+} else {
+return _(collection).groupBy(keys[0]).mapValues(function (values) {
+return nest(values, keys.slice(1));
+}).value();
+}
 }
 
 function groupBy(data) {
-	return _.chain(nest(data, ['group', 'implement']))
-	.pairs()
-	.map(function (currentItem) {
-		var implement = _.chain(currentItem[1])
-			.pairs()
-			.map(function (curIt) {
-				return _.object(_.zip(['implement', 'passes'], curIt));
-			})
-			.value();
-		return _.object(_.zip(['group', 'implement'], [currentItem[0], implement]));
-	})
-	.value();
+return _.chain(nest(data, ['group', 'implement']))
+.pairs()
+.map(function (currentItem) {
+var implement = _.chain(currentItem[1])
+.pairs()
+.map(function (curIt) {
+return _.object(_.zip(['implement', 'passes'], curIt));
+})
+.value();
+return _.object(_.zip(['group', 'implement'], [currentItem[0], implement]));
+})
+.value();
 }
-
+ */
 exports.getPrPassesByUser = function (req, res) {
 	User
 	.findById(req.user._id, function (err, user) {
@@ -127,8 +143,16 @@ exports.getPrPassesByUser = function (req, res) {
 				'email' : 1
 			})
 			.exec(function (err, passes) {
-				var result = groupBy(passes);
-				res.jsonp(result);
+				/*var result = groupBy(passes);
+				res.jsonp(result);*/
+				var result = _.chain(passes)
+					.groupBy('group')
+					.pairs()
+					.map(function (currentItem) {
+						return _.object(_.zip(['group', 'passes'], currentItem));
+					})
+					.value();
+				return res.jsonp(result);
 			});
 		}
 	});
