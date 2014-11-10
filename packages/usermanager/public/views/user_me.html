@@ -115,7 +115,7 @@ th {
             <td data-ng-repeat="field in passSchema1" data-ng-if="field.inTable">
                 <span data-ng-if="pass[field['schemaKey']] == '' && field['type'] !== 'password'">---</span>
 				<span data-ng-if="pass[field['schemaKey']] != '' && field['type'] !== 'password'">{{pass[field['schemaKey']]}}</span>				
-				<div class="input-group input-group-sm"" data-ng-if="field['type'] === 'password'">
+				<div class="input-group input-group-sm" data-ng-if="field['type'] === 'password'">
 					<input type="password" class="form-control" data-ng-if="!isPassShown[gind][pind]" value="********" readonly />
 					<input type="text" class="form-control" data-ng-if="isPassShown[gind][pind]" value="{{pass[field['schemaKey']]}}" readonly />	
 					<span class="input-group-addon" clip-copy="getPass(pass[field['schemaKey']])"><i class="glyphicon glyphicon-export"></i></span>

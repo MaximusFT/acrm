@@ -352,7 +352,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 			};
 
 			$scope.sendRequestOnAdd = function () {
-				$scope.pass.hashed_password = crypter.encrypt($scope.pass.hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id));
+				//$scope.pass.hashed_password = crypter.encrypt($scope.pass.hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id));
 				var request = new Requests({
 						type : 1,
 						info : $scope.pass,

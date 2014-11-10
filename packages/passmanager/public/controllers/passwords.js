@@ -9,14 +9,15 @@ angular.module('mean.passmanager').controller('PassmanagerController', ['$scope'
 		}
 	]);
 
-angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$cookies', '$q', 'modalService', 'Passwords', 'Users', 'Requests',
-		function ($scope, Global, Menus, $rootScope, $http, $log, $cookies, $q, modalService, Passwords, Users, Requests) {
+angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$cookies', '$q', 'modalService', 'Passwords', 'Users', 'Requests', 'crypter',
+		function ($scope, Global, Menus, $rootScope, $http, $log, $cookies, $q, modalService, Passwords, Users, Requests, crypter) {
 			$scope.mode = $cookies.mode;
 			$scope.global = Global;
 			$scope.isSomeSelected = true;
 			$scope.isPassSelected = [];
 			$scope.isRequests = false;
 			$scope.isPasses = false;
+			$scope.isPassShown = [];
 			$scope.getHttp1 = null;
 			$scope.getHttp2 = null;
 			$scope.alerts = [{
@@ -85,7 +86,7 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 					}, {
 						title : 'Password',
 						schemaKey : 'hashed_password',
-						type : 'text',
+						type : 'password',
 						inTable : true
 					}, {
 						title : 'Comment',
@@ -500,6 +501,25 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 
 			$scope.closeAlert = function (index) {
 				$scope.alerts.splice(index, 1);
+			};
+			
+			$scope.getPass = function (pass) {
+				return pass;
+				//return crypter.decrypt(pass, crypter.hash($scope.global.user.username + $scope.global.user._id));
+			};
+			
+			$scope.showPass = function (group, implement, index) {
+				if (!$scope.isPassShown[group])
+					$scope.isPassShown[group] = [];
+				if (!$scope.isPassShown[group][implement])
+					$scope.isPassShown[group][implement] = [];
+				if (!$scope.isPassShown[group][implement][index]) {
+					/*$scope.pr_groups[group].passes[index].hashed_password = crypter.decrypt($scope.pr_groups[group].passes[index].hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id));*/
+					$scope.isPassShown[group][implement][index] = true;
+				} else {
+					/*$scope.pr_groups[group].passes[index].hashed_password = crypter.encrypt($scope.pr_groups[group].passes[index].hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id));*/
+					$scope.isPassShown[group][implement][index] = false;
+				}
 			};
 		}
 	]);
