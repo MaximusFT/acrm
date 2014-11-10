@@ -146,41 +146,115 @@ exports.all = function (req, res) {
 	});
 };
 
-exports.provideAccess = function (req, res) {
-	var reqId = req.query.reqId;
-	Request
-	.findOne({
-		_id : reqId
-	})
-	.populate('what')
-	.exec(function (err, request) {
-		if (err) {
-			res.render('error', {
-				status : 500
-			});
-		} else {
-			Pass
-			.update({
-				_id : request.what._id
-			}, {
-				$push : {
-					'accessedFor' : request.who
+exports.confirmRequest = function (req, res) {
+	var reqId = req.body.reqId;
+	var type = req.body.type;
+	if ((!reqId || !type) && type !== 0) {
+		return res.render('error', {
+			status : 500
+		});
+	}
+	switch (type) {
+	case 0:
+		Request
+		.findOne({
+			_id : reqId
+		})
+		.populate('what')
+		.exec(function (err, request) {
+			if (err) {
+				res.render('error', {
+					status : 500
+				});
+			} else {
+				Pass
+				.update({
+					_id : request.what._id
+				}, {
+					$push : {
+						'accessedFor' : request.who
+					}
+				})
+				.exec(function (err) {
+					if (err) {
+						return res.json(500, {
+							error : err
+						});
+					}
+					exports.rejectRequest(req, res);
+				});
+			}
+		});
+		break;
+	case 1:
+		Request
+		.findOne({
+			_id : reqId
+		})
+		.populate('what')
+		.exec(function (err, request) {
+			if (err) {
+				res.render('error', {
+					status : 500
+				});
+			} else {
+				var pass = new Pass(request.info);
+				var errors = req.validationErrors();
+				console.log(errors);
+				if (errors) {
+					return res.status(400).send(errors);
 				}
-			})
-			.exec(function (err) {
-				if (err) {
-					return res.json(500, {
-						error : err
-					});
-				}
-				exports.rejectRequest(req, res);
-			});
-		}
-	});
+				pass.save(function (err) {
+					console.log(err);
+					if (err) {
+						switch (err.code) {
+						default:
+							res.status(400).send('Please fill all the required fields');
+						}
+
+						return res.status(400);
+					}
+					exports.rejectRequest(req, res);
+				});
+			}
+		});
+		break;
+	case 2:
+		Request
+		.findOne({
+			_id : reqId
+		})
+		.populate('what')
+		.exec(function (err, request) {
+			if (err) {
+				res.render('error', {
+					status : 500
+				});
+			} else {
+				console.log(request);
+				/*Pass
+				.update({
+					_id : passId
+				}, {
+					$set : up
+				})
+				.exec(function (err) {
+					if (err) {
+						return res.json(500, {
+							error : err
+						});
+					} else {
+						return res.jsonp('ok');
+					}
+				});*/
+			}
+		});
+		break;
+	}
 };
 
 exports.rejectRequest = function (req, res) {
-	var reqId = req.query.reqId;
+	var reqId = req.body.reqId;
 	Request.findById(reqId, function (err, request) {
 		if (err) {
 			res.render('error', {
@@ -193,11 +267,11 @@ exports.rejectRequest = function (req, res) {
 		_.extend(request, req.body);
 		request.remove(function (err) {
 			if (err) {
-				res.render('error', {
+				return res.render('error', {
 					status : 500
 				});
 			} else {
-				res.jsonp(request);
+				return res.jsonp(request);
 			}
 		});
 	});
@@ -213,27 +287,19 @@ exports.getReqs = function (req, res) {
 	.find({
 		type : req.query.type
 	})
+	.sort({
+		'when' : -1,
+		'who.name' : 1
+	})
 	.populate('what')
 	.populate('who')
+	.populate('who department')
 	.exec(function (err, reqs) {
 		if (err) {
 			return res.render(err, {
 				status : 500
 			});
 		} else {
-			/*_(reqs).forEach(function(r) {
-				var ObjectId = mongoose.Types.ObjectId; 
-				var tId = new ObjectId(String(r.who.department));
-				console.log(typeof tId);*/
-				/*Department
-				.find({
-					_id : tId
-				})
-				.exec(function(dep) {
-					//r.who.department = dep.name;
-					console.log(dep);
-				});
-			});*/
 			return res.jsonp(reqs);
 		}
 	});

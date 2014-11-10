@@ -27,15 +27,18 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 			$scope.tabs = [{
 					type : 0,
 					title : 'Requests for access',
-					icon : 'glyphicon glyphicon-cog'
+					icon : 'glyphicon glyphicon-cog',
+					btn : ['Provide access', 'Reject']
 				}, {
 					type : 1,
 					title : 'Request for adding',
-					icon : 'glyphicon glyphicon-plus'
+					icon : 'glyphicon glyphicon-plus',
+					btn : ['Add', 'Remove']
 				}, {
 					type : 2,
 					title : 'Request for editing',
-					icon : 'glyphicon glyphicon-pencil'
+					icon : 'glyphicon glyphicon-pencil',
+					btn : ['Confirm', 'Reject']
 				}
 			];
 			if ($scope.mode === 'Administrator') {
@@ -55,7 +58,7 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 						type : 'text',
 						inTable : false
 					}, {
-						title : 'Implement',
+						title : 'Appointment',
 						schemaKey : 'implement',
 						type : 'text',
 						inTable : false
@@ -126,7 +129,7 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 							type : t
 						}
 					}).success(function (data) {
-						$log.warn(data);
+						//$log.warn(data);
 						angular.forEach(data, function (value, key) {
 							var date = new Date(value.when * 1000);
 							value.when = date.toLocaleString();
@@ -166,33 +169,41 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 				});
 			};
 
-			$scope.provideAccess = function (id) {
+			$scope.provideAccess = function (id, type) {
 				var rId = $scope.requests[id]._id;
-				$http.get('/api/provideAccess', {
-					params : {
-						reqId : rId
+				$http({
+					url : '/api/confirmReq',
+					method : 'POST',
+					data : {
+						'reqId' : rId,
+						'type' : type
 					}
-				}).success(function (data) {
-					//$log.info(data);
+				})
+				.then(function (response) {
+					//$log.info(response);
 					$scope.btn_class[id] = 'btn btn-success';
-				}).error(function (data, status) {
-					if (status === 500)
-						$log.error('error :(');
+				},
+					function (response) {
+					$log.error('error');
 				});
 			};
 
-			$scope.rejectAccess = function (id) {
+			$scope.rejectAccess = function (id, type) {
 				var rId = $scope.requests[id]._id;
-				$http.get('/api/rejectRequest', {
-					params : {
-						reqId : rId
+				$http({
+					url : '/api/rejectReq',
+					method : 'POST',
+					data : {
+						'reqId' : rId
+						//'type' : type
 					}
-				}).success(function (data) {
-					//$log.info(data);
+				})
+				.then(function (response) {
+					//$log.info(response);
 					$scope.btn_class[id] = 'btn btn-info';
-				}).error(function (data, status) {
-					if (status === 500)
-						$log.error('error :(');
+				},
+					function (response) {
+					$log.error('error');
 				});
 			};
 
@@ -465,6 +476,7 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 					});
 				});
 				$scope.isPassSelected = [];
+				$scope.isSomeSelected = checkSelections();
 			};
 
 			$scope.update = function (pass, passField) {

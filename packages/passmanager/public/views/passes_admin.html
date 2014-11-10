@@ -112,7 +112,7 @@
       <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="requests.length">
         <tr>
           <th colspan="6" style="text-transform: uppercase;">
-            Requests from managers
+            Requests from users
           </th>
         </tr>
         <tr>
@@ -180,11 +180,11 @@
           </td>
           <td style="text-align: center;">
             <div class="btn-group">
-              <button data-ng-hide="btn_class[$index] != null || btn_deny_class[$index] != null" ng-class="btn_class[$index] == null ? 'btn btn-danger' : btn_class[$index]" data-ng-click="provideAccess($index)" data-ng-disabled="!btn_class[$index] ? false : true">
-                {{!btn_class[$index] ? 'Provide Access' : 'Access was shared'}}
+              <button data-ng-hide="btn_class[$index] != null || btn_deny_class[$index] != null" ng-class="btn_class[$index] == null ? 'btn btn-danger' : btn_class[$index]" data-ng-click="provideAccess($index, tab.type)" data-ng-disabled="!btn_class[$index] ? false : true">
+                {{tab.btn[0]}}
               </button>
-              <button data-ng-hide="btn_class[$index] != null || btn_deny_class[$index] != null" ng-class="btn_deny_class[$index] == null ? 'btn btn-warning' : btn_deny_class[$index]" data-ng-click="rejectAccess($index)" data-ng-disabled="!btn_deny_class[$index] ? false : true">
-                {{!btn_deny_class[$index] ? 'Reject' : 'Request was removed'}}
+              <button data-ng-hide="btn_class[$index] != null || btn_deny_class[$index] != null" ng-class="btn_deny_class[$index] == null ? 'btn btn-warning' : btn_deny_class[$index]" data-ng-click="rejectAccess($index, tab.type)" data-ng-disabled="!btn_deny_class[$index] ? false : true">
+                {{tab.btn[1]}}
               </button>
               <button data-ng-show="btn_class[$index] != null || btn_deny_class[$index] != null" class="btn btn-info" data-ng-disabled="true">
                 Done

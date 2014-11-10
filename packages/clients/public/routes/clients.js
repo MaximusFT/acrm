@@ -3,7 +3,7 @@
 angular.module('mean.clients').config(['$stateProvider',
   function($stateProvider) {
     $stateProvider.state('clients manager page', {
-      url: '/clients/example',
+      url: '/manager/clients',
       templateUrl: 'clients/views/index.html'
     });
   }

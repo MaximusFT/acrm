@@ -70,19 +70,6 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 			});
 
 			$scope.passSchema = [{
-					title : 'Group',
-					schemaKey : 'group',
-					type : 'text',
-					inTable : false,
-					popover : 'Used for subsequent passwords grouping'
-				}, /*{
-				title : 'Appointment',
-				schemaKey : 'implement',
-				type : 'text',
-				inTable : false,
-				popover : 'Type of the password (social network, messenger, etc.)'
-				},*/
-				{
 					title : 'Resource Title',
 					schemaKey : 'resourceName',
 					type : 'text',
@@ -128,13 +115,14 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 					type : 'text',
 					inTable : false,
 					popover : 'Used for subsequent passwords grouping'
-				}, {
-					title : 'Appointment',
-					schemaKey : 'implement',
-					type : 'text',
-					inTable : false,
-					popover : 'Type of the password (social network, messenger, etc.)'
-				}, {
+				}, /*{
+				title : 'Appointment',
+				schemaKey : 'implement',
+				type : 'text',
+				inTable : false,
+				popover : 'Type of the password (social network, messenger, etc.)'
+				},*/
+				{
 					title : 'Resource Title',
 					schemaKey : 'resourceName',
 					type : 'text',
@@ -340,11 +328,14 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 				};
 
 				modalService.showModal({}, modalOptions).then(function (result) {
-					result.hashed_password = crypter.encrypt(result.hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id));
+					if (result.password) {
+						result.hashed_password = crypter.encrypt(result.password, crypter.hash($scope.global.user.username + $scope.global.user._id));
+						$scope.pr_groups[gind].passes[pind].hashed_password = result.hashed_password;
+					}
 					PrPasswords.update({
 						passId : result._id
 					}, result);
-					$scope.pr_groups[gind].passes[pind].hashed_password = result.hashed_password;
+
 				});
 			};
 
@@ -369,7 +360,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 						comment : 'User wants to add this password to system'
 					});
 				request.$save(function (response) {
-					if(response)
+					if (response)
 						$scope.isSent = true;
 				});
 			};

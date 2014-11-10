@@ -17,7 +17,12 @@ angular.module('mean.passmanager').controller('PassController', ['$scope', 'Glob
 						title : 'Group',
 						schemaKey : 'group',
 						type : 'text',
-						inTable : false
+						inTable : true
+					}, {
+						title : 'Appointment',
+						schemaKey : 'implement',
+						type : 'text',
+						inTable : true
 					}, {
 						title : 'Resource Title',
 						schemaKey : 'resourceName',

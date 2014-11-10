@@ -9,13 +9,13 @@ th {
       <i class="glyphicon glyphicon-briefcase"></i>
       Corporate passwords
     </tab-heading>
-	<div class="panel panel-default">
+	<div class="panel panel-default" data-ng-if="mode === 'Manager' || mode === 'Employee'">
 	<div class="panel-heading"><i class="glyphicon glyphicon-send"></i>&nbsp Send request for adding new passwords</div>
 	<div class="panel-body">
     <form data-ng-show="!isSent" id="pass-add-form" class="row-fluid form-inline" name="addPassForm" data-ng-submit="sendRequestOnAdd()">
         <div class="row">
 			<div class="col-md-8">
-            <span data-ng-repeat="field in passSchema1">
+            <span data-ng-repeat="field in passSchema">
                 <input data-ng-if="(field['type'] == 'text' || field['type'] == 'password')" type="{{field['type']}}" class="span2" data-ng-model="pass[field['schemaKey']]" placeholder="{{field['title']}}" id="pass-add-title" required />
             </span>
 			</div>
@@ -74,10 +74,10 @@ th {
         Control panel
       </div>
       <div class="panel-body">
-        <form id="pass-add-form" class="row-fluid form-inline" name="addPassForm" data-ng-submit="pp_add()">
+        <form id="pass-add-form" class="row-fluid form-inline" name="addPPassForm" data-ng-submit="pp_add()">
           <div class="row">
             <div class="col-md-8">
-              <span data-ng-repeat="field in passSchema">
+              <span data-ng-repeat="field in passSchema1">
                 <input data-ng-if="(field['type'] == 'text' || field['type'] == 'password')" type="{{field['type']}}" class="span2" data-ng-model="prpass[field['schemaKey']]" placeholder="{{field['title']}}" id="pass-add-title" popover="{{field['popover']}}"  popover-trigger="focus" required />
               </span>
             </div>
@@ -100,7 +100,7 @@ th {
 			<th>
                 <i class="glyphicon glyphicon-sort-by-order"></i>
             </th>
-            <th data-ng-repeat="field in passSchema" data-ng-if="field.inTable">{{field.title}}</th>
+            <th data-ng-repeat="field in passSchema1" data-ng-if="field.inTable">{{field.title}}</th>
 			<th>
 				<i class="glyphicon glyphicon-edit"></i>
 			</th>
@@ -112,7 +112,7 @@ th {
 			<td>
 				{{$index+1}}.
             </td>
-            <td data-ng-repeat="field in passSchema" data-ng-if="field.inTable">
+            <td data-ng-repeat="field in passSchema1" data-ng-if="field.inTable">
                 <span data-ng-if="pass[field['schemaKey']] == '' && field['type'] !== 'password'">---</span>
 				<span data-ng-if="pass[field['schemaKey']] != '' && field['type'] !== 'password'">{{pass[field['schemaKey']]}}</span>				
 				<div class="input-group input-group-sm"" data-ng-if="field['type'] === 'password'">

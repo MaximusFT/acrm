@@ -53,4 +53,8 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function ($sc
 	$scope.setComment = function(value) {
 		$scope.comment = value;
 	};
+	
+	$scope.passChanged = function(val) {
+		$scope.editprp.password = val;
+	};
 });

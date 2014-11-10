@@ -56,7 +56,7 @@ exports.pass = function (req, res, next, id) {
 exports.update = function (req, res) {
 	var pair = req.body;
 	var passId = req.params.passId;
-	if(!pair || !passId) {
+	if (!pair || !passId) {
 		//console.log('Empty query');
 		return res.render('Empty query', {
 			status : 500

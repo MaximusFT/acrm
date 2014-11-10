@@ -11,8 +11,21 @@ _ = require('lodash');
 /**
  * Create user
  */
-exports.create = function (req, res, next) {
-	var user = new User(req.body);
+exports.create = function (req, res, next) {	
+	var tmp = req.body;
+	User
+	.findOne({_id: req.user._id})
+	//.populate('department')
+	.exec(function(err, curuser) {
+		if(err) {
+			return res.status(400).send(err);
+		} else {
+			if(curuser.roles.indexOf('manager') !== -1) {
+				tmp.department = curuser.department;
+			}
+		}
+	});
+	var user = new User(tmp);
 	user.provider = 'local';
 
 	// because we set our user.provider to local our models/user.js validation will always be true
