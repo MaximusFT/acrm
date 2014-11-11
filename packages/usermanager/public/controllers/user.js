@@ -9,6 +9,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 			$scope.isUser = true;
 			$scope.permsg = 'You have not access for any password account.';
 			$scope.isPassShown = [];
+			$scope.isPassShown1 = [];
 			$scope.status = [true];
 
 			$scope.alerts = [{
@@ -187,6 +188,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 
 			$scope.p_init = function () {
 				$scope.groups = [];
+				$scope.isPassShown1 = [];
 				if ($scope.global.mode === 'Employee' && $scope.global.user.username !== $scope.userId) {
 					$scope.permsg = 'You have not access for this view.';
 				} else {
@@ -210,6 +212,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 
 			$scope.pp_init = function () {
 				$scope.pr_groups = [];
+				$scope.isPassShown = [];
 				if ($scope.global.user.username !== $scope.userId) {
 					$scope.permsg = 'You have not access for this view.';
 				} else {
@@ -313,6 +316,20 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 					$scope.isPassShown[group][index] = false;
 				}
 			};
+			
+			$scope.showPass1 = function (group, implement, index) {
+				if (!$scope.isPassShown[group])
+					$scope.isPassShown[group] = [];
+				if (!$scope.isPassShown[group][implement])
+					$scope.isPassShown[group][implement] = [];
+				if (!$scope.isPassShown[group][implement][index]) {
+					/*$scope.pr_groups[group].passes[index].hashed_password = crypter.decrypt($scope.pr_groups[group].passes[index].hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id));*/
+					$scope.isPassShown[group][implement][index] = true;
+				} else {
+					/*$scope.pr_groups[group].passes[index].hashed_password = crypter.encrypt($scope.pr_groups[group].passes[index].hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id));*/
+					$scope.isPassShown[group][implement][index] = false;
+				}
+			};
 
 			$scope.edit = function (gind, pind) {
 				if (!$scope.isPassShown[gind])
@@ -349,6 +366,10 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 
 			$scope.getPass = function (pass) {
 				return crypter.decrypt(pass, crypter.hash($scope.global.user.username + $scope.global.user._id));
+			};
+			
+			$scope.getPass1 = function (pass) {
+				return pass;
 			};
 
 			$scope.sendRequestOnAdd = function () {
