@@ -20,6 +20,8 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 			$scope.isPassShown = [];
 			$scope.getHttp1 = null;
 			$scope.getHttp2 = null;
+			$scope.radioModel = 'Left';
+			$scope.dataModel = 0;
 			$scope.alerts = [{
 					type : 'danger',
 					msg : 'Attention! Now, being authorized as a department manager, you have access to the passwords, which are assigned to at least one of your employee. If you take away access to the employee and it was the only employee of the department who had access to the password, the password will disappear from this list.'
@@ -379,12 +381,15 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 					$scope.isPassSelected[sectionIndex][implementIndex][index] = true;
 				$scope.isSomeSelected = checkSelections();
 			};
-
+			
+			$scope.changeModel = function (mod) {
+				$scope.dataModel = mod;
+			};
+			
 			$scope.add = function () {
 				if (!$scope.passwords)
 					$scope.passwords = [];
-
-				var pass = new Passwords({
+				var pass = $scope.dataModel === 0 ? new Passwords({
 						group : $scope.pass.group,
 						implement : $scope.pass.implement,
 						resourceName : $scope.pass.resourceName,
@@ -392,10 +397,18 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 						email : $scope.pass.email,
 						login : $scope.pass.login,
 						password : $scope.pass.hashed_password,
-						comment : $scope.pass.comment,
-						accessedFor : $scope.pass.accessedFor
+						comment : $scope.pass.comment
+						//accessedFor : $scope.pass.accessedFor
+					}) : new Passwords({
+						group : 'Корпоративная почта',
+						implement : $scope.pass.domain,
+						resourceName : $scope.pass.domain,
+						resourceUrl : $scope.pass.domain,
+						email : $scope.pass.email,
+						login : $scope.pass.email,
+						password : $scope.pass.hashed_password,
+						comment : '---'
 					});
-
 				pass.$save(function (response) {
 					var ret = false;
 					//$log.info('search the same implements');

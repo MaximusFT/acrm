@@ -11,12 +11,25 @@
       </div>
       <div class="panel-body">
         <form id="pass-add-form" class="row-fluid form-inline" name="addPassForm" data-ng-submit="add()">
-          <div class="row">
+		  <div class="row">
+			<div class="col-md-12 btn-group" style="padding: 5px 0px 20px 14px;">
+				<label class="btn btn-primary" data-ng-click="changeModel(0)" ng-model="radioModel" btn-radio="'Left'">Default fields</label>
+				<label class="btn btn-primary" data-ng-click="changeModel(1)" ng-model="radioModel" btn-radio="'Right'">For corporate emails</label>
+			</div>
+			<div data-ng-if="radioModel === 'Left'">
             <div class="col-md-8">
               <span data-ng-repeat="field in passSchema">
                 <input data-ng-if="(field['type'] == 'text' || field['type'] == 'password')" type="{{field['type']}}" class="span2" data-ng-model="pass[field['schemaKey']]" placeholder="{{field['title']}}" id="pass-add-title" required />
               </span>
             </div>
+			</div>
+			<div data-ng-if="radioModel === 'Right'">
+				<div class="col-md-8">
+					<input type="text" class="span2" data-ng-model="pass.domain" placeholder="Domain" required />
+					<input type="text" class="span2" data-ng-model="pass.email" placeholder="Email" required />
+					<input type="text" class="span2" data-ng-model="pass.hashed_password" placeholder="********" required />
+				</div>
+			</div>
             <div class="col-md-4">
               <input type="submit" class="btn span1" value="Add" />
             </div>
