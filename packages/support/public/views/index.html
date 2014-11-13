@@ -1,0 +1,7 @@
+<div class="" data-ng-controller="TicketsController">
+  <h1>Support Center</h1>
+  <p class="text-info">Support Center allows to process the requests and ideas of system users. The section is in beta testing.</p>
+  <div data-ng-if="mode === 'Administrator'" ng-include src="'support/views/admin.html'"/>
+  <div data-ng-if="mode !== 'Administrator'" ng-include src="'support/views/others.html'" />
+</div>
+

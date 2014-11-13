@@ -11,6 +11,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 			$scope.isPassShown = [];
 			$scope.isPassShown1 = [];
 			$scope.status = [true];
+			$scope.isGroupOpened = [];
 
 			$scope.alerts = [{
 					type : 'info',

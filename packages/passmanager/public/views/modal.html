@@ -2,7 +2,7 @@
 <div class="modal-header">
   <h3>{{modalOptions.headerText}}</h3>
 </div>
-<div data-ng-if="modalOptions.type !== 1 && modalOptions.type !== 2 && modalOptions.type !== 3 && modalOptions.type !== 4" class="modal-body">
+<div data-ng-if="modalOptions.type !== 1 && modalOptions.type !== 2 && modalOptions.type !== 3 && modalOptions.type !== 4 && modalOptions.type !== 5" class="modal-body">
   <p>{{modalOptions.bodyText}}</p>
   <input type="text" class="form-control" data-ng-model="comment" data-ng-change="setComment(comment)" />
 </div>
@@ -21,6 +21,10 @@
 <div data-ng-if="modalOptions.type === 4" class="modal-body">
   <p>{{modalOptions.bodyText}}</p>
   <div ng-include src="'usermanager/views/editprpass.html'" />
+</div>
+<div data-ng-if="modalOptions.type === 5" class="modal-body">
+  <p>{{modalOptions.bodyText}}</p>
+  <div ng-include src="'support/views/reply.html'" />
 </div>
 <div class="modal-footer">
   <button type="button" class="btn" data-ng-click="modalOptions.close()">{{modalOptions.closeButtonText}}</button>

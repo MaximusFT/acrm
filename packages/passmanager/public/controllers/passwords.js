@@ -23,17 +23,13 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 			$scope.radioModel = 'Left';
 			$scope.dataModel = 0;
 			$scope.isGroupOpened = [];
+			$scope.isSentIdea = $scope.isSentRequest = false;
 			$scope.alerts = [{
 					type : 'danger',
 					msg : 'Attention! Now, being authorized as a department manager, you have access to the passwords, which are assigned to at least one of your employee. If you take away access to the employee and it was the only employee of the department who had access to the password, the password will disappear from this list.'
 				}
 			];
 			$scope.tabs = [{
-					type : 0,
-					title : 'Requests for access',
-					icon : 'glyphicon glyphicon-cog',
-					btn : ['Provide access', 'Reject']
-				}, {
 					type : 1,
 					title : 'Request for adding',
 					icon : 'glyphicon glyphicon-plus',
@@ -146,31 +142,6 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 					}).error(function () {
 						$log.error('error');
 					});
-			};
-
-			$scope.sendRequest = function (sectionIndex, id, passId) {
-				var modalOptions = {
-					closeButtonText : 'Cancel',
-					actionButtonText : 'Confirm',
-					headerText : 'Request reason',
-					bodyText : 'Specify the reason of your request, please.'
-				};
-
-				modalService.showModal({}, modalOptions).then(function (result) {
-					//$log.info(result);
-					var request = new Requests({
-							type : 0,
-							what : passId,
-							when : new Date().getTime() / 1000,
-							comment : result
-						});
-					request.$save(function (response) {
-						//$log.info(response);
-						if (!$scope.btn_class[sectionIndex])
-							$scope.btn_class[sectionIndex] = [];
-						$scope.btn_class[sectionIndex][id] = 'btn btn-success';
-					});
-				});
 			};
 
 			$scope.provideAccess = function (id, type) {
@@ -382,11 +353,11 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 					$scope.isPassSelected[sectionIndex][implementIndex][index] = true;
 				$scope.isSomeSelected = checkSelections();
 			};
-			
+
 			$scope.changeModel = function (mod) {
 				$scope.dataModel = mod;
 			};
-			
+
 			$scope.add = function () {
 				if (!$scope.passwords)
 					$scope.passwords = [];
@@ -516,12 +487,12 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 			$scope.closeAlert = function (index) {
 				$scope.alerts.splice(index, 1);
 			};
-			
+
 			$scope.getPass = function (pass) {
 				return pass;
 				//return crypter.decrypt(pass, crypter.hash($scope.global.user.username + $scope.global.user._id));
 			};
-			
+
 			$scope.showPass = function (group, implement, index) {
 				if (!$scope.isPassShown[group])
 					$scope.isPassShown[group] = [];

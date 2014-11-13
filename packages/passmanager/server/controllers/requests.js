@@ -288,12 +288,10 @@ exports.getReqs = function (req, res) {
 		type : req.query.type
 	})
 	.sort({
-		'when' : -1,
-		'who.name' : 1
+		'when' : -1
 	})
 	.populate('what')
 	.populate('who')
-	.populate('who department')
 	.exec(function (err, reqs) {
 		if (err) {
 			return res.render(err, {

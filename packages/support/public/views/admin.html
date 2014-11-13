@@ -1,0 +1,60 @@
+<tabset>
+	<tab data-ng-repeat="tab in tabs" select="init(tab.type)">
+		<tab-heading>
+			<i data-ng-class="tab.gclass"></i>
+			{{tab.title}}
+		</tab-heading>
+		<div cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+		<h3>Opened tickets</h3>
+		<br />
+		<accordion close-others="true">
+		<div data-ng-repeat="ticket in tickets" data-ng-init="ticketIndex = $index">
+			<accordion-group is-open="isTicketOpen[$index]" heading="Ticket #{{ticket._id}}">
+			<div class="panel panel-info">
+				<div class="panel-heading">
+					{{ticket.subject}} | Opened {{formatDate(ticket.when)}}
+				</div>
+				<div class="panel-body">
+					<ul class="media-list">
+						<li class="media" data-ng-repeat="msg in ticket.correspondence">
+							<div class="media-body">
+                                <div class="media">
+                                    <div class="pull-left">
+                                        <img data-ng-if="msg.role==='a'" class="media-object img-circle " src="support/assets/img/admin.png" />
+										<img data-ng-if="msg.role==='u'" class="media-object img-circle " src="support/assets/img/user.png" />
+									</div>
+									<div class="media-body">
+										{{msg.text}}
+										<br />
+										<p><small class="text-muted">{{msg.role==='a' ? 'Admin' : ticket.from.name}} | {{formatDate(msg.when)}}</small></p>
+										<hr />
+									</div>
+								</div>
+							</div>
+                        </li>
+                    </ul>
+				</div>
+				<div class="panel-footer">
+					<form data-ng-submit="reply(ticketIndex, answer); answer=''">
+					<div class="input-group">
+                        <input type="text" class="form-control" placeholder="Enter Message" data-ng-model="answer" />
+                        <span class="input-group-btn">
+                            <button class="btn btn-info" type="submit">SEND</button>
+							<button class="btn btn-danger" type="button">CLOSE</button>
+                        </span>
+                    </div>
+					</form>
+				</div>
+			</div>
+			</accordion-group>
+		</div>
+		</accordion>
+		<div data-ng-if="!isTickets">
+			<br \>
+			<p class='bg-warning'>
+				There are no unprocessed requests.
+			</p>
+		</div>
+		</div>
+	</tab>
+</tabset>

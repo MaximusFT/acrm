@@ -17,6 +17,7 @@ var RequestSchema = new Schema({
 	//1 - manager/employee to admins (add)
 	//2 - manager/employee to admins (edit)
 	//3 - employee to manager (access)
+	//4 - for ideas
   },
   who : {
 	type : Schema.ObjectId,
