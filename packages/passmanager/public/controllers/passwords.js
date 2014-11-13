@@ -22,6 +22,7 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 			$scope.getHttp2 = null;
 			$scope.radioModel = 'Left';
 			$scope.dataModel = 0;
+			$scope.isGroupOpened = [];
 			$scope.alerts = [{
 					type : 'danger',
 					msg : 'Attention! Now, being authorized as a department manager, you have access to the passwords, which are assigned to at least one of your employee. If you take away access to the employee and it was the only employee of the department who had access to the password, the password will disappear from this list.'
