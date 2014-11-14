@@ -26,6 +26,7 @@ angular.module('mean.support').controller('TicketsController', ['$scope', 'Globa
 			$scope.getHttp1 = null;
 			$scope.isTicketOpen = [];
 			$scope.onlyOpened = true;
+			$scope.onlyMyOpened = true;
 
 			$scope.init = function (t) {
 				$scope.getHttp1 = null;
@@ -58,8 +59,15 @@ angular.module('mean.support').controller('TicketsController', ['$scope', 'Globa
 			$scope.myOpenedTickets = function () {
 				$scope.getHttp1 = null;
 				$scope.tickets = [];
-				$scope.getHttp1 = $http.get('api/myOpenedTickets').success(function (data) {
-						$log.warn(data);
+				var config;
+				if ($scope.onlyMyOpened === true)
+					config = {
+						status : 0
+					};
+				$scope.getHttp1 = $http.get('api/myOpenedTickets', {
+						params : config
+					}).success(function (data) {
+						//$log.warn(data);
 						$scope.tickets = data;
 						if (data.length > 0)
 							$scope.isTickets = true;
@@ -74,7 +82,8 @@ angular.module('mean.support').controller('TicketsController', ['$scope', 'Globa
 				var ticket = new Tickets({
 						type : t,
 						subject : req.subject,
-						when : new Date().getTime() / 1000,
+						when_opened : new Date().getTime() / 1000,
+						status : 0,
 						correspondence : [{
 								role : 'u',
 								text : req.text,
@@ -136,12 +145,14 @@ angular.module('mean.support').controller('TicketsController', ['$scope', 'Globa
 							}
 						}).success(function (data) {
 							//$log.warn(data);
-							if (data.status === -1) {
-								$scope.init();
+							$scope.tickets[ticketIndex].status = data.status;
+							if(data.status === 1)
+								$scope.tickets[ticketIndex].when_closed = new Date().getTime() / 1000;
+							if (typeof data.msgs === 'undefined') {
+								$scope.tickets[ticketIndex].isRefreshing = false;
+								return;
 							}
-							if (data.status === 1) {
-								$scope.tickets[ticketIndex].correspondence = $scope.tickets[ticketIndex].correspondence.concat(data.msgs);
-							}
+							$scope.tickets[ticketIndex].correspondence = $scope.tickets[ticketIndex].correspondence.concat(data.msgs);					
 							$scope.tickets[ticketIndex].isRefreshing = false;
 						}).error(function () {
 							$log.error('error');
@@ -160,9 +171,7 @@ angular.module('mean.support').controller('TicketsController', ['$scope', 'Globa
 
 				modalService.showModal({}, modalOptions).then(function (result) {
 					if (result === 'ok') {
-						$scope.tickets[ticketIndex].status = 1;
 						$scope.tickets[ticketIndex].when_closed = new Date().getTime() / 1000;
-
 						$http.put('/api/closeTicket', {
 							params : {
 								ticketId : $scope.tickets[ticketIndex]._id,
@@ -170,8 +179,8 @@ angular.module('mean.support').controller('TicketsController', ['$scope', 'Globa
 							}
 						})
 						.success(function (data, status) {
-							$log.info(data);
-							$log.info(status);
+							//$log.info(data);
+							$scope.tickets[ticketIndex].status = 1;
 						})
 						.error(function (data, status) {
 							$log.error(status);
@@ -183,6 +192,11 @@ angular.module('mean.support').controller('TicketsController', ['$scope', 'Globa
 			$scope.changeOnlyOpened = function (t) {
 				$scope.onlyOpened = !$scope.onlyOpened;
 				$scope.init(t);
+			};
+			
+			$scope.changeOnlyMyOpened = function () {
+				$scope.onlyMyOpened = !$scope.onlyMyOpened;
+				$scope.myOpenedTickets();
 			};
 		}
 	]);

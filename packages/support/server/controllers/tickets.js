@@ -16,7 +16,6 @@ exports.create = function (req, res, next) {
 	var ticket = new Ticket(req.body);
 
 	var errors = req.validationErrors();
-	//console.log(errors);
 	if (errors) {
 		return res.status(400).send(errors);
 	}
@@ -141,11 +140,12 @@ exports.reply = function (req, res) {
 };
 
 exports.myOpenedTickets = function (req, res) {
+	var query = {};
+	query.from = req.user._id;
+	if(typeof req.query.status !== 'undefined')
+		query.status = req.query.status;
 	Ticket
-	.find({
-		from : req.user._id,
-		status : 0
-	})
+	.find(query)
 	.populate('from')
 	.exec(function (err, tickets) {
 		if (err) {
@@ -171,19 +171,12 @@ exports.refreshTicket = function (req, res) {
 		if (err) {
 			return res.status(500).send(err);
 		} else {
-			if (count === ticket.correspondence.length)
-				return res.jsonp({
-					status : 0
-				});
-			if (count > ticket.correspondence.length)
-				return res.jsonp({
-					status : -1
-				});
 			if (count < ticket.correspondence.length)
 				return res.jsonp({
-					status : 1,
+					status : ticket.status,
 					msgs : ticket.correspondence.slice(Math.max(ticket.correspondence.length - (ticket.correspondence.length - count), 1))
 				});
+			return res.jsonp({status : ticket.status});
 		}
 	});
 };

@@ -3,17 +3,17 @@
     <tab-heading>
       <i class="glyphicon glyphicon-retweet">
       </i>
-      Your opened tickets
+      Your tickets
     </tab-heading>
 	<div cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
-		<h3>Opened tickets</h3>
+		<h3>{{onlyMyOpened ? 'Opened tickets' : 'All tickets'}}<i class="glyphicon glyphicon-lock" style="cursor:pointer;float:right;color:{{onlyMyOpened ? '#000000' : '#0000FF'}}" data-ng-click="changeOnlyMyOpened(tab.type)"></i></h3>
 		<br />
 		<accordion close-others="true">
 		<div data-ng-repeat="ticket in tickets" data-ng-init="ticketIndex = $index">
 			<accordion-group is-open="isTicketOpen[$index]" heading="Ticket #{{ticket._id}}">
-			<div class="panel panel-info">
+			<div class="panel {{ticket.status === 0 ? 'panel-info' : 'panel-success'}}">
 				<div class="panel-heading">
-					{{ticket.subject}} | Opened {{formatDate(ticket.when)}} <i data-ng-click="refreshTicket(ticketIndex)" style="float:right;cursor:pointer;" data-ng-class="ticket.isRefreshing === true ? 'glyphicon glyphicon-time' : 'glyphicon glyphicon-refresh'"></i>
+					{{ticket.subject}} | {{ticket.status === 0 ? 'Opened' : 'Closed'}} {{ticket.status === 0 ? formatDate(ticket.when_opened) : formatDate(ticket.when_closed)}} <i data-ng-click="refreshTicket(ticketIndex)" style="float:right;cursor:pointer;" data-ng-class="ticket.isRefreshing === true ? 'glyphicon glyphicon-time' : 'glyphicon glyphicon-refresh'" data-ng-disabled="ticket.status === 1"></i>
 				</div>
 				<div class="panel-body">
 					<ul class="media-list">
@@ -38,7 +38,7 @@
 				<div class="panel-footer">
 					<form data-ng-submit="reply(ticketIndex, answer); answer=''">
 					<div class="input-group">
-						<span class="input-group-addon"><i data-ng-click="refreshTicket(ticketIndex)" style="float:right;cursor:pointer;" data-ng-class="ticket.isRefreshing === true ? 'glyphicon glyphicon-time' : 'glyphicon glyphicon-refresh'"></i></span>
+						<span class="input-group-addon" style="cursor:pointer;" data-ng-click="refreshTicket(ticketIndex)"><i style="float:right;" data-ng-class="ticket.isRefreshing === true ? 'glyphicon glyphicon-time' : 'glyphicon glyphicon-refresh'"></i></span>
                         <input type="text" class="form-control" placeholder="Enter Message" data-ng-model="answer" />
                         <span class="input-group-btn">
                             <button class="btn btn-info" type="submit">SEND</button>
