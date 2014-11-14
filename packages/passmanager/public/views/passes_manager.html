@@ -44,9 +44,7 @@
         </tr>
         <tr data-ng-repeat="pass in implement.passes | filter:search:strict" data-ng-init="pid = $index">
           <td>
-            <a href="#!/manager/passwords/{{pass['_id']}}">
-                {{$index+1}}
-            </a>
+            {{$index+1}}
           </td>
           <td>
             <input type="checkbox" data-ng-model="pass.Selected" data-ng-click="checkPass(sectionIndex, implementIndex, $index, pass)">
@@ -58,6 +56,7 @@
 				<input type="text" class="form-control" data-ng-if="isPassShown[sectionIndex][implementIndex][pid]" value="{{pass[field['schemaKey']]}}" readonly />	
 				<span class="input-group-addon" clip-copy="getPass(pass[field['schemaKey']])"><i class="glyphicon glyphicon-export"></i></span>
 				<span style="cursor:pointer" class="input-group-addon" data-ng-click="showPass(sectionIndex,implementIndex,pid)"><i data-ng-class="isPassShown[sectionIndex][implementIndex][pid] === true ? 'glyphicon glyphicon-eye-open' : 'glyphicon glyphicon-eye-close'"></i></span>
+				<span class="input-group-addon" clip-copy="getPass(pass[field['schemaKey']])" data-ng-click="sendEditRequest(sectionIndex, implementIndex, pid)"><i data-ng-class="pass.edited ? 'glyphicon glyphicon-check' : 'glyphicon glyphicon-edit'"></i></span>
 			</div>		
           </td>
         </tr>

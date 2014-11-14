@@ -163,28 +163,29 @@
             
           </td>
           <td>
-            <a href="#!/manager/users/{{request['who'].username}}">
-              <span>
-                Name: {{request['who'].name}}
+            <span>
+                Name: <a href="#!/manager/users/{{request['who'].username}}">{{request['who'].name}}</a>
                 <br \>
                 Username: {{request['who'].username}}
                 <br \>
-                Department: {{request['who'].department}}
-                <br \>
                 Phone: {{request['who'].phone}}
-              </span>
-            </a>
+            </span>   
           </td>
           <td>
             <span data-ng-if="tab.type === 0">
               {{request['what'].resourceName}} ({{request['what'].resourceUrl}})
             </span>
 			<span data-ng-if="tab.type === 1">
-              {{request['info']}}	  
+              {{request['info']}}
             </span>
-			<span data-ng-if="tab.type === 2">
-              
-            </span>
+			<div data-ng-if="tab.type === 2">
+              <p>Difference:</p>
+			  <div data-ng-repeat="dif in request['info']">
+				<p><em>{{dif.propertyName}}:</em></p>
+				<p class="bg-primary">Old: {{dif.values[0]}}</p>
+				<p class="bg-warning">New: {{dif.values[1]}}</p>
+			  </div>
+            </div>
           </td>
           <td>
             <span>
@@ -214,7 +215,7 @@
       <div data-ng-if="!isRequests">
         <br \>
         <p class='bg-warning'>
-          There are no unprocessed requests.
+          There are not unprocessed requests.
         </p>
       </div>
     </div>

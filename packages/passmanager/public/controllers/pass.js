@@ -5,6 +5,9 @@ angular.module('mean.passmanager').controller('PassController', ['$scope', 'Glob
 			$scope.global = Global;
 			$scope.passId = $stateParams.passId;
 			$scope.mode = $cookies.mode;
+			
+			if($scope.mode !== 'Administrator')
+				$location.path('/');
 			$scope.isPasses = false;
 
 			Users.query({}, function (users) {

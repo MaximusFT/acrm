@@ -155,7 +155,7 @@ exports.confirmRequest = function (req, res) {
 		});
 	}
 	switch (type) {
-	case 0:
+	/*case 0:
 		Request
 		.findOne({
 			_id : reqId
@@ -185,7 +185,7 @@ exports.confirmRequest = function (req, res) {
 				});
 			}
 		});
-		break;
+		break;*/
 	case 1:
 		Request
 		.findOne({

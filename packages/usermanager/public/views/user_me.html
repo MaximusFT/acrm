@@ -12,7 +12,7 @@ th {
 	<div class="panel panel-default" data-ng-if="mode === 'Manager' || mode === 'Employee'">
 	<div class="panel-heading"><i class="glyphicon glyphicon-send"></i>&nbsp Send request for adding new passwords</div>
 	<div class="panel-body">
-    <form data-ng-show="!isSent" id="pass-add-form" class="row-fluid form-inline" name="addPassForm" data-ng-submit="sendRequestOnAdd()">
+    <form data-ng-hide="isSent" id="pass-add-form" class="row-fluid form-inline" name="addPassForm" data-ng-submit="sendRequestOnAdd()">
         <div class="row">
 			<div class="col-md-8">
             <span data-ng-repeat="field in passSchema">

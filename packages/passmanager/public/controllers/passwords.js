@@ -506,5 +506,41 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 					$scope.isPassShown[group][implement][index] = false;
 				}
 			};
+
+			$scope.sendEditRequest = function (group, implement, index) {
+				if ($scope.groups[group].implement[implement].passes[index].edited === true)
+					return;
+				var modalOptions = {
+					closeButtonText : 'Cancel',
+					actionButtonText : 'Confirm',
+					headerText : 'Request for editing',
+					bodyText : 'The new data will be formed in the request, which will be reviewed by system administrators.',
+					type : 6,
+					editprp : JSON.parse(JSON.stringify($scope.groups[group].implement[implement].passes[index]))
+				};
+
+				modalService.showModal({}, modalOptions).then(function (result) {
+					result.hashed_password = result.password;
+					var difs = [], was = $scope.groups[group].implement[implement].passes[index];
+					for (var property in was) {
+						if (was[property] !== result[property]) {
+							var t = {};
+							t.propertyName = property;
+							t.values = [was[property], result[property]];
+							difs.splice(difs.length, 0, t);
+						}
+					}
+					var request = new Requests({
+							type : 2,
+							info : difs,
+							when : new Date().getTime() / 1000,
+							comment : 'User wants to edit password'
+						});
+					request.$save(function (response) {
+						if (response)
+							$scope.groups[group].implement[implement].passes[index].edited = true;
+					});
+				});
+			};
 		}
 	]);

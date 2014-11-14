@@ -1,4 +1,5 @@
 <section data-ng-controller="PassController">
+<div data-ng-if="mode === 'Administrator'">
     <h1>Password account</h1>
     <div class="loader" data-ng-init="init()" data-ng-hide="passwords.length"></div>
     <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="passwords.length">
@@ -16,4 +17,5 @@
 			You have not permission for this pass.
         </p>
 	</div>
+</div>
 </section>
