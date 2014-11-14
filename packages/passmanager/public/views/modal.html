@@ -24,10 +24,9 @@
 </div>
 <div data-ng-if="modalOptions.type === 5" class="modal-body">
   <p>{{modalOptions.bodyText}}</p>
-  <div ng-include src="'support/views/reply.html'" />
 </div>
 <div class="modal-footer">
   <button type="button" class="btn" data-ng-click="modalOptions.close()">{{modalOptions.closeButtonText}}</button>
-  <button class="btn btn-primary" data-ng-click="modalOptions.ok(modalOptions.type === 1 ? selectedUsers : (modalOptions.type === 4 ? editprp : comment));">{{modalOptions.actionButtonText}}</button>
+  <button class="btn btn-primary" data-ng-click="modalOptions.ok(modalOptions.type === 1 ? selectedUsers : (modalOptions.type === 4 ? editprp : (modalOptions.type === 5 ? 'ok' : comment)));">{{modalOptions.actionButtonText}}</button>
 </div>
 </div>

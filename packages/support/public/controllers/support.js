@@ -25,14 +25,24 @@ angular.module('mean.support').controller('TicketsController', ['$scope', 'Globa
 			];
 			$scope.getHttp1 = null;
 			$scope.isTicketOpen = [];
+			$scope.onlyOpened = true;
 
 			$scope.init = function (t) {
 				$scope.getHttp1 = null;
 				$scope.tickets = [];
+				$scope.isTicketOpen = [];
+				var config;
+				if ($scope.onlyOpened === false)
+					config = {
+						type : t,
+						status : 1
+					};
+				if ($scope.onlyOpened === true)
+					config = {
+						type : t
+					};
 				$scope.getHttp1 = $http.get('api/tickets', {
-						params : {
-							type : t
-						}
+						params : config
 					}).success(function (data) {
 						//$log.warn(data);
 						$scope.tickets = data;
@@ -88,10 +98,10 @@ angular.module('mean.support').controller('TicketsController', ['$scope', 'Globa
 			};
 
 			$scope.reply = function (ticketIndex, answer) {
-				if(typeof answer === 'undefined')
+				if (typeof answer === 'undefined')
 					return;
-				var temp = answer+'';
-				if(temp.trim() === '')
+				var temp = answer + '';
+				if (temp.trim() === '')
 					return;
 				var msg = {
 					role : $scope.mode === 'Administrator' ? 'a' : 'u',
@@ -107,7 +117,7 @@ angular.module('mean.support').controller('TicketsController', ['$scope', 'Globa
 					}
 				})
 				.then(function (response) {
-					$log.info($scope.tickets[ticketIndex]);
+					//$log.info($scope.tickets[ticketIndex]);
 					$scope.tickets[ticketIndex].correspondence.splice($scope.tickets[ticketIndex].correspondence.length, 0, msg);
 				},
 					function (response) {
@@ -115,8 +125,64 @@ angular.module('mean.support').controller('TicketsController', ['$scope', 'Globa
 				});
 			};
 
-			$scope.closeTicket = function (id, type) {
-				$log.info('close');
+			$scope.refreshTicket = function (ticketIndex) {
+				if ($scope.tickets[ticketIndex].status !== 1) {
+					$scope.tickets[ticketIndex].isRefreshing = true;
+					$scope.getHttp2 = null;
+					$scope.getHttp2 = $http.get('api/refreshTicket', {
+							params : {
+								ticketId : $scope.tickets[ticketIndex]._id,
+								count : $scope.tickets[ticketIndex].correspondence.length
+							}
+						}).success(function (data) {
+							//$log.warn(data);
+							if (data.status === -1) {
+								$scope.init();
+							}
+							if (data.status === 1) {
+								$scope.tickets[ticketIndex].correspondence = $scope.tickets[ticketIndex].correspondence.concat(data.msgs);
+							}
+							$scope.tickets[ticketIndex].isRefreshing = false;
+						}).error(function () {
+							$log.error('error');
+						});
+				}
+			};
+
+			$scope.closeTicket = function (ticketIndex) {
+				var modalOptions = {
+					closeButtonText : 'Cancel',
+					actionButtonText : 'Confirm',
+					headerText : 'Confirm the action',
+					bodyText : 'Are you sure? This would mean that the problem is solved.',
+					type : 5
+				};
+
+				modalService.showModal({}, modalOptions).then(function (result) {
+					if (result === 'ok') {
+						$scope.tickets[ticketIndex].status = 1;
+						$scope.tickets[ticketIndex].when_closed = new Date().getTime() / 1000;
+
+						$http.put('/api/closeTicket', {
+							params : {
+								ticketId : $scope.tickets[ticketIndex]._id,
+								when_closed : $scope.tickets[ticketIndex].when_closed
+							}
+						})
+						.success(function (data, status) {
+							$log.info(data);
+							$log.info(status);
+						})
+						.error(function (data, status) {
+							$log.error(status);
+						});
+					}
+				});
+			};
+
+			$scope.changeOnlyOpened = function (t) {
+				$scope.onlyOpened = !$scope.onlyOpened;
+				$scope.init(t);
 			};
 		}
 	]);

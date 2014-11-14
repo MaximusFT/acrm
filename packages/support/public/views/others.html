@@ -13,7 +13,7 @@
 			<accordion-group is-open="isTicketOpen[$index]" heading="Ticket #{{ticket._id}}">
 			<div class="panel panel-info">
 				<div class="panel-heading">
-					{{ticket.subject}} | Opened {{formatDate(ticket.when)}}
+					{{ticket.subject}} | Opened {{formatDate(ticket.when)}} <i data-ng-click="refreshTicket(ticketIndex)" style="float:right;cursor:pointer;" data-ng-class="ticket.isRefreshing === true ? 'glyphicon glyphicon-time' : 'glyphicon glyphicon-refresh'"></i>
 				</div>
 				<div class="panel-body">
 					<ul class="media-list">
@@ -38,6 +38,7 @@
 				<div class="panel-footer">
 					<form data-ng-submit="reply(ticketIndex, answer); answer=''">
 					<div class="input-group">
+						<span class="input-group-addon"><i data-ng-click="refreshTicket(ticketIndex)" style="float:right;cursor:pointer;" data-ng-class="ticket.isRefreshing === true ? 'glyphicon glyphicon-time' : 'glyphicon glyphicon-refresh'"></i></span>
                         <input type="text" class="form-control" placeholder="Enter Message" data-ng-model="answer" />
                         <span class="input-group-btn">
                             <button class="btn btn-info" type="submit">SEND</button>

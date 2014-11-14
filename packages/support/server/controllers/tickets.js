@@ -93,13 +93,16 @@ exports.destroy = function (req, res) {
  * List of Tickets
  */
 exports.all = function (req, res) {
-	if(!req.query.type) {
+	console.log(req.query);
+	if (!req.query.type) {
 		return res.status(500).send('Empty request');
 	}
+	var query = {};
+	query.type = req.query.type;
+	if (!req.query.status)
+		query.status = 0;
 	Ticket
-	.find({
-		type : req.query.type
-	})
+	.find(query)
 	.populate('from')
 	.exec(function (err, tickets) {
 		if (err) {
@@ -115,7 +118,7 @@ exports.all = function (req, res) {
 exports.reply = function (req, res) {
 	var ticketId = req.body.ticketId;
 	var answer = req.body.answer;
-	if(!ticketId || !answer) {
+	if (!ticketId || !answer) {
 		return res.status(500).send('Empty request');
 	}
 	Ticket
@@ -140,15 +143,68 @@ exports.reply = function (req, res) {
 exports.myOpenedTickets = function (req, res) {
 	Ticket
 	.find({
-		from : req.user._id
+		from : req.user._id,
+		status : 0
 	})
-	.exec(function(err, tickets) {
-		if(err) {
+	.populate('from')
+	.exec(function (err, tickets) {
+		if (err) {
 			return res.json(500, {
 				error : err
 			});
 		} else {
 			return res.jsonp(tickets);
 		}
+	});
+};
+
+exports.refreshTicket = function (req, res) {
+	if (!req.query.ticketId || !req.query.count || (typeof req.query.count !== 'undefined' && isNaN(parseInt(req.query.count))))
+		return res.status(500).send('Empty query');
+	var count = parseInt(req.query.count);
+	Ticket
+	.findOne({
+		_id : req.query.ticketId
+	})
+	.populate('from')
+	.exec(function (err, ticket) {
+		if (err) {
+			return res.status(500).send(err);
+		} else {
+			if (count === ticket.correspondence.length)
+				return res.jsonp({
+					status : 0
+				});
+			if (count > ticket.correspondence.length)
+				return res.jsonp({
+					status : -1
+				});
+			if (count < ticket.correspondence.length)
+				return res.jsonp({
+					status : 1,
+					msgs : ticket.correspondence.slice(Math.max(ticket.correspondence.length - (ticket.correspondence.length - count), 1))
+				});
+		}
+	});
+};
+
+exports.closeTicket = function (req, res) {
+	var ticketId = req.body.params.ticketId;
+	var when_closed = req.body.params.when_closed;
+	if (!ticketId || !when_closed)
+		return res.status(500).send('Empty query');
+	Ticket
+	.update({
+		_id : ticketId
+	}, {
+		$set : {
+			status : 1,
+			when_closed : when_closed
+		}
+	})
+	.exec(function (err, ticket) {
+		if (err)
+			return res.status(500).send(err);
+		return res.status(200).send('ok');
 	});
 };

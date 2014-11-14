@@ -5,14 +5,14 @@
 			{{tab.title}}
 		</tab-heading>
 		<div cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
-		<h3>Opened tickets</h3>
+		<h3>{{onlyOpened ? 'Opened tickets' : 'All tickets'}}<i class="glyphicon glyphicon-lock" style="float:right;color:{{onlyOpened ? '#000000' : '#0000FF'}}" data-ng-click="changeOnlyOpened(tab.type)"></i></h3>
 		<br />
 		<accordion close-others="true">
 		<div data-ng-repeat="ticket in tickets" data-ng-init="ticketIndex = $index">
 			<accordion-group is-open="isTicketOpen[$index]" heading="Ticket #{{ticket._id}}">
 			<div class="panel panel-info">
 				<div class="panel-heading">
-					{{ticket.subject}} | Opened {{formatDate(ticket.when)}}
+					{{ticket.subject}} | {{ticket.status === 0 ? 'Opened' : 'Closed'}} {{ticket.status === 0 ? formatDate(ticket.when_opened) : formatDate(ticket.when_closed)}} <i data-ng-click="refreshTicket(ticketIndex)" style="float:right;cursor:pointer;" data-ng-class="ticket.isRefreshing === true ? 'glyphicon glyphicon-time' : 'glyphicon glyphicon-refresh'" data-ng-disabled="ticket.status === 1"></i>
 				</div>
 				<div class="panel-body">
 					<ul class="media-list">
@@ -37,10 +37,11 @@
 				<div class="panel-footer">
 					<form data-ng-submit="reply(ticketIndex, answer); answer=''">
 					<div class="input-group">
+						<span class="input-group-addon"><i data-ng-click="refreshTicket(ticketIndex)" style="float:right;cursor:pointer;" data-ng-class="ticket.isRefreshing === true ? 'glyphicon glyphicon-time' : 'glyphicon glyphicon-refresh'"></i></span>
                         <input type="text" class="form-control" placeholder="Enter Message" data-ng-model="answer" />
                         <span class="input-group-btn">
-                            <button class="btn btn-info" type="submit">SEND</button>
-							<button class="btn btn-danger" type="button">CLOSE</button>
+                            <button class="btn btn-info" type="submit" data-ng-disabled="ticket.status === 1">SEND</button>
+							<button class="btn btn-danger" type="button" data-ng-click="closeTicket(ticketIndex)" data-ng-disabled="ticket.status === 1">CLOSE</button>
                         </span>
                     </div>
 					</form>
@@ -50,9 +51,8 @@
 		</div>
 		</accordion>
 		<div data-ng-if="!isTickets">
-			<br \>
 			<p class='bg-warning'>
-				There are no unprocessed requests.
+				There are no tickets.
 			</p>
 		</div>
 		</div>

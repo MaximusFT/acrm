@@ -21,9 +21,12 @@ var TicketSchema = new Schema({
 	type : Schema.ObjectId,
 	ref : 'User'
   },
-  when: {
+  when_opened: {
     type : String,
     required: true
+  },
+  when_closed: {
+    type : String
   },
   subject : {
 	type : String,
@@ -34,7 +37,7 @@ var TicketSchema = new Schema({
 	required: true
   },
   status: {
-	type : String
+	type : Number
   }
 });
 
