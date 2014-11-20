@@ -361,7 +361,17 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 			$scope.add = function () {
 				if (!$scope.passwords)
 					$scope.passwords = [];
-				var pass = $scope.dataModel === 0 ? new Passwords({
+				if($scope.dataModel === 1) {
+					$scope.pass.group = 'Корпоративная почта';
+					$scope.pass.implement = $scope.pass.corp_email.replace(/.*@/, '');
+					$scope.pass.resourceName = $scope.pass.corp_email.replace(/.*@/, '');
+					$scope.pass.resourceUrl = $scope.pass.corp_email.replace(/.*@/, '');
+					$scope.pass.email = $scope.pass.corp_email;
+					$scope.pass.login = $scope.pass.corp_email;
+					$scope.pass.hashed_password = $scope.pass.corp_hashed_password;
+					$scope.pass.comment = '---';
+				}
+				var pass = new Passwords({
 						group : $scope.pass.group,
 						implement : $scope.pass.implement,
 						resourceName : $scope.pass.resourceName,
@@ -370,16 +380,6 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 						login : $scope.pass.login,
 						password : $scope.pass.hashed_password,
 						comment : $scope.pass.comment
-						//accessedFor : $scope.pass.accessedFor
-					}) : new Passwords({
-						group : 'Корпоративная почта',
-						implement : $scope.pass.domain,
-						resourceName : $scope.pass.domain,
-						resourceUrl : $scope.pass.domain,
-						email : $scope.pass.email,
-						login : $scope.pass.email,
-						password : $scope.pass.hashed_password,
-						comment : '---'
 					});
 				pass.$save(function (response) {
 					var ret = false;
@@ -422,9 +422,11 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 							});
 						}
 					}
-				});
-
-				//$scope.pass.group = $scope.pass.resourceName = $scope.pass.resourceUrl = $scope.pass.login = $scope.pass.hashed_password = $scope.pass.comment = $scope.pass.accessedFor = '';
+					if($scope.dataModel === 0) 
+						$scope.pass.group = $scope.pass.implement = $scope.pass.resourceName = $scope.pass.resourceUrl = $scope.pass.login = $scope.pass.hashed_password = $scope.pass.comment = '';
+					if($scope.dataModel === 1)
+						$scope.pass.corp_email = $scope.pass.corp_hashed_password = '';
+				});							
 			};
 
 			$scope.remove = function () {
