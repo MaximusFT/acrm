@@ -422,10 +422,11 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 							});
 						}
 					}
-					if($scope.dataModel === 0) 
-						$scope.pass.group = $scope.pass.implement = $scope.pass.resourceName = $scope.pass.resourceUrl = $scope.pass.login = $scope.pass.hashed_password = $scope.pass.comment = '';
+
+					$scope.pass.group = $scope.pass.implement = $scope.pass.resourceName = $scope.pass.resourceUrl = $scope.pass.login = $scope.pass.hashed_password = $scope.pass.comment = '';
+					
 					if($scope.dataModel === 1)
-						$scope.pass.corp_email = $scope.pass.corp_hashed_password = '';
+						$scope.pass.corp_email = $scope.pass.corp_hashed_password = '';	
 				});							
 			};
 
