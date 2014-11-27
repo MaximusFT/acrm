@@ -143,8 +143,41 @@ exports.web_request_form_add = function (req, res, next) {
 exports.webreqs = function (req, res) {
 	Webreq
 	.find()
-	.exec(function(err, webreqs) {
-		if(!webreqs) {
+	.exec(function (err, webreqs) {
+		if (!webreqs) {
+			return res.render('error', {
+				status : 500
+			});
+		} else {
+			return res.jsonp(webreqs);
+		}
+	});
+};
+
+exports.phonesForWebinars = function (req, res) {
+	Webreq
+	.find({
+		$and : [{
+				'creation_date' : {
+					$gte : new Date('2014-11-21T00:00:00Z')
+				}
+			}, {
+				'form_address' : 'http://fin-sovet.com.ua/webinar'
+			}, {
+				'phone' : {
+					$ne : '+380'
+				}
+			}
+		]
+	}, {
+		'phone' : 1
+	})
+	.sort({
+		//creation_date : -1
+		phone : 1
+	})
+	.exec(function (err, webreqs) {
+		if (!webreqs) {
 			return res.render('error', {
 				status : 500
 			});
