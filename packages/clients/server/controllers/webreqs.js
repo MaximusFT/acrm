@@ -159,10 +159,10 @@ exports.phonesForWebinars = function (req, res) {
 	.find({
 		$and : [{
 				'creation_date' : {
-					$gte : new Date('2014-11-21T00:00:00Z')
+					$gte : new Date('2014-11-30T00:00:00Z')
 				}
 			}, {
-				'form_address' : 'http://fin-sovet.com.ua/webinar'
+				'form_address' : 'http://fin-sovet.com.ua/webinar2'
 			}, {
 				'phone' : {
 					$ne : '+380'

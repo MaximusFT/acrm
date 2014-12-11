@@ -1,15 +1,18 @@
 'use strict';
 
-angular.module('mean.articles').controller('ArticlesController', ['$scope', '$stateParams', '$location', '$sce', 'Global', 'Articles',
-  function($scope, $stateParams, $location, $sce, Global, Articles) {
+angular.module('mean.articles').controller('AdminArticlesController', ['$scope', '$cookies', '$stateParams', '$location', '$sce', 'Global', 'Articles',
+  function($scope, $cookies, $stateParams, $location, $sce, Global, Articles) {
     $scope.global = Global;
+	
+	if($cookies.mode !== 'Administrator')
+		$location.url('/');
 
     $scope.hasAuthorization = function(article) {
       if (!article || !article.user) return false;
       return $scope.global.isAdmin || article.user._id === $scope.global.user._id;
     };
 
-    /*$scope.create = function(isValid) {
+    $scope.create = function(isValid) {
       if (isValid) {
         var article = new Articles({
           title: this.title,
@@ -24,9 +27,9 @@ angular.module('mean.articles').controller('ArticlesController', ['$scope', '$st
       } else {
         $scope.submitted = true;
       }
-    };*/
+    };
 
-    /*$scope.remove = function(article) {
+    $scope.remove = function(article) {
       if (article) {
         article.$remove();
 
@@ -40,9 +43,9 @@ angular.module('mean.articles').controller('ArticlesController', ['$scope', '$st
           $location.path('articles');
         });
       }
-    };*/
+    };
 
-    /*$scope.update = function(isValid) {
+    $scope.update = function(isValid) {
       if (isValid) {
         var article = $scope.article;
         if (!article.updated) {
@@ -56,7 +59,7 @@ angular.module('mean.articles').controller('ArticlesController', ['$scope', '$st
       } else {
         $scope.submitted = true;
       }
-    };*/
+    };
 
     $scope.find = function() {
       Articles.query(function(articles) {

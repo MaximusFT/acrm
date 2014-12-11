@@ -53,7 +53,7 @@ angular.module('mean.users')
             // authentication OK
             $scope.loginError = 0;
             $rootScope.user = response.user;
-			$cookies.mode = response.user.roles.indexOf('admin') > -1 ? 'Administrator' : (response.user.roles.indexOf('manager') > -1 ? 'Manager' : (response.user.roles.indexOf('employee') > -1 ? 'Employee' : (response.user.roles.indexOf('authenticated') > -1 ? 'Not verified' : '?'))); 
+			$cookies.mode = response.user.roles.indexOf('admin') !== -1 ? 'Administrator' : (response.user.roles.indexOf('manager') !== -1 ? 'Manager' : (response.user.roles.indexOf('employee') !== -1 ? 'Employee' : (response.user.roles.indexOf('authenticated') !== -1 ? 'Not verified' : '?'))); 
             $rootScope.$emit('loggedin');
             if (response.redirect) {
               if (window.location.href === response.redirect) {

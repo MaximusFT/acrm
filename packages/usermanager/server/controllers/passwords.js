@@ -279,7 +279,7 @@ exports.getPassesByUser = function (req, res) {
 						});
 					}
 				}
-				if (roles.indexOf('manager') !== -1) {
+				else if (roles.indexOf('manager') !== -1) {
 					if (JSON.stringify(user.department) === JSON.stringify(curuser.department)) {
 						Pass
 						.find({
@@ -306,7 +306,7 @@ exports.getPassesByUser = function (req, res) {
 						return res.jsonp([]);
 					}
 				}
-				if (roles.indexOf('employee') !== -1) {
+				else if (roles.indexOf('employee') !== -1) {
 					if (req.query.userId !== req.user.username) {
 						//console.log('ne sovpalo');
 						return res.jsonp([]);
@@ -331,7 +331,9 @@ exports.getPassesByUser = function (req, res) {
 						}
 					});
 				}
-
+				else {
+					return res.status(403).send('Forbidden');
+				}
 			}
 		});
 	});

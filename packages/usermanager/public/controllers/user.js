@@ -12,6 +12,9 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 			$scope.isPassShown1 = [];
 			$scope.status = [true];
 			$scope.isGroupOpened = [];
+			
+			if($cookies.mode === 'Not verified')
+				$location.url('/');
 
 			$scope.alerts = [{
 					type : 'info',
@@ -27,7 +30,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 				$log.error(data);
 			});
 
-			$http.get('api/getDepartments').success(function (data) {
+			//$http.get('api/getDepartments').success(function (data) {
 				//$log.info(data);
 				$scope.userSchema = [{
 						title : 'Email',
@@ -67,9 +70,9 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', 'Glob
 					}
 				];
 				$scope.user = {};
-			}).error(function () {
+			/*}).error(function () {
 				$log.error('error');
-			});
+			});*/
 
 			$scope.passSchema = [{
 					title : 'Resource Title',

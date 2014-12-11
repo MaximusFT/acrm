@@ -261,7 +261,7 @@ exports.getUser = function (req, res) {
 					}
 				});
 			}
-			if (curUser.roles.indexOf('manager') !== -1 || curUser.roles.indexOf('employee') !== -1) {
+			else if (curUser.roles.indexOf('manager') !== -1 || curUser.roles.indexOf('employee') !== -1) {
 				User
 				.findOne({
 					'username' : req.query.userId,
@@ -277,6 +277,8 @@ exports.getUser = function (req, res) {
 						return res.jsonp(user);
 					}
 				});
+			} else {
+				return res.status(403).send('Forbidden');
 			}
 		}
 	});
