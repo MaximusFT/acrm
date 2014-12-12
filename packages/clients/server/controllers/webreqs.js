@@ -141,15 +141,33 @@ exports.web_request_form_add = function (req, res, next) {
 };
 
 exports.webreqs = function (req, res) {
+	if (!req.query || !req.query.curPage)
+		return res.status(500).send('Empty request');
+	var page = req.query.curPage;
 	Webreq
-	.find()
+	.find({})
+	.skip((page - 1) * 50)
+	.limit(50)
+	.sort({
+		creation_date : -1
+	})
 	.exec(function (err, webreqs) {
-		if (!webreqs) {
-			return res.render('error', {
-				status : 500
-			});
+		if (err) {
+			console.log(err);
+			return res.status(500).send(err);
 		} else {
-			return res.jsonp(webreqs);
+			if (!webreqs) {
+				console.log('no one webreq');
+				return res.status(500).send('no one webreq');
+			} else {
+				Webreq.count({}, function (err, count) {
+					if (err) {
+						return res.status(500).send(err);
+					} else {
+						return res.jsonp([webreqs, count]);
+					}
+				});
+			}
 		}
 	});
 };

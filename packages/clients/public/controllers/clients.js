@@ -3,9 +3,9 @@
 angular.module('mean.clients').controller('ClientsController', ['$scope', '$http', '$log', 'Global', 'Clients',
 		function ($scope, $http, $log, Global, Clients) {
 			$scope.global = Global;
-			$scope.package = {
-				name : 'clients'
-			};
+			$scope.maxSize = 50;
+			$scope.webreqsCount = 1;
+			$scope.curPage = 1;
 
 			$scope.webreqSchema = [{
 					title : 'Webrequest ID',
@@ -67,9 +67,14 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
 			
 			$scope.init = function () {
 				$scope.getHttp1 = null;
-				$scope.getHttp1 = $http.get('api/webreqs').success(function (data) {					
+				$scope.getHttp1 = $http.get('api/webreqs', {
+					params: {
+						curPage: $scope.curPage
+					}
+				}).success(function (data) {					
 						//$log.info(data);
-						$scope.webreqs = data;
+						$scope.webreqs = data[0];
+						$scope.webreqsCount = data[1];
 					}).error(function () {
 						$log.error('error');
 					});
