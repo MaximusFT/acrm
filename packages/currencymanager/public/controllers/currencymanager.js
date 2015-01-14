@@ -23,7 +23,7 @@ angular.module('mean.currencymanager').controller('CurrencymanagerController', [
 
         $scope.init = function() {
             $http.get('/api/getCurrencyPredictions').success(function(data) {
-                $log.info(data);
+                //$log.info(data);
                 if (data && data.rows && data.cols) {
                     $scope.rows = data.rows;
                     $scope.rowCount = data.rows.length;
