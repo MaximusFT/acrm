@@ -13,6 +13,8 @@
     "angular-ui-router": "latest",
     "angular-busy": "latest",
     "zeroclipboard": "~2.1.6",
-    "ng-clip": "~0.2.4"
+    "ng-clip": "~0.2.4",
+    "angular-ui-tree": "latest",
+    "angular-ui-select": "~0.9.5"
   }
 }

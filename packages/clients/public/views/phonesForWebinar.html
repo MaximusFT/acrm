@@ -1,23 +1,35 @@
 <div class="" data-ng-controller="PhonesForWebinarController">
-  <h1>Phones for webinar</h1>
-  <div data-ng-init="init()" cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
-  <table class="table table-striped table-bordered table-hover table-condensed">
-	<tr>
-		<th>#</th>
-		<th data-ng-repeat="field in webreqSchema" data-ng-if="field.inTable">
-            {{field.title}}
-        </th>
-	</tr>
-	<tr data-ng-repeat="webreq in webreqs | filter:search:strict">            
-        <td>
-            {{$index+1}}
-        </td>
-        <td class="table-editable-cell" data-ng-repeat="field in webreqSchema" data-ng-if="field.inTable">
-			<span>{{webreq[field['schemaKey']]}}</span>         
-        </td>
-    </tr>
-  </table>
-  <pre>{{phones}}</pre>
-  </div>
-</div>
+    <h1>Phones for webinar</h1>
+    <div data-ng-show="isAccess">
+        <legend>Specify date of start</legend>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="input-group">
+                    <input type="text" class="form-control" datepicker-popup="{{format}}" data-ng-model="dt" is-open="opened" min-date="minDate" max-date="maxdate" datepicker-options="dateOptions" date-disabled="disabled(date, mode)" ng-required="true" close-text="Close" />
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" data-ng-click="open($event)"> <i class="glyphicon glyphicon-calendar"></i>
+                        </button>
+                    </span>
+                </p>
+            </div>
+            <div class="col-md-6">
+                <input type="button" class="btn btn-primary" data-ng-disabled="!phones" clip-copy="phones" value="Copy all numbers" />
+            </div>
+        </div>
 
+        <div cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}" data-ng-show="dt">
+            <table class="table table-striped table-bordered table-hover table-condensed">
+                <tr>
+                    <th>#</th>
+                    <th data-ng-repeat="field in webreqSchema" data-ng-if="field.inTable">{{field.title}}</th>
+                </tr>
+                <tr data-ng-repeat="webreq in webreqs | filter:search:strict">
+                    <td>{{$index+1}}</td>
+                    <td class="table-editable-cell" data-ng-repeat="field in webreqSchema" data-ng-if="field.inTable">
+                        <span>{{webreq[field['schemaKey']]}}</span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

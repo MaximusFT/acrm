@@ -1,0 +1,42 @@
+<section data-ng-controller="FeaturesController" data-ng-init="init()">
+    <h1>System Features</h1>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">Adding features</div>
+        <div class="panel-body">
+            <form id="pass-add-form" class="row-fluid form-inline" data-ng-submit="addFeature(feature); feature={};">
+                <div class="row">
+                    <div class="col-md-8">
+                        <input type="text" class="span2" data-ng-model="feature.title" placeholder="Title" required />
+                        <input type="text" class="span2" data-ng-model="feature.description" placeholder="Description" required />
+                        <input type="text" class="span2" data-ng-model="feature.name" placeholder="System name" required />
+                        <input type="text" class="span2" data-ng-model="feature.link" placeholder="#!..." required />
+                    </div>
+                    <div class="col-md-4">
+                        <input type="submit" class="btn span1" value="Add" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <table class="table table-striped table-bordered table-hover editable-table" data-ng-init="init()" data-ng-if="features.length">
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>URL</th>
+            <th>Actions</th>
+        </tr>
+        <tr data-ng-repeat="feature in features track by $index">
+            <td>{{feature.title}}</td>
+            <td>{{feature.description}}</td>
+            <td><a href="#!{{feature.link}}">Link</a></td>
+            <td>
+                <input type="button" class="btn btn-warning btn-xs" value="Assign" data-ng-click="assign(feature)">
+                <input type="button" class="btn btn-primary btn-xs" value="Revoke" data-ng-click="revoke(feature)">
+                <input type="button" class="btn btn-danger btn-xs" value="Remove" data-ng-click="remove(feature, $index)">
+            </td>
+        </tr>
+    </table>
+    <alert type="info" data-ng-if="features && features.length === 0">No one feature was found</alert>
+</section>

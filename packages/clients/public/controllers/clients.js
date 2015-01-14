@@ -3,7 +3,7 @@
 angular.module('mean.clients').controller('ClientsController', ['$scope', '$http', '$log', 'Global', 'Clients',
 		function ($scope, $http, $log, Global, Clients) {
 			$scope.global = Global;
-			$scope.maxSize = 50;
+			$scope.maxSize = 5;
 			$scope.webreqsCount = 1;
 			$scope.curPage = 1;
 

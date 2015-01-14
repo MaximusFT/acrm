@@ -14,7 +14,7 @@
 				</thead>
 				<tbody>
 					<tr data-ng-repeat="webreq in webreqs">
-						<td>{{$index+1+(curPage-1)*50}}</td>
+						<td>{{$index+1+(curPage-1)*20}}</td>
 						<td data-ng-repeat="field in webreqSchema">
 							<a data-ng-if="field['schemaKey'] === 'webreq_inside_id'" href="https://inside.teletrade-dj.com/#web_request_view/{{webreq[field['schemaKey']]}}">{{webreq[field['schemaKey']]}}</a>
 							<span data-ng-if="field['schemaKey'] === 'creation_date'">{{formatDate(webreq[field['schemaKey']])}}</span>

@@ -1,36 +1,29 @@
 <div data-ng-controller="ModalInstanceCtrl">
-<div class="modal-header">
-  <h3>{{modalOptions.headerText}}</h3>
-</div>
-<div data-ng-if="modalOptions.type !== 1 && modalOptions.type !== 2 && modalOptions.type !== 3 && modalOptions.type !== 4 && modalOptions.type !== 5 && modalOptions.type !== 6" class="modal-body">
-  <p>{{modalOptions.bodyText}}</p>
-  <input type="text" class="form-control" data-ng-model="comment" data-ng-change="setComment(comment)" />
-</div>
-<div data-ng-if="modalOptions.type === 1" class="modal-body">
-  <p>{{modalOptions.bodyText}}</p>
-  <div ng-include src="'passmanager/views/addpersons.html'" />
-</div>
-<div data-ng-if="modalOptions.type === 2" class="modal-body">
-  <p>{{modalOptions.bodyText}}</p>
-  <div ng-include src="'passmanager/views/add_deps.html'" />
-</div>
-<div data-ng-if="modalOptions.type === 3" class="modal-body">
-  <p>{{modalOptions.bodyText}}</p>
-  <div ng-include src="'usermanager/views/bind2dep.html'" />
-</div>
-<div data-ng-if="modalOptions.type === 4" class="modal-body">
-  <p>{{modalOptions.bodyText}}</p>
-  <div ng-include src="'usermanager/views/editprpass.html'" />
-</div>
-<div data-ng-if="modalOptions.type === 5" class="modal-body">
-  <p>{{modalOptions.bodyText}}</p>
-</div>
-<div data-ng-if="modalOptions.type === 6" class="modal-body">
-  <p>{{modalOptions.bodyText}}</p>
-  <div ng-include src="'passmanager/views/editpass.html'" />
-</div>
-<div class="modal-footer">
-  <button type="button" class="btn" data-ng-click="modalOptions.close()">{{modalOptions.closeButtonText}}</button>
-  <button class="btn btn-primary" data-ng-click="modalOptions.ok(modalOptions.type === 1 ? selectedUsers : (modalOptions.type === 4 || modalOptions.type === 6 ? editprp : (modalOptions.type === 5 ? 'ok' : comment)));">{{modalOptions.actionButtonText}}</button>
-</div>
+    <div class="modal-header">
+        <h3>{{modalOptions.headerText}}</h3>
+    </div>
+    <div class="modal-body">
+        <p>{{modalOptions.bodyText}}</p>
+
+        <input data-ng-if="!modalOptions.type" class="modal-body" type="text" class="form-control" data-ng-model="comment" data-ng-change="setComment(comment)" />
+
+        <div data-ng-if="modalOptions.type === 1" data-ng-include src="'passmanager/views/addpersons.html'" />
+        <div data-ng-if="modalOptions.type === 2" data-ng-include src="'passmanager/views/add_deps.html'" />
+        <div data-ng-if="modalOptions.type === 3" data-ng-include src="'usermanager/views/bind2dep.html'" />
+        <div data-ng-if="modalOptions.type === 4" data-ng-include src="'usermanager/views/editprpass.html'" />
+        <div data-ng-if="modalOptions.type === 5" />
+        <div data-ng-if="modalOptions.type === 6" data-ng-include src="'passmanager/views/editpass.html'" />
+        <div data-ng-if="modalOptions.type === 7" data-ng-include src="'depmanager/views/addDepartment.html'" />
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn" data-ng-click="modalOptions.close()">{{modalOptions.closeButtonText}}</button>
+
+        <button class="btn btn-primary" data-ng-if="modalOptions.type === 1" data-ng-click="modalOptions.ok(selectedUsers)">{{modalOptions.actionButtonText}}</button>
+        <button class="btn btn-primary" data-ng-if="modalOptions.type === 2" data-ng-click="modalOptions.ok(comment)">{{modalOptions.actionButtonText}}</button>
+        <button class="btn btn-primary" data-ng-if="modalOptions.type === 3" data-ng-click="modalOptions.ok(comment)">{{modalOptions.actionButtonText}}</button>
+        <button class="btn btn-primary" data-ng-if="modalOptions.type === 4" data-ng-click="modalOptions.ok(editprp)">{{modalOptions.actionButtonText}}</button>
+        <button class="btn btn-primary" data-ng-if="modalOptions.type === 5" data-ng-click="modalOptions.ok('ok')">{{modalOptions.actionButtonText}}</button>
+        <button class="btn btn-primary" data-ng-if="modalOptions.type === 6" data-ng-click="modalOptions.ok(editprp)">{{modalOptions.actionButtonText}}</button>
+        <button class="btn btn-primary" data-ng-if="modalOptions.type === 7" data-ng-click="verifyAndSendForm(newDepartment)">{{modalOptions.actionButtonText}}</button>
+    </div>
 </div>

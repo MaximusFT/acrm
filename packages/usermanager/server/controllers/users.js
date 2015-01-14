@@ -327,15 +327,15 @@ exports.searchUsers = function (req, res) {
 				})
 				.or([{
 							'name' : {
-								'$regex' : val
+								'$regex' : new RegExp(val, 'i')
 							}
 						}, {
 							'email' : {
-								'$regex' : val
+								'$regex' : new RegExp(val, 'i')
 							}
 						}, {
 							'username' : {
-								'$regex' : val
+								'$regex' : new RegExp(val, 'i')
 							}
 						}
 					])
@@ -484,5 +484,33 @@ exports.clearAccesses = function (req, res) {
 			});
 		}
 		res.jsonp('ok');
+	});
+};
+
+exports.getForHead = function (req, res) {
+	User
+	.findOne({
+		_id: req.user._id
+	}, function(err, user) {
+		if(err) {
+			console.log(err);
+			return res.status(500).send(err);
+		} else {
+			if(user && user.roles && user.roles.indexOf('admin') !== -1) {
+				User
+				.find({}, {
+					name: 1
+				}, function(err, users) {
+					if(err) {
+						console.log(err);
+						return res.status(500).send(err);
+					} else {
+						return res.jsonp(users);
+					}
+				});
+			} else {
+				return res.status(403).send('Access denied');
+			}
+		}
 	});
 };

@@ -1,55 +1,28 @@
 <section data-ng-controller="DepartmentsController">
-	<div class="panel panel-default">
-	<div class="panel-heading">Adding new departments</div>
-	<div class="panel-body">
-    <form id="department-add-form" class="row-fluid form-inline" name="addDepartmentForm" data-ng-submit="add()">
-        <div class="row">
-			<div class="col-md-8">
-            <span data-ng-repeat="field in departmentSchema">
-                <input data-ng-if="(field['type'] == 'text' || field['type'] == 'password')" type="{{field['type']}}" class="span2" data-ng-model="department[field['schemaKey']]" placeholder="{{field['title']}}" id="department-add-title" />
-                <select class="form-control" data-ng-if="field['type'] == 'select'" data-ng-model="department[field['schemaKey']]" ng-multiple="true" multiple ng-options="option for option in field['options']">
-                    <option value="">-- Choose Role --</option>
-                </select>
-            </span>
-			</div>
-			<div class="col-md-4">
-            <input type="submit" class="btn span1" value="Add" />
-			<div class="loader" data-ng-init="init()" data-ng-hide="departments.length"></div>
-			<div class="btn-group" style="padding: 10px;" data-ng-show="departments.length">
-				<input type="button" class="btn btn-danger" data-ng-hide="edit" data-ng-click="edit=!edit" value="Enable edit mode">
-				<input type="button" class="btn btn-primary" data-ng-show="edit" data-ng-click="edit=!edit" value="Disable edit mode">
-			</div>
-			<input type="text" style="padding: 5px; margin-left: 12px" placeholder="Search" ng-model="search">
-			</div>
+    <h2>Departments Manager</h2>
+    <div class="input-group">
+        <button data-ng-click="my_tree.select_first_branch()" class="btn btn-default btn-sm">First Branch</button>
+        <button data-ng-click="my_tree.select_next_sibling()" class="btn btn-default btn-sm">Next Sibling</button>
+        <button data-ng-click="my_tree.select_prev_sibling()" class="btn btn-default btn-sm">Prev Sibling</button>
+        <button data-ng-click="my_tree.select_next_branch()" class="btn btn-default btn-sm">Next Branch</button>
+        <button data-ng-click="my_tree.select_prev_branch()" class="btn btn-default btn-sm">Prev Branch</button>
+        <button data-ng-click="my_tree.select_parent_branch()" class="btn btn-default btn-sm">Parent</button>
+        <button data-ng-click="my_tree.expand_branch()" class="btn btn-default btn-sm">Expand</button>
+        <button data-ng-click="my_tree.collapse_branch()" class="btn btn-default btn-sm">Collapse</button>
+        <button data-ng-click="my_tree.expand_all()" class="btn btn-default btn-sm">Expand All</button>
+        <button data-ng-click="my_tree.collapse_all()" class="btn btn-default btn-sm">Collapse All</button>
+        <button data-ng-click="try_adding_a_branch()" class="btn btn-default btn-sm">Add Branch</button>
+        <button data-ng-click="open()" class="btn btn-default btn-sm">New</button>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div style="width:250px;background:whitesmoke;border:1px solid lightgray;border-radius:5px;" data-ng-init="init()">
+                <abn-tree tree-data="departments" tree-control="my_tree" on-select="my_tree_handler(branch)" expand-level="2"></abn-tree>
+            </div>
         </div>
-    </form>
-	</div>
-	</div>
-
-    <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="departments.length">
-        <tr>
-            <th data-ng-show="edit">
-                Edit
-            </th>
-			<th>
-				#
-			</th>
-            <th data-ng-repeat="field in departmentSchema" data-ng-if="field.inTable">{{field.title}}</th>
-        </tr>
-        <tr data-ng-repeat="department in departments | filter:search:strict">
-            <td data-ng-show="edit">
-                <button class="glyphicon glyphicon-trash" data-ng-click="remove(department)" value="del">
-                    <i class="icon-trash icon-white"></i>
-                </button>
-            </td>
-			<td>
-				<a href="#!/manager/departments/{{department['_id']}}">#</a>
-			</td>
-            <td class="table-editable-cell" data-ng-repeat="field in departmentSchema" data-ng-if="field.inTable">
-                <span data-ng-if="(field['type'] == 'text')" class="editable-span" data-ng-editable="update(department, field['schemaKey'])" data-ng-editable-model="department[field['schemaKey']]"></span>
-				<span data-ng-click="beforeSelect(field['schemaKey'], department)" data-ng-if="(field['type'] == 'select')" class="editable-span" data-ng-editable-select="update(department, field['schemaKey'])" data-ng-editable-select-model="department[field['schemaKey']]" data-ng-editable-select-options="field['options']">
-                </span>
-            </td>
-        </tr>
-    </table>
+        <div class="col-md-8">
+            <pre>{{selectedID}}</pre>
+            <pre>{{departments}}</pre>
+        </div>
+    </div>
 </section>

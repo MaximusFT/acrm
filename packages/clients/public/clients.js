@@ -1,3 +1,3 @@
 'use strict';
 
-angular.module('mean.clients', []);
+angular.module('mean.clients', ['ngClipboard']);

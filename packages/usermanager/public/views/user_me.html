@@ -1,141 +1,148 @@
 <style>
 th {
-  text-align: center
+  text-align: center;
 }
 </style>
-	<tabset>
+<tabset>
 	<tab select="p_init()">
-	<tab-heading>
-      <i class="glyphicon glyphicon-briefcase"></i>
-      Corporate passwords
-    </tab-heading>
-	<div class="panel panel-default" data-ng-if="mode === 'Manager' || mode === 'Employee'">
-	<div class="panel-heading"><i class="glyphicon glyphicon-send"></i>&nbsp Send request for adding new passwords</div>
-	<div class="panel-body">
-    <form data-ng-hide="isSent" id="pass-add-form" class="row-fluid form-inline" name="addPassForm" data-ng-submit="sendRequestOnAdd()">
-        <div class="row">
-			<div class="col-md-8">
-            <span data-ng-repeat="field in passSchema">
-                <input data-ng-if="(field['type'] == 'text' || field['type'] == 'password')" type="{{field['type']}}" class="span2" data-ng-model="pass[field['schemaKey']]" placeholder="{{field['title']}}" id="pass-add-title" required />
-            </span>
+		<tab-heading> <i class="glyphicon glyphicon-briefcase"></i>
+			Corporate passwords
+		</tab-heading>
+		<div class="panel panel-default" data-ng-if="mode === 'Manager' || mode === 'Employee'">
+			<div class="panel-heading"> <i class="glyphicon glyphicon-send"></i>
+				&nbsp Send request for adding new passwords
 			</div>
-			<div class="col-md-4">
-            <input type="submit" class="btn span1" value="Send" />			
-			</div>
-        </div>
-    </form>
-	<div data-ng-show="isSent">
-		<alert type="success" close="closeAlert($index)">The request was successfully sent!</alert>
-	</div>
-	</div>
-	</div>	
-	<div cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
-	<accordion close-others="true">
-	<div data-ng-repeat="group in groups" data-ng-init="sectionIndex=$index">
-	<accordion-group data-ng-show="group.implement.length" heading="{{$index+1}}. {{group.group}} ({{getSumLength(group.implement)}})">
-    <table class="table table-striped table-bordered table-hover editable-table" data-ng-repeat="implement in group.implement" data-ng-init="implementIndex=$index" data-ng-show="group.implement.length">
-		<tr>
-			<th colspan="8">
-				{{implement.implement==='---' ? 'Uncategorized' : implement.implement}} ({{implement.passes.length}})
-			</th>
-		</tr>
-        <tr>
-			<th>
-				#
-			</th>
-            <th data-ng-repeat="field in passSchema" data-ng-if="field.inTable">{{field.title}}</th>
-        </tr>
-        <tr data-ng-repeat="pass in implement.passes | filter:search:strict" data-ng-init="pid = $index">
-			<td>
-				<a href="#!/manager/passwords/{{pass['_id']}}">#</a>
-			</td>
-            <td data-ng-repeat="field in passSchema" data-ng-if="field.inTable">
-                <span data-ng-if="pass[field['schemaKey']] == ''">---</span>
-				<span data-ng-if="pass[field['schemaKey']] != '' && field['type'] !== 'password'">{{pass[field['schemaKey']]}}</span>
-				<div class="input-group input-group-sm" data-ng-if="field['type'] === 'password'">
-					<input type="password" class="form-control" data-ng-if="!isPassShown[sectionIndex][implementIndex][pid]" value="********" readonly />
-					<input type="text" class="form-control" data-ng-if="isPassShown[sectionIndex][implementIndex][pid]" value="{{pass[field['schemaKey']]}}" readonly />	
-					<span class="input-group-addon" clip-copy="getPass1(pass[field['schemaKey']])"><i class="glyphicon glyphicon-export"></i></span>
-					<span style="cursor:pointer" class="input-group-addon" data-ng-click="showPass1(sectionIndex,implementIndex,pid)"><i data-ng-class="isPassShown1[sectionIndex][implementIndex][pid] === true ? 'glyphicon glyphicon-eye-open' : 'glyphicon glyphicon-eye-close'"></i></span>
-				</div>		
-            </td>
-        </tr>
-    </table>
-	</accordion-group>
-	</div>
-	</accordion>	
-	<div data-ng-if="!isPasses">
-		<p class='bg-warning'>{{permsg}}</p>
-	</div>
-	</div>
-	</tab>	
-	<tab select="pp_init()">
-	<tab-heading>
-      <i class="glyphicon glyphicon-home"></i>
-      Private passwords
-    </tab-heading>
-	<alert data-ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert>
-	<div class="panel panel-default">
-      <div class="panel-heading">
-        Control panel
-      </div>
-      <div class="panel-body">
-        <form id="pass-add-form" class="row-fluid form-inline" name="addPPassForm" data-ng-submit="pp_add()">
-          <div class="row">
-            <div class="col-md-8">
-              <span data-ng-repeat="field in passSchema1">
-                <input data-ng-if="(field['type'] == 'text' || field['type'] == 'password')" type="{{field['type']}}" class="span2" data-ng-model="prpass[field['schemaKey']]" placeholder="{{field['title']}}" id="pass-add-title" popover="{{field['popover']}}"  popover-trigger="focus" required />
-              </span>
-            </div>
-            <div class="col-md-4">
-              <input type="submit" class="btn span1" value="Add" />
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-	<div cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
-	<accordion close-others="true">
-	<div data-ng-repeat="group in pr_groups" data-ng-init="gind = $index">
-	<accordion-group data-ng-show="group.passes.length" is-open="status[gind]">
-		<accordion-heading>
-			{{$index+1}}. {{group.group}} ({{group.passes.length}}) <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': status[gind], 'glyphicon-chevron-right': !status[gind]}"></i>
-        </accordion-heading>
-    <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="group.passes.length">
-        <tr>
-			<th>
-                <i class="glyphicon glyphicon-sort-by-order"></i>
-            </th>
-            <th data-ng-repeat="field in passSchema1" data-ng-if="field.inTable">{{field.title}}</th>
-			<th>
-				<i class="glyphicon glyphicon-edit"></i>
-			</th>
-			<th>
-				<i class="glyphicon glyphicon-trash"></i>
-			</th>
-        </tr>
-        <tr data-ng-repeat="pass in group.passes | filter:search:strict" data-ng-init="pind=$index">
-			<td>
-				{{$index+1}}.
-            </td>
-            <td data-ng-repeat="field in passSchema1" data-ng-if="field.inTable">
-                <span data-ng-if="pass[field['schemaKey']] == '' && field['type'] !== 'password'">---</span>
-				<span data-ng-if="pass[field['schemaKey']] != '' && field['type'] !== 'password'">{{pass[field['schemaKey']]}}</span>				
-				<div class="input-group input-group-sm" data-ng-if="field['type'] === 'password'">
-					<input type="password" class="form-control" data-ng-if="!isPassShown[gind][pind]" value="********" readonly />
-					<input type="text" class="form-control" data-ng-if="isPassShown[gind][pind]" value="{{pass[field['schemaKey']]}}" readonly />	
-					<span class="input-group-addon" clip-copy="getPass(pass[field['schemaKey']])"><i class="glyphicon glyphicon-export"></i></span>
-					<span style="cursor:pointer" class="input-group-addon" data-ng-click="showPass(gind,pind)"><i data-ng-class="isPassShown[gind][pind] === true ? 'glyphicon glyphicon-eye-open' : 'glyphicon glyphicon-eye-close'"></i></span>
+			<div class="panel-body">
+				<form data-ng-hide="isSent" id="pass-add-form" class="row-fluid form-inline" name="addPassForm" data-ng-submit="sendRequestOnAdd()">
+					<div class="row">
+						<div class="col-md-8">
+							<span data-ng-repeat="field in passSchema">
+								<input data-ng-if="(field['type'] == 'text' || field['type'] == 'password')" type="{{field['type']}}" class="span2" data-ng-model="pass[field['schemaKey']]" placeholder="{{field['title']}}" id="pass-add-title" required />
+							</span>
+						</div>
+						<div class="col-md-4">
+							<input type="submit" class="btn span1" value="Send" />
+						</div>
+					</div>
+				</form>
+				<div data-ng-show="isSent">
+					<alert type="success" close="closeAlert($index)">The request was successfully sent!</alert>
 				</div>
-		   </td>
-			<td>
-				<input class="btn btn-warning" type="button" value="Edit" data-ng-click="edit(gind, pind)" />
-			</td>
-			<td>
-				<input class="btn btn-danger" type="button" value="Remove" data-ng-click="remove(gind, pind)" />
-			</td>
-        </tr>
-    </table>
-	</accordion-group>
-	</div>
-	</tabset>
+			</div>
+		</div>
+		<div cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+			<accordion close-others="true">
+				<div data-ng-repeat="group in groups" data-ng-init="sectionIndex=$index">
+					<accordion-group data-ng-show="group.implement.length" heading="{{$index+1}}. {{group.group}} ({{getSumLength(group.implement)}})">
+						<table class="table table-striped table-bordered table-hover editable-table" data-ng-repeat="implement in group.implement" data-ng-init="implementIndex=$index" data-ng-show="group.implement.length">
+							<tr>
+								<th colspan="8">
+									{{implement.implement==='---' ? 'Uncategorized' : implement.implement}} ({{implement.passes.length}})
+								</th>
+							</tr>
+							<tr>
+								<th>#</th>
+								<th data-ng-repeat="field in passSchema" data-ng-if="field.inTable">{{field.title}}</th>
+							</tr>
+							<tr data-ng-repeat="pass in implement.passes | filter:search:strict" data-ng-init="pid = $index">
+								<td>
+									<a href="#!/manager/passwords/{{pass['_id']}}">#</a>
+								</td>
+								<td data-ng-repeat="field in passSchema" data-ng-if="field.inTable">
+									<span data-ng-if="pass[field['schemaKey']] == ''">---</span>
+									<span data-ng-if="pass[field['schemaKey']] != '' && field['type'] !== 'password'">{{pass[field['schemaKey']]}}</span>
+									<div class="input-group input-group-sm" data-ng-if="field['type'] === 'password'">
+										<input type="password" class="form-control" data-ng-if="!isPassShown[sectionIndex][implementIndex][pid]" value="********" readonly />
+										<input type="text" class="form-control" data-ng-if="isPassShown[sectionIndex][implementIndex][pid]" value="{{pass[field['schemaKey']]}}" readonly />
+										<span class="input-group-addon" clip-copy="getPass1(pass[field['schemaKey']])">
+											<i class="glyphicon glyphicon-export"></i>
+										</span>
+										<span style="cursor:pointer" class="input-group-addon" data-ng-click="showPass1(sectionIndex,implementIndex,pid)">
+											<i data-ng-class="isPassShown1[sectionIndex][implementIndex][pid] === true ? 'glyphicon glyphicon-eye-open' : 'glyphicon glyphicon-eye-close'"></i>
+										</span>
+									</div>
+								</td>
+							</tr>
+						</table>
+					</accordion-group>
+				</div>
+			</accordion>
+			<div data-ng-if="!isPasses">
+				<p class='bg-warning'>{{permsg}}</p>
+			</div>
+		</div>
+	</tab>
+	<tab select="pp_init()">
+		<tab-heading>
+			<i class="glyphicon glyphicon-home"></i>
+			Private passwords
+		</tab-heading>
+		<alert data-ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert>
+		<div class="panel panel-default">
+			<div class="panel-heading">Control panel</div>
+			<div class="panel-body">
+				<form id="pass-add-form" class="row-fluid form-inline" name="addPPassForm" data-ng-submit="pp_add()">
+					<div class="row">
+						<div class="col-md-8">
+							<span data-ng-repeat="field in passSchema1">
+								<input data-ng-if="(field['type'] == 'text' || field['type'] == 'password')" type="{{field['type']}}" class="span2" data-ng-model="prpass[field['schemaKey']]" placeholder="{{field['title']}}" id="pass-add-title" popover="{{field['popover']}}"  popover-trigger="focus" required />
+							</span>
+						</div>
+						<div class="col-md-4">
+							<input type="submit" class="btn span1" value="Add" />
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+		<div cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+			<accordion close-others="true">
+				<div data-ng-repeat="group in pr_groups" data-ng-init="gind = $index">
+					<accordion-group data-ng-show="group.passes.length" is-open="status[gind]">
+						<accordion-heading>
+							{{$index+1}}. {{group.group}} ({{group.passes.length}})
+							<i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': status[gind], 'glyphicon-chevron-right': !status[gind]}"></i>
+						</accordion-heading>
+						<table class="table table-striped table-bordered table-hover editable-table" data-ng-show="group.passes.length">
+							<tr>
+								<th>
+									<i class="glyphicon glyphicon-sort-by-order"></i>
+								</th>
+								<th data-ng-repeat="field in passSchema1" data-ng-if="field.inTable">{{field.title}}</th>
+								<th>
+									<i class="glyphicon glyphicon-edit"></i>
+								</th>
+								<th>
+									<i class="glyphicon glyphicon-trash"></i>
+								</th>
+							</tr>
+							<tr data-ng-repeat="pass in group.passes | filter:search:strict" data-ng-init="pind=$index">
+								<td>{{$index+1}}.</td>
+								<td data-ng-repeat="field in passSchema1" data-ng-if="field.inTable">
+									<span data-ng-if="pass[field['schemaKey']] == '' && field['type'] !== 'password'">---</span>
+									<span data-ng-if="pass[field['schemaKey']] != '' && field['type'] !== 'password'">{{pass[field['schemaKey']]}}</span>
+									<div class="input-group input-group-sm" data-ng-if="field['type'] === 'password'">
+										<input type="password" class="form-control" data-ng-if="!isPassShown[gind][pind]" value="********" readonly />
+										<input type="text" class="form-control" data-ng-if="isPassShown[gind][pind]" value="{{pass[field['schemaKey']]}}" readonly />
+										<span class="input-group-addon" clip-copy="getPass(pass[field['schemaKey']])">
+											<i class="glyphicon glyphicon-export"></i>
+										</span>
+										<span style="cursor:pointer" class="input-group-addon" data-ng-click="showPass(gind,pind)">
+											<i data-ng-class="isPassShown[gind][pind] === true ? 'glyphicon glyphicon-eye-open' : 'glyphicon glyphicon-eye-close'"></i>
+										</span>
+									</div>
+								</td>
+								<td>
+									<input class="btn btn-warning" type="button" value="Edit" data-ng-click="edit(gind, pind)" />
+								</td>
+								<td>
+									<input class="btn btn-danger" type="button" value="Remove" data-ng-click="remove(gind, pind)" />
+								</td>
+							</tr>
+						</table>
+					</accordion-group>
+				</div>
+			</accordion>
+		</div>
+	</tab>
+</tabset>

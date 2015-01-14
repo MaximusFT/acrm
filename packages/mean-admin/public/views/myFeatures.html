@@ -1,0 +1,22 @@
+<section data-ng-controller="MyFeaturesController" data-ng-init="init()">
+	<h1>Your Activated Features</h1>
+    <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="features.length">
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <!--<th>Actions</th>-->
+        </tr>
+        <tr data-ng-repeat="feature in features track by $index">
+            <td>
+                <a href="#!{{feature.link}}">{{feature.title}}</a>
+            </td>
+            <td>
+                {{feature.description}}
+            </td>
+            <!--<td>
+                <input type="button" class="btn btn-danger btn-xs" value="Assign" data-ng-click="assign(feature)">
+                <input type="button" class="btn btn-primary btn-xs" value="Revoke" data-ng-click="revoke(feature)">
+            </td>-->
+        </tr>
+    </table>
+</section>

@@ -1,0 +1,36 @@
+<section data-ng-controller="CurrencymanagerController">
+    <h1>Currency Exchange</h1>
+    <div data-ng-if="isAccess">
+        <legend>Latest predictions</legend>
+        <div class="row">
+            <div class="form-group col-md-6">
+                <label for="inputColCount" class="col-sm-2 control-label">Columns count</label>
+                <div class="col-sm-10">
+                    <input type="number" class="form-control" id="inputColCount" data-ng-model="colCount"></div>
+            </div>
+            <div class="form-group col-md-6">
+                <label for="inputRowCount" class="col-sm-2 control-label">Rows count</label>
+                <div class="col-sm-10">
+                    <input type="number" class="form-control" id="inputRowCount" data-ng-model="rowCount"></div>
+            </div>
+        </div>
+        <table data-ng-init="init()" class="table table-striped table-bordered table-hover editable-table">
+            <tr>
+                <th style="text-align:center;"> <i class="glyphicon glyphicon-time"></i>
+                </th>
+                <th class="table-editable-cell" data-ng-repeat="colIndex in getNumber(colCount) track by $index" style="text-align:center;">
+                    <span class="editable-span" data-ng-editable="update(colIndex, cols[$index])" data-ng-editable-model="cols[$index]"></span>
+                </th>
+            </tr>
+            <tr data-ng-repeat="rowIndex in getNumber(rowCount) track by $index" data-ng-init="rIndex = $index">
+                <td class="table-editable-cell" data-ng-repeat="colIndex in getNumber(colCount+1) track by $index" data-ng-init="cIndex = $index">
+                    <span class="editable-span" data-ng-editable="update(colIndex, rows[rIndex][cIndex])" data-ng-editable-model="rows[rIndex][cIndex]"></span>
+                </td>
+            </tr>
+        </table>
+        <div class="input-group" style="float:right;">
+            <input class="btn btn-warning" type="button" value="Reload" data-ng-click="init()" />
+            <input class="btn btn-primary" type="button" value="Save" data-ng-click="save()" />
+        </div>
+    </div>
+</section>

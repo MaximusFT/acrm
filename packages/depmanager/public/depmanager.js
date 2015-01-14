@@ -1,3 +1,3 @@
 'use strict';
 
-angular.module('mean.depmanager', []);
+angular.module('mean.depmanager', ['angularBootstrapNavTree', 'ui.select']);
