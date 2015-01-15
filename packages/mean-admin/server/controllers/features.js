@@ -214,13 +214,24 @@ exports.checkAccessFeature = function(req, res) {
                             if (user && user.roles && user.roles.indexOf('admin') !== -1) {
                                 return res.status(200).send('ok');
                             } else if (feature && feature.activated.length > 0) {
-                                var result = _.filter(feature.activated, function(f) {
-                                    return f.link === req.query.href;
+                                FeaturesActivation.populate(feature, {
+                                    path: 'activated.feature',
+                                    model: 'Feature'
+                                }, function(err, pfeature) {
+                                    if (err) {
+                                        console.log(err);
+                                        return res.status(500).send(err);
+                                    } else {
+                                        var result = _.filter(pfeature.activated, function(f) {
+                                            console.log(f.feature.link, req.query.href);
+                                            return f.feature.link === req.query.href;
+                                        });
+                                        if (result && result.length > 0)
+                                            return res.status(200).send('ok');
+                                        else
+                                            return res.status(403).send('Access denied');
+                                    }
                                 });
-                                if (result && result.length > 0)
-                                    return res.status(200).send('ok');
-                                else
-                                    return res.status(403).send('Access denied');
                             } else {
                                 return res.status(403).send('Access denied');
                             }
