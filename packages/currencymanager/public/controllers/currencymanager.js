@@ -6,7 +6,6 @@ angular.module('mean.currencymanager').controller('CurrencymanagerController', [
 
         $scope.colCount = $scope.rowCount = 0;
 
-        //$scope.cols = ['Доллар США', 'Евро', 'Рос. рубль', 'Нефть', 'Золото', 'Доллар/Евро'];
         $scope.rows = [];
         $scope.cols = [];
 

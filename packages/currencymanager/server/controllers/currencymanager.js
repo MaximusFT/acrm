@@ -5,12 +5,12 @@
  */
 var mongoose = require('mongoose'),
     CurrencyPrediction = mongoose.model('CurrencyPrediction');
-    //_ = require('lodash');
+//_ = require('lodash');
 
 /**
  * Create department
  */
-exports.getCurrencyPredictions = function(req, res, next) {
+exports.getCurrencyPredictions = function(req, res) {
     CurrencyPrediction
         .findOne({}, function(err, predictions) {
             if (err) {
@@ -20,6 +20,14 @@ exports.getCurrencyPredictions = function(req, res, next) {
                 return res.jsonp(predictions);
             }
         });
+};
+
+exports.getCurrencyPredictionsOutside = function(req, res) {
+    if (req.headers.origin !== 'http://14.8-0.info')
+        return res.status(403).send('Access denied');
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With');
+    exports.getCurrencyPredictions(req, res);
 };
 
 exports.saveCurrencyPredictions = function(req, res, next) {
