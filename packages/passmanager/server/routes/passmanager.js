@@ -15,7 +15,6 @@ module.exports = function(Passmanager, app, auth, database) {
 	app.delete('/api/deletePass', auth.requiresLogin, passwords.delPass);
 	app.post('/api/provideAccess', auth.requiresAdmin, passwords.provideAccess);
 	app.post('/api/revokeAccess', auth.requiresAdmin, passwords.revokeAccess);
-	app.get('/api/getDeps', auth.requiresLogin, passwords.getDeps);
 	
   var requests = require('../controllers/requests');
 	app.post('/api/requests', auth.requiresLogin, requests.create);

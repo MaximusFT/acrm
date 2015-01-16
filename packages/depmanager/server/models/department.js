@@ -16,17 +16,31 @@ var DepartmentSchema = new Schema({
         unique: true,
         required: true
     },
-    head: {
+    manager: {
         type: Schema.Types.ObjectId,
         ref: 'User'
     },
-    parents: {
-        type: Array
+    parent: {
+        type: Number,
+        required: true
     },
-    level: {
+    left: {
+        type: Number,
+        required: true
+    },
+    right: {
         type: Number,
         required: true
     }
+});
+
+/**
+ * Virtuals
+ */
+DepartmentSchema.virtual('department').set(function(department) {
+    this._department = department;
+}).get(function() {
+    return this._department;
 });
 
 mongoose.model('Department', DepartmentSchema);

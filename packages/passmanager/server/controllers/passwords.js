@@ -6,7 +6,7 @@
 var mongoose = require('mongoose'),
 Pass = mongoose.model('Pass'),
 User = mongoose.model('User'),
-Department = mongoose.model('Department'),
+//Department = mongoose.model('Department'),
 _ = require('lodash');
 
 /**
@@ -529,30 +529,6 @@ exports.revokeAccess = function (req, res) {
 			});
 		} else {
 			return res.jsonp('ok');
-		}
-	});
-};
-
-exports.getDeps = function (req, res) {
-	Department
-	.find({}, {
-		'_id' : 1,
-		'name' : 1
-	})
-	.lean()
-	.exec(function (err, deps) {
-		if (err) {
-			return res.json(500, {
-				error : err
-			});
-		} else {
-			_(deps).forEach(function (dep) {
-				dep = {
-					_id : dep._id,
-					name : dep.name
-				};
-			});
-			return res.jsonp(deps);
 		}
 	});
 };

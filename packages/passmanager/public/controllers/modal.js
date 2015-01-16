@@ -6,14 +6,14 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
     $scope.selectedUsers = [];
     $scope.selectedLabels = [];
     $scope.comment = '';
+    $scope.selectedDepartments = [];
     $scope.ok = function() {
         $log.info('ok');
         //$modalInstance.close($scope.selected.item);
     };
     $scope.editprp = $scope.modalOptions.editprp;
-    $scope.newDepartment = {
-        level: 0
-    };
+    $scope.newDepartment = {};
+    $scope.parent = null;
 
     $scope.cancel = function() {
         $log.info('cancel');
@@ -40,6 +40,16 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
             .success(function(data) {
                 //$log.info(data);
                 $scope.departments = data;
+
+                if($scope.modalOptions && $scope.modalOptions.selectedID && $scope.departments) {
+                    var result = $scope.departments.filter(function(dep) {
+                        return dep._id === $scope.modalOptions.selectedID;
+                    });
+                    if(result.length > 0)
+                        $scope.newDepartment.parent = result[0];
+                } else {
+                    $scope.newDepartment.parent = $scope.departments[0];
+                }
             })
             .error(function() {
                 $log.error('error');
@@ -73,9 +83,13 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
     };
 
     $scope.verifyAndSendForm = function (newDepartment) {
-    	if(!newDepartment || !newDepartment.title || !newDepartment.head || newDepartment.level === undefined || newDepartment.level === null || !newDepartment.parent)
+        //$log.warn(newDepartment);
+    	if(!newDepartment || !newDepartment.title || !newDepartment.head ||!newDepartment.head._id || newDepartment.level === null || !newDepartment.parent || !newDepartment.parent._id)
     		$scope.isError = true;
-    	else
+    	else {
+            newDepartment.head = newDepartment.head._id;
+            newDepartment.parent = newDepartment.parent._id;
     		$scope.modalOptions.ok(newDepartment);
+        }
     };
 });

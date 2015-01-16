@@ -4,7 +4,6 @@
             "bower_components/build/css/dist.min.css": [
                 "bower_components/angular-busy/dist/angular-busy.min.css",
                 "bower_components/angular-ui-tree/dist/angular-ui-tree.min.css",
-                "bower_components/angular-bootstrap-nav-tree-master/dist/abn_tree.css",
                 "bower_components/angular-ui-select/dist/select.min.css"
             ]
         },
@@ -22,7 +21,6 @@
                 "bower_components/ng-clip/ng-clip.min.js",
                 "bower_components/zeroclipboard/dist/ZeroClipboard.min.js",
                 "bower_components/angular-ui-tree/dist/angular-ui-tree.js",
-                "bower_components/angular-bootstrap-nav-tree-master/dist/abn_tree_directive.js",
                 "bower_components/angular-ui-select/dist/select.min.js"
             ]
         }

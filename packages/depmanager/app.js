@@ -45,7 +45,7 @@ Depmanager.register(function(app, auth, database) {
           //you now have the settings object
       });
       */
-    Depmanager.angularDependencies(['angularBootstrapNavTree', 'ui.select']);
+    Depmanager.angularDependencies(['ui.select', 'ui.tree']);
     Depmanager.aggregateAsset('css', 'depmanager.css');
 
     return Depmanager;

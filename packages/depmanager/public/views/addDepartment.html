@@ -9,19 +9,18 @@
 		<label class="col-sm-2 control-label">Head</label>
 		<div class="col-sm-10">
 			<ui-select data-ng-init="initForHead()" data-ng-model="newDepartment.head" >
-				<ui-select-match placeholder="Select types...">{{$item.name}}</ui-select-match>
+				<ui-select-match placeholder="Select person...">{{newDepartment.head.name}}</ui-select-match>
 				<ui-select-choices repeat="head in heads | filter:$select.search">{{head.name}}</ui-select-choices>
 			</ui-select>
 		</div>
 	</div>
 	<div class="form-group">
-		<label for="inputLevel1" class="col-sm-2 control-label">Level</label>
-		<div class="col-sm-10">
-			<input type="number" class="form-control" id="inputLevel1" data-ng-model="newDepartment.level" required></div>
-	</div>
-	<div class="form-group">
 		<label for="inputParent1" class="col-sm-2 control-label">Parent</label>
 		<div class="col-sm-10">
-			<input type="text" class="form-control" id="inputParent1" data-ng-model="newDepartment.parent" required></div>
+			<ui-select data-ng-init="initDeps()" data-ng-model="newDepartment.parent">
+				<ui-select-match placeholder="Select department...">{{newDepartment.parent.title}}</ui-select-match>
+				<ui-select-choices repeat="department in departments | filter:$select.search">{{department.title}}</ui-select-choices>
+			</ui-select>
+		</div>
 	</div>
 </form>
