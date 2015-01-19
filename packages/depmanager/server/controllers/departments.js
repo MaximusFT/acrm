@@ -203,14 +203,14 @@ function searchTree(tree, matchingId, cb) {
             cb(ret);
         } else if (element.items !== null) {
             var result = null;
-            for (var i = 0; result === null && i < element.items.length; i += 1) {
+            for (var i = 0; !result && i < element.items.length; i += 1) {
+                //console.log('jump down');
                 result = searchTree([element.items[i]], matchingId, cb);
             }
             ret = result;
             cb(ret);
         }
     });
-    //return ret;
 }
 
 function createTree(departments) {

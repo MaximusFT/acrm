@@ -12,6 +12,7 @@ angular.module('mean.depmanager').controller('DepmanagerController', ['$scope', 
 angular.module('mean.depmanager').controller('DepartmentsController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$location', '$modal', 'Passwords', 'Users', 'Departments', 'modalService',
     function($scope, Global, Menus, $rootScope, $http, $log, $location, $modal, Passwords, Users, Departments, modalService) {
         $scope.global = Global;
+        $scope.isDragEnabled = false;
 
         $scope.init = function() {
             $scope.departments = [];
@@ -80,6 +81,11 @@ angular.module('mean.depmanager').controller('DepartmentsController', ['$scope',
             }
         };
 
+        $scope.switchDrag = function() {
+            $log.info($scope.isDragEnabled);
+            $scope.isDragEnabled = !$scope.isDragEnabled;
+        };
+
         function changeParent(source, dest) {
             $http.post('/api/changeParent', {
                 params: {
@@ -92,11 +98,22 @@ angular.module('mean.depmanager').controller('DepartmentsController', ['$scope',
         }
 
         $scope.options = {
-            dragStop: function(ret) {
-                var source = ret.source.nodeScope.$modelValue;
-                var dest = ret.dest.nodesScope.$parent.$modelValue;
-                changeParent(source, dest);
-                return true;
+            accept: function(sourceNode, destNodes, destIndex) {
+                //$log.info('accept', sourceNode.$modelValue);
+                return ($scope.isDragEnabled);
+            },
+            dropped: function(event) {
+                if ($scope.isDragEnabled === true) {
+                    var source = event.source.nodeScope.$modelValue;
+                    var dest = event.dest.nodesScope.$parent.$modelValue;
+                    //$log.info('dropped', source, dest);
+                    changeParent(source, dest);
+                }
+            },
+            beforeDrop: function(event) {
+                if ($scope.isDragEnabled === true && !window.confirm('Are you sure you want to drop it here?')) {
+                    event.source.nodeScope.$$apply = false;
+                }
             }
         };
 
