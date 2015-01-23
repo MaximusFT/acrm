@@ -188,6 +188,10 @@ exports.changeGuestMode = function(req, res) {
                                                             ChatOption
                                                                 .update({
                                                                     _id: chatOption._id
+                                                                }, {
+                                                                    $set: {
+                                                                        isGuestModeEnabled: req.body.params.isGuestModeEnabled
+                                                                    }
                                                                 }, function(err, updated) {
                                                                     if (err) {
                                                                         console.log(err);

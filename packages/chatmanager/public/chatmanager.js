@@ -1,3 +1,3 @@
 'use strict';
 
-angular.module('mean.chatmanager', ['xeditable']);
+angular.module('mean.chatmanager', []);

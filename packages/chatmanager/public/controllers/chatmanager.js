@@ -38,8 +38,10 @@ angular.module('mean.chatmanager').controller('ChatmanagerController', ['$scope'
         }];
 
         var refreshStats = $interval(function() {
-            $http.get('/api/getChatStats').success(function(response) {
-                //$log.info(response);
+            $http.get('/api/getChatStats', {
+                cache: false
+            }).success(function(response) {
+                //$log.info('refresh response', response);
                 if (response.analysts && response.clients) {
                     $scope.analysts = response.analysts;
                     $scope.clients = response.clients;
@@ -72,7 +74,7 @@ angular.module('mean.chatmanager').controller('ChatmanagerController', ['$scope'
 
         $scope.initSettings = function() {
             $http.get('/api/getGuestMode').success(function(response) {
-            	$scope.isInitialized = true;
+                $scope.isInitialized = true;
                 if (response && response.isGuestModeEnabled)
                     $scope.isGuestModeEnabled = response.isGuestModeEnabled;
             });

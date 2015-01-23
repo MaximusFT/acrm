@@ -46,7 +46,7 @@ Chatmanager.register(function(app, auth, database) {
       });
       */
     Chatmanager.aggregateAsset('css', 'chatmanager.css');
-    Chatmanager.angularDependencies(['xeditable']);
+    //Chatmanager.angularDependencies([]);
 
     return Chatmanager;
 });
