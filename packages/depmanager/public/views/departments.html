@@ -10,7 +10,7 @@
                     <i class="glyphicon glyphicon-tree-deciduous"></i>
                 </a>
                 <a href="" class="btn btn-info col-sm-3" data-ng-click="switchDrag()">
-                    <i class="glyphicon glyphicon-move"></i>
+                    <i class="glyphicon glyphicon-move" style="{{isDragEnabled ? 'color:black;' : ''}}"></i>
                 </a>
             </div>
             <hr />
@@ -51,9 +51,6 @@
                     <p>{{selectedDepartment.additionalInfo.description}}</p>
                 </div>              
             </div>
-            <pre>
-                {{departments | json}}
-            </pre>
         </div>
     </div>
 </section>

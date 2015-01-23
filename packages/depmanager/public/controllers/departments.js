@@ -82,7 +82,7 @@ angular.module('mean.depmanager').controller('DepartmentsController', ['$scope',
         };
 
         $scope.switchDrag = function() {
-            $log.info($scope.isDragEnabled);
+            //$log.info($scope.isDragEnabled);
             $scope.isDragEnabled = !$scope.isDragEnabled;
         };
 

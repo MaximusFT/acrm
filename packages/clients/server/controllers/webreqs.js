@@ -22,97 +22,105 @@ exports.web_request_form_add = function(req, res, next) {
     var webreq = new Webreq();
     webreq.debug_info = JSON.stringify(req.body);
     webreq.webreq_inside_id = !req.body.webreq_inside_id ? -1 : req.body.webreq_inside_id;
-    switch (req.body.webreq_type) {
-        case 1:
-            webreq.webreq_type = 'Обратный звонок';
-            break;
-        case 2:
-            webreq.webreq_type = 'Хочу учиться в офисе';
-            break;
-        case 3:
-            webreq.webreq_type = 'Хочу инвестировать (ПерсТрейдер)';
-            break;
-        case 4:
-            webreq.webreq_type = 'Хочу учиться дистанционно в Москве';
-            break;
-        case 5:
-            webreq.webreq_type = 'Хочу инвест. в Москве (ПерсТрейдер)';
-            break;
-        case 6:
-            webreq.webreq_type = 'Мастер-класс в Москве';
-            break;
-        case 7:
-            webreq.webreq_type = 'Хочу учиться дистанционно';
-            break;
-        case 8:
-            webreq.webreq_type = 'Сайт ПТ: Вопрос с сайта';
-            break;
-        case 9:
-            webreq.webreq_type = 'Сайт ПТ: Стать инвестором';
-            break;
-        case 10:
-            webreq.webreq_type = 'Сайт ПТ: Стать трейдером';
-            break;
-        case 11:
-            webreq.webreq_type = 'Сайт ПТ: Вопрос трейдеру';
-            break;
-        case 12:
-            webreq.webreq_type = 'Хочу демо счет';
-            break;
-        case 13:
-            webreq.webreq_type = 'Мастер-инвест';
-            break;
-        case 14:
-            webreq.webreq_type = 'Хочу работать';
-            break;
-        case 15:
-            webreq.webreq_type = 'Конкурсы';
-            break;
-        case 16:
-            webreq.webreq_type = 'Акции';
-            break;
-        case 17:
-            webreq.webreq_type = 'Хочу бонус';
-            break;
-        case 18:
-            webreq.webreq_type = '24% годовых';
-            break;
-        case 19:
-            webreq.webreq_type = 'Вопрос менеджеру';
-            break;
-        case 20:
-            webreq.webreq_type = 'Хочу зарабатывать';
-            break;
-        case 21:
-            webreq.webreq_type = 'Хочу открыть счет';
-            break;
-        case 29:
-            webreq.webreq_type = 'Заказать обучающие материалы';
-            break;
-        case 30:
-            webreq.webreq_type = 'Хочу торговые сигналы';
-            break;
-        case 31:
-            webreq.webreq_type = 'Хочу электронную книгу';
-            break;
-        case 32:
-            webreq.webreq_type = 'Хочу VIP счет';
-            break;
-        case 33:
-            webreq.webreq_type = 'Мастер-инвест: мастер';
-            break;
-        case 34:
-            webreq.webreq_type = 'Хочу учиться: новичкам';
-            break;
-        case 35:
-            webreq.webreq_type = 'Телемагазин';
-            break;
-        case 36:
-            webreq.webreq_type = 'Бизнес семинар';
-            break;
-        default:
-            webreq.webreq_type = 'Неизвестный тип';
-            break;
+    var type_id = req.body.webreq_type;
+    if (Number(type_id) === 'NaN')
+        webreq.webreq_type = 'Неизвестный тип';
+    else {
+        switch (Number(req.body.webreq_type)) {
+            case 1:
+                webreq.webreq_type = 'Обратный звонок';
+                break;
+            case 2:
+                webreq.webreq_type = 'Хочу учиться в офисе';
+                break;
+            case 3:
+                webreq.webreq_type = 'Хочу инвестировать (ПерсТрейдер)';
+                break;
+            case 4:
+                webreq.webreq_type = 'Хочу учиться дистанционно в Москве';
+                break;
+            case 5:
+                webreq.webreq_type = 'Хочу инвест. в Москве (ПерсТрейдер)';
+                break;
+            case 6:
+                webreq.webreq_type = 'Мастер-класс в Москве';
+                break;
+            case 7:
+                webreq.webreq_type = 'Хочу учиться дистанционно';
+                break;
+            case 8:
+                webreq.webreq_type = 'Сайт ПТ: Вопрос с сайта';
+                break;
+            case 9:
+                webreq.webreq_type = 'Сайт ПТ: Стать инвестором';
+                break;
+            case 10:
+                webreq.webreq_type = 'Сайт ПТ: Стать трейдером';
+                break;
+            case 11:
+                webreq.webreq_type = 'Сайт ПТ: Вопрос трейдеру';
+                break;
+            case 12:
+                webreq.webreq_type = 'Хочу демо счет';
+                break;
+            case 13:
+                webreq.webreq_type = 'Мастер-инвест';
+                break;
+            case 14:
+                webreq.webreq_type = 'Хочу работать';
+                break;
+            case 15:
+                webreq.webreq_type = 'Конкурсы';
+                break;
+            case 16:
+                webreq.webreq_type = 'Акции';
+                break;
+            case 17:
+                webreq.webreq_type = 'Хочу бонус';
+                break;
+            case 18:
+                webreq.webreq_type = '24% годовых';
+                break;
+            case 19:
+                webreq.webreq_type = 'Вопрос менеджеру';
+                break;
+            case 20:
+                webreq.webreq_type = 'Хочу зарабатывать';
+                break;
+            case 21:
+                webreq.webreq_type = 'Хочу открыть счет';
+                break;
+            case 29:
+                webreq.webreq_type = 'Заказать обучающие материалы';
+                break;
+            case 30:
+                webreq.webreq_type = 'Хочу торговые сигналы';
+                break;
+            case 31:
+                webreq.webreq_type = 'Хочу электронную книгу';
+                break;
+            case 32:
+                webreq.webreq_type = 'Хочу VIP счет';
+                break;
+            case 33:
+                webreq.webreq_type = 'Мастер-инвест: мастер';
+                break;
+            case 34:
+                webreq.webreq_type = 'Хочу учиться: новичкам';
+                break;
+            case 35:
+                webreq.webreq_type = 'Телемагазин';
+                break;
+            case 36:
+                webreq.webreq_type = 'Бизнес семинар';
+                break;
+            case 49:
+                webreq.webreq_type = 'Финансовая справочная';
+                break;
+            default:
+                webreq.webreq_type = 'Неизвестный тип';
+                break;
+        }
     }
     webreq.office_destination = !req.body.office_destination ? 'Неизвестный офис' : req.body.office_destination;
     webreq.form_address = !req.body.form_address ? '' : req.body.form_address;

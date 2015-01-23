@@ -23,7 +23,7 @@ exports.getCurrencyPredictions = function(req, res) {
 };
 
 exports.getCurrencyPredictionsOutside = function(req, res) {
-    if (req.headers.origin !== 'http://14.8-0.info')
+    if (req.headers.origin !== 'https://0800500222.com.ua')
         return res.status(403).send('Access denied');
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'X-Requested-With');

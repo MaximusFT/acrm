@@ -52,7 +52,7 @@ exports.deleteFeature = function(req, res) {
         return res.status(500).send('Empty query');
     Feature
         .remove({
-            _id: req.params.featureId
+            _id: mongoose.Types.ObjectId(req.params.featureId)
         }, function(err) {
             if (err) {
                 console.log(err);
@@ -66,7 +66,7 @@ exports.deleteFeature = function(req, res) {
 exports.provideFeature = function(req, res) {
     if (!req.body || !req.body.params || !req.body.params.users || !req.body.params.feature)
         return res.status(500).send('Empty query');
-    var featureId = req.body.params.feature;
+    var featureId = mongoose.Types.ObjectId(req.body.params.feature);
     FeaturesActivation
         .find({
             user: {
@@ -124,7 +124,7 @@ exports.revokeFeature = function(req, res) {
         }, {
             $pull: {
                 activated: {
-                    feature: req.body.params.feature
+                    feature: mongoose.Types.ObjectId(req.body.params.feature)
                 }
             }
         }, {

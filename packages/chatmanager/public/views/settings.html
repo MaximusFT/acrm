@@ -1,0 +1,25 @@
+<div class="row" data-ng-init="initSettings()">
+	<h2 style="text-align:center;">Change Guest Mode</h2>
+	<div class="col-md-6">
+		<div data-ng-class="{true: 'pulse-bg', false: ''} [!!isGuestModeEnabled]">
+			<br />
+			<div id="button" data-ng-click="changeMode()">
+				<div id="top" data-ng-class="{'top-click' : !!isGuestModeEnabled}"></div>
+				<div id="bottom"></div>
+				<div id="body" data-ng-class="{true: 'body body-click', false: 'body'} [!!isGuestModeEnabled]"></div>
+				<div id="floor"></div>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-6">
+		<br />
+		<p>
+			Just press the button to change current settings for guest mode.
+		</p>
+		<p style="font-style:italic;font-weight:bolder;">
+			Current state:
+			<span data-ng-if="isInitialized">{{isGuestModeEnabled ? 'Enabled' : 'Disabled'}}</span>
+			<span data-ng-if="!isInitialized">loading</span>
+		</p>
+	</div>
+</div>

@@ -138,7 +138,7 @@ exports.all = function(req, res) {
     }
 };
 
-exports.getDeps = function(req, res) {
+exports.getNewDeps = function(req, res) {
     NewDepartment
         .find({}, {
             '_id': 1,
@@ -155,6 +155,28 @@ exports.getDeps = function(req, res) {
                     _id: '-1',
                     title: 'None'
                 });
+                return res.jsonp(deps);
+            }
+        });
+};
+
+exports.getDeps = function(req, res) {
+    Department
+        .find({}, {
+            '_id': 1,
+            'name': 1
+        })
+        .lean()
+        .exec(function(err, deps) {
+            if (err) {
+                return res.json(500, {
+                    error: err
+                });
+            } else {
+                /*deps.splice(0, 0, {
+                    _id: '-1',
+                    title: 'None'
+                });*/
                 return res.jsonp(deps);
             }
         });

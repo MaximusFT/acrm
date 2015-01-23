@@ -1,0 +1,29 @@
+<div class="" data-ng-controller="ChatmanagerController">
+    <div class="statContainer">
+        <h1 style="text-align:center;font-family:'segoe ui light', arial;color:#b30000;">FinChat Manager</h1>
+        <span data-ng-repeat="option in options" data-ng-if="isAccess">
+            <a class="nounderline" data-ng-click="selectMenuItem($index)">
+                <div class="statBubbleContainer">
+                    <div class="statBubble {{option.class}}">
+                        <div class="statNum" data-ng-if="option.class !== 'settings'">
+                            <div class="spinner" style="margin-top:55px;">
+                                <div class="rect1"></div>
+                                <div class="rect2"></div>
+                                <div class="rect3"></div>
+                                <div class="rect4"></div>
+                                <div class="rect5"></div>
+                            </div>
+                        </div>
+                        <div class="statNum" data-ng-if="option.class !== 'settings'">{{option.statNum ? option.statNum : 0}}</div>
+                    </div>
+                    <h3>{{option.title}}</h3>
+                    <div class="statRedirect">
+                        <span data-title="{{option.hrefTitle}} &rarr;">{{option.hrefTitle}} &rarr;</span>
+                    </div>
+                </div>
+            </a>
+        </span>
+    </div>
+
+    <div data-ng-if="includePath" data-ng-include="includePath"></div>
+</div>
