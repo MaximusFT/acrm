@@ -96,16 +96,27 @@ exports.getChatStats = function(req, res) {
                                                                                                         return !!fa.user;
                                                                                                     });
                                                                                                     var clients = _.filter(featuresactivations, function(fa) {
-                                                                                                        return !!fa.client;
+                                                                                                        var result = _.filter(fa.activated, function(faa) {
+                                                                                                            return JSON.stringify(faa.feature) === JSON.stringify(feature._id);
+                                                                                                        });
+                                                                                                        return !!fa.client && result && result.length > 0 && result[0].options && result[0].options.role !== 'guest';
+                                                                                                    });
+                                                                                                    var guests = _.filter(featuresactivations, function(fa) {
+                                                                                                        var result = _.filter(fa.activated, function(faa) {
+                                                                                                            return JSON.stringify(faa.feature) === JSON.stringify(feature._id);
+                                                                                                        });
+                                                                                                        return !!fa.client && result && result.length > 0 && result[0].options && result[0].options.role === 'guest';
                                                                                                     });
                                                                                                     return res.jsonp({
                                                                                                         analysts: _.map(analysts, 'user'),
-                                                                                                        clients: _.map(clients, 'client')
+                                                                                                        clients: _.map(clients, 'client'),
+                                                                                                        guests: _.map(guests, 'client')
                                                                                                     });
                                                                                                 } else {
                                                                                                     return res.jsonp({
                                                                                                         analysts: [],
-                                                                                                        clients: []
+                                                                                                        clients: [],
+                                                                                                        guests: []
                                                                                                     });
                                                                                                 }
                                                                                             }
@@ -113,7 +124,8 @@ exports.getChatStats = function(req, res) {
                                                                                 } else {
                                                                                     return res.jsonp({
                                                                                         analysts: [],
-                                                                                        clients: []
+                                                                                        clients: [],
+                                                                                        guests: []
                                                                                     });
                                                                                 }
                                                                             }

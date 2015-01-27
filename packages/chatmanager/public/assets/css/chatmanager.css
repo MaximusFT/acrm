@@ -106,16 +106,16 @@
     color: #2b2b2b;
 }
 .onlineAll {
-    background-image: url('http://i.imgur.com/mkKaYHR.png');
+    background-image: url('/chatmanager/assets/img/mkKaYHR.png');
 }
 .onlineAnalysts {
-    background-image: url('http://i.imgur.com/DLSW1OT.png');
+    background-image: url('/chatmanager/assets/img/DLSW1OT.png');
 }
 .onlineClients {
-    background-image: url('http://i.imgur.com/jhzJhsg.png');
+    background-image: url('/chatmanager/assets/img/jhzJhsg.png');
 }
 .settings {
-    background-image: url('http://i.imgur.com/izy6sPB.png');
+    background-image: url('/chatmanager/assets/img/izy6sPB.png');
 }
 .statBubble {
     margin: auto;

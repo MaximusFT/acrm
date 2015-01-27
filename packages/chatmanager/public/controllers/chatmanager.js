@@ -39,14 +39,16 @@ angular.module('mean.chatmanager').controller('ChatmanagerController', ['$scope'
 
         var refreshStats = $interval(function() {
             $http.get('/api/getChatStats', {
-                cache: false
+                params: {
+                    t: new Date().getTime()
+                }
             }).success(function(response) {
                 //$log.info('refresh response', response);
-                if (response.analysts && response.clients) {
+                if (response.analysts && response.clients && response.guests) {
                     $scope.analysts = response.analysts;
                     $scope.clients = response.clients;
-                    $scope.users = response.analysts.concat(response.clients);
-                    $scope.options[0].statNum = response.analysts.length + response.clients.length;
+                    $scope.users = response.analysts.concat(response.clients).concat(response.guests);
+                    $scope.options[0].statNum = response.analysts.length + response.clients.length + response.guests.length;
                     $scope.options[1].statNum = response.analysts.length;
                     $scope.options[2].statNum = response.clients.length;
                 }
