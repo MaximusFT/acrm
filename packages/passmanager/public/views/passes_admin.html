@@ -1,222 +1,177 @@
 <tabset>
-  <tab select="init()">
-    <tab-heading>
-      <i class="glyphicon glyphicon-eye-open">
-      </i>
-      All
-    </tab-heading>
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        Adding new passwords
-      </div>
-      <div class="panel-body">
-        <form id="pass-add-form" class="row-fluid form-inline" name="addPassForm" data-ng-submit="add()">
-		  <div class="row">
-			<div class="col-md-12 btn-group" style="padding: 5px 0px 20px 14px;">
-				<label class="btn btn-primary" data-ng-click="changeModel(0)" ng-model="radioModel" btn-radio="'Left'">Default fields</label>
-				<label class="btn btn-primary" data-ng-click="changeModel(1)" ng-model="radioModel" btn-radio="'Right'">For corporate emails</label>
-			</div>
-			<div data-ng-if="radioModel === 'Left'">
-            <div class="col-md-8">
-              <span data-ng-repeat="field in passSchema">
-                <input data-ng-if="(field['type'] == 'text' || field['type'] == 'password')" type="{{field['type']}}" class="span2" data-ng-model="pass[field['schemaKey']]" placeholder="{{field['title']}}" id="pass-add-title" required />
-              </span>
+    <tab select="init()">
+        <tab-heading> <i class="glyphicon glyphicon-eye-open"></i>
+            All
+        </tab-heading>
+        <div class="panel panel-default">
+            <div class="panel-heading">Adding new passwords</div>
+            <div class="panel-body">
+                <form id="pass-add-form" class="row-fluid form-inline" name="addPassForm" data-ng-submit="add()">
+                    <div class="row">
+                        <div class="col-md-12 btn-group" style="padding: 5px 0px 20px 14px;">
+                            <label class="btn btn-primary" data-ng-click="changeModel(0)" ng-model="radioModel" btn-radio="'Left'">Default fields</label>
+                            <label class="btn btn-primary" data-ng-click="changeModel(1)" ng-model="radioModel" btn-radio="'Right'">For corporate emails</label>
+                        </div>
+                        <div data-ng-if="radioModel === 'Left'">
+                            <div class="col-md-8">
+                                <span data-ng-repeat="field in passSchema">
+                                    <input data-ng-if="(field['type'] == 'text' || field['type'] == 'password')" type="{{field['type']}}" class="span2" data-ng-model="pass[field['schemaKey']]" placeholder="{{field['title']}}" id="pass-add-title" required />
+                                </span>
+                            </div>
+                        </div>
+                        <div data-ng-if="radioModel === 'Right'">
+                            <div class="col-md-8">
+                                <input type="email" class="span2" data-ng-model="pass.corp_email" placeholder="Email" required />
+                                <input type="text" class="span2" data-ng-model="pass.corp_hashed_password" placeholder="********" required />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="submit" class="btn span1" value="Add" />
+                        </div>
+                    </div>
+                </form>
             </div>
-			</div>
-			<div data-ng-if="radioModel === 'Right'">
-				<div class="col-md-8">
-					<input type="email" class="span2" data-ng-model="pass.corp_email" placeholder="Email" required />
-					<input type="text" class="span2" data-ng-model="pass.corp_hashed_password" placeholder="********" required />
-				</div>
-			</div>
-            <div class="col-md-4">
-              <input type="submit" class="btn span1" value="Add" />
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-	
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        Control panel
-      </div>
-      <div class="panel-body" >
-        <div class="row">
-          <div class="col-md-8">
-            <div class="btn-group dropdown">
-              <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" data-ng-disabled="isSomeSelected">
-                Assign selected 
-                <span class="caret">
-                </span>
-              </button>
-              <ul class="dropdown-menu">
-                <li data-ng-click="assignToPerson()">
-                  <a href="">
-                    To person(s)
-                  </a>
-                </li>
-                <li data-ng-click="assignToDepartment()">
-                  <a href="">
-                    To department
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div class="btn-group" style="padding: 10px;">         
-              <input type="button" class="btn btn-danger" value="Remove selected" data-ng-disabled="isSomeSelected" data-ng-click="remove()">
-            </div>
-			<div class="btn-group">   
-			  <input type="button" class="btn btn-primary" value="Revoke selected" data-ng-disabled="isSomeSelected" data-ng-click="revoke()">
-			</div>
-            <input type="text" style="padding: 5px; margin-left: 12px" placeholder="Search" ng-model="search">
-          </div>
         </div>
-      </div>
-    </div>
-	<div cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
-    <accordion close-others="true">
-      <div data-ng-repeat="group in groups" data-ng-init="sectionIndex=$index">
-        <accordion-group is-open="isGroupOpened[sectionIndex]" data-ng-show="getSumLength(group.implement)" heading="{{group.group}} ({{getSumLength(group.implement)}})">
-			<accordion close-others="false" data-ng-if="isGroupOpened[sectionIndex]">
-			<accordion-group data-ng-repeat="implement in group.implement" data-ng-init="implementIndex=$index" data-ng-show="implement.passes.length" heading="{{implement.implement==='---' ? 'Uncategorized' : implement.implement}} ({{implement.passes.length}})">
-          <table class="table table-striped table-bordered table-hover editable-table">
-            <tr>          
-              <th>
-                <i class="glyphicon glyphicon-sort-by-order"></i>
-              </th>
-              <th>
-                <i class="glyphicon glyphicon-ok" data-ng-click="selectAll(sectionIndex, implementIndex)"></i>
-              </th>
-              <th data-ng-repeat="field in passSchema" data-ng-if="field.inTable">
-                {{field.title}}
-              </th>
-            </tr>
-            <tr data-ng-repeat="pass in implement.passes | filter:search:strict" data-ng-init="pid = $index">            
-              <td>
-                <a href="#!/manager/passwords/{{pass['_id']}}">
-                  {{$index+1}}
-                </a>
-              </td>
-              <td>
-                <input type="checkbox" data-ng-model="pass.Selected" data-ng-click="checkPass(sectionIndex, implementIndex, $index, pass)">
-             </td>
-              <td class="table-editable-cell" data-ng-repeat="field in passSchema" data-ng-if="field.inTable">
-                <span data-ng-if="(field['type'] == 'text' && field['type'] !== 'password')" class="editable-span" data-ng-editable="update(pass, field['schemaKey'])" data-ng-editable-model="pass[field['schemaKey']]"></span>      
-				<div class="input-group input-group-sm" data-ng-if="field['type'] === 'password'">
-					<input type="password" class="form-control" data-ng-if="!isPassShown[sectionIndex][implementIndex][pid]" value="********" readonly />
-					<input type="text" class="form-control" data-ng-if="isPassShown[sectionIndex][implementIndex][pid]" value="{{pass[field['schemaKey']]}}" readonly />	
-					<span class="input-group-addon" clip-copy="getPass(pass[field['schemaKey']])"><i class="glyphicon glyphicon-export"></i></span>
-					<span style="cursor:pointer" class="input-group-addon" data-ng-click="showPass(sectionIndex,implementIndex,pid)"><i data-ng-class="isPassShown[sectionIndex][implementIndex][pid] === true ? 'glyphicon glyphicon-eye-open' : 'glyphicon glyphicon-eye-close'"></i></span>
-				</div>				
-              </td>
-            </tr>
-          </table>
-		  </accordion-group>
-		  </accordion>  
-        </accordion-group>
-      </div>
-    </accordion>  
-	</div>
-  </tab>
-  <tab  data-ng-repeat="tab in tabs" select="init__(tab.type)">
-    <tab-heading>
-      <i class="{{tab.icon}}">
-      </i>
-      {{tab.title}}
-    </tab-heading>
-    <div cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false}">
-      <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="requests.length">
-        <tr>
-          <th colspan="6" style="text-transform: uppercase;">
-            Requests from users
-          </th>
-        </tr>
-        <tr>
-          <th>
-            #
-          </th>
-          <th>
-            Who
-          </th>
-          <th>
-            What
-          </th>
-          <th>
-            When
-          </th>
-          <th>
-            Comment
-          </th>
-          <th style="text-align: center;">
-            <i class="glyphicon glyphicon-flag">
-            </i>
-            Actions
-          </th>
-        </tr>
-        <tr data-ng-repeat="request in requests | filter:search:strict">
-          <td>
-            <a href="#!/manager/passwords/{{request['what']._id}}">
-              {{$index+1}}
-            </a>
-            
-          </td>
-          <td>
-            <span>
-                Name: <a href="#!/manager/users/{{request['who'].username}}">{{request['who'].name}}</a>
-                <br \>
-                Username: {{request['who'].username}}
-                <br \>
-                Phone: {{request['who'].phone}}
-            </span>   
-          </td>
-          <td>
-            <span data-ng-if="tab.type === 0">
-              {{request['what'].resourceName}} ({{request['what'].resourceUrl}})
-            </span>
-			<span data-ng-if="tab.type === 1">
-              {{request['info']}}
-            </span>
-			<div data-ng-if="tab.type === 2">
-              <p>Difference:</p>
-			  <div data-ng-repeat="dif in request['info']">
-				<p><em>{{dif.propertyName}}:</em></p>
-				<p class="bg-primary">Old: {{dif.values[0]}}</p>
-				<p class="bg-warning">New: {{dif.values[1]}}</p>
-			  </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">Control panel</div>
+            <div class="panel-body" >
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="btn-group" dropdown>
+                            <button type="button" class="btn btn-warning dropdown-toggle" dropdown-toggle data-ng-disabled="isSomeSelected">
+                                Assign selected
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li data-ng-click="assignToPerson()">
+                                    <a href="">To person(s)</a>
+                                </li>
+                                <li data-ng-click="assignToDepartment()">
+                                    <a href="">To department</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="btn-group" style="padding: 10px;">
+                            <input type="button" class="btn btn-danger" value="Remove selected" data-ng-disabled="isSomeSelected" data-ng-click="remove()"></div>
+                        <div class="btn-group">
+                            <input type="button" class="btn btn-primary" value="Revoke selected" data-ng-disabled="isSomeSelected" data-ng-click="revoke()"></div>
+                        <input type="text" style="padding: 5px; margin-left: 12px" placeholder="Search" ng-model="search"></div>
+                </div>
             </div>
-          </td>
-          <td>
-            <span>
-              {{request['when']}}
-            </span>
-          </td>
-          <td>
-            <span>
-              {{request['comment']}}
-            </span>
-          </td>
-          <td style="text-align: center;">
-            <div class="btn-group">
-              <button data-ng-hide="btn_class[$index] != null || btn_deny_class[$index] != null" ng-class="btn_class[$index] == null ? 'btn btn-danger' : btn_class[$index]" data-ng-click="provideAccess($index, tab.type)" data-ng-disabled="!btn_class[$index] ? false : true">
-                {{tab.btn[0]}}
-              </button>
-              <button data-ng-hide="btn_class[$index] != null || btn_deny_class[$index] != null" ng-class="btn_deny_class[$index] == null ? 'btn btn-warning' : btn_deny_class[$index]" data-ng-click="rejectAccess($index, tab.type)" data-ng-disabled="!btn_deny_class[$index] ? false : true">
-                {{tab.btn[1]}}
-              </button>
-              <button data-ng-show="btn_class[$index] != null || btn_deny_class[$index] != null" class="btn btn-info" data-ng-disabled="true">
-                Done
-              </button>
+        </div>
+        <div cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+            <accordion close-others="true">
+                <div data-ng-repeat="group in groups" data-ng-init="sectionIndex=$index">
+                    <accordion-group is-open="isGroupOpened[sectionIndex]" data-ng-show="getSumLength(group.implement)" heading="{{group.group}} ({{getSumLength(group.implement)}})">
+                        <accordion close-others="false" data-ng-if="isGroupOpened[sectionIndex]">
+                            <accordion-group data-ng-repeat="implement in group.implement" data-ng-init="implementIndex=$index" data-ng-show="implement.passes.length" heading="{{implement.implement==='---' ? 'Uncategorized' : implement.implement}} ({{implement.passes.length}})">
+                                <table class="table table-striped table-bordered table-hover editable-table">
+                                    <tr>
+                                        <th> <i class="glyphicon glyphicon-sort-by-order"></i>
+                                        </th>
+                                        <th>
+                                            <i class="glyphicon glyphicon-ok" data-ng-click="selectAll(sectionIndex, implementIndex)"></i>
+                                        </th>
+                                        <th data-ng-repeat="field in passSchema" data-ng-if="field.inTable">{{field.title}}</th>
+                                    </tr>
+                                    <tr data-ng-repeat="pass in implement.passes | filter:search:strict" data-ng-init="pid = $index">
+                                        <td>
+                                            <a href="#!/manager/passwords/{{pass['_id']}}">{{$index+1}}</a>
+                                        </td>
+                                        <td>
+                                            <input type="checkbox" data-ng-model="pass.Selected" data-ng-click="checkPass(sectionIndex, implementIndex, $index, pass)"></td>
+                                        <td class="table-editable-cell" data-ng-repeat="field in passSchema" data-ng-if="field.inTable">
+                                            <span data-ng-if="(field['type'] == 'text' && field['type'] !== 'password')" class="editable-span" data-ng-editable="update(pass, field['schemaKey'])" data-ng-editable-model="pass[field['schemaKey']]"></span>
+                                            <div class="input-group input-group-sm" data-ng-if="field['type'] === 'password'">
+                                                <input type="password" class="form-control" data-ng-if="!isPassShown[sectionIndex][implementIndex][pid]" value="********" readonly />
+                                                <input type="text" class="form-control" data-ng-if="isPassShown[sectionIndex][implementIndex][pid]" value="{{pass[field['schemaKey']]}}" readonly />
+                                                <span class="input-group-addon" clip-copy="getPass(pass[field['schemaKey']])">
+                                                    <i class="glyphicon glyphicon-export"></i>
+                                                </span>
+                                                <span style="cursor:pointer" class="input-group-addon" data-ng-click="showPass(sectionIndex,implementIndex,pid)">
+                                                    <i data-ng-class="isPassShown[sectionIndex][implementIndex][pid] === true ? 'glyphicon glyphicon-eye-open' : 'glyphicon glyphicon-eye-close'"></i>
+                                                </span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </accordion-group>
+                        </accordion>
+                    </accordion-group>
+                </div>
+            </accordion>
+        </div>
+    </tab>
+    <tab  data-ng-repeat="tab in tabs" select="init__(tab.type)">
+        <tab-heading>
+            <i class="{{tab.icon}}"></i>
+            {{tab.title}}
+        </tab-heading>
+        <div cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false}">
+            <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="requests.length">
+                <tr>
+                    <th colspan="6" style="text-transform: uppercase;">Requests from users</th>
+                </tr>
+                <tr>
+                    <th>#</th>
+                    <th>Who</th>
+                    <th>What</th>
+                    <th>When</th>
+                    <th>Comment</th>
+                    <th style="text-align: center;">
+                        <i class="glyphicon glyphicon-flag"></i>
+                        Actions
+                    </th>
+                </tr>
+                <tr data-ng-repeat="request in requests | filter:search:strict">
+                    <td>
+                        <a href="#!/manager/passwords/{{request['what']._id}}">{{$index+1}}</a>
+
+                    </td>
+                    <td>
+                        <span>
+                            Name:
+                            <a href="#!/manager/users/{{request['who'].username}}">{{request['who'].name}}</a>
+                            <br \>
+                            Username: {{request['who'].username}}
+                            <br \>Phone: {{request['who'].phone}}</span>
+                    </td>
+                    <td>
+                        <span data-ng-if="tab.type === 0">
+                            {{request['what'].resourceName}} ({{request['what'].resourceUrl}})
+                        </span>
+                        <span data-ng-if="tab.type === 1">{{request['info']}}</span>
+                        <div data-ng-if="tab.type === 2">
+                            <p>Difference:</p>
+                            <div data-ng-repeat="dif in request['info']">
+                                <p> <em>{{dif.propertyName}}:</em>
+                                </p>
+                                <p class="bg-primary">Old: {{dif.values[0]}}</p>
+                                <p class="bg-warning">New: {{dif.values[1]}}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span>{{request['when']}}</span>
+                    </td>
+                    <td>
+                        <span>{{request['comment']}}</span>
+                    </td>
+                    <td style="text-align: center;">
+                        <div class="btn-group">
+                            <button data-ng-hide="btn_class[$index] != null || btn_deny_class[$index] != null" ng-class="btn_class[$index] == null ? 'btn btn-danger' : btn_class[$index]" data-ng-click="provideAccess($index, tab.type)" data-ng-disabled="!btn_class[$index] ? false : true">{{tab.btn[0]}}</button>
+                            <button data-ng-hide="btn_class[$index] != null || btn_deny_class[$index] != null" ng-class="btn_deny_class[$index] == null ? 'btn btn-warning' : btn_deny_class[$index]" data-ng-click="rejectAccess($index, tab.type)" data-ng-disabled="!btn_deny_class[$index] ? false : true">{{tab.btn[1]}}</button>
+                            <button data-ng-show="btn_class[$index] != null || btn_deny_class[$index] != null" class="btn btn-info" data-ng-disabled="true">Done</button>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <div data-ng-if="!isRequests">
+                <br \>
+                <p class='bg-warning'>There are not unprocessed requests.</p>
             </div>
-          </td>
-        </tr>
-      </table>
-      <div data-ng-if="!isRequests">
-        <br \>
-        <p class='bg-warning'>
-          There are not unprocessed requests.
-        </p>
-      </div>
-    </div>
-  </tab>
+        </div>
+    </tab>
 </tabset>

@@ -1,0 +1,26 @@
+.error {
+    color: red;
+}
+.tag {
+    display: block;
+    float: left;
+    margin-right: .33em;
+    border-radius: .5em;
+    background-color: #d9edf7;
+    line-height: 1.5em;
+    padding: 0 .5em;
+    border: 1px solid #39A0A8;
+    color: #333;
+    text-decoration: none;
+    transition: all .25s ease;
+    /*&:hover {
+        border-right-width: 4px;
+        border-bottom-width: 4px;
+        margin-top: -3px;
+        margin-left: -3px;
+    }*/
+}
+.myGrid {
+    width: 500px;
+    height: 250px;
+}

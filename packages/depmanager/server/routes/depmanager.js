@@ -13,6 +13,7 @@ module.exports = function(Depmanager, app, auth, database) {
     app.delete('/api/departments/:departmentId', auth.requiresLogin, departments.destroy);
     app.post('/api/addNewDepartmentBranch', auth.requiresLogin, departments.addNewDepartmentBranch);
     app.get('/api/getDeps', auth.requiresLogin, departments.getDeps);
+    app.get('/api/getNewDeps', auth.requiresLogin, departments.getNewDeps);
     app.post('/api/changeParent', auth.requiresAdmin, departments.changeParent);
 	//app.get('/api/getGroups', auth.requiresLogin, departments.groups);
 	//app.get('/api/getPassesByGroup', auth.requiresLogin, departments.passesByGroup);

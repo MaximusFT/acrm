@@ -241,6 +241,7 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 				};
 
 				modalService.showModal({}, modalOptions).then(function (result) {
+					//$log.info('from modal', result);
 					var users = [];
 					angular.forEach($scope.isUserSelected, function (department, did) {
 						angular.forEach(department, function (user, uid) {
@@ -253,7 +254,7 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 						method : 'POST',
 						data : {
 							'users' : users,
-							'dep' : result._id
+							'dep' : result
 						}
 					})
 					.then(function (response) {

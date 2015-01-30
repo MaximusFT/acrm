@@ -1,93 +1,77 @@
 <div class="panel panel-default">
-	<div class="panel-heading">Adding new users</div>
-	<div class="panel-body">
-    <form id="pass-add-form" class="row-fluid form-inline" name="addUserForm" data-ng-submit="add()">
-        <div class="row">
-			<div class="col-md-8">
-            <span data-ng-repeat="field in userSchema">
-                <input data-ng-if="(field['type'] == 'text' || field['type'] == 'password')" type="{{field['type']}}" class="span2" data-ng-model="user[field['schemaKey']]" placeholder="{{field['title']}}" id="user-add-title" />
-                <select class="form-control" data-ng-if="field['type'] == 'select'" data-ng-model="user[field['schemaKey']]" ng-multiple="true" multiple ng-options="option for option in field['options']">
-                    <option value="">-- Choose Role --</option>
-                </select>
-            </span>
-			</div>
-			<div class="col-md-4">
-            <input type="submit" class="btn span1" value="Add" />			
-			</div>
-        </div>
-    </form>
-	</div>
-	</div>
-	<div class="panel panel-default">
-	<div class="panel-heading">Control panel</div>
-	<div class="panel-body">
-	<div>
-			 <div class="btn-group dropdown">
-              <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" data-ng-disabled="isSomeSelected">
-                Assign role 
-                <span class="caret">
-                </span>
-              </button>
-              <ul class="dropdown-menu" data-ng-hide="isSomeSelected">
-                <li data-ng-click="assignRole(1)">
-                  <a href="">
-                    Administrator
-                  </a>
-                </li>
-                <li data-ng-click="assignRole(2)">
-                  <a href="">
-                    Manager
-                  </a>
-                </li>
-				<li data-ng-click="assignRole(3)">
-                  <a href="">
-                    Employee
-                  </a>
-                </li>
-              </ul>
+    <div class="panel-heading">Adding new users</div>
+    <div class="panel-body">
+        <form id="pass-add-form" class="row-fluid form-inline" name="addUserForm" data-ng-submit="add()">
+            <div class="row">
+                <div class="col-md-8">
+                    <span data-ng-repeat="field in userSchema">
+                        <input data-ng-if="(field['type'] == 'text' || field['type'] == 'password')" type="{{field['type']}}" class="span2" data-ng-model="user[field['schemaKey']]" placeholder="{{field['title']}}" id="user-add-title" />
+                        <select class="form-control" data-ng-if="field['type'] == 'select'" data-ng-model="user[field['schemaKey']]" ng-multiple="true" multiple ng-options="option for option in field['options']">
+                            <option value="">-- Choose Role --</option>
+                        </select>
+                    </span>
+                </div>
+                <div class="col-md-4">
+                    <input type="submit" class="btn span1" value="Add" />
+                </div>
             </div>
-            <div class="btn-group" style="padding: 5px;">         
-              <input type="button" class="btn btn-info" value="Bind to the department" data-ng-disabled="isSomeSelected" data-ng-click="bind2dep()">
+        </form>
+    </div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">Control panel</div>
+    <div class="panel-body">
+        <div>
+            <div class="btn-group" dropdown>
+                <button type="button" class="btn btn-warning dropdown-toggle" dropdown-toggle data-ng-disabled="isSomeSelected">
+                    Assign role
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li data-ng-click="assignRole(1)">
+                        <a href="">Administrator</a>
+                    </li>
+                    <li data-ng-click="assignRole(2)">
+                        <a href="">Manager</a>
+                    </li>
+                    <li data-ng-click="assignRole(3)">
+                        <a href="">Employee</a>
+                    </li>
+                </ul>
             </div>
-			<div class="btn-group" style="padding: 5px;">   
-			  <input type="button" class="btn btn-primary" value="Clear accesses" data-ng-disabled="isSomeSelected" data-ng-click="clearAccesses()">
-			</div>
-			<div class="btn-group" style="padding: 5px;">   
-			  <input type="button" class="btn btn-danger" value="Remove" data-ng-disabled="isSomeSelected" data-ng-click="remove()">
-			</div>
-            <input type="text" style="padding: 5px; margin-left: 12px" placeholder="Search" ng-model="search">
-          </div>
-	</div>
+            <div class="btn-group" style="padding: 5px;">
+                <input type="button" class="btn btn-info" value="Bind to the department" data-ng-disabled="isSomeSelected" data-ng-click="bind2dep()"></div>
+            <div class="btn-group" style="padding: 5px;">
+                <input type="button" class="btn btn-primary" value="Clear accesses" data-ng-disabled="isSomeSelected" data-ng-click="clearAccesses()"></div>
+            <div class="btn-group" style="padding: 5px;">
+                <input type="button" class="btn btn-danger" value="Remove" data-ng-disabled="isSomeSelected" data-ng-click="remove()"></div>
+            <input type="text" style="padding: 5px; margin-left: 12px" placeholder="Search" ng-model="search"></div>
+    </div>
 </div>
 <div class="loader" data-ng-init="init()" data-ng-hide="departments.length"></div>
 <div cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
-<div data-ng-repeat="department in departments" data-ng-init="sectionIndex=$index">
-	<h1 data-ng-show="department.users.length">{{department.department}}</h1>
-    <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="department.users.length">
-        <tr>
-            <th>
-                <i class="glyphicon glyphicon-sort-by-order"></i>
-            </th>
-            <th>
-                <i class="glyphicon glyphicon-ok" data-ng-click="selectAll(sectionIndex)"></i>
-            </th>
-            <th data-ng-repeat="field in userSchema" data-ng-if="field.inTable">{{field.title}}</th>
-			<th>Role</th>
-        </tr>
-        <tr data-ng-repeat="user in department.users | filter:search:strict">
-            <td>
-                <a href="#!/manager/users/{{user['username']}}">
-					{{$index+1}}
-                </a>
-            </td>
-            <td>
-                <input type="checkbox" data-ng-model="user.Selected" data-ng-click="checkUser(sectionIndex, $index, user)">
-            </td>
-            <td class="table-editable-cell" data-ng-repeat="field in userSchema" data-ng-if="field.inTable">
-				<span data-ng-click="beforeSelect(field['schemaKey'], user)" class="editable-span" data-ng-editable="update(user, field['schemaKey'])" data-ng-editable-model="user[field['schemaKey']]"></span>
-            </td>
-			<td style="text-align:center;font-weight:bold;">{{user.roles}}</td>
-        </tr>
-    </table>
-</div>
+    <div data-ng-repeat="department in departments" data-ng-init="sectionIndex=$index">
+        <h1 data-ng-show="department.users.length">{{department.department}}</h1>
+        <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="department.users.length">
+            <tr>
+                <th> <i class="glyphicon glyphicon-sort-by-order"></i>
+                </th>
+                <th> <i class="glyphicon glyphicon-ok" data-ng-click="selectAll(sectionIndex)"></i>
+                </th>
+                <th data-ng-repeat="field in userSchema" data-ng-if="field.inTable">{{field.title}}</th>
+                <th>Role</th>
+            </tr>
+            <tr data-ng-repeat="user in department.users | filter:search:strict">
+                <td>
+                    <a href="#!/manager/users/{{user['username']}}">{{$index+1}}</a>
+                </td>
+                <td>
+                    <input type="checkbox" data-ng-model="user.Selected" data-ng-click="checkUser(sectionIndex, $index, user)"></td>
+                <td class="table-editable-cell" data-ng-repeat="field in userSchema" data-ng-if="field.inTable">
+                    <span data-ng-click="beforeSelect(field['schemaKey'], user)" class="editable-span" data-ng-editable="update(user, field['schemaKey'])" data-ng-editable-model="user[field['schemaKey']]"></span>
+                </td>
+                <td style="text-align:center;font-weight:bold;">{{user.roles}}</td>
+            </tr>
+        </table>
+    </div>
 </div>

@@ -1,4 +1,8 @@
 <div>
-	<!--<input type="text" class="form-control" data-ng-model="comment" data-ng-change="setComment(comment)"  />-->
-	<select class="form-control" data-ng-init="initDeps()" data-ng-model="comment" data-ng-options="department as department.name for department in departments" data-ng-change="setComment(comment)"></select>
+	<form id="modalForm" name="bindToDepForm" data-ng-submit="verifyAndSendForm(!!temp.selectedDepartment, temp.selectedDepartment)">
+		<ui-select data-ng-init="initDeps()" data-ng-model="temp.selectedDepartment" title="Choose a department">
+			<ui-select-match placeholder="Select departments...">{{$select.selected.name}}</ui-select-match>
+			<ui-select-choices repeat="department._id as department in departments | filter: $select.search">{{department.name}}</ui-select-choices>
+		</ui-select>
+	</form>
 </div>

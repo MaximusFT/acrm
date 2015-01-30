@@ -6,14 +6,24 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
     $scope.selectedUsers = [];
     $scope.selectedLabels = [];
     $scope.comment = '';
-    $scope.selectedDepartments = [];
+    $scope.temp = {};
+    $scope.temp.selectedDepartment = '';
+    $scope.temp.selectedDepartments = [];
+    $scope.temp.tempPass = '';
     $scope.ok = function() {
         $log.info('ok');
         //$modalInstance.close($scope.selected.item);
     };
     $scope.editprp = $scope.modalOptions.editprp;
-    $scope.newDepartment = {};
+    $scope.newDepartment = $scope.server = $scope.site = {};
     $scope.parent = null;
+    $scope.types = [{
+        name: 'Physical Server',
+        val: 0
+    }, {
+        name: 'VPS/VDS',
+        val: 1
+    }];
 
     $scope.cancel = function() {
         $log.info('cancel');
@@ -36,19 +46,20 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
     };
 
     $scope.initDeps = function() {
-        $http.get('/api/getDeps')
+        $http.get('/api/getNewDeps')
             .success(function(data) {
                 //$log.info(data);
                 $scope.departments = data;
 
-                if($scope.modalOptions && $scope.modalOptions.selectedID && $scope.departments) {
+                if ($scope.modalOptions && $scope.modalOptions.selectedID && $scope.departments) {
                     var result = $scope.departments.filter(function(dep) {
                         return dep._id === $scope.modalOptions.selectedID;
                     });
-                    if(result.length > 0)
-                        $scope.newDepartment.parent = result[0];
+                    if (result.length > 0 && result[0]._id)
+                        $scope.newDepartment.parent = result[0]._id;
                 } else {
-                    $scope.newDepartment.parent = $scope.departments[0];
+                    if($scope.departments[0] && $scope.departments[0]._id)
+                        $scope.newDepartment.parent = $scope.departments[0]._id;
                 }
             })
             .error(function() {
@@ -82,14 +93,17 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
         $scope.editprp.password = val;
     };
 
-    $scope.verifyAndSendForm = function (newDepartment) {
-        //$log.warn(newDepartment);
-    	if(!newDepartment || !newDepartment.title || !newDepartment.head ||!newDepartment.head._id || newDepartment.level === null || !newDepartment.parent || !newDepartment.parent._id)
-    		$scope.isError = true;
-    	else {
+    $scope.verifyAndSendForm = function(isFormValid, data) {
+        $log.warn(isFormValid, data);
+        if(isFormValid) {
+            $scope.modalOptions.ok(data);
+        }
+        /*if (!newDepartment || !newDepartment.title || !newDepartment.head || !newDepartment.head._id || newDepartment.level === null || !newDepartment.parent || !newDepartment.parent._id)
+            $scope.isError = true;
+        else {
             newDepartment.head = newDepartment.head._id;
             newDepartment.parent = newDepartment.parent._id;
-    		$scope.modalOptions.ok(newDepartment);
-        }
+            $scope.modalOptions.ok(newDepartment);
+        }*/
     };
 });

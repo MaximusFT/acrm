@@ -1,7 +1,8 @@
 <div>
 	<pre>--> {{selectedLabels.join('\n--> ')}}</pre>
-	<div class="input-group">
-		<input class="form-control" type="text" data-ng-model="asyncSelected" placeholder="Type name, email or username" typeahead="user as (user.name + ' (' + user.username + '), ' + user.email + ', ' + user.department) for user in getUsers($viewValue)" typeahead-loading="loadingUsers" typeahead-on-select="selectedUser($item, $model, $label); asyncSelected='';">
-		<i data-ng-class="loadingUsers ? 'glyphicon glyphicon-refresh input-group-addon' : 'glyphicon glyphicon-hand-left input-group-addon'"></i>
-	</div>
+	<form id="modalForm" name="addPersonsForm" data-ng-submit="verifyAndSendForm(selectedUsers && selectedUsers.length > 0, selectedUsers)">
+		<div class="input-group">
+			<input class="form-control" type="text" data-ng-model="asyncSelected" placeholder="Type name, email or username" typeahead="user as (user.name + ' (' + user.username + '), ' + user.email + ', ' + user.department) for user in getUsers($viewValue)" typeahead-loading="loadingUsers" typeahead-on-select="selectedUser($item, $model, $label); asyncSelected='';" /> <i data-ng-class="loadingUsers ? 'glyphicon glyphicon-refresh input-group-addon' : 'glyphicon glyphicon-hand-left input-group-addon'"></i>
+		</div>
+	</form>
 </div>

@@ -1,8 +1,9 @@
 <div>
-	<!--<input type="text" class="form-control" data-ng-model="comment" data-ng-change="setComment(comment)"  />-->
-	<!--<select class="form-control" data-ng-init="initDeps()" data-ng-model="comment" data-ng-options="department as department.name for department in departments" data-ng-change="setComment(comment)" multiple></select>-->
-	<ui-select multiple data-ng-init="initDeps()" data-ng-model="selectedDepartments" required>
-		<ui-select-match placeholder="Select departments...">{{$item.name}}</ui-select-match>
-		<ui-select-choices repeat="department in departments | filter:$select.search">{{department.name}}</ui-select-choices>
-	</ui-select>
+	<form id="modalForm" name="addDepsForm" data-ng-submit="verifyAndSendForm(!!temp.selectedDepartments.length, temp.selectedDepartments)">
+		<ui-select multiple data-ng-init="initDeps()" data-ng-model="temp.selectedDepartments" required>
+			<ui-select-match placeholder="Select departments...">{{$item.name}}</ui-select-match>
+			<ui-select-choices repeat="department._id as department in departments | filter:$select.search">{{department.name}}</ui-select-choices>
+		</ui-select>
+		<span class="error" data-ng-show="addDepsForm.$submitted && (!selectedDepartments || selectedDepartments.length === 0)">Required</span>
+	</form>
 </div>

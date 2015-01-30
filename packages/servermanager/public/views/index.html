@@ -1,0 +1,77 @@
+<div class="" data-ng-controller="ServermanagerController">
+    <h1>Server Infrastructure</h1>
+    <br />
+    <div class="row">
+        <div class="col-md-4" data-ng-init="init()" cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+            <legend>Servers</legend>
+            <div class="input-group">
+                <span type="button" class="input-group-addon" style="cursor:pointer;" data-ng-click="addServer()" popover="Add new server" popover-trigger="mouseenter"> <i class="glyphicon glyphicon-plus"></i>
+                </span>
+                <input type="text" class="form-control" data-ng-model="search" placeholder="Search" />
+            </div>
+            <br />
+            <ul class="nav nav-pills nav-stacked" data-ng-repeat="server in servers | filter:search" data-ng-if="servers.length">
+                <li role="presentation">
+                    <span style="line-height:3;">
+                        <a href="" data-ng-click="selectServer(server, $index)">
+                            <span> <i class="glyphicon glyphicon-hdd"></i>
+                                &nbsp;&nbsp;{{server.ip}} ({{server.location}})
+                            </span>
+                        </a>
+                        <button type="button" class="btn btn-xs btn-danger" style="float:right;margin-top:9px;" data-ng-click="removeServer(server, $index)" data-ng-show="isVisibleRemoveButton[$index] === true">
+                            <i class="glyphicon glyphicon-remove"></i>
+                        </button>
+                    </span>
+                </li>
+            </ul>
+            <alert type="info" data-ng-if="!servers || !servers.length">No servers</alert>
+        </div>
+        <div class="col-md-8">
+            <legend>Information</legend>
+            <div data-ng-if="!selectedServer">
+                <p>Choose server.</p>
+            </div>
+            <div cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}" data-ng-if="selectedServer">
+                <h3> <strong>{{selectedServer.ip}}</strong>
+                </h3>
+                <p data-ng-if="selectedServer.ips && selectedServer.ips.length" style="display:inline-flex;"> <strong style="float:left;">Other IPs:</strong>
+                    &nbsp;
+                    <span data-ng-repeat="ip in selectedServer.ips">
+                        <a href="#" class="tag">{{ip}}</a>
+                    </span>
+                </p>
+                <p>
+                    <strong>Location:</strong>
+                    {{selectedServer.location}}
+                </p>
+                <p>
+                    <strong>Type:</strong>
+                    {{selectedServer.type === 0 ? 'Physical Server' : 'VPS/VDS'}}
+                </p>
+                <div cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+                    <br />
+                    <legend>Deployed sites <i class="glyphicon glyphicon-plus" style="float:right;cursor:pointer;" data-ng-click="addSite()"></i></legend>
+                    <alert type="info" data-ng-if="!deployedSites.length">No sites yet</alert>
+                    <br />
+                    <table class="table table-striped table-bordered table-hover" data-ng-if="deployedSites.length">
+                        <tr>
+                            <th><i class="glyphicon glyphicon-sort-by-order-alt"></i></th>
+                            <th>Title</th>
+                            <th>Link</th>
+                            <th>IP</th>
+                            <th>Comment</th>
+                        </tr>
+                        <tr data-ng-repeat="site in deployedSites">
+                            <td>{{$index+1}}.</td>
+                            <td>{{site.title}}</td>
+                            <td><a href="{{site.uri}}">go to</a></td>
+                            <td>{{site.ip}}</td>
+                            <td>{{site.comment}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- data-ng-blur="isVisibleRemoveButton[$index] = false" -->
