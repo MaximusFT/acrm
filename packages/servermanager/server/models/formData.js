@@ -3,23 +3,28 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
-var FormDataSchema = new Schema({
+var FormBindedDataSchema = new Schema({
     name: {
-        type: String,
-        required: true
+        type: String
     },
     id: {
-        type: String,
-        required: true
+        type: String
     },
     appointment: {
         type: String,
         required: true
     },
+    comment: {
+        type: String
+    },
+    inForm: {
+        type: Boolean
+    },
     form: {
         type: Schema.ObjectId,
-        ref: 'Form'
+        ref: 'Form',
+        required: true
     }
 });
 
-mongoose.model('FormData', FormDataSchema);
+mongoose.model('FormBindedData', FormBindedDataSchema);

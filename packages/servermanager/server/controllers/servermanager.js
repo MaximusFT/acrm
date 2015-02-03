@@ -51,9 +51,10 @@ exports.server = function(req, res) {
                         .find({
                             server: req.query.server
                         }, {
-                        	title: 1,
-                        	uri: 1,
-                        	ip: 1
+                            title: 1,
+                            uri: 1,
+                            ip: 1,
+                            comment: 1
                         }, function(err, sites) {
                             if (err) {
                                 console.log(err);
@@ -84,6 +85,32 @@ exports.deleteServer = function(req, res) {
                 return res.status(500).send(err);
             } else {
                 return res.status(200).send();
+            }
+        });
+};
+
+exports.updateServer = function(req, res) {
+    if (!req.body || !req.body.params || !req.body.params.difs || !req.params || !req.params.server)
+        return res.status(500).send('Empty query');
+    var server = {};
+    _.forEach(req.body.params.difs, function(dif) {
+    	console.log('dif', dif);
+        if (dif.propertyName && dif.values.length === 2)
+            server[dif.propertyName] = dif.values[1];
+    });
+    console.log(server);
+    Server
+        .findOneAndUpdate({
+            _id: req.params.server
+        }, {
+            $set: server
+        }, function(err, updated) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                //console.log('updated', updated);
+                return res.jsonp(updated);
             }
         });
 };

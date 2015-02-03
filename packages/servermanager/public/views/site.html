@@ -1,0 +1,131 @@
+<section data-ng-controller="SiteController">
+	<div data-ng-init="init()" cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+		<h1>Site Overview - {{site.title}}</h1>
+		<hr />
+		<table class="table table-striped table-bordered table-hover editable-table">
+			<tr>
+				<th>Title</th>
+				<th>URI</th>
+				<th>Go</th>
+				<th>IP</th>
+				<th>Comment</th>
+			</tr>
+			<tr>
+				<td class="table-editable-cell">
+					<span class="editable-span" data-ng-editable="updateSite(site, 'title')" data-ng-editable-model="site.title"></span>
+				</td>
+				<td class="table-editable-cell">
+					<span class="editable-span" data-ng-editable="updateSite(site, 'uri')" data-ng-editable-model="site.uri"></span>
+				</td>
+				<td>
+					<a href="{{site.uri}}" target="_blank">link</a>
+				</td>
+				<td class="table-editable-cell">
+					<span class="editable-span" data-ng-editable="updateSite(site, 'ip')" data-ng-editable-model="site.ip"></span>
+				</td>
+				<td class="table-editable-cell">
+					<span class="editable-span" data-ng-editable="updateSite(site, 'comment')" data-ng-editable-model="site.comment"></span>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="row">
+		<div class="col-md-3" data-ng-init="initForms()" cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+			<legend>Forms</legend>
+			<div class="input-group">
+				<span type="button" class="input-group-addon" style="cursor:pointer;" data-ng-click="addForm()" popover="Add new form" popover-trigger="mouseenter"> <i class="glyphicon glyphicon-plus"></i>
+				</span>
+				<input type="text" class="form-control" data-ng-model="search" placeholder="Search" />
+			</div>
+			<br />
+			<ul class="nav nav-pills nav-stacked" data-ng-repeat="form in forms | filter:search" data-ng-if="forms.length">
+				<li role="presentation">
+					<span style="line-height:3;">
+						<a href="" data-ng-click="selectForm(form, $index)">
+							<span style="font-family:monospace;"> <i class="glyphicon glyphicon-list-alt"></i>
+								&nbsp;{{form.name}} ({{form.formId}})
+							</span>
+						</a>
+						<button type="button" class="btn btn-xs btn-danger" style="float:right;margin-top:9px;" data-ng-click="removeForm(form, $index)" data-ng-show="isVisibleRemoveButton[$index] === true">
+							<i class="glyphicon glyphicon-remove"></i>
+						</button>
+					</span>
+				</li>
+			</ul>
+			<alert type="info" data-ng-if="!forms || !forms.length">No forms</alert>
+		</div>
+		<div class="col-md-9">
+			<legend>Information</legend>
+			<div data-ng-if="!selectedForm">
+				<p>Choose form.</p>
+			</div>
+			<div data-ng-if="selectedForm">
+				<h3 style="text-align:center;">Form {{selectedForm.name}}</h3>
+				<p> <strong>ID (in html):</strong>
+					{{selectedForm.formId}}
+				</p>
+				<p> <strong>Located</strong>
+					on the
+					<a href="{{selectedForm.uri}}" target="_blank">page</a>
+				</p>
+				<p>
+					<strong>Comment:</strong>
+					{{selectedForm.comment}}
+				</p>
+				<br />
+				<legend>
+					Binded data
+					<i class="glyphicon glyphicon-plus" style="float:right;cursor:pointer;" data-ng-click="addFormData()"></i>
+				</legend>
+				<alert type="info" data-ng-if="!bindedData.length">No data yet</alert>
+				<br />
+				<div data-ng-if="bindedData.length">
+					<alert type="info">
+						"Appointment" is a field, which means how to interpret it in form processing. For example, you can use "name", "email", "phone", "country", "comment". In the future assuming this value the form data will be distributed on the same fields in Inside web requests, etc.
+					</alert>
+					<div style="float:right;">
+						<label for="irm1">Remove mode</label>
+						<input id="irm1" type="checkbox" class="btn" data-ng-model="removeMode" />
+					</div>
+					<table class="table table-striped table-bordered table-hover editable-table">
+						<tr>
+							<th>
+								<i class="glyphicon glyphicon-sort-by-order-alt"></i>
+							</th>
+							<th>Name</th>
+							<th>ID</th>
+							<th>Appointment</th>
+							<th>Is in form?</th>
+							<th>Comment</th>
+							<th data-ng-show="removeMode">
+								<i class="glyphicon glyphicon-trash"></i>
+							</th>
+						</tr>
+						<tr data-ng-repeat="data in bindedData">
+							<td>{{$index+1}}.</td>
+							<td class="table-editable-cell">
+								<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="data.name"></span>
+							</td>
+							<td class="table-editable-cell {{isError[$index].id === true ? 'td-error' : ''}}">
+								<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="data.id"></span>
+							</td>
+							<td class="table-editable-cell {{isError[$index].appointment === true ? 'td-error' : ''}}">
+								<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="data.appointment"></span>
+							</td>
+							<td class="{{isError[$index].inForm === true ? 'td-error' : ''}}" style="text-align:center;">
+								<input type="checkbox" data-ng-model="data.inForm" style="-ms-transform:scale(1.5);-moz-transform:scale(1.5);-webkit-transform:scale(1.5);-o-transform: scale(1.5);" />
+							</td>
+							<td class="table-editable-cell">
+								<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="data.comment"></span>
+							</td>
+							<td data-ng-show="removeMode" style="text-align:center;">
+								<input class="btn btn-danger btn-xs" type="button" value="Remove" data-ng-click="removeBindedData(data, $index)" />
+							</td>
+						</tr>
+					</table>
+					<input type="button" class="btn btn-danger" style="float:right;" value="Save changes" data-ng-click="saveBindedData(bindedData)" data-ng-disabled="!saveEnabled" />
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

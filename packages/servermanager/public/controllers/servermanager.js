@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('mean.servermanager').controller('ServermanagerController', ['$scope', '$http', '$log', 'Global', 'Servermanager', 'modalService',
-    function($scope, $http, $log, Global, Servermanager, modalService) {
+angular.module('mean.servermanager').controller('ServermanagerController', ['$scope', '$http', '$log', '$window', 'Global', 'Servermanager', 'modalService',
+    function($scope, $http, $log, $window, Global, Servermanager, modalService) {
         $scope.global = Global;
         $scope.isVisibleRemoveButton = [];
         $scope.deployedSites = [];
@@ -16,7 +16,7 @@ angular.module('mean.servermanager').controller('ServermanagerController', ['$sc
         $scope.init = function() {
             $scope.getHttp1 = $http.get('/api/servers').success(function(response) {
                 $scope.servers = response;
-                $log.info(response);
+                //$log.info(response);
             }).error(function(err) {
                 $log.error(err);
             });
@@ -53,11 +53,65 @@ angular.module('mean.servermanager').controller('ServermanagerController', ['$sc
                     server: server._id
                 }
             }).success(function(response) {
-                $log.info('select server', response);
+                //$log.info('select server', response);
                 $scope.selectedServer = response.server;
                 $scope.deployedSites = response.sites;
             }).error(function(err) {
                 $log.error(err);
+            });
+        };
+
+        $scope.editServer = function(server) {
+            var modalOptions = {
+                closeButtonText: 'Cancel',
+                actionButtonText: 'Confirm',
+                headerText: 'Editing server',
+                bodyText: 'Update information about server.',
+                server: server,
+                type: 8
+            };
+
+            modalService.showModal({}, modalOptions).then(function(result) {
+                /* jshint ignore:start */
+                var difs = [],
+                    ips = [];
+                for (var property in server) {
+                    if (server[property] !== result[property]) {
+                        if (property !== 'ips') {
+                            var t = {};
+                            t.propertyName = property;
+                            t.values = [server[property], result[property]];
+                            difs.splice(difs.length, 0, t);
+                        } else {
+                            angular.forEach(result.ips, function(ip) {
+                                ips.push(ip.text);
+                            });
+                            if (server[property].toString() !== ips.toString()) {
+                                difs.splice(difs.length, 0, {
+                                    propertyName: property,
+                                    values: [server[property], ips]
+                                });
+                            }
+                        }
+                    }
+                }
+                $http.put('/api/server/' + server._id, {
+                    params: {
+                        difs: difs
+                    }
+                }).success(function(response) {
+                    angular.forEach($scope.servers, function(s, index) {
+                        if (s._id === response._id) {
+                            $scope.servers.splice(index, 1);
+                            $scope.servers.splice(index, 0, response);
+                        }
+                        if (s._id === $scope.selectedServer._id)
+                            $scope.selectedServer = response;
+                    });
+                }).error(function(err) {
+                    $log.error(err);
+                });
+                /* jshint ignore:end */
             });
         };
 
@@ -69,6 +123,8 @@ angular.module('mean.servermanager').controller('ServermanagerController', ['$sc
                     }
                 }).success(function(response) {
                     $scope.servers.splice(index, 1);
+                    if ($scope.selectedServer._id === server._id)
+                        $scope.selectedServer = null;
                 }).error(function(err) {
                     $log.error(err);
                 });
@@ -96,6 +152,25 @@ angular.module('mean.servermanager').controller('ServermanagerController', ['$sc
                 }).error(function(err) {
                     $log.error(err);
                 });
+            });
+        };
+
+        $scope.updateSite = function(site, field) {
+            $http.put('/api/servers/site/' + site._id, {
+                params: {
+                    key: field,
+                    val: site[field]
+                }
+            }).error(function(err) {
+                $log.error(err);
+            });
+        };
+
+        $scope.removeSite = function(site, index) {
+            $http.delete('/api/servers/site/' + site._id).success(function(response) {
+                $scope.deployedSites.splice(index, 1);
+            }).error(function(err) {
+                $log.error(err);
             });
         };
     }

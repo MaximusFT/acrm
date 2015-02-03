@@ -24,6 +24,8 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
         name: 'VPS/VDS',
         val: 1
     }];
+    if($scope.modalOptions.server)
+        $scope.server = JSON.parse(JSON.stringify($scope.modalOptions.server));
 
     $scope.cancel = function() {
         $log.info('cancel');

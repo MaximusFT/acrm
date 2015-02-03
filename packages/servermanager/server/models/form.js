@@ -8,11 +8,11 @@ var FormSchema = new Schema({
         type: String,
         required: true
     },
-    formID: {
+    formId: {
         type: String,
         required: true
     },
-    URI: {
+    uri: {
         type: String,
         required: true
     },

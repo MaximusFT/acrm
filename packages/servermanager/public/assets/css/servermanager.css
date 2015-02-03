@@ -1,5 +1,11 @@
+th {
+    text-align: center;
+}
 .error {
     color: red;
+}
+.td-error {
+    background: red;
 }
 .tag {
     display: block;
