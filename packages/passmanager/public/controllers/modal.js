@@ -26,6 +26,8 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
     }];
     if($scope.modalOptions.server)
         $scope.server = JSON.parse(JSON.stringify($scope.modalOptions.server));
+    if($scope.modalOptions.form)
+        $scope.form = JSON.parse(JSON.stringify($scope.modalOptions.form));
 
     $scope.cancel = function() {
         $log.info('cancel');

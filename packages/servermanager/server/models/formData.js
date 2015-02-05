@@ -12,7 +12,11 @@ var FormBindedDataSchema = new Schema({
     },
     appointment: {
         type: String,
+        enum: ['Name', 'Email', 'Phone', 'Send to Inside', 'Subscribe in JustClick', 'Send SMS'],
         required: true
+    },
+    value: {
+        type: String
     },
     comment: {
         type: String

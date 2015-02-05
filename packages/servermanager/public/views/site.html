@@ -60,6 +60,9 @@
 				<p>Choose form.</p>
 			</div>
 			<div data-ng-if="selectedForm">
+				<div style="float:right;">
+                    <input type="button" class="btn btn-warning btn-sm" value="Edit" data-ng-click="editForm(selectedForm)" />
+                </div>
 				<h3 style="text-align:center;">Form {{selectedForm.name}}</h3>
 				<p> <strong>ID (in html):</strong>
 					{{selectedForm.formId}}
@@ -81,7 +84,8 @@
 				<br />
 				<div data-ng-if="bindedData.length">
 					<alert type="info">
-						"Appointment" is a field, which means how to interpret it in form processing. For example, you can use "name", "email", "phone", "country", "comment". In the future assuming this value the form data will be distributed on the same fields in Inside web requests, etc.
+						"Appointment" is a field, which means how to interpret it in form processing. For example, you can use "Name", "Email", "Phone", "Comment", 'Subscribe in JustClick', 'Send SMS'. In the future assuming this value the form data will be distributed on the same fields in Inside web requests, etc.
+						Don't forget to save your changes by clicking the button below.
 					</alert>
 					<div style="float:right;">
 						<label for="irm1">Remove mode</label>
@@ -95,6 +99,7 @@
 							<th>Name</th>
 							<th>ID</th>
 							<th>Appointment</th>
+							<th>Value</th>
 							<th>Is in form?</th>
 							<th>Comment</th>
 							<th data-ng-show="removeMode">
@@ -110,10 +115,17 @@
 								<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="data.id"></span>
 							</td>
 							<td class="table-editable-cell {{isError[$index].appointment === true ? 'td-error' : ''}}">
-								<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="data.appointment"></span>
+								<ui-select style="width:100%;" data-ng-model="data.appointment" data-ng-change="updateBindedData(data)">
+									<ui-select-match placeholder="Select appointment...">{{$select.selected}}</ui-select-match>
+									<ui-select-choices repeat="appointment in appointments | filter:$select.search">{{appointment}}</ui-select-choices>
+								</ui-select>
+							</td>
+							<td class="table-editable-cell {{isError[$index].value === true ? 'td-error' : ''}}">
+								<span data-ng-if="data.appointment === 'Send to Inside' || data.appointment === 'Subscribe in JustClick' || data.appointment === 'Send SMS'" class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="data.value"></span>
+								<i data-ng-if="!data.appointment || data.appointment === 'Name' || data.appointment === 'Email' || data.appointment === 'Phone'" class="glyphicon glyphicon-ban-circle"></i>
 							</td>
 							<td class="{{isError[$index].inForm === true ? 'td-error' : ''}}" style="text-align:center;">
-								<input type="checkbox" data-ng-model="data.inForm" style="-ms-transform:scale(1.5);-moz-transform:scale(1.5);-webkit-transform:scale(1.5);-o-transform: scale(1.5);" />
+								<input type="checkbox" data-ng-model="data.inForm" style="-ms-transform:scale(1.5);-moz-transform:scale(1.5);-webkit-transform:scale(1.5);-o-transform: scale(1.5);" data-ng-disabled="!!global" popover="Depends on the appointment" popover-trigger="mouseenter" />
 							</td>
 							<td class="table-editable-cell">
 								<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="data.comment"></span>

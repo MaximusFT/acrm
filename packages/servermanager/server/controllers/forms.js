@@ -67,6 +67,32 @@ exports.form = function(req, res) {
         });
 };
 
+exports.update = function(req, res) {
+    if (!req.body || !req.body.params || !req.body.params.difs || !req.params || !req.params.form)
+        return res.status(500).send('Empty query');
+    var form = {};
+    _.forEach(req.body.params.difs, function(dif) {
+        console.log('dif', dif);
+        if (dif.propertyName && dif.values.length === 2)
+            form[dif.propertyName] = dif.values[1];
+    });
+    console.log(form);
+    Form
+        .findOneAndUpdate({
+            _id: req.params.form
+        }, {
+            $set: form
+        }, function(err, updated) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                //console.log('updated', updated);
+                return res.jsonp(updated);
+            }
+        });
+};
+
 exports.delete = function(req, res) {
     if (!req.params || !req.params.form)
         return res.status(500).send('Empty query');
@@ -88,6 +114,7 @@ exports.formData = function(req, res) {
         return res.status(500).send('Empty query');
     var formData = req.body.params.formData,
         form = req.body.params.form;
+    console.log('all data', _.map(formData, 'appointment'));
     FormBindedData
         .find({
             form: form
@@ -106,25 +133,75 @@ exports.formData = function(req, res) {
                         }
                     });
                 } else {
-                    FormBindedData.remove({
-                        _id: {
-                            $in: _.map(forms, '_id')
-                        }
-                    }, function(err) {
-                        if (err) {
-                            console.log(err);
-                            return res.status(500).send(err);
-                        } else {
-                            FormBindedData.create(formData, function(err) {
+                    var fromReqToCheckForChanges = _.filter(formData, function(fd) {
+                        return !!fd._id;
+                    });
+                    console.log('data to check update', fromReqToCheckForChanges);
+                    _.forEach(fromReqToCheckForChanges, function(fr) {
+                        FormBindedData
+                            .findOne({
+                                _id: fr._id
+                            }, function(err, checkForChanges) {
                                 if (err) {
                                     console.log(err);
                                     return res.status(500).send(err);
                                 } else {
-                                    res.status(200).send();
+                                    if (checkForChanges) {
+                                        if (JSON.stringify(checkForChanges) !== JSON.stringify(fr)) {
+                                            FormBindedData
+                                                .update({
+                                                    _id: fr._id
+                                                }, {
+                                                    $set: fr
+                                                }, function(err, numAffected) {
+                                                    if (err) {
+                                                        console.log(err);
+                                                        return res.status(500).send(err);
+                                                    } else {
+                                                        console.log('updated', numAffected);
+                                                    }
+                                                });
+                                        }
+                                    } else {
+                                        return res.status(500).send('Form data was not found');
+                                    }
                                 }
                             });
-                        }
                     });
+                    var fromReqToInsert = _.filter(formData, function(fd) {
+                        return !fd._id;
+                    });
+                    console.log('data to insert', fromReqToInsert);
+                    if (fromReqToInsert.length > 0) {
+                        FormBindedData.create(fromReqToInsert, function(err) {
+                            if (err) {
+                                console.log(err);
+                                return res.status(500).send(err);
+                            } else {
+                                FormBindedData.find({
+                                    form: form
+                                }, function(err, data) {
+                                    if (err) {
+                                        console.log(err);
+                                        return res.status(500).send(err);
+                                    } else {
+                                        return res.jsonp(data);
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        FormBindedData.find({
+                            form: form
+                        }, function(err, data) {
+                            if (err) {
+                                console.log(err);
+                                return res.status(500).send(err);
+                            } else {
+                                return res.jsonp(data);
+                            }
+                        });
+                    }
                 }
             }
         });

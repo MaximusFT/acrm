@@ -7,6 +7,7 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
         $scope.isVisibleRemoveButton = [];
         $scope.isError = [];
         $scope.saveEnabled = false;
+        $scope.appointments = ['Name', 'Email', 'Phone', 'Send to Inside', 'Subscribe in JustClick', 'Send SMS'];
 
         if (!$stateParams.siteId) {
             $location.path('/');
@@ -88,6 +89,48 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
             });
         };
 
+        $scope.editForm = function(form) {
+            var modalOptions = {
+                closeButtonText: 'Cancel',
+                actionButtonText: 'Confirm',
+                headerText: 'Editing form',
+                bodyText: 'Update information about form.',
+                form: form,
+                type: 10
+            };
+
+            modalService.showModal({}, modalOptions).then(function(result) {
+                /* jshint ignore:start */
+                var difs = [],
+                    ips = [];
+                for (var property in form) {
+                    if (form[property] !== result[property]) {
+                        var t = {};
+                        t.propertyName = property;
+                        t.values = [form[property], result[property]];
+                        difs.splice(difs.length, 0, t);
+                    }
+                }
+                $http.put('/api/form/' + form._id, {
+                    params: {
+                        difs: difs
+                    }
+                }).success(function(response) {
+                    angular.forEach($scope.forms, function(s, index) {
+                        if (s._id === response._id) {
+                            $scope.forms.splice(index, 1);
+                            $scope.forms.splice(index, 0, response);
+                        }
+                        if (s._id === $scope.selectedForm._id)
+                            $scope.selectedForm = response;
+                    });
+                }).error(function(err) {
+                    $log.error(err);
+                });
+                /* jshint ignore:end */
+            });
+        };
+
         $scope.removeForm = function(form, index) {
             //if ($scope.bindedData.length === 0) {
             $http.delete('/api/form/' + form._id).success(function(response) {
@@ -123,6 +166,12 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
                     if (!$scope.isError[index])
                         $scope.isError[index] = {};
                     $scope.isError[index].appointment = true;
+                } else {
+                    if (['Send to Inside', 'Subscribe in JustClick', 'Send SMS'].indexOf(bindedData.appointment) !== -1 && !bindedData.value) {
+                        if (!$scope.isError[index])
+                            $scope.isError[index] = {};
+                        $scope.isError[index].value = true;
+                    }
                 }
             });
             if ($scope.isError.length === 0) {
@@ -131,7 +180,8 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
                         formData: data,
                         form: $scope.selectedForm._id
                     }
-                }).success(function() {
+                }).success(function(response) {
+                    $scope.bindedData = response;
                     $scope.saveEnabled = false;
                 }).error(function(err) {
                     $log.error(err);
@@ -139,7 +189,13 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
             }
         };
 
-        $scope.updateBindedData = function() {
+        $scope.updateBindedData = function(data) {
+            if (data) {
+                if (['Name', 'Email', 'Phone'].indexOf(data.appointment) !== -1)
+                    data.inForm = true;
+                else
+                    data.inForm = false;
+            }
             $scope.saveEnabled = true;
         };
 
@@ -147,12 +203,19 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
             if (formData && formData._id) {
                 $http.delete('/api/formData/' + formData._id).success(function(response) {
                     $scope.bindedData.splice(index, 1);
+                    $scope.isError = [];
                 }).error(function(err) {
                     $log.error(err);
                 });
             } else {
                 $scope.bindedData.splice(index, 1);
+                $scope.isError = [];
             }
+        };
+
+        $scope.isValueFieldDisabled = function(appointment) {
+            $log.info(appointment, $scope.appointments, $scope.appointments.indexOf(appointment) !== -1);
+            return $scope.appointments.indexOf(appointment) !== -1;
         };
     }
 ]);

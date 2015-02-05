@@ -25,7 +25,11 @@ exports.create = function(req, res) {
 exports.servers = function(req, res) {
     console.log('get servers', req.body);
     Server
-        .find({}, function(err, servers) {
+        .find({})
+        .sort({
+            ip: 1
+        })
+        .exec(function(err, servers) {
             if (err) {
                 console.log(err);
                 return res.status(500).send(err);
@@ -94,7 +98,7 @@ exports.updateServer = function(req, res) {
         return res.status(500).send('Empty query');
     var server = {};
     _.forEach(req.body.params.difs, function(dif) {
-    	console.log('dif', dif);
+        console.log('dif', dif);
         if (dif.propertyName && dif.values.length === 2)
             server[dif.propertyName] = dif.values[1];
     });
