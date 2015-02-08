@@ -46,7 +46,7 @@ Usermanager.register(function(app, auth, database) {
     });
     */
 	
-	Usermanager.angularDependencies(['cgBusy']);
+	Usermanager.angularDependencies(['ui.bootstrap', 'cgBusy']);
 	// Aggregate css
 	Usermanager.aggregateAsset('css', 'angular-busy.min.css');
 	// Aggregate js

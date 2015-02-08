@@ -50,7 +50,8 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
     };
 
     $scope.initDeps = function() {
-        $http.get('/api/getNewDeps')
+        //$http.get('/api/getNewDeps')
+        $http.get('/api/getDeps')
             .success(function(data) {
                 //$log.info(data);
                 $scope.departments = data;
@@ -98,7 +99,7 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
     };
 
     $scope.verifyAndSendForm = function(isFormValid, data) {
-        $log.warn(isFormValid, data);
+        //$log.warn(isFormValid, data);
         if(isFormValid) {
             $scope.modalOptions.ok(data);
         }
