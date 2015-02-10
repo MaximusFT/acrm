@@ -45,7 +45,7 @@ Servermanager.register(function(app, auth, database) {
           //you now have the settings object
       });
       */
-    Servermanager.angularDependencies(['dndLists', 'ngTagsInput', 'ui.grid', 'cgBusy']);
+    Servermanager.angularDependencies(['ngTagsInput', 'cgBusy']);
     Servermanager.aggregateAsset('css', 'servermanager.css');
 
     return Servermanager;

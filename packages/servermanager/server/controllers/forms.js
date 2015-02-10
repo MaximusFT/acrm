@@ -113,8 +113,8 @@ exports.formData = function(req, res) {
     if (!req.body || !req.body.params || !req.body.params.formData || !req.body)
         return res.status(500).send('Empty query');
     var formData = req.body.params.formData,
-        form = req.body.params.form;
-    console.log('all data', _.map(formData, 'appointment'));
+        form = req.body.params.form,
+        actions = req.body.params.actions;
     FormBindedData
         .find({
             form: form
@@ -129,14 +129,29 @@ exports.formData = function(req, res) {
                             console.log(err);
                             return res.status(500).send(err);
                         } else {
-                            res.status(200).send();
+                            Form
+                                .update({
+                                    _id: form
+                                }, {
+                                    $set: {
+                                        actions: actions
+                                    }
+                                }, function(err, numAffected) {
+                                    if (err) {
+                                        console.log(err);
+                                        return res.status(500).send(err);
+                                    } else {
+                                        console.log('updated form', numAffected);
+                                        return res.status(200).send();
+                                    }
+                                });
                         }
                     });
                 } else {
                     var fromReqToCheckForChanges = _.filter(formData, function(fd) {
                         return !!fd._id;
                     });
-                    console.log('data to check update', fromReqToCheckForChanges);
+                    //console.log('data to check update', fromReqToCheckForChanges);
                     _.forEach(fromReqToCheckForChanges, function(fr) {
                         FormBindedData
                             .findOne({
@@ -171,36 +186,48 @@ exports.formData = function(req, res) {
                     var fromReqToInsert = _.filter(formData, function(fd) {
                         return !fd._id;
                     });
-                    console.log('data to insert', fromReqToInsert);
+                    //console.log('data to insert', fromReqToInsert);
                     if (fromReqToInsert.length > 0) {
                         FormBindedData.create(fromReqToInsert, function(err) {
                             if (err) {
                                 console.log(err);
                                 return res.status(500).send(err);
                             } else {
-                                FormBindedData.find({
-                                    form: form
-                                }, function(err, data) {
-                                    if (err) {
-                                        console.log(err);
-                                        return res.status(500).send(err);
-                                    } else {
-                                        return res.jsonp(data);
-                                    }
-                                });
+                                Form
+                                    .update({
+                                        _id: form
+                                    }, {
+                                        $set: {
+                                            actions: actions
+                                        }
+                                    }, function(err, numAffected) {
+                                        if (err) {
+                                            console.log(err);
+                                            return res.status(500).send(err);
+                                        } else {
+                                            console.log('updated form', numAffected);
+                                            return res.status(200).send();
+                                        }
+                                    });
                             }
                         });
                     } else {
-                        FormBindedData.find({
-                            form: form
-                        }, function(err, data) {
-                            if (err) {
-                                console.log(err);
-                                return res.status(500).send(err);
-                            } else {
-                                return res.jsonp(data);
-                            }
-                        });
+                        Form
+                            .update({
+                                _id: form
+                            }, {
+                                $set: {
+                                    actions: actions
+                                }
+                            }, function(err, numAffected) {
+                                if (err) {
+                                    console.log(err);
+                                    return res.status(500).send(err);
+                                } else {
+                                    console.log('updated form', numAffected);
+                                    return res.status(200).send();
+                                }
+                            });
                     }
                 }
             }

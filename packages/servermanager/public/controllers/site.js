@@ -7,7 +7,24 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
         $scope.isVisibleRemoveButton = [];
         $scope.isError = [];
         $scope.saveEnabled = false;
-        $scope.appointments = ['Name', 'Email', 'Phone', 'Send to Inside', 'Subscribe in JustClick', 'Send SMS'];
+        $scope.appointments = ['name', 'email', 'phone'];
+        $scope.checkboxes = [];
+        $scope.actions = [{
+            name: 'Send to Inside',
+            thead: ['Office ID', 'Request type', 'Text for request'],
+            tbody: ['officeId', 'reqType', 'comment'],
+            config: {}
+        }, {
+            name: 'Subscribe in JustClick',
+            thead: ['Subscribers group'],
+            tbody: ['subGroup'],
+            config: {}
+        }, {
+            name: 'Send SMS',
+            thead: ['Text for SMS'],
+            tbody: ['textSms'],
+            config: {}
+        }];
 
         if (!$stateParams.siteId) {
             $location.path('/');
@@ -72,18 +89,28 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
 
         $scope.selectForm = function(form, index) {
             $scope.isVisibleRemoveButton = [];
-            $scope.isVisibleRemoveButton[index] = true;
+            if (index)
+                $scope.isVisibleRemoveButton[index] = true;
             $scope.getHttp3 = $http.get('/api/form', {
                 params: {
                     form: form._id
                 }
             }).success(function(response) {
-                //$log.info(response);
+                $log.info(response);
                 $scope.selectedForm = response.form;
                 if (!response.bindedData)
                     $scope.bindedData = [];
                 else
                     $scope.bindedData = response.bindedData;
+                if (response.form.actions) {
+                    angular.forEach($scope.actions, function(actionData, index) {
+                        angular.forEach(response.form.actions, function(actionDataS) {
+                            if (actionData.name === actionDataS.name)
+                                $scope.actions[index] = actionDataS;
+                        });
+                    });
+                }
+                $log.warn($scope.actions);
             }).error(function(err) {
                 $log.error(err);
             });
@@ -145,44 +172,66 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
 
         $scope.addFormData = function() {
             $scope.bindedData.push({
-                name: '',
-                id: '',
-                appointment: '',
-                form: $scope.selectedForm._id,
-                inForm: false
+                htmlId: '',
+                comment: '',
+                form: $scope.selectedForm._id
             });
         };
 
-        $scope.saveBindedData = function(data) {
-            //$log.info(data);
+        $scope.saveBindedData = function(data, actionsData) {
+            $log.info(data, actionsData);
             $scope.isError = [];
+            $scope.errors = [];
             angular.forEach(data, function(bindedData, index) {
-                if (bindedData.inForm === true && !bindedData.id) {
+                if (!bindedData.htmlId) {
                     if (!$scope.isError[index])
                         $scope.isError[index] = {};
-                    $scope.isError[index].id = true;
+                    $scope.isError[index] = true;
                 }
-                if (!bindedData.appointment) {
-                    if (!$scope.isError[index])
-                        $scope.isError[index] = {};
-                    $scope.isError[index].appointment = true;
-                } else {
-                    if (['Send to Inside', 'Subscribe in JustClick', 'Send SMS'].indexOf(bindedData.appointment) !== -1 && !bindedData.value) {
-                        if (!$scope.isError[index])
-                            $scope.isError[index] = {};
-                        $scope.isError[index].value = true;
+            });
+            angular.forEach(actionsData, function(actionData, index) {
+                if (actionData.isEnabled) {
+                    if (actionData.name === 'Send to Inside') {
+                        if (!actionData.config.officeId) {
+                            $scope.errors.push('Empty office ID field');
+                        }
+                        if (!actionData.config.reqType) {
+                            $scope.errors.push('Empty request type field');
+                        }
+                        if (!actionData.config.comment) {
+                            $scope.errors.push('Empty comment field');
+                        }
+                        if (!actionData.config.email) {
+                            $scope.errors.push('Empty email field');
+                        }
+                        if (actionData.isCheckboxes && (!actionData.config.checkboxes || actionData.config.checkboxes.length === 0)) {
+                            $scope.errors.push('Empty checkboxes data');
+                        }
+                        if (actionData.isCheckboxes && actionData.config.checkboxes) {
+                            angular.forEach(actionData.config.checkboxes, function(chkbd, index2) {
+                                if (!chkbd.field || !chkbd.ifTrue || !chkbd.ifFalse)
+                                    $scope.errors.push('Incomplete data on the checkbox (' + (index2 + 1) + ' row)');
+                            });
+                        }
                     }
                 }
             });
-            if ($scope.isError.length === 0) {
+            if ($scope.isError.length === 0 && $scope.errors.length === 0) {
+                var temp = [];
+                angular.forEach(actionsData, function(actionData) {
+                    if (actionData.isEnabled) {
+                        temp.push(actionData);
+                    }
+                });
                 $http.post('/api/formData', {
                     params: {
                         formData: data,
-                        form: $scope.selectedForm._id
+                        form: $scope.selectedForm._id,
+                        actions: temp
                     }
                 }).success(function(response) {
-                    $scope.bindedData = response;
                     $scope.saveEnabled = false;
+                    $scope.selectForm($scope.selectedForm);
                 }).error(function(err) {
                     $log.error(err);
                 });
@@ -190,12 +239,6 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
         };
 
         $scope.updateBindedData = function(data) {
-            if (data) {
-                if (['Name', 'Email', 'Phone'].indexOf(data.appointment) !== -1)
-                    data.inForm = true;
-                else
-                    data.inForm = false;
-            }
             $scope.saveEnabled = true;
         };
 
@@ -213,9 +256,26 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
             }
         };
 
-        $scope.isValueFieldDisabled = function(appointment) {
-            $log.info(appointment, $scope.appointments, $scope.appointments.indexOf(appointment) !== -1);
-            return $scope.appointments.indexOf(appointment) !== -1;
+        $scope.addCheckboxInfo = function(config) {
+            if (!config.checkboxes)
+                config.checkboxes = [];
+            config.checkboxes.push({});
+        };
+
+        $scope.removeCheckboxData = function(index1, index2) {
+            $scope.actions[index1].config.checkboxes.splice(index2, 1);
+        };
+
+        $scope.tempSend = function() {
+            $http.post('/test/sendTestRequest', {
+                params: {
+                    email: 'test@mfsa.com'
+                }
+            }).success(function(response) {
+                $log.info(response);
+            }).error(function(err) {
+                $log.error(err);
+            });
         };
     }
 ]);

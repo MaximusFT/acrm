@@ -20,6 +20,9 @@ var FormSchema = new Schema({
         type: Schema.ObjectId,
         ref: 'Site'
     },
+    actions: [{
+        type: Schema.Types.Mixed
+    }],
     comment: {
         type: String
     }

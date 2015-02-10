@@ -2,6 +2,7 @@
 	<div data-ng-init="init()" cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
 		<h1>Site Overview - {{site.title}}</h1>
 		<hr />
+		<button type="button" class="btn btn-danger" data-ng-click="tempSend()">SEND</button>
 		<table class="table table-striped table-bordered table-hover editable-table">
 			<tr>
 				<th>Title</th>
@@ -61,8 +62,8 @@
 			</div>
 			<div data-ng-if="selectedForm">
 				<div style="float:right;">
-                    <input type="button" class="btn btn-warning btn-sm" value="Edit" data-ng-click="editForm(selectedForm)" />
-                </div>
+					<input type="button" class="btn btn-warning btn-sm" value="Edit" data-ng-click="editForm(selectedForm)" />
+				</div>
 				<h3 style="text-align:center;">Form {{selectedForm.name}}</h3>
 				<p> <strong>ID (in html):</strong>
 					{{selectedForm.formId}}
@@ -81,12 +82,8 @@
 					<i class="glyphicon glyphicon-plus" style="float:right;cursor:pointer;" data-ng-click="addFormData()"></i>
 				</legend>
 				<alert type="info" data-ng-if="!bindedData.length">No data yet</alert>
-				<br />
 				<div data-ng-if="bindedData.length">
-					<alert type="info">
-						"Appointment" is a field, which means how to interpret it in form processing. For example, you can use "Name", "Email", "Phone", "Comment", 'Subscribe in JustClick', 'Send SMS'. In the future assuming this value the form data will be distributed on the same fields in Inside web requests, etc.
-						Don't forget to save your changes by clicking the button below.
-					</alert>
+					<alert type="info">Specify the data you want to pull out the form.</alert>
 					<div style="float:right;">
 						<label for="irm1">Remove mode</label>
 						<input id="irm1" type="checkbox" class="btn" data-ng-model="removeMode" />
@@ -96,11 +93,7 @@
 							<th>
 								<i class="glyphicon glyphicon-sort-by-order-alt"></i>
 							</th>
-							<th>Name</th>
-							<th>ID</th>
-							<th>Appointment</th>
-							<th>Value</th>
-							<th>Is in form?</th>
+							<th>ID in HTML</th>
 							<th>Comment</th>
 							<th data-ng-show="removeMode">
 								<i class="glyphicon glyphicon-trash"></i>
@@ -108,24 +101,8 @@
 						</tr>
 						<tr data-ng-repeat="data in bindedData">
 							<td>{{$index+1}}.</td>
-							<td class="table-editable-cell">
-								<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="data.name"></span>
-							</td>
-							<td class="table-editable-cell {{isError[$index].id === true ? 'td-error' : ''}}">
-								<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="data.id"></span>
-							</td>
-							<td class="table-editable-cell {{isError[$index].appointment === true ? 'td-error' : ''}}">
-								<ui-select style="width:100%;" data-ng-model="data.appointment" data-ng-change="updateBindedData(data)">
-									<ui-select-match placeholder="Select appointment...">{{$select.selected}}</ui-select-match>
-									<ui-select-choices repeat="appointment in appointments | filter:$select.search">{{appointment}}</ui-select-choices>
-								</ui-select>
-							</td>
-							<td class="table-editable-cell {{isError[$index].value === true ? 'td-error' : ''}}">
-								<span data-ng-if="data.appointment === 'Send to Inside' || data.appointment === 'Subscribe in JustClick' || data.appointment === 'Send SMS'" class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="data.value"></span>
-								<i data-ng-if="!data.appointment || data.appointment === 'Name' || data.appointment === 'Email' || data.appointment === 'Phone'" class="glyphicon glyphicon-ban-circle"></i>
-							</td>
-							<td class="{{isError[$index].inForm === true ? 'td-error' : ''}}" style="text-align:center;">
-								<input type="checkbox" data-ng-model="data.inForm" style="-ms-transform:scale(1.5);-moz-transform:scale(1.5);-webkit-transform:scale(1.5);-o-transform: scale(1.5);" data-ng-disabled="!!global" popover="Depends on the appointment" popover-trigger="mouseenter" />
+							<td class="table-editable-cell {{isError[$index] === true ? 'td-error' : ''}}">
+								<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="data.htmlId"></span>
 							</td>
 							<td class="table-editable-cell">
 								<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="data.comment"></span>
@@ -135,7 +112,88 @@
 							</td>
 						</tr>
 					</table>
-					<input type="button" class="btn btn-danger" style="float:right;" value="Save changes" data-ng-click="saveBindedData(bindedData)" data-ng-disabled="!saveEnabled" />
+
+					<legend>Actions</legend>
+					<alert type="danger" data-ng-if="errors.length">
+						Invalid data. Try to fill fields correctly again:
+						<ul data-ng-repeat="error in errors">
+							<li>{{error}}</li>
+						</ul>
+					</alert>
+					<div data-ng-repeat="action in actions" data-ng-init="actionIndex = $index">
+						{{$index+1}}.
+						<label for="checkbox_{{action.name}}">{{action.name}}</label>
+						<input id="checkbox_{{action.name}}" type="checkbox" data-ng-model="action.isEnabled" />
+						<div data-ng-if="action.isEnabled">
+							<table class="table table-striped table-bordered table-hover editable-table">
+								<tr>
+									<th data-ng-repeat="thead in action.thead" style="text-transform:capitalize;">{{thead}}</th>
+								</tr>
+								<tr>
+									<td data-ng-repeat="tbody in action.tbody" class="table-editable-cell">
+										<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="action.config[tbody]"></span>
+									</td>
+								</tr>
+								<tr data-ng-if="action.name === 'Send to Inside'">
+									<th data-ng-repeat="appointment in appointments" style="text-transform:capitalize;">{{appointment}}</th>
+								</tr>
+								<tr data-ng-if="action.name === 'Send to Inside'">
+									<td data-ng-repeat="appointment in appointments">
+										<ui-select class="col-md-6" style="width:100%;" data-ng-model="action.config[appointment]" data-ng-change="updateBindedData()">
+											<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
+											<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}}</ui-select-choices>
+										</ui-select>
+									</td>
+								</tr>
+							</table>
+							<div data-ng-if="action.name === 'Send to Inside'">
+								<div>
+									<label for="checkbox_{{action.name}}chks">Is checkboxes?</label>
+									<input id="checkbox_{{action.name}}chks" type="checkbox" data-ng-model="action.isCheckboxes" />
+									<i data-ng-show="action.isCheckboxes" class="glyphicon glyphicon-plus" data-ng-click="addCheckboxInfo(action.config)" style="float:right;cursor:pointer;"></i>
+								</div>
+								<div data-ng-if="action.isCheckboxes && action.config.checkboxes.length">
+									<div style="float:right;">
+										<label for="irm1">Remove mode</label>
+										<input id="irm1" type="checkbox" class="btn" data-ng-model="removeMode2" />
+									</div>
+									<table class="table table-striped table-bordered table-hover editable-table">
+										<tr>
+											<th>Field</th>
+											<th>Text if true</th>
+											<th>Text if false</th>
+											<th>Concat text to comment?</th>
+											<th data-ng-show="removeMode2">
+												<i class="glyphicon glyphicon-trash"></i>
+											</th>
+										</tr>
+										<tr data-ng-repeat="checkbox in action.config.checkboxes">
+											<td class="table-editable-cell">
+												<ui-select class="col-md-6" style="width:100%;" data-ng-model="checkbox.field" data-ng-change="updateBindedData()">
+													<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
+													<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}}</ui-select-choices>
+												</ui-select>
+											</td>
+											<td class="table-editable-cell">
+												<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifTrue"></span>
+											</td>
+											<td class="table-editable-cell">
+												<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifFalse"></span>
+											</td>
+											<td>
+												<input type="checkbox" data-ng-model="checkbox.isConcat" />
+											</td>
+											<td data-ng-show="removeMode2" style="text-align:center;">
+												<input class="btn btn-danger btn-xs" type="button" value="Remove" data-ng-click="removeCheckboxData(actionIndex, $index)" />
+											</td>
+										</tr>
+									</table>
+								</div>
+							</div>
+						</div>
+						<hr />
+					</div>
+					<input type="button" class="btn btn-danger" style="float:right;" value="Save changes" data-ng-click="saveBindedData(bindedData, actions)" data-ng-disabled="!saveEnabled" />
 				</div>
 			</div>
 		</div>

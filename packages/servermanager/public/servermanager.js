@@ -1,3 +1,3 @@
 'use strict';
 
-angular.module('mean.servermanager', ['dndLists', 'ngTagsInput', 'ui.grid', 'cgBusy']);
+angular.module('mean.servermanager', ['ngTagsInput', 'cgBusy']);
