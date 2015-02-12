@@ -6,105 +6,10 @@ var mongoose = require('mongoose'),
     Form = mongoose.model('Form'),
     FormBindedData = mongoose.model('FormBindedData'),
     _ = require('lodash'),
-    request = require('request');
+    request = require('request'),
+    crypto = require('crypto');
 
-/* jshint ignore:start */
-var Iconv  = require('iconv').Iconv;
-var UTF8 = (function() {
-    return {
-        // Encodes UCS2 into UTF8
-        // Returns an array of numbers (bytes)
-        encode: function(str) {
-            var len = str.length;
-            var result = [];
-            var code;
-            var i;
-            for (i = 0; i < len; i++) {
-                code = str.charCodeAt(i);
-                if (code <= 0x7f) {
-                    result.push(code);
-                } else if (code <= 0x7ff) { // 2 bytes                     
-                    result.push(0xc0 | (code >>> 6 & 0x1f),
-                        0x80 | (code & 0x3f));
-                } else if (code <= 0xd700 || code >= 0xe000) { // 3 bytes
-                    result.push(0xe0 | (code >>> 12 & 0x0f),
-                        0x80 | (code >>> 6 & 0x3f),
-                        0x80 | (code & 0x3f));
-                } else { // 4 bytes, surrogate pair
-                    code = (((code - 0xd800) << 10) | (str.charCodeAt(++i) - 0xdc00)) + 0x10000;
-                    result.push(0xf0 | (code >>> 18 & 0x07),
-                        0x80 | (code >>> 12 & 0x3f),
-                        0x80 | (code >>> 6 & 0x3f),
-                        0x80 | (code & 0x3f));
-                }
-            }
-            return result;
-        },
-
-        // Decodes UTF8 into UCS2
-        // Returns a string
-        decode: function(bytes) {
-            var len = bytes.length;
-            var result = "";
-            var code;
-            var i;
-            for (i = 0; i < len; i++) {
-                if (bytes[i] <= 0x7f) {
-                    result += String.fromCharCode(bytes[i]);
-                } else if (bytes[i] >= 0xc0) { // Mutlibytes
-                    if (bytes[i] < 0xe0) { // 2 bytes
-                        code = ((bytes[i++] & 0x1f) << 6) |
-                            (bytes[i] & 0x3f);
-                    } else if (bytes[i] < 0xf0) { // 3 bytes
-                        code = ((bytes[i++] & 0x0f) << 12) |
-                            ((bytes[i++] & 0x3f) << 6) |
-                            (bytes[i] & 0x3f);
-                    } else { // 4 bytes
-                        // turned into two characters in JS as surrogate pair
-                        code = (((bytes[i++] & 0x07) << 18) |
-                            ((bytes[i++] & 0x3f) << 12) |
-                            ((bytes[i++] & 0x3f) << 6) |
-                            (bytes[i] & 0x3f)) - 0x10000;
-                        // High surrogate
-                        result += String.fromCharCode(((code & 0xffc00) >>> 10) + 0xd800);
-                        // Low surrogate
-                        code = (code & 0x3ff) + 0xdc00;
-                    }
-                    result += String.fromCharCode(code);
-                } // Otherwise it's an invalid UTF-8, skipped.
-            }
-            return result;
-        }
-    };
-}());
-
-exports.sendTestRequest = function(req, res) {
-    var postData = {};
-    postData.office_id = 1799173;
-    postData.type_id = 2;
-    postData.email = req.body.params.email;
-    postData.name = 'Вася Пупкин';
-    postData.comments = 'Тестовая заявка: русский текст, english text, كرسي بالإنزال';
-    console.log(postData);
-    var iconv = new Iconv('UTF-8', 'UCS-2');
-    var tb = iconv.convert(postData.comments);
-    var encoded = UTF8.decode(tb);
-    postData.comments = encoded;
-
-    request.post({
-        url: 'https://my.teletrade-dj.com/webform/crm/web_request_form_add',
-        form: postData
-    }, function(error, response, body) {
-        if (!error && response.statusCode === 200) {
-            console.log(body);
-            return res.jsonp(body);
-        }
-    });
-};
-
-/* jshint ignore:end */
-
-function sendToInside(req, res, options, data) {
+function sendToInside(req, res, options, data, callback) {
     if (!options.email)
         return res.status(500).send('Empty email option');
     var postData = {};
@@ -135,15 +40,121 @@ function sendToInside(req, res, options, data) {
             postData.comments = postData.comments + '. ' + (tmp[0].value ? chkb.ifTrue : chkb.ifFalse);
         }
     });
+    //console.log('POST DATA', postData);
+
+    var transData = {
+        comments: postData.comments
+    };
+    if (postData.name)
+        transData.name = postData.name;
 
     request.post({
-        url: 'https://my.teletrade-dj.com/webform/crm/web_request_form_add',
-        form: postData
+        url: 'http://mapqo.com/temporaryApi/conv.php',
+        form: {
+            txt: transData
+        }
     }, function(error, response, body) {
         if (!error && response.statusCode === 200) {
-            console.log(body);
-            return res.jsonp(body);
+            if (body === 'Access denied' || body === 'Empty request') {
+                res.status(403).send(body);
+            } else {
+                //console.log('ENCODED', body);
+                var encoded = JSON.parse(body);
+                postData.comments = encoded.comments;
+                if (encoded.name)
+                    postData.name = encoded.name;
+                request.post({
+                    url: 'https://my.teletrade-dj.com/webform/crm/web_request_form_add',
+                    form: postData
+                }, function(error, response, body) {
+                    if (!error && response.statusCode === 200) {
+                        //console.log(body);
+                        callback(body);
+                    }
+                });
+            }
         }
+    });
+}
+
+function subscribeInJustclick(req, res, options, data, callback) {
+
+    function http_build_query(formdata) {
+        var numeric_prefix = '',
+            arg_separator = '&';
+        var key, use_val, use_key, i = 0,
+            tmp_arr = [];
+
+        for (key in formdata) {
+            use_key = encodeURIComponent(key);
+            use_val = encodeURIComponent((formdata[key].toString()));
+            use_val = use_val.replace(/%20/g, '+');
+
+            if (numeric_prefix && !isNaN(key)) {
+                use_key = numeric_prefix + i;
+            }
+            tmp_arr[i] = use_key + '=' + use_val;
+            i += 1;
+        }
+
+        return tmp_arr.join(arg_separator);
+    }
+
+
+    function getHash(params, authData) {
+        params = http_build_query(params);
+        params = params + '::' + authData.user_id + '::' + authData.user_rps_key;
+        return crypto.createHash('md5').update(params).digest('hex');
+    }
+
+    function checkHash(resp, authData) {
+    	console.log(resp.error_code + '::' + resp.error_text + '::' + authData.user_rps_key);
+        return crypto.createHash('md5').update(resp.error_code + '::' + resp.error_text + '::' + authData.user_rps_key).digest('hex') === resp.hash;
+    }
+
+    function send_(url, sendData, cb) {
+        request.post({
+            url: url,
+            form: sendData
+        }, function(error, response, body) {
+            cb(response.body);
+        });
+    }
+
+    var authData = {
+        user_id: options.userId,
+        user_rps_key: options.userKey
+    };
+    var sendData = {
+        'rid[0]': options.targetGroup
+    };
+    var tmpN = _.filter(data, function(d) {
+        return d.htmlId === options.name;
+    });
+    if (tmpN.length > 0)
+        sendData.lead_name = tmpN[0].value;
+    var tmpE = _.filter(data, function(d) {
+        return d.htmlId === options.email;
+    });
+    if (tmpE.length > 0)
+        sendData.lead_email = tmpE[0].value;
+
+    var tmpP = _.filter(data, function(d) {
+        return d.htmlId === options.phone;
+    });
+    if (tmpP.length > 0)
+        sendData.lead_phone = tmpP[0].value;
+    var tmpC = _.filter(data, function(d) {
+        return d.htmlId === options.city;
+    });
+    if (tmpC.length > 0)
+        sendData.lead_city = tmpC[0].value;
+    sendData.doneurl2 = options.doneUrl;
+    sendData.hash = getHash(sendData, authData);
+
+    send_('http://' + options.userId + '.justclick.ru/api/AddLeadToGroup', sendData, function(resp) {
+    	var response = JSON.parse(resp);
+        callback(response, checkHash(response, authData));
     });
 }
 
@@ -188,13 +199,15 @@ exports.getDocumentFields = function(req, res) {
         });
 };
 
-exports.sendUserRequest = function(req, res) {
+exports.processUserRequest = function(req, res) {
     if (!req.body.formData || !req.body.href)
         return res.status(500).send('Empty query');
     var href = req.body.href,
         formData = req.body.formData;
     if (href.substr(href.length - 1, href.length) === '/')
         href = href.substr(0, href.length - 1);
+    console.log('REQUEST FROM', href);
+    console.log('FORM DATA', formData);
     Form
         .findOne({
             uri: href
@@ -206,6 +219,7 @@ exports.sendUserRequest = function(req, res) {
                 return res.status(500).send(err);
             } else {
                 if (form) {
+                    console.log('FORM WAS FOUND', form.formId);
                     FormBindedData
                         .find({
                             form: form._id
@@ -217,6 +231,7 @@ exports.sendUserRequest = function(req, res) {
                                 return res.status(500).send(err);
                             } else {
                                 if (bindedData) {
+                                    console.log('BINDED DATA WAS FOUND', _.map(bindedData, 'htmlId'));
                                     _.forEach(bindedData, function(bd) {
                                         var result = _.filter(formData, function(fd) {
                                             return fd.htmlId === bd.htmlId;
@@ -224,11 +239,26 @@ exports.sendUserRequest = function(req, res) {
                                         if (result.length > 0)
                                             bd.value = result[0].value;
                                     });
+                                    //IF IS INSIDE OPTION
                                     var insideOptions = _.filter(form.actions, function(fa) {
                                         return fa.name === 'Send to Inside';
                                     });
-                                    if (insideOptions.length > 0 && insideOptions[0].isEnabled)
-                                        sendToInside(req, res, insideOptions[0].config, bindedData);
+                                    if (insideOptions.length > 0 && insideOptions[0].isEnabled) {
+                                        console.log('INSIDE SENDING');
+                                        sendToInside(req, res, insideOptions[0].config, bindedData, function(response) {
+                                            console.log('response from Inside', response);
+                                        });
+                                    }
+                                    //IF IS JUSTCLICK OPTION
+                                    var justclickOptions = _.filter(form.actions, function(fa) {
+                                        return fa.name === 'Subscribe in JustClick';
+                                    });
+                                    if (justclickOptions.length > 0 && justclickOptions[0].isEnabled) {
+                                        console.log('JUSTCLICK SENDING');
+                                        subscribeInJustclick(req, res, justclickOptions[0].config, bindedData, function(response) {
+                                            console.log('response from JustClick', response);
+                                        });
+                                    }
                                 } else {
                                     console.log('Binded data was not found');
                                     return res.status(500).send('Binded data was not found');

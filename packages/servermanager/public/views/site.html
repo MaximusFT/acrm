@@ -1,8 +1,8 @@
 <section data-ng-controller="SiteController">
+	<button type="button" class="btn btn-danger" data-ng-click="test()">SEND TEST!</button>
 	<div data-ng-init="init()" cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
 		<h1>Site Overview - {{site.title}}</h1>
 		<hr />
-		<button type="button" class="btn btn-danger" data-ng-click="tempSend()">SEND</button>
 		<table class="table table-striped table-bordered table-hover editable-table">
 			<tr>
 				<th>Title</th>
@@ -134,11 +134,18 @@
 										<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="action.config[tbody]"></span>
 									</td>
 								</tr>
-								<tr data-ng-if="action.name === 'Send to Inside'">
-									<th data-ng-repeat="appointment in appointments" style="text-transform:capitalize;">{{appointment}}</th>
+								<tr data-ng-if="action.name === 'Send to Inside' || action.name === 'Subscribe in JustClick'">
+									<th data-ng-if="action.name === 'Send to Inside'" data-ng-repeat="appointment in appointments" style="text-transform:capitalize;">{{appointment}}</th>
+									<th data-ng-if="action.name === 'Subscribe in JustClick'" data-ng-repeat="appointment in appointments2" style="text-transform:capitalize;">{{appointment}}</th>
 								</tr>
-								<tr data-ng-if="action.name === 'Send to Inside'">
-									<td data-ng-repeat="appointment in appointments">
+								<tr data-ng-if="action.name === 'Send to Inside' || action.name === 'Subscribe in JustClick'">
+									<td data-ng-if="action.name === 'Send to Inside'" data-ng-repeat="appointment in appointments">
+										<ui-select class="col-md-6" style="width:100%;" data-ng-model="action.config[appointment]" data-ng-change="updateBindedData()">
+											<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
+											<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}}</ui-select-choices>
+										</ui-select>
+									</td>
+									<td data-ng-if="action.name === 'Subscribe in JustClick'" data-ng-repeat="appointment in appointments2">
 										<ui-select class="col-md-6" style="width:100%;" data-ng-model="action.config[appointment]" data-ng-change="updateBindedData()">
 											<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
 											<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}}</ui-select-choices>

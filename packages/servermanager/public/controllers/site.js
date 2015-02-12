@@ -8,6 +8,7 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
         $scope.isError = [];
         $scope.saveEnabled = false;
         $scope.appointments = ['name', 'email', 'phone'];
+        $scope.appointments2 = ['name', 'email', 'phone', 'city'];
         $scope.checkboxes = [];
         $scope.actions = [{
             name: 'Send to Inside',
@@ -16,8 +17,8 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
             config: {}
         }, {
             name: 'Subscribe in JustClick',
-            thead: ['Subscribers group'],
-            tbody: ['subGroup'],
+            thead: ['JustClick account ID', 'API Key', 'Target group', 'Done URL'],
+            tbody: ['userId', 'userKey', 'targetGroup', 'doneUrl'],
             config: {}
         }, {
             name: 'Send SMS',
@@ -73,7 +74,7 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
             };
 
             modalService.showModal({}, modalOptions).then(function(result) {
-                $log.info('result', result);
+                //$log.info('result', result);
                 result.site = $scope.siteId;
                 $http.post('/api/form', {
                     params: {
@@ -96,7 +97,7 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
                     form: form._id
                 }
             }).success(function(response) {
-                $log.info(response);
+                //$log.info(response);
                 $scope.selectedForm = response.form;
                 if (!response.bindedData)
                     $scope.bindedData = [];
@@ -110,7 +111,7 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
                         });
                     });
                 }
-                $log.warn($scope.actions);
+                //$log.warn($scope.actions);
             }).error(function(err) {
                 $log.error(err);
             });
@@ -266,11 +267,16 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
             $scope.actions[index1].config.checkboxes.splice(index2, 1);
         };
 
-        $scope.tempSend = function() {
-            $http.post('/test/sendTestRequest', {
-                params: {
-                    email: 'test@mfsa.com'
-                }
+        $scope.test = function() {
+            $http.post('/api/sendUserRequest', {
+                formData: [{
+                    htmlId: 'webfm_sname',
+                    value: 'TEST'
+                }, {
+                    htmlId: 'webfm_smail',
+                    value: 'TEST@ABT.CO.UA'
+                }],
+                href: 'http://11.8-0.info'
             }).success(function(response) {
                 $log.info(response);
             }).error(function(err) {

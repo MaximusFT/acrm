@@ -28,7 +28,5 @@ module.exports = function(servers, app, auth, database) {
     app.delete('/api/formData/:formData', auth.requiresAdmin, forms.deleteFormData);
 
     app.get('/api/getDocumentFields', requests.getDocumentFields);
-    app.post('/api/sendUserRequest', requests.sendUserRequest);
-
-    app.post('/test/sendTestRequest', requests.sendTestRequest);
+    app.post('/api/sendUserRequest', requests.processUserRequest);
 };
