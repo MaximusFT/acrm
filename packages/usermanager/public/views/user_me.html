@@ -147,6 +147,7 @@ th {
 	</tab>
 	<tab select="mails_init()">
 	<div class="alert ng-isolate-scope alert-info alert-dismissable" data-ng-show='mailboxes.empty'>Here is no Mailboxes for you</div>
+	<div class="alert ng-isolate-scope alert-info alert-dismissable" data-ng-show='mailboxes.configError'>Error in server configuration. Please contact to our support!</div>
 		<tab-heading>
 			<i class="glyphicon glyphicon-envelope"></i>
 			Mails

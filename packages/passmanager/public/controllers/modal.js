@@ -100,7 +100,7 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
     };
 
     $scope.verifyAndSendForm = function(isFormValid, data) {
-        // $log.info(isFormValid, data);
+        //$log.info(isFormValid, data, typeof data);
         if (isFormValid) {
             $scope.modalOptions.ok(data);
         }
@@ -115,21 +115,41 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
     $scope.initMailConfig = function() {
         $http.get('/api/getMailConfig')
             .success(function(data) {
-                if (data.packageName === 'mailmanager')
-                    $scope.mailConfig = data.data;
+                if (data === 'needNewConfig') {
+                    $scope.mailConfig = {};
+                } else {
+
+                    if (data.packageName === 'mailmanager')
+                        $scope.mailConfig = data.data;
+                }
             })
             .error(function() {
                 $log.error('error');
             });
     };
     $scope.manualSynchronization = function() {
-        $http.get('/api/synchronizemailboxes')
-            .success(function(response, status) {
-                if (status === 200)
-                    $scope.isSynchronized = true;
+        $http.get('/api/getMailConfig')
+            .success(function(data) {
+                if (data === 'needNewConfig') {
+                    $scope.noConfigs = true;
+                    return;
+                } else {
+
+                    $http.get('/api/synchronizemailboxes')
+                        .success(function(response, status) {
+                            if (status === 200)
+                                $scope.isSynchronized = true;
+                        })
+                        .error(function() {
+                            $log.error('error');
+                        });
+                }
             })
             .error(function() {
                 $log.error('error');
             });
+
+
+
     };
 });

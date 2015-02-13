@@ -70,8 +70,8 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
         }];
         $scope.user = {};
         /*}).error(function () {
-				$log.error('error');
-			});*/
+                $log.error('error');
+            });*/
 
         $scope.passSchema = [{
             title: 'Resource Title',
@@ -120,12 +120,12 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
                 popover: 'Used for subsequent passwords grouping'
             },
             /*{
-            				title : 'Appointment',
-            				schemaKey : 'implement',
-            				type : 'text',
-            				inTable : false,
-            				popover : 'Type of the password (social network, messenger, etc.)'
-            				},*/
+                            title : 'Appointment',
+                            schemaKey : 'implement',
+                            type : 'text',
+                            inTable : false,
+                            popover : 'Type of the password (social network, messenger, etc.)'
+                            },*/
             {
                 title: 'Resource Title',
                 schemaKey: 'resourceName',
@@ -168,8 +168,8 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
 
         $scope.init = function() {
             /*Users.query({}, function(users) {
-				$scope.users = users;
-				});*/
+                $scope.users = users;
+                });*/
             $scope.users = [];
             $scope.getHttp1 = $http.get('api/getUser', {
                 params: {
@@ -242,10 +242,6 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
                     $scope.mailboxes.empty = true;
             }).error(function(err) {
                 $log.error(err);
-            });
-            $http.get('/api/getMailConfig').success(function(response) {
-                if (response.packageName === 'mailmanager')
-                    $scope.config = response.data;
             });
         };
 
@@ -403,37 +399,49 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
             });
         };
         $scope.logInToMail = function(data) {
-            var request = {
-                method: 'POST',
-                url: $scope.config.mailHost + ($scope.config.isRcInDefFolder ? '/roundcube' : $scope.config.RcCustomFolder) + '/?_task=login',
-                transformRequest: function(obj) {
-                    var str = [];
-                    for (var p in obj)
-                        str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
-                    return str.join('&');
-                },
-                data: {
-                    _task: 'login',
-                    _action: 'login',
-                    _timezone: '_default_',
-                    _url: '',
-                    _user: data.mail,
-                    _crypt: 'yes',
-                    _pass: crypter.hash(data.mail + 'kingston')
-                },
-                withCredentials: true,
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
+            $http.get('/api/getMailConfig').success(function(response) {
+                if (response === 'needNewConfig') {
+                    $scope.mailboxes.configError = true;
+                    return;
+                } else {
+                    if (response.packageName === 'mailmanager') {
+                        var config = response.data;
+                        var request = {
+                            method: 'POST',
+                            url: config.mailHost + (config.isRcInDefFolder ? '/roundcube' : config.RcCustomFolder) + '/?_task=login',
+                            transformRequest: function(obj) {
+                                var str = [];
+                                for (var p in obj)
+                                    str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+                                return str.join('&');
+                            },
+                            data: {
+                                _task: 'login',
+                                _action: 'login',
+                                _timezone: '_default_',
+                                _url: '',
+                                _user: data.mail,
+                                _crypt: 'yes',
+                                _pass: crypter.hash(data.mail + 'kingston')
+                            },
+                            withCredentials: true,
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            }
+                        };
+
+                        $scope.wait = $http(request).success(function(data, status) {
+                            if (status === 200)
+                                $window.location = $scope.mailServerUrl + 'roundcube/?_task=mail';
+
+                        }).error(function(data, status) {
+                            $log.info('Error with getting response');
+                        });
+                    } else $log.info('Error in getting config');
                 }
-            };
-
-            $scope.wait = $http(request).success(function(data, status) {
-                if (status === 200)
-                    $window.location = $scope.mailServerUrl + 'roundcube/?_task=mail';
-
-            }).error(function(data, status) {
-                $log.info('Error with getting response');
             });
+
+
 
 
         };
