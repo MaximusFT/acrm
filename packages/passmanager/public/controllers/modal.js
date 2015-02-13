@@ -17,6 +17,7 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
     $scope.editprp = $scope.modalOptions.editprp;
     $scope.newDepartment = $scope.server = $scope.site = {};
     $scope.parent = null;
+    $scope.isSynchronized = false;
     $scope.types = [{
         name: 'Physical Server',
         val: 0
@@ -24,9 +25,9 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
         name: 'VPS/VDS',
         val: 1
     }];
-    if($scope.modalOptions.server)
+    if ($scope.modalOptions.server)
         $scope.server = JSON.parse(JSON.stringify($scope.modalOptions.server));
-    if($scope.modalOptions.form)
+    if ($scope.modalOptions.form)
         $scope.form = JSON.parse(JSON.stringify($scope.modalOptions.form));
 
     $scope.cancel = function() {
@@ -63,7 +64,7 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
                     if (result.length > 0 && result[0]._id)
                         $scope.newDepartment.parent = result[0]._id;
                 } else {
-                    if($scope.departments[0] && $scope.departments[0]._id)
+                    if ($scope.departments[0] && $scope.departments[0]._id)
                         $scope.newDepartment.parent = $scope.departments[0]._id;
                 }
             })
@@ -99,8 +100,8 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
     };
 
     $scope.verifyAndSendForm = function(isFormValid, data) {
-        //$log.warn(isFormValid, data);
-        if(isFormValid) {
+        // $log.info(isFormValid, data);
+        if (isFormValid) {
             $scope.modalOptions.ok(data);
         }
         /*if (!newDepartment || !newDepartment.title || !newDepartment.head || !newDepartment.head._id || newDepartment.level === null || !newDepartment.parent || !newDepartment.parent._id)
@@ -110,5 +111,25 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
             newDepartment.parent = newDepartment.parent._id;
             $scope.modalOptions.ok(newDepartment);
         }*/
+    };
+    $scope.initMailConfig = function() {
+        $http.get('/api/getMailConfig')
+            .success(function(data) {
+                if (data.packageName === 'mailmanager')
+                    $scope.mailConfig = data.data;
+            })
+            .error(function() {
+                $log.error('error');
+            });
+    };
+    $scope.manualSynchronization = function() {
+        $http.get('/api/synchronizemailboxes')
+            .success(function(response, status) {
+                if (status === 200)
+                    $scope.isSynchronized = true;
+            })
+            .error(function() {
+                $log.error('error');
+            });
     };
 });

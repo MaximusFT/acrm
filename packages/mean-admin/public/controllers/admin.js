@@ -39,6 +39,11 @@ angular.module('mean.mean-admin').controller('AdminController', ['$scope', 'Glob
             'title': 'REQUESTS',
             'link': 'clients manager page',
             'icon': icons + 'users.png'
+        }, {
+            'roles': ['admin'],
+            'title': 'MAILS',
+            'link': 'mailmanager',
+            'icon': icons + 'mails.png'
         }];
 
         // Query menus added by modules. Only returns menus that user is allowed to see.

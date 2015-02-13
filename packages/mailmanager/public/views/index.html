@@ -1,0 +1,60 @@
+<div ng-app="mailmanager">
+  <div data-ng-controller="MailmanagerController">
+    <h1>Mail Manager</h1>
+    <div class="panel panel-default">
+      <div class="panel-heading">Control panel</div>
+      <div class="panel-body" >
+        <div class="row">
+          <div class="col-md-8">
+            <div class="btn-group" dropdown>
+              <button type="button" class="btn btn-warning dropdown-toggle" dropdown-toggle data-ng-disabled="isSomeSelected" data-ng-click="assignToPerson()">Assign to person</button>
+            </div>
+            <div class="btn-group" style="padding: 10px;">
+              <input type="button" class="btn btn-danger" value="Remove selected" data-ng-disabled="isSomeSelected" data-ng-click="remove()"></div>
+            <div class="btn-group">
+              <input type="button" class="btn btn-primary" value="Revoke selected" data-ng-disabled="isSomeSelected" data-ng-click="revoke()"></div>
+            <input type="text" style="padding: 5px; margin-left: 12px" placeholder="Search" ng-model="search"></div>
+          <p style="float:right; padding:10px">
+            <button type="button" data-ng-click="configModal()" class="btn btn-primary btn-lg">Settings</button>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">All Mailboxes</div>
+      <div class="panel-body" >
+        <accordion close-others="oneAtATime" data-ng-init="getMailboxes()">
+          <accordion-group heading="{{$index+1}}. {{mailbox.domain}}" data-ng-repeat="mailbox in mailboxes" data-ng-init="sectionIndex=$index">
+            <div class="panel-body" cg-busy="{promise:wait,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+              <table class="table table-striped table-bordered table-hover editable-table" >
+                <tbody>
+                  <tr>
+                    <th> <i class="glyphicon glyphicon-sort-by-order"></i>
+                    </th>
+                    <th> <i class="glyphicon glyphicon-ok" data-ng-click="selectAll(sectionIndex)"></i>
+                    </th>
+                    <th>MailBox</th>
+                    <th>Password</th>
+                    <th>Login</th>
+                  </tr>
+                </tbody>
+                <tr data-ng-repeat="box in mailbox.data" class="ng-scope">
+                  <td>
+                    <a href="#!/manager/passwords/{{box['_id']}}">{{$index+1}}</a>
+                  </td>
+                  <td>
+                    <input type="checkbox" data-ng-model="box.Selected" data-ng-click="checkMail(sectionIndex, $index, box)"></td>
+                  <td>{{box.mail}}</td>
+                  <td>**********</td>
+                  <td>
+                    <span class='glyphicon glyphicon-export' data-ng-click="logInToMail(box)"></span>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </accordion-group>
+        </accordion>
+      </div>
+    </div>
+  </div>
+</div>

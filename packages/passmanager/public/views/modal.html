@@ -17,6 +17,7 @@
         <div data-ng-if="modalOptions.type === 8" data-ng-include src="'servermanager/views/addServer.html'"></div>
         <div data-ng-if="modalOptions.type === 9" data-ng-include src="'servermanager/views/addSite.html'"></div>
         <div data-ng-if="modalOptions.type === 10" data-ng-include src="'servermanager/views/addForm.html'"></div>
+        <div data-ng-if="modalOptions.type === 11" data-ng-include src="'mailmanager/views/configForm.html'"></div>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn" data-ng-click="modalOptions.close()">{{modalOptions.closeButtonText}}</button>
