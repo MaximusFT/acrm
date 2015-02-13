@@ -1,5 +1,4 @@
 <section data-ng-controller="SiteController">
-	<button type="button" class="btn btn-danger" data-ng-click="test()">SEND TEST!</button>
 	<div data-ng-init="init()" cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
 		<h1>Site Overview - {{site.title}}</h1>
 		<hr />
@@ -131,7 +130,11 @@
 								</tr>
 								<tr>
 									<td data-ng-repeat="tbody in action.tbody" class="table-editable-cell">
-										<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="action.config[tbody]"></span>
+										<span data-ng-if="tbody !== 'reqType'" class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="action.config[tbody]"></span>
+										<ui-select data-ng-if="tbody === 'reqType'" data-ng-init="initTypes()" class="col-md-6" style="width:100%;" data-ng-model="action.config[tbody]" data-ng-change="updateBindedData()">
+											<ui-select-match placeholder="Select type...">{{$select.selected.title}}</ui-select-match>
+											<ui-select-choices repeat="type.id as type in requestTypes | filter:$select.search">{{type.title}} ({{type.id}})</ui-select-choices>
+										</ui-select>
 									</td>
 								</tr>
 								<tr data-ng-if="action.name === 'Send to Inside' || action.name === 'Subscribe in JustClick'">

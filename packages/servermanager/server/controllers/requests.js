@@ -108,7 +108,6 @@ function subscribeInJustclick(req, res, options, data, callback) {
     }
 
     function checkHash(resp, authData) {
-    	console.log(resp.error_code + '::' + resp.error_text + '::' + authData.user_rps_key);
         return crypto.createHash('md5').update(resp.error_code + '::' + resp.error_text + '::' + authData.user_rps_key).digest('hex') === resp.hash;
     }
 
@@ -153,7 +152,7 @@ function subscribeInJustclick(req, res, options, data, callback) {
     sendData.hash = getHash(sendData, authData);
 
     send_('http://' + options.userId + '.justclick.ru/api/AddLeadToGroup', sendData, function(resp) {
-    	var response = JSON.parse(resp);
+        var response = JSON.parse(resp);
         callback(response, checkHash(response, authData));
     });
 }
@@ -244,7 +243,6 @@ exports.processUserRequest = function(req, res) {
                                         return fa.name === 'Send to Inside';
                                     });
                                     if (insideOptions.length > 0 && insideOptions[0].isEnabled) {
-                                        console.log('INSIDE SENDING');
                                         sendToInside(req, res, insideOptions[0].config, bindedData, function(response) {
                                             console.log('response from Inside', response);
                                         });
@@ -254,7 +252,6 @@ exports.processUserRequest = function(req, res) {
                                         return fa.name === 'Subscribe in JustClick';
                                     });
                                     if (justclickOptions.length > 0 && justclickOptions[0].isEnabled) {
-                                        console.log('JUSTCLICK SENDING');
                                         subscribeInJustclick(req, res, justclickOptions[0].config, bindedData, function(response) {
                                             console.log('response from JustClick', response);
                                         });
@@ -271,4 +268,98 @@ exports.processUserRequest = function(req, res) {
                 }
             }
         });
+};
+
+exports.requestTypes = function(req, res) {
+    return res.jsonp([{
+        id: 1,
+        title: 'Обратный звонок'
+    }, {
+        id: 2,
+        title: 'Хочу учиться в офисе'
+    }, {
+        id: 3,
+        title: ' Хочу инвестировать (ПерсТрейдер)'
+    }, {
+        id: 4,
+        title: 'Хочу учиться дистанционно в Москве'
+    }, {
+        id: 5,
+        title: 'Хочу инвест. в Москве (ПерсТрейдер)'
+    }, {
+        id: 6,
+        title: 'Мастер-класс в Москве'
+    }, {
+        id: 7,
+        title: 'Хочу учиться дистанционно'
+    }, {
+        id: 8,
+        title: 'Сайт ПТ: Вопрос с сайта'
+    }, {
+        id: 9,
+        title: 'Сайт ПТ: Стать инвестором'
+    }, {
+        id: 10,
+        title: 'Сайт ПТ: Стать трейдером'
+    }, {
+        id: 11,
+        title: 'Сайт ПТ: Вопрос трейдеру'
+    }, {
+        id: 12,
+        title: 'Хочу демо счет'
+    }, {
+        id: 13,
+        title: 'Мастер-инвест'
+    }, {
+        id: 14,
+        title: 'Хочу работать'
+    }, {
+        id: 15,
+        title: 'Конкурсы'
+    }, {
+        id: 16,
+        title: 'Акции'
+    }, {
+        id: 17,
+        title: 'Хочу бонус'
+    }, {
+        id: 18,
+        title: '24% годовых'
+    }, {
+        id: 19,
+        title: 'Вопрос менеджеру'
+    }, {
+        id: 20,
+        title: 'Хочу зарабатывать'
+    }, {
+        id: 21,
+        title: 'Хочу открыть счет'
+    }, {
+        id: 29,
+        title: 'Заказать обучающие материалы'
+    }, {
+        id: 30,
+        title: 'Хочу торговые сигналы'
+    }, {
+        id: 31,
+        title: 'Хочу электронную книгу'
+    }, {
+        id: 32,
+        title: 'Хочу VIP счет'
+    }, {
+        id: 33,
+        title: 'Мастер-инвест: мастер'
+    }, {
+        id: 34,
+        title: 'Хочу учиться: новичкам'
+    }, {
+        id: 35,
+        title: 'Телемагазин'
+    }, {
+        id: 36,
+        title: 'Бизнес семинар'
+    }, {
+        id: 49,
+        title: 'Финансовая справочная'
+    }]);
 };

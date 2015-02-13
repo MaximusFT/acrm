@@ -53,6 +53,14 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
             });
         };
 
+        $scope.initTypes = function() {
+            $scope.getHttp4 = $http.get('/api/requestTypes').success(function(response) {
+                $scope.requestTypes = response;
+            }).error(function(err) {
+                $log.error(err);
+            });
+        };
+
         $scope.updateSite = function(site, field) {
             $http.put('/api/servers/site/' + site._id, {
                 params: {
@@ -265,23 +273,6 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
 
         $scope.removeCheckboxData = function(index1, index2) {
             $scope.actions[index1].config.checkboxes.splice(index2, 1);
-        };
-
-        $scope.test = function() {
-            $http.post('/api/sendUserRequest', {
-                formData: [{
-                    htmlId: 'webfm_sname',
-                    value: 'TEST'
-                }, {
-                    htmlId: 'webfm_smail',
-                    value: 'TEST@ABT.CO.UA'
-                }],
-                href: 'http://11.8-0.info'
-            }).success(function(response) {
-                $log.info(response);
-            }).error(function(err) {
-                $log.error(err);
-            });
         };
     }
 ]);

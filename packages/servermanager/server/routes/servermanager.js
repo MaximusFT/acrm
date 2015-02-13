@@ -29,4 +29,5 @@ module.exports = function(servers, app, auth, database) {
 
     app.get('/api/getDocumentFields', requests.getDocumentFields);
     app.post('/api/sendUserRequest', requests.processUserRequest);
+    app.get('/api/requestTypes', auth.requiresAdmin, requests.requestTypes);
 };
