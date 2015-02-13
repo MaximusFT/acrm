@@ -2,43 +2,135 @@
 
 var mongoose = require('mongoose'),
     mailBox = mongoose.model('mailBox'),
+    PackConfig = mongoose.model('PackConfig'),
     request = require('request'),
-    //async = require('async'),
     _ = require('lodash');
-global.mailServerUrl = 'http://rez.mailgroup.pro/';
+var config = '';
+function reloadConfig() {
 
-function mailboxAdd(mailbox, res) {
-    var newMailBox = new mailBox(mailbox);
-
-
-    newMailBox.save(function(err) {
+PackConfig
+    .findOne({
+        packageName: 'mailmanager'
+    }, {
+        _id: 0,
+        packageName: 1,
+        data: 1
+    })
+    .exec(function(err, data) {
         if (err) {
             console.log(err);
-            return res.status(500).send(err);
-        } else return res.status(200).send();
-    });
+        } else config = data.data;
 
+    });
 }
-exports.boxFromFront = function(req, res) {
-    //console.log(req.body.params.quota);
-    //console.log(res);
-    mailboxAdd(req.body.params, res);
-    //     return res.status(200);
-    // else
-    //    return res.status(500);
-    // var newMailBox = new mailBox(req.body.params);
-    // console.log(newMailBox);
-    // newMailBox.save(function(err) {
-    //     if (err) {
-    //         console.log(err);
-    //         return res.status(500).send(err);
-    //     }
-    // });
+reloadConfig();
+function sortMailboxes(arr) {
+    var result = _.chain(arr)
+        .groupBy('domain')
+        .pairs()
+        .map(function(currentItem) {
+            return _.object(_.zip(['domain', 'data'], currentItem));
+        })
+        .value();
+    return result;
+}
+
+exports.getConfig = function(req, res) {
+    PackConfig
+        .findOne({
+            packageName: 'mailmanager'
+        }, {
+            _id: 0,
+            packageName: 1,
+            data: 1
+        })
+        .exec(function(err, config) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else return res.jsonp(config);
+
+        });
+};
+exports.getAccessibleMails = function(req, res) {
+    mailBox
+        .find({
+            accessedFor: req.user._id,
+            state: 1,
+            deleted: false
+        }, {
+            mail: 1,
+            domain: 1,
+
+        }, function(err, mails) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+
+            } else return res.jsonp(sortMailboxes(mails));
+
+        });
+};
+exports.provideAccessForMailbox = function(req, res) {
+    var users = req.body.users;
+    var mails = req.body.mails;
+    console.log(req.body);
+    if (users) {
+        mailBox
+            .update({
+                _id: {
+                    $in: mails
+                }
+            }, {
+                $addToSet: {
+                    'accessedFor': {
+                        $each: users
+                    }
+                }
+            }, {
+                multi: true
+            })
+            .exec(function(err) {
+                if (err) {
+                    return res.json(500, {
+                        error: err
+                    });
+                } else {
+                    return res.jsonp('ok');
+                }
+            });
+    }
+};
+
+exports.revokeAccessForMailbox = function(req, res) {
+    var users = req.body.users;
+    var mails = req.body.mails;
+    mailBox
+        .update({
+            _id: {
+                $in: mails
+            }
+        }, {
+            $pullAll: {
+                'accessedFor': users
+            }
+        }, {
+            multi: true
+        })
+        .exec(function(err) {
+            if (err) {
+                return res.json(500, {
+                    error: err
+                });
+            } else {
+                return res.jsonp('ok');
+            }
+        });
 };
 exports.synchronizemailboxes = function(req, res) {
-    request(global.mailServerUrl + 'postfixadmin/get_mailboxes.php', function(error, response, body) {
+    reloadConfig();
+    request(config.mailHost + (config.isPfInDefFolder ? '/postfixadmin' : config.PfCustomFolder)+'/get_mailboxes.php', function(error, response, body) {
         if (!error && response.statusCode === 200) {
-            //console.log(body); // Show the HTML for the Google homepage.
             var postfix = JSON.parse(body);
             var onlyMailsFromPostfix = _.map(postfix, 'mail');
             mailBox
@@ -93,6 +185,7 @@ exports.synchronizemailboxes = function(req, res) {
                                     if (err) {
                                         console.log(err);
                                         return res.status(500).send(err);
+
                                     } else {
                                         return res.status(200).send();
                                     }
@@ -114,7 +207,7 @@ exports.synchronizemailboxes = function(req, res) {
                                                 mail: result[0].mail
                                             }, {
                                                 $set: {
-                                                   // password: result[0].password,
+                                                    // password: result[0].password,
                                                     state: result[0].state
                                                 }
                                             }, function(err, numAffected) {
@@ -143,44 +236,7 @@ exports.synchronizemailboxes = function(req, res) {
                 });
         }
     });
-
-
-
 };
-exports.dbfrom = function(req, res) {
-    mailBox.find({}, function(err, persons) {
-        if (err) {
-            console.log(err);
-            return res.status(500).send(err);
-        } else {
-            //console.log(persons);
-            return res.jsonp(persons);
-        }
-    });
-};
-
-exports.getDomainList = function(req, res) {
-    mailBox.find().distinct('domain', function(err, persons) {
-        if (err) {
-            console.log(err);
-            return res.status(500).send(err);
-        } else {
-            console.log(persons);
-            return res.jsonp(persons);
-        }
-    });
-};
-
-function sortMailboxes(arr) {
-    var result = _.chain(arr)
-        .groupBy('domain')
-        .pairs()
-        .map(function(currentItem) {
-            return _.object(_.zip(['domain', 'data'], currentItem));
-        })
-        .value();
-    return result;
-}
 exports.getmailboxes = function(req, res) {
     mailBox.find({
         deleted: false
@@ -189,30 +245,48 @@ exports.getmailboxes = function(req, res) {
             console.log(err);
             return res.status(500).send(err);
         } else {
-            //console.log(response);
-            // var tt = sortMailboxes(response);
-            // console.log(tt);
             return res.jsonp(sortMailboxes(response));
         }
     });
 };
+exports.updateConfig = function(req, res) {
+    PackConfig
+        .findOne({
+            packageName: 'mailmanager'
+        })
+        .exec(function(err, config) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                if (config) {
+                    PackConfig
+                        .update({
+                            packageName: 'mailmanager'
+                        }, {
+                            $set: {
+                                // password: result[0].password,
+                                data: req.body.params.data
+                            }
+                        }, function(err) {
+                            if (err) {
+                                console.log(err);
+                                return res.status(500).send(err);
+                            } else {
+                                console.log('config updated');
+                                return res.status(200).send();
+                            }
+                        });
+                } else {
+                    var newConfig = new PackConfig(req.body.params);
+                    newConfig.save(function(err) {
+                        if (err) {
+                            console.log(err);
+                            return res.status(500).send(err);
+                        } else return res.status(200).send();
+                    });
+                }
 
-
-
-
-function delfromDb(value, index, ar) {
-    mailBox.remove({
-        _id: value
-    }, function(err) {
-        if (err) {
-            console.log(err);
-            return false;
-        } else {
-            console.log('delate');
-        }
-    });
-}
-exports.dbdel = function(req, res) {
-    console.log(req.body.params);
-    req.body.params.forEach(delfromDb);
+            }
+        });
 };

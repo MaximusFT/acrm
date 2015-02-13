@@ -2,115 +2,59 @@
   <div data-ng-controller="MailmanagerController">
     <h1>Mail Manager</h1>
     <div class="panel panel-default">
-      <div class="panel-heading">Adding new mailbox</div>
-      <div class="panel-body">
-        <style>.col-md-8,.col-md-4 {margin-top: 10px;}</style>
-        <div class="row-fluid form-inline">
+      <div class="panel-heading">Control panel</div>
+      <div class="panel-body" >
+        <div class="row">
           <div class="col-md-8">
-            <input type="text" class="form-control" data-ng-model="mailboxTemp.title" placeholder="Email" required />
-            <span>@</span>
-            <select class="form-control" data-ng-model="mailboxTemp.domain" data-ng-init="getDomains()">
-              <option data-ng-repeat="domain in domains">{{domain}}</option>
-            </select>
-            <input id='domainaddbnt' type="button" data-ng-hide='domainAddState' data-ng-click="domainAddShow()" class="btn span1" value="Add Domain" />
-          </div>
-          <div class="col-md-4" data-ng-show="domainAddState">
-            <input type="text" data-ng-model="tempdomain" class='form-control' value="" placeholder="domain" />
-            <input type="button" data-ng-click="domainAdd()" class="btn span1" value="Add" />
-          </div>
-          <div class="col-md-8">
-            <input type="text" class="form-control" data-ng-model="mailboxTemp.password" placeholder="********" required />
-            <input type="text" class="form-control" data-ng-model="mailboxTemp.password" placeholder="********" required />
-          </div>
-          <div class="col-md-8">
-            <input type="text" class="form-control" data-ng-model="mailboxTemp.comment" placeholder="Comment" required />
-            <input type="submit" class="btn span1" value="Add New mailbox" data-ng-click="mailboxAdd()" />
-          </div>
-
+            <div class="btn-group" dropdown>
+              <button type="button" class="btn btn-warning dropdown-toggle" dropdown-toggle data-ng-disabled="isSomeSelected" data-ng-click="assignToPerson()">Assign to person</button>
+            </div>
+            <div class="btn-group" style="padding: 10px;">
+              <input type="button" class="btn btn-danger" value="Remove selected" data-ng-disabled="isSomeSelected" data-ng-click="remove()"></div>
+            <div class="btn-group">
+              <input type="button" class="btn btn-primary" value="Revoke selected" data-ng-disabled="isSomeSelected" data-ng-click="revoke()"></div>
+            <input type="text" style="padding: 5px; margin-left: 12px" placeholder="Search" ng-model="search"></div>
+          <p style="float:right; padding:10px">
+            <button type="button" data-ng-click="configModal()" class="btn btn-primary btn-lg">Settings</button>
+          </p>
         </div>
       </div>
     </div>
-    <div>
-
-      <div class="panel panel-default">
-        <div class="panel-heading">Control panel</div>
-        <div class="panel-body" >
-          <div class="row">
-            <div class="col-md-8">
-              <div class="btn-group dropdown">
-                <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" data-ng-disabled="isSomeSelected">
-                  Assign selected
-                  <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                  <li data-ng-click="assignToPerson()">
-                    <a href="">To person(s)</a>
-                  </li>
-                  <li data-ng-click="assignToDepartment()">
-                    <a href="">To department</a>
-                  </li>
-                </ul>
-              </div>
-              <div class="btn-group" style="padding: 10px;">
-                <input type="button" class="btn btn-danger" value="Remove selected" data-ng-disabled="isSomeSelected" data-ng-click="remove()"></div>
-              <div class="btn-group">
-                <input type="button" class="btn btn-primary" value="Revoke selected" data-ng-disabled="isSomeSelected" data-ng-click="revoke()"></div>
-              <input type="text" style="padding: 5px; margin-left: 12px" placeholder="Search" ng-model="search"></div>
-          </div>
-        </div>
-      </div>
-
-      <input style='margin-bottom:20px' type="button" data-ng-click="synchronizemailboxes()" class="btn span1" value="Synchronize mailboxes" />
-      <accordion close-others="oneAtATime" data-ng-init="getMailboxes()">
-
-        <accordion-group heading="{{mailbox.domain}}" data-ng-repeat="mailbox in mailboxes" data-ng-init="sectionIndex=$index">
-          <div class="panel-body" cg-busy="{promise:wait,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
-            <table class="table table-striped table-bordered table-hover editable-table" >
-              <tbody>
-                <tr>
-                  <th> <i class="glyphicon glyphicon-sort-by-order"></i>
-                  </th>
-                  <th> <i class="glyphicon glyphicon-ok" data-ng-click="selectAll(sectionIndex)"></i>
-                  </th>
-                  <th>MailBox</th>
-                  <th>Password</th>
-                  <th>Domain</th>
-                  <th>State</th>
-                  <th>Comment</th>
-                  <th>Login</th>
+    <div class="panel panel-default">
+      <div class="panel-heading">All Mailboxes</div>
+      <div class="panel-body" >
+        <accordion close-others="oneAtATime" data-ng-init="getMailboxes()">
+          <accordion-group heading="{{$index+1}}. {{mailbox.domain}}" data-ng-repeat="mailbox in mailboxes" data-ng-init="sectionIndex=$index">
+            <div class="panel-body" cg-busy="{promise:wait,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+              <table class="table table-striped table-bordered table-hover editable-table" >
+                <tbody>
+                  <tr>
+                    <th> <i class="glyphicon glyphicon-sort-by-order"></i>
+                    </th>
+                    <th> <i class="glyphicon glyphicon-ok" data-ng-click="selectAll(sectionIndex)"></i>
+                    </th>
+                    <th>MailBox</th>
+                    <th>Password</th>
+                    <th>Login</th>
+                  </tr>
+                </tbody>
+                <tr data-ng-repeat="box in mailbox.data" class="ng-scope">
+                  <td>
+                    <a href="#!/manager/passwords/{{box['_id']}}">{{$index+1}}</a>
+                  </td>
+                  <td>
+                    <input type="checkbox" data-ng-model="box.Selected" data-ng-click="checkMail(sectionIndex, $index, box)"></td>
+                  <td>{{box.mail}}</td>
+                  <td>**********</td>
+                  <td>
+                    <span class='glyphicon glyphicon-export' data-ng-click="logInToMail(box)"></span>
+                  </td>
                 </tr>
-              </tbody>
-              <tr data-ng-repeat="box in mailbox.data" class="ng-scope">
-                <td>
-                  <a href="#!/manager/passwords/{{box['_id']}}">{{$index+1}}</a>
-                </td>
-                <td>
-                  <input type="checkbox" data-ng-model="box.Selected" data-ng-click="checkMail(sectionIndex, $index, box)"></td>
-                <td>{{box.mail}}</td>
-                <td>{{box.password}}</td>
-                <td>{{box.domain}}</td>
-                <td>{{box.state}}</td>
-                <td>{{box.comment}}</td>
-                <td>
-                  <span class='glyphicon glyphicon-export' data-ng-click="logInToMail(box)"></span>
-                </td>
-
-              </tr>
-            </table>
-          </div>
-        </accordion-group>
-
-      </accordion>
+              </table>
+            </div>
+          </accordion-group>
+        </accordion>
+      </div>
     </div>
-    <!--   <form name="form" method="post" action="http://rez.mailgroup.pro/roundcube/?_task=login">
-    <input type="hidden" name="_task" value="login">
-    <input type="hidden" name="_action" value="login">
-    <input type="hidden" name="_timezone" id="rcmlogintz" value="_default_">
-    <input type="hidden" name="_url" id="rcmloginurl">
-    <input name="_user" id="rcmloginuser" size="40" autocapitalize="off" autocomplete="off" type="text">
-    <input name="_pass" id="rcmloginpwd" size="40" autocapitalize="off" autocomplete="off" type="password">
-    <input type="submit" class="button mainaction" value="Enter" />
-  </form>
-  -->
-</div>
+  </div>
 </div>

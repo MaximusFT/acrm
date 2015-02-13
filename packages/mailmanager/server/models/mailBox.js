@@ -5,7 +5,6 @@ var mongoose = require('mongoose'),
 
 var mailBoxSchema = new Schema({
     title: String,
-    //password: String,
     domain: String,
     state: {
         type: Number,
@@ -28,20 +27,10 @@ var mailBoxSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User'
     }],
-    // quota: [{ current: Number, max: Number }]
-    // comments: [{ body: String, date: Date }],
-    // date: { type: Date, default: Date.now },
-    // hidden: Boolean,
-    // meta: {
-    //   votes: Number,
-    //   favs:  Number
-    // }
 });
-
 mailBoxSchema.pre('save', function(next) {
     if (!this.mail)
         this.mail = this.title + '@' + this.domain;
     next();
 });
-
 mongoose.model('mailBox', mailBoxSchema);
