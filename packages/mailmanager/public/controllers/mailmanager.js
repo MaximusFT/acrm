@@ -179,7 +179,7 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
                         };
                         $scope.wait = $http(request).success(function(data, status) {
                             if (status === 200)
-                                $window.open((config.mailHost + (config.isRcInDefFolder ? '/roundcube' : config.RcCustomFolder) + '/?_task=mail'), '_blank');
+                               $window.location = config.mailHost + (config.isRcInDefFolder ? '/roundcube' : config.RcCustomFolder) + '/?_task=mail';
 
                         }).error(function(data, status) {
                             $log.info('Error with getting response');
