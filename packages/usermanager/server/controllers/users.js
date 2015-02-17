@@ -175,7 +175,8 @@ exports.groups = function(req, res) {
                                     });
                                 } else {
                                     _(user).forEach(function(u) {
-                                        u.department = u.department.name;
+                                        if(u.department && u.name)
+                                            u.department = u.department.name;
                                         if (u.roles && u.roles.length > 1)
                                             u.roles = u.roles[1].substring(0, 1).toUpperCase();
                                         else
