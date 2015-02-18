@@ -11,6 +11,11 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
         $scope.appointments2 = ['name', 'email', 'phone', 'city'];
         $scope.checkboxes = [];
         $scope.actions = [{
+            name: 'Save in ACRM',
+            thead: ['Responsible department', 'Request type', 'Request comment'],
+            tbody: ['department', 'type', 'comment'],
+            config: {}
+        }, {
             name: 'Send to Inside',
             thead: ['Office ID', 'Request type', 'Text for request'],
             tbody: ['officeId', 'reqType', 'comment'],
@@ -22,8 +27,8 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
             config: {}
         }, {
             name: 'Send SMS',
-            thead: ['Text for SMS'],
-            tbody: ['textSms'],
+            thead: ['From', 'Text for SMS'],
+            tbody: ['from', 'textSms'],
             config: {}
         }];
 
@@ -56,6 +61,22 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
         $scope.initTypes = function() {
             $scope.getHttp4 = $http.get('/api/requestTypes').success(function(response) {
                 $scope.requestTypes = response;
+            }).error(function(err) {
+                $log.error(err);
+            });
+        };
+
+        $scope.initAcrmTypes = function() {
+            $scope.getHttp5 = $http.get('/api/acrmRequestTypes').success(function(response) {
+                $scope.acrmRequestTypes = response;
+            }).error(function(err) {
+                $log.error(err);
+            });
+        };
+
+        $scope.initDeps = function() {
+            $scope.getHttp6 = $http.get('/api/getNewDeps').success(function(response) {
+                $scope.departments = response;
             }).error(function(err) {
                 $log.error(err);
             });

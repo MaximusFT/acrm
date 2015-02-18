@@ -69,6 +69,7 @@
     "iconv": "^2.1.5",
     "load-grunt-tasks": "^0.4.0",
     "lodash": "^2.4.1",
+    "log4js": "^0.6.22",
     "meanio": "~0.5.10",
     "method-override": "^1.0.0",
     "mongoose": "^3.8.8",
@@ -125,7 +126,6 @@
     "ms": "^0.6.2",
     "requirejs": "^2.1.11",
     "should": "3.3.1",
-    "supertest": "0.11.0",
-    "through": "^2.3.6"
+    "supertest": "0.11.0"
   }
 }

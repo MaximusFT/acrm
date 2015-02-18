@@ -5,13 +5,90 @@ var mongoose = require('mongoose'),
     //Site = mongoose.model('Site'),
     Form = mongoose.model('Form'),
     FormBindedData = mongoose.model('FormBindedData'),
+    NewWebreq = mongoose.model('NewWebreq'),
+    FormProcessingReport = mongoose.model('FormProcessingReport'),
     _ = require('lodash'),
     request = require('request'),
+    async = require('async'),
     crypto = require('crypto');
 
-function sendToInside(req, res, options, data, callback) {
-    if (!options.email)
-        return res.status(500).send('Empty email option');
+function saveRequestInAcrm(actions, data, analyticsData, formId, callback) {
+    var response = {
+        action: 'ACRM'
+    };
+    var temp = _.filter(actions, function(fa) {
+        return fa.name === 'Save in ACRM';
+    });
+    if (temp.length === 0 || temp.length > 0 && !temp[0].isEnabled) {
+        return callback(response);
+    }
+    var options = temp[0].config;
+
+    var requestData = {};
+    requestData.department = new mongoose.Types.ObjectId(options.department);
+    requestData.type = new mongoose.Types.ObjectId(options.type);
+    requestData.fromForm = formId;
+    requestData.analyticsInfo = analyticsData;
+    if (options.comment)
+        requestData.comment = options.comment;
+    var tmpE = _.filter(data, function(d) {
+        return d.htmlId === options.email;
+    });
+    if (tmpE.length === 0) {
+        response.error = 'Empty email value';
+        return callback(response);
+    }
+    requestData.email = tmpE[0].value;
+    var tmpN = _.filter(data, function(d) {
+        return d.htmlId === options.name;
+    });
+    if (tmpN.length > 0)
+        requestData.name = tmpN[0].value;
+    var tmpP = _.filter(data, function(d) {
+        return d.htmlId === options.phone;
+    });
+    if (tmpP.length > 0)
+        requestData.phone = tmpP[0].value;
+    _.forEach(options.checkboxes, function(chkb) {
+        var tmp = _.filter(data, function(d) {
+            return d.htmlId === chkb.field;
+        });
+        if (tmp.length > 0) {
+            requestData.comment = requestData.comment + '. ' + (tmp[0].value ? (chkb.ifTrue ? chkb.ifTrue : '') : (chkb.ifFalse ? chkb.ifFalse : ''));
+        }
+    });
+    if (analyticsData.ip && analyticsData.ip === '195.138.91.97')
+        requestData.isTest = true;
+
+    var newNewWebreq = new NewWebreq(requestData);
+    newNewWebreq.save(function(err) {
+        if (err) {
+            console.log(err);
+            response.error = err;
+            return callback(response);
+        } else {
+            response.res = newNewWebreq._id;
+            return callback(response);
+        }
+    });
+}
+
+function sendToInside(actions, data, analyticsData, callback) {
+    var response = {
+        action: 'Inside'
+    };
+    var temp = _.filter(actions, function(fa) {
+        return fa.name === 'Send to Inside';
+    });
+    if (temp.length === 0 || temp.length > 0 && !temp[0].isEnabled) {
+        return callback(response);
+    }
+    var options = temp[0].config;
+
+    if (!options.email) {
+        response.error = 'Empty email option';
+        return callback(response);
+    }
     var postData = {};
     postData.office_id = options.officeId;
     postData.type_id = options.reqType;
@@ -19,8 +96,10 @@ function sendToInside(req, res, options, data, callback) {
     var tmpE = _.filter(data, function(d) {
         return d.htmlId === options.email;
     });
-    if (tmpE.length === 0)
-        return res.status(500).send('Empty email value');
+    if (tmpE.length === 0) {
+        response.error = 'Empty email value';
+        return callback(response);
+    }
     postData.email = tmpE[0].value;
     var tmpN = _.filter(data, function(d) {
         return d.htmlId === options.name;
@@ -30,6 +109,8 @@ function sendToInside(req, res, options, data, callback) {
     var tmpP = _.filter(data, function(d) {
         return d.htmlId === options.phone;
     });
+    if (analyticsData.ip)
+        postData.ip = analyticsData.ip;
     if (tmpP.length > 0)
         postData.phone = tmpP[0].value;
     _.forEach(options.checkboxes, function(chkb) {
@@ -37,10 +118,9 @@ function sendToInside(req, res, options, data, callback) {
             return d.htmlId === chkb.field;
         });
         if (tmp.length > 0) {
-            postData.comments = postData.comments + '. ' + (tmp[0].value ? chkb.ifTrue : chkb.ifFalse);
+            postData.comments = postData.comments + '. ' + (tmp[0].value ? (chkb.ifTrue ? chkb.ifTrue : '') : (chkb.ifFalse ? chkb.ifFalse : ''));
         }
     });
-    //console.log('POST DATA', postData);
 
     var transData = {
         comments: postData.comments
@@ -53,10 +133,11 @@ function sendToInside(req, res, options, data, callback) {
         form: {
             txt: transData
         }
-    }, function(error, response, body) {
-        if (!error && response.statusCode === 200) {
+    }, function(error, resp, body) {
+        if (!error && resp.statusCode === 200) {
             if (body === 'Access denied' || body === 'Empty request') {
-                res.status(403).send(body);
+                response.error = body;
+                return callback(response);
             } else {
                 //console.log('ENCODED', body);
                 var encoded = JSON.parse(body);
@@ -66,10 +147,17 @@ function sendToInside(req, res, options, data, callback) {
                 request.post({
                     url: 'https://my.teletrade-dj.com/webform/crm/web_request_form_add',
                     form: postData
-                }, function(error, response, body) {
-                    if (!error && response.statusCode === 200) {
+                }, function(error, resp, body) {
+                    if (!error && resp.statusCode === 200) {
                         //console.log(body);
-                        callback(body);
+                        if(body.indexOf('id') === -1)
+                            response.res = body;
+                        else
+                            response.res = body.split(':')[1].split('}])')[0].trim();
+                        return callback(response);
+                    } else {
+                        response.error = error + ';' + body;
+                        return callback(response);
                     }
                 });
             }
@@ -77,7 +165,17 @@ function sendToInside(req, res, options, data, callback) {
     });
 }
 
-function subscribeInJustclick(req, res, options, data, callback) {
+function subscribeInJustclick(actions, data, callback) {
+    var response = {
+        action: 'Justclick'
+    };
+    var temp = _.filter(actions, function(fa) {
+        return fa.name === 'Subscribe in JustClick';
+    });
+    if (temp.length === 0 || temp.length > 0 && !temp[0].isEnabled) {
+        return callback(response);
+    }
+    var options = temp[0].config;
 
     function http_build_query(formdata) {
         var numeric_prefix = '',
@@ -107,9 +205,9 @@ function subscribeInJustclick(req, res, options, data, callback) {
         return crypto.createHash('md5').update(params).digest('hex');
     }
 
-    function checkHash(resp, authData) {
+    /*function checkHash(resp, authData) {
         return crypto.createHash('md5').update(resp.error_code + '::' + resp.error_text + '::' + authData.user_rps_key).digest('hex') === resp.hash;
-    }
+    }*/
 
     function send_(url, sendData, cb) {
         request.post({
@@ -141,7 +239,7 @@ function subscribeInJustclick(req, res, options, data, callback) {
     var tmpP = _.filter(data, function(d) {
         return d.htmlId === options.phone;
     });
-    if (tmpP.length > 0)
+    if (tmpP.length > 0 && tmpP[0].value)
         sendData.lead_phone = tmpP[0].value;
     var tmpC = _.filter(data, function(d) {
         return d.htmlId === options.city;
@@ -152,9 +250,25 @@ function subscribeInJustclick(req, res, options, data, callback) {
     sendData.hash = getHash(sendData, authData);
 
     send_('http://' + options.userId + '.justclick.ru/api/AddLeadToGroup', sendData, function(resp) {
-        var response = JSON.parse(resp);
-        callback(response, checkHash(response, authData));
+        response.res = JSON.parse(resp);
+        return callback(response);
     });
+}
+
+function sendSMS(actions, data, callback) {
+    var response = {
+        action: 'SMS'
+    };
+    var temp = _.filter(actions, function(fa) {
+        return fa.name === 'Send SMS';
+    });
+    if (temp.length === 0 || temp.length > 0 && !temp[0].isEnabled) {
+        return callback(response);
+    }
+    var options = temp[0].config;
+
+    response.res = options;
+    return callback(response);
 }
 
 exports.getDocumentFields = function(req, res) {
@@ -187,7 +301,10 @@ exports.getDocumentFields = function(req, res) {
                             } else {
                                 if (fields) {
                                     //console.log(_.map(fields, 'htmlId'));
-                                    return res.jsonp(_.map(fields, 'htmlId'));
+                                    return res.jsonp({
+                                        form: form.formId,
+                                        fields: _.map(fields, 'htmlId')
+                                    });
                                 } else
                                     return res.status(500).send('Form binded data was not found');
                             }
@@ -202,11 +319,13 @@ exports.processUserRequest = function(req, res) {
     if (!req.body.formData || !req.body.href)
         return res.status(500).send('Empty query');
     var href = req.body.href,
-        formData = req.body.formData;
+        formData = req.body.formData,
+        analyticsData = req.body.analyticsData;
     if (href.substr(href.length - 1, href.length) === '/')
         href = href.substr(0, href.length - 1);
     console.log('REQUEST FROM', href);
     console.log('FORM DATA', formData);
+    console.log('ANALYTICS DATA', analyticsData);
     Form
         .findOne({
             uri: href
@@ -230,7 +349,6 @@ exports.processUserRequest = function(req, res) {
                                 return res.status(500).send(err);
                             } else {
                                 if (bindedData) {
-                                    console.log('BINDED DATA WAS FOUND', _.map(bindedData, 'htmlId'));
                                     _.forEach(bindedData, function(bd) {
                                         var result = _.filter(formData, function(fd) {
                                             return fd.htmlId === bd.htmlId;
@@ -238,24 +356,45 @@ exports.processUserRequest = function(req, res) {
                                         if (result.length > 0)
                                             bd.value = result[0].value;
                                     });
-                                    //IF IS INSIDE OPTION
-                                    var insideOptions = _.filter(form.actions, function(fa) {
-                                        return fa.name === 'Send to Inside';
-                                    });
-                                    if (insideOptions.length > 0 && insideOptions[0].isEnabled) {
-                                        sendToInside(req, res, insideOptions[0].config, bindedData, function(response) {
-                                            console.log('response from Inside', response);
+                                    async.series([
+                                        function(callback) {
+                                            saveRequestInAcrm(form.actions, bindedData, analyticsData, form._id, function(response) {
+                                                callback(response.error ? response.error : null, !response.error ? response : null);
+                                            });
+                                        },
+                                        function(callback) {
+                                            sendToInside(form.actions, bindedData, analyticsData, function(response) {
+                                                callback(response.error ? response.error : null, !response.error ? response : null);
+                                            });
+                                        },
+                                        function(callback) {
+                                            subscribeInJustclick(form.actions, bindedData, function(response) {
+                                                callback(response.error ? response.error : null, !response.error ? response : null);
+                                            });
+                                        },
+                                        function(callback) {
+                                            sendSMS(form.actions, bindedData, function(response) {
+                                                callback(response.error ? response.error : null, !response.error ? response : null);
+                                            });
+                                        }
+                                    ], function(err, results) {
+                                        var formProcessingReport = new FormProcessingReport({
+                                            form: form._id,
+                                            formData: formData,
+                                            actionsPerformed: _.filter(results, function(r) {
+                                                return !!r.res;
+                                            }),
+                                            error: err
                                         });
-                                    }
-                                    //IF IS JUSTCLICK OPTION
-                                    var justclickOptions = _.filter(form.actions, function(fa) {
-                                        return fa.name === 'Subscribe in JustClick';
-                                    });
-                                    if (justclickOptions.length > 0 && justclickOptions[0].isEnabled) {
-                                        subscribeInJustclick(req, res, justclickOptions[0].config, bindedData, function(response) {
-                                            console.log('response from JustClick', response);
+                                        formProcessingReport.save(function(err) {
+                                            if (err) {
+                                                console.log(err);
+                                                return res.status(500).send(err);
+                                            } else {
+                                                return res.status(200).send();
+                                            }
                                         });
-                                    }
+                                    });
                                 } else {
                                     console.log('Binded data was not found');
                                     return res.status(500).send('Binded data was not found');

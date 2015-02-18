@@ -4,8 +4,7 @@
 module.exports = function(servers, app, auth, database) {
     var servermgr = require('../controllers/servers.js'),
         sites = require('../controllers/sites.js'),
-        forms = require('../controllers/forms.js'),
-        requests = require('../controllers/requests.js');
+        forms = require('../controllers/forms.js');
 
     app.post('/api/server', auth.requiresAdmin, servermgr.create);
     app.get('/api/servers', auth.requiresAdmin, servermgr.servers);
@@ -26,8 +25,4 @@ module.exports = function(servers, app, auth, database) {
 
     app.post('/api/formData', auth.requiresAdmin, forms.formData);
     app.delete('/api/formData/:formData', auth.requiresAdmin, forms.deleteFormData);
-
-    app.get('/api/getDocumentFields', requests.getDocumentFields);
-    app.post('/api/sendUserRequest', requests.processUserRequest);
-    app.get('/api/requestTypes', auth.requiresAdmin, requests.requestTypes);
 };

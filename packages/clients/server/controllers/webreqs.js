@@ -1,19 +1,12 @@
 ﻿'use strict';
 
-/**
- * Module dependencies.
- */
 var mongoose = require('mongoose'),
-    Webreq = mongoose.model('Webreq')
-    /*,
-        _ = require('lodash')*/
-;
+    Webreq = mongoose.model('Webreq'),
+    WebreqType = mongoose.model('WebreqType');
+//_ = require('lodash');
 
-/**
- * Create webreq
- */
 exports.web_request_form_add = function(req, res, next) {
-    console.log(req.body);
+    //console.log(req.body);
     var secret = req.body.secret;
     if (!secret)
         return res.jsonp('empty secret');
@@ -238,6 +231,18 @@ exports.phonesForWebinars = function(req, res) {
                 });
             } else {
                 return res.jsonp(webreqs);
+            }
+        });
+};
+
+exports.acrmRequestTypes = function(req, res) {
+    WebreqType
+        .find(function(err, webreqTypes) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                return res.jsonp(webreqTypes);
             }
         });
 };
