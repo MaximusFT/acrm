@@ -40,6 +40,13 @@ var NewWebreqSchema = new Schema({
 	client: {
 		type: Schema.ObjectId,
 		ref: 'Client'
+	},
+	state: {
+		type: Number,
+		default: 0
+		// 0 - unprocessed
+		// 1 - processed
+		// -1 - removed
 	}
 });
 

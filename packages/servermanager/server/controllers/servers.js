@@ -3,6 +3,7 @@
 var mongoose = require('mongoose'),
     Server = mongoose.model('Server'),
     Site = mongoose.model('Site'),
+    Pass = mongoose.model('Pass'),
     _ = require('lodash');
 
 exports.create = function(req, res) {
@@ -64,10 +65,21 @@ exports.server = function(req, res) {
                                 console.log(err);
                                 return res.status(500).send(err);
                             } else {
-                                return res.jsonp({
-                                    server: server,
-                                    sites: sites
-                                });
+                                Pass
+                                    .find({
+                                        forServer: req.query.server
+                                    }, function(err, passes) {
+                                        if (err) {
+                                            console.log(err);
+                                            return res.status(500).send(err);
+                                        } else {
+                                            return res.jsonp({
+                                                server: server,
+                                                sites: sites,
+                                                passwords: passes
+                                            });
+                                        }
+                                    });
                             }
                         });
                 } else {

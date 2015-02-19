@@ -1,22 +1,21 @@
 'use strict';
 
-angular.module('mean.servermanager').controller('ServermanagerController', ['$scope', '$http', '$log', '$window', 'Global', 'Servermanager', 'modalService',
-    function($scope, $http, $log, $window, Global, Servermanager, modalService) {
+angular.module('mean.servermanager').controller('ServermanagerController', ['$scope', '$http', '$log', '$window', '$stateParams', '$location', 'Global', 'Servermanager', 'modalService',
+    function($scope, $http, $log, $window, $stateParams, $location, Global, Servermanager, modalService) {
         $scope.global = Global;
         $scope.isVisibleRemoveButton = [];
         $scope.deployedSites = [];
 
-        /*$scope.gridOptions = {
-            enableSorting: true,
-            onRegisterApi: function(gridApi) {
-                $scope.gridApi = gridApi;
-            }
-        };*/
-
         $scope.init = function() {
-            $scope.getHttp1 = $http.get('/api/servers').success(function(response) {
+            $scope.getHttp1 = $http.get('/api/servers_').success(function(response) {
                 $scope.servers = response;
                 //$log.info(response);
+                if ($stateParams.serverId) {
+                    angular.forEach($scope.servers, function(server, index) {
+                        if (server._id === $stateParams.serverId)
+                            $scope.selectServer(server, index);
+                    });
+                }
             }).error(function(err) {
                 $log.error(err);
             });
@@ -56,6 +55,8 @@ angular.module('mean.servermanager').controller('ServermanagerController', ['$sc
                 //$log.info('select server', response);
                 $scope.selectedServer = response.server;
                 $scope.deployedSites = response.sites;
+                $scope.referencedPasswords = response.passwords;
+                $location.path('/servers/' + server._id);
             }).error(function(err) {
                 $log.error(err);
             });
@@ -116,7 +117,7 @@ angular.module('mean.servermanager').controller('ServermanagerController', ['$sc
         };
 
         $scope.removeServer = function(server, index) {
-            if ($scope.deployedSites.length === 0) {
+            if ($scope.deployedSites.length === 0 && $scope.referencedPasswords.length === 0) {
                 $http.delete('/api/server', {
                     params: {
                         server: server._id
@@ -156,7 +157,7 @@ angular.module('mean.servermanager').controller('ServermanagerController', ['$sc
         };
 
         $scope.updateSite = function(site, field) {
-            $http.put('/api/servers/site/' + site._id, {
+            $http.put('/api/site/' + site._id, {
                 params: {
                     key: field,
                     val: site[field]
@@ -167,11 +168,21 @@ angular.module('mean.servermanager').controller('ServermanagerController', ['$sc
         };
 
         $scope.removeSite = function(site, index) {
-            $http.delete('/api/servers/site/' + site._id).success(function(response) {
+            $http.delete('/api/site/' + site._id).success(function(response) {
                 $scope.deployedSites.splice(index, 1);
             }).error(function(err) {
                 $log.error(err);
             });
+        };
+
+        $scope.getPass = function(pass) {
+            return pass;
+        };
+
+        $scope.showPass = function(index) {
+            if (!$scope.isPassShown)
+                $scope.isPassShown = [];
+            $scope.isPassShown[index] = !$scope.isPassShown[index];
         };
     }
 ]);

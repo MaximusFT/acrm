@@ -1,549 +1,587 @@
 'use strict';
 
 angular.module('mean.passmanager').controller('PassmanagerController', ['$scope', 'Global', 'Passmanager',
-		function ($scope, Global, Passmanager) {
-			$scope.global = Global;
-			$scope.package = {
-				name : 'passmanager'
-			};
-		}
-	]);
+    function($scope, Global, Passmanager) {
+        $scope.global = Global;
+        $scope.package = {
+            name: 'passmanager'
+        };
+    }
+]);
 
 angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$cookies', '$q', 'modalService', 'Passwords', 'Users', 'Requests', 'crypter',
-		function ($scope, Global, Menus, $rootScope, $http, $log, $cookies, $q, modalService, Passwords, Users, Requests, crypter) {
-			$scope.mode = $cookies.mode;
-			$scope.global = Global;
-			$scope.isSomeSelected = true;
-			$scope.isPassSelected = [];
-			$scope.isRequests = false;
-			$scope.isPasses = false;
-			$scope.isPassShown = [];
-			$scope.getHttp1 = null;
-			$scope.getHttp2 = null;
-			$scope.radioModel = 'Left';
-			$scope.dataModel = 0;
-			$scope.isGroupOpened = [];
-			$scope.isSentIdea = $scope.isSentRequest = false;
-			$scope.alerts = [{
-					type : 'danger',
-					msg : 'Attention! Now, being authorized as a department manager, you have access to the passwords, which are assigned to at least one of your employee. If you take away access to the employee and it was the only employee of the department who had access to the password, the password will disappear from this list.'
-				}
-			];
-			$scope.tabs = [{
-					type : 1,
-					title : 'Request for adding',
-					icon : 'glyphicon glyphicon-plus',
-					btn : ['Add', 'Remove']
-				}, {
-					type : 2,
-					title : 'Request for editing',
-					icon : 'glyphicon glyphicon-pencil',
-					btn : ['Confirm', 'Reject']
-				}
-			];
-			if ($scope.mode === 'Administrator') {
-				$scope.btn_class = [];
-			} else {
-				$scope.btn_class = new Array([]);
-			}
-			Users.query({}, function (users) {
-				var lols = [];
-				users.forEach(function (item) {
-					//$log.info(item);
-					lols.push(item.username);
-				});
-				$scope.passSchema = [{
-						title : 'Group',
-						schemaKey : 'group',
-						type : 'text',
-						inTable : false
-					}, {
-						title : 'Appointment',
-						schemaKey : 'implement',
-						type : 'text',
-						inTable : false
-					}, {
-						title : 'Resource Title',
-						schemaKey : 'resourceName',
-						type : 'text',
-						inTable : true
-					}, {
-						title : 'Resource URL',
-						schemaKey : 'resourceUrl',
-						type : 'text',
-						inTable : true
-					}, {
-						title : 'Email',
-						schemaKey : 'email',
-						type : 'text',
-						inTable : true
-					}, {
-						title : 'Username',
-						schemaKey : 'login',
-						type : 'text',
-						inTable : true
-					}, {
-						title : 'Password',
-						schemaKey : 'hashed_password',
-						type : 'password',
-						inTable : true
-					}, {
-						title : 'Comment',
-						schemaKey : 'comment',
-						type : 'text',
-						inTable : false
-					}
-				];
-				$scope.pass = {};
-			});
+    function($scope, Global, Menus, $rootScope, $http, $log, $cookies, $q, modalService, Passwords, Users, Requests, crypter) {
+        $scope.mode = $cookies.mode;
+        $scope.global = Global;
+        $scope.isSomeSelected = true;
+        $scope.isPassSelected = [];
+        $scope.isRequests = false;
+        $scope.isPasses = false;
+        $scope.isPassShown = [];
+        $scope.getHttp1 = null;
+        $scope.getHttp2 = null;
+        $scope.radioModel = 'Left';
+        $scope.dataModel = 0;
+        $scope.isGroupOpened = [];
+        $scope.isSentIdea = $scope.isSentRequest = false;
+        $scope.newPassType = null;
+        $scope.alerts = [{
+            type: 'danger',
+            msg: 'Attention! Now, being authorized as a department manager, you have access to the passwords, which are assigned to at least one of your employee. If you take away access to the employee and it was the only employee of the department who had access to the password, the password will disappear from this list.'
+        }];
+        $scope.tabs = [{
+            type: 1,
+            title: 'Request for adding',
+            icon: 'glyphicon glyphicon-plus',
+            btn: ['Add', 'Remove']
+        }, {
+            type: 2,
+            title: 'Request for editing',
+            icon: 'glyphicon glyphicon-pencil',
+            btn: ['Confirm', 'Reject']
+        }];
+        $scope.passTypes = [{
+            id: 0,
+            title: 'For server'
+        }, {
+            id: 1,
+            title: 'For site'
+        }, {
+            id: -1,
+            title: 'Other'
+        }];
+        if ($scope.mode === 'Administrator') {
+            $scope.btn_class = [];
+        } else {
+            $scope.btn_class = new Array([]);
+        }
+        Users.query({}, function(users) {
+            var lols = [];
+            users.forEach(function(item) {
+                //$log.info(item);
+                lols.push(item.username);
+            });
+            $scope.passSchema = [{
+                title: 'Group',
+                schemaKey: 'group',
+                type: 'text',
+                inTable: false
+            }, {
+                title: 'Appointment',
+                schemaKey: 'implement',
+                type: 'text',
+                inTable: false
+            }, {
+                title: 'Resource Title',
+                schemaKey: 'resourceName',
+                type: 'text',
+                inTable: true
+            }, {
+                title: 'Resource URL',
+                schemaKey: 'resourceUrl',
+                type: 'text',
+                inTable: true
+            }, {
+                title: 'Email',
+                schemaKey: 'email',
+                type: 'text',
+                inTable: true
+            }, {
+                title: 'Username',
+                schemaKey: 'login',
+                type: 'text',
+                inTable: true
+            }, {
+                title: 'Password',
+                schemaKey: 'hashed_password',
+                type: 'password',
+                inTable: true
+            }, {
+                title: 'Comment',
+                schemaKey: 'comment',
+                type: 'text',
+                inTable: false
+            }];
+            $scope.pass = {};
+        });
 
-			$scope.init = function () {
-				$scope.getHttp1 = null;
-				$scope.groups = [];
-				$scope.getHttp1 = $http.get('api/getGroups').success(function (data) {
-						$scope.groups = data;
-						//$log.info($scope.groups);
-					}).error(function () {
-						$log.error('error');
-					});
-			};
+        $scope.init = function() {
+            $scope.getHttp1 = null;
+            $scope.groups = [];
+            $scope.getHttp1 = $http.get('api/getGroups').success(function(data) {
+                $scope.groups = data;
+                //$log.info($scope.groups);
+            }).error(function() {
+                $log.error('error');
+            });
+        };
 
-			$scope.init_ = function () {
-				$scope.getHttp2 = null;
-				$scope.groups = [];
-				$scope.getHttp2 = $http.get('api/getAcsGroups').success(function (data) {
-						$scope.groups = data;
-						if (data.length > 0)
-							$scope.isPasses = true;
-						//$log.warn($scope.groups);
-					}).error(function () {
-						$log.error('error');
-					});
-			};
+        $scope.init_ = function() {
+            $scope.getHttp2 = null;
+            $scope.groups = [];
+            $scope.getHttp2 = $http.get('api/getAcsGroups').success(function(data) {
+                $scope.groups = data;
+                if (data.length > 0)
+                    $scope.isPasses = true;
+                //$log.warn($scope.groups);
+            }).error(function() {
+                $log.error('error');
+            });
+        };
 
-			$scope.init__ = function (t) {
-				$scope.getHttp2 = null;
-				$scope.requests = [];
-				$scope.getHttp2 = $http.get('api/requests', {
-						params : {
-							type : t
-						}
-					}).success(function (data) {
-						//$log.warn(data);
-						angular.forEach(data, function (value, key) {
-							var date = new Date(value.when * 1000);
-							value.when = date.toLocaleString();
-						});
-						$scope.requests = data;
-						if (data.length > 0)
-							$scope.isRequests = true;
-						else
-							$scope.isRequests = false;
-					}).error(function () {
-						$log.error('error');
-					});
-			};
+        $scope.init__ = function(t) {
+            $scope.getHttp2 = null;
+            $scope.requests = [];
+            $scope.getHttp2 = $http.get('api/requests', {
+                params: {
+                    type: t
+                }
+            }).success(function(data) {
+                //$log.warn(data);
+                angular.forEach(data, function(value, key) {
+                    var date = new Date(value.when * 1000);
+                    value.when = date.toLocaleString();
+                });
+                $scope.requests = data;
+                if (data.length > 0)
+                    $scope.isRequests = true;
+                else
+                    $scope.isRequests = false;
+            }).error(function() {
+                $log.error('error');
+            });
+        };
 
-			$scope.provideAccess = function (id, type) {
-				var rId = $scope.requests[id]._id;
-				$http({
-					url : '/api/confirmReq',
-					method : 'POST',
-					data : {
-						'reqId' : rId,
-						'type' : type
-					}
-				})
-				.then(function (response) {
-					//$log.info(response);
-					$scope.btn_class[id] = 'btn btn-success';
-				},
-					function (response) {
-					$log.error('error');
-				});
-			};
+        $scope.provideAccess = function(id, type) {
+            var rId = $scope.requests[id]._id;
+            $http({
+                    url: '/api/confirmReq',
+                    method: 'POST',
+                    data: {
+                        'reqId': rId,
+                        'type': type
+                    }
+                })
+                .then(function(response) {
+                        //$log.info(response);
+                        $scope.btn_class[id] = 'btn btn-success';
+                    },
+                    function(response) {
+                        $log.error('error');
+                    });
+        };
 
-			$scope.rejectAccess = function (id, type) {
-				var rId = $scope.requests[id]._id;
-				$http({
-					url : '/api/rejectReq',
-					method : 'POST',
-					data : {
-						'reqId' : rId
-						//'type' : type
-					}
-				})
-				.then(function (response) {
-					//$log.info(response);
-					$scope.btn_class[id] = 'btn btn-info';
-				},
-					function (response) {
-					$log.error('error');
-				});
-			};
+        $scope.rejectAccess = function(id, type) {
+            var rId = $scope.requests[id]._id;
+            $http({
+                    url: '/api/rejectReq',
+                    method: 'POST',
+                    data: {
+                        'reqId': rId
+                            //'type' : type
+                    }
+                })
+                .then(function(response) {
+                        //$log.info(response);
+                        $scope.btn_class[id] = 'btn btn-info';
+                    },
+                    function(response) {
+                        $log.error('error');
+                    });
+        };
 
-			$scope.assignToPerson = function () {
-				var modalOptions = {
-					closeButtonText : 'Cancel',
-					actionButtonText : 'Confirm',
-					headerText : 'Choose person(s)',
-					bodyText : 'Specify what employee you want to grant access.',
-					type : 1
-				};
+        $scope.assignToPerson = function() {
+            var modalOptions = {
+                closeButtonText: 'Cancel',
+                actionButtonText: 'Confirm',
+                headerText: 'Choose person(s)',
+                bodyText: 'Specify what employee you want to grant access.',
+                type: 1
+            };
 
-				modalService.showModal({}, modalOptions).then(function (result) {
-					var passes = [];
-					angular.forEach($scope.isPassSelected, function (group, gind) {
-						angular.forEach(group, function (implement, impind) {
-							angular.forEach(implement, function (pass, pind) {
-								if (pass === true)
-									passes.splice(passes.length, 0, $scope.groups[gind].implement[impind].passes[pind]._id);
-							});
-						});
-					});
-					$http({
-						url : '/api/provideAccess',
-						method : 'POST',
-						data : {
-							'users' : result,
-							'passes' : passes
-						}
-					})
-					.then(function (response) {
-						unselectAll();
-					},
-						function (response) {
-						$log.error('error');
-					});
-				});
-			};
+            modalService.showModal({}, modalOptions).then(function(result) {
+                var passes = [];
+                angular.forEach($scope.isPassSelected, function(group, gind) {
+                    angular.forEach(group, function(implement, impind) {
+                        angular.forEach(implement, function(pass, pind) {
+                            if (pass === true)
+                                passes.splice(passes.length, 0, $scope.groups[gind].implement[impind].passes[pind]._id);
+                        });
+                    });
+                });
+                $http({
+                        url: '/api/provideAccess',
+                        method: 'POST',
+                        data: {
+                            'users': result,
+                            'passes': passes
+                        }
+                    })
+                    .then(function(response) {
+                            unselectAll();
+                        },
+                        function(response) {
+                            $log.error('error');
+                        });
+            });
+        };
 
-			$scope.assignToDepartment = function () {
-				var modalOptions = {
-					closeButtonText : 'Cancel',
-					actionButtonText : 'Confirm',
-					headerText : 'Choose department',
-					bodyText : 'Specify what department you want to grant access.',
-					type : 2
-				};
+        $scope.assignToDepartment = function() {
+            var modalOptions = {
+                closeButtonText: 'Cancel',
+                actionButtonText: 'Confirm',
+                headerText: 'Choose department',
+                bodyText: 'Specify what department you want to grant access.',
+                type: 2
+            };
 
-				modalService.showModal({}, modalOptions).then(function (result) {
-					var passes = [];
-					angular.forEach($scope.isPassSelected, function (group, gind) {
-						angular.forEach(group, function (implement, impind) {
-							angular.forEach(implement, function (pass, pind) {
-								if (pass === true)
-									passes.splice(passes.length, 0, $scope.groups[gind].implement[impind].passes[pind]._id);
-							});
-						});
-					});
-					$http({
-						url : '/api/provideAccess',
-						method : 'POST',
-						data : {
-							'deps' : result,
-							'passes' : passes
-						}
-					})
-					.then(function (response) {
-						unselectAll();
-					},
-						function (response) {
-						$log.error('error');
-					});
-				});
-			};
+            modalService.showModal({}, modalOptions).then(function(result) {
+                var passes = [];
+                angular.forEach($scope.isPassSelected, function(group, gind) {
+                    angular.forEach(group, function(implement, impind) {
+                        angular.forEach(implement, function(pass, pind) {
+                            if (pass === true)
+                                passes.splice(passes.length, 0, $scope.groups[gind].implement[impind].passes[pind]._id);
+                        });
+                    });
+                });
+                $http({
+                        url: '/api/provideAccess',
+                        method: 'POST',
+                        data: {
+                            'deps': result,
+                            'passes': passes
+                        }
+                    })
+                    .then(function(response) {
+                            unselectAll();
+                        },
+                        function(response) {
+                            $log.error('error');
+                        });
+            });
+        };
 
-			$scope.revoke = function () {
-				var modalOptions = {
-					closeButtonText : 'Cancel',
-					actionButtonText : 'Confirm',
-					headerText : 'Choose person(s)',
-					bodyText : 'Specify what employee you want to revoke access.',
-					type : 1
-				};
+        $scope.revoke = function() {
+            var modalOptions = {
+                closeButtonText: 'Cancel',
+                actionButtonText: 'Confirm',
+                headerText: 'Choose person(s)',
+                bodyText: 'Specify what employee you want to revoke access.',
+                type: 1
+            };
 
-				modalService.showModal({}, modalOptions).then(function (result) {
-					var passes = [];
-					angular.forEach($scope.isPassSelected, function (group, gind) {
-						angular.forEach(group, function (implement, impind) {
-							angular.forEach(implement, function (pass, pind) {
-								if (pass === true)
-									passes.splice(passes.length, 0, $scope.groups[gind].implement[impind].passes[pind]._id);
-							});
-						});
-					});
-					$http({
-						url : '/api/revokeAccess',
-						method : 'POST',
-						data : {
-							'users' : result,
-							'passes' : passes
-						}
-					})
-					.success(function (response) {
-						//$log.info('success');
-						unselectAll();
-					})
-					.error(function (response) {
-						$log.error('error');
-					});
-				});
-			};
+            modalService.showModal({}, modalOptions).then(function(result) {
+                var passes = [];
+                angular.forEach($scope.isPassSelected, function(group, gind) {
+                    angular.forEach(group, function(implement, impind) {
+                        angular.forEach(implement, function(pass, pind) {
+                            if (pass === true)
+                                passes.splice(passes.length, 0, $scope.groups[gind].implement[impind].passes[pind]._id);
+                        });
+                    });
+                });
+                $http({
+                        url: '/api/revokeAccess',
+                        method: 'POST',
+                        data: {
+                            'users': result,
+                            'passes': passes
+                        }
+                    })
+                    .success(function(response) {
+                        //$log.info('success');
+                        unselectAll();
+                    })
+                    .error(function(response) {
+                        $log.error('error');
+                    });
+            });
+        };
 
-			$scope.selectAll = function (sectionIndex, implementIndex) {
-				if (!$scope.isPassSelected[sectionIndex]) {
-					$scope.isPassSelected[sectionIndex] = [];
-				}
-				if (!$scope.isPassSelected[sectionIndex][implementIndex]) {
-					$scope.isPassSelected[sectionIndex][implementIndex] = [];
-				}
-				var ret = false;
-				// checking is already the selection in section
-				angular.forEach($scope.isPassSelected[sectionIndex], function (impl) {
-					angular.forEach($scope.isPassSelected[sectionIndex][implementIndex], function (pass) {
-						if (pass === true) {
-							ret = true;
-						}
-					});
-				});
-				// if selection exists - remove it, doesn't exist – select all
-				angular.forEach($scope.groups[sectionIndex].implement[implementIndex].passes, function (pass, pid) {
-					$scope.isPassSelected[sectionIndex][implementIndex][pid] = !ret;
-					pass.Selected = !ret;
-				});
-				$scope.isSomeSelected = checkSelections();
-			};
+        $scope.selectAll = function(sectionIndex, implementIndex) {
+            if (!$scope.isPassSelected[sectionIndex]) {
+                $scope.isPassSelected[sectionIndex] = [];
+            }
+            if (!$scope.isPassSelected[sectionIndex][implementIndex]) {
+                $scope.isPassSelected[sectionIndex][implementIndex] = [];
+            }
+            var ret = false;
+            // checking is already the selection in section
+            angular.forEach($scope.isPassSelected[sectionIndex], function(impl) {
+                angular.forEach($scope.isPassSelected[sectionIndex][implementIndex], function(pass) {
+                    if (pass === true) {
+                        ret = true;
+                    }
+                });
+            });
+            // if selection exists - remove it, doesn't exist – select all
+            angular.forEach($scope.groups[sectionIndex].implement[implementIndex].passes, function(pass, pid) {
+                $scope.isPassSelected[sectionIndex][implementIndex][pid] = !ret;
+                pass.Selected = !ret;
+            });
+            $scope.isSomeSelected = checkSelections();
+        };
 
-			function checkSelections() {
-				var ret = false;
-				angular.forEach($scope.isPassSelected, function (group) {
-					angular.forEach(group, function (impl) {
-						angular.forEach(impl, function (pass) {
-							if (pass === true)
-								ret = true;
-						});
-					});
-				});
-				return !ret;
-			}
+        function checkSelections() {
+            var ret = false;
+            angular.forEach($scope.isPassSelected, function(group) {
+                angular.forEach(group, function(impl) {
+                    angular.forEach(impl, function(pass) {
+                        if (pass === true)
+                            ret = true;
+                    });
+                });
+            });
+            return !ret;
+        }
 
-			function unselectAll() {
-				angular.forEach($scope.groups, function (group) {
-					angular.forEach(group.implement, function (implement) {
-						angular.forEach(implement.passes, function (pass) {
-							if (pass.Selected === true) {
-								pass.Selected = false;
-							}
-						});
-					});
-				});
-				$scope.isPassSelected = [];
-				$scope.isSomeSelected = true;
-			}
+        function unselectAll() {
+            angular.forEach($scope.groups, function(group) {
+                angular.forEach(group.implement, function(implement) {
+                    angular.forEach(implement.passes, function(pass) {
+                        if (pass.Selected === true) {
+                            pass.Selected = false;
+                        }
+                    });
+                });
+            });
+            $scope.isPassSelected = [];
+            $scope.isSomeSelected = true;
+        }
 
-			$scope.checkPass = function (sectionIndex, implementIndex, index, pass) {
-				if (!$scope.isPassSelected[sectionIndex])
-					$scope.isPassSelected[sectionIndex] = [];
-				if (!$scope.isPassSelected[sectionIndex][implementIndex])
-					$scope.isPassSelected[sectionIndex][implementIndex] = [];
-				if (pass.Selected === false)
-					$scope.isPassSelected[sectionIndex][implementIndex][index] = false;
-				if (pass.Selected === true)
-					$scope.isPassSelected[sectionIndex][implementIndex][index] = true;
-				$scope.isSomeSelected = checkSelections();
-			};
+        $scope.checkPass = function(sectionIndex, implementIndex, index, pass) {
+            if (!$scope.isPassSelected[sectionIndex])
+                $scope.isPassSelected[sectionIndex] = [];
+            if (!$scope.isPassSelected[sectionIndex][implementIndex])
+                $scope.isPassSelected[sectionIndex][implementIndex] = [];
+            if (pass.Selected === false)
+                $scope.isPassSelected[sectionIndex][implementIndex][index] = false;
+            if (pass.Selected === true)
+                $scope.isPassSelected[sectionIndex][implementIndex][index] = true;
+            $scope.isSomeSelected = checkSelections();
+        };
 
-			$scope.changeModel = function (mod) {
-				$scope.dataModel = mod;
-			};
+        $scope.changeModel = function(mod) {
+            $scope.dataModel = mod;
+        };
 
-			$scope.add = function () {
-				if (!$scope.passwords)
-					$scope.passwords = [];
-				if($scope.dataModel === 1) {
-					$scope.pass.group = 'Корпоративная почта';
-					$scope.pass.implement = $scope.pass.corp_email.replace(/.*@/, '');
-					$scope.pass.resourceName = $scope.pass.corp_email.replace(/.*@/, '');
-					$scope.pass.resourceUrl = $scope.pass.corp_email.replace(/.*@/, '');
-					$scope.pass.email = $scope.pass.corp_email;
-					$scope.pass.login = $scope.pass.corp_email;
-					$scope.pass.hashed_password = $scope.pass.corp_hashed_password;
-					$scope.pass.comment = '---';
-				}
-				var pass = new Passwords({
-						group : $scope.pass.group,
-						implement : $scope.pass.implement,
-						resourceName : $scope.pass.resourceName,
-						resourceUrl : $scope.pass.resourceUrl,
-						email : $scope.pass.email,
-						login : $scope.pass.login,
-						password : $scope.pass.hashed_password,
-						comment : $scope.pass.comment
-					});
-				pass.$save(function (response) {
-					var ret = false;
-					//$log.info('search the same implements');
-					angular.forEach($scope.groups, function (group) {
-						angular.forEach(group.implement, function (implement) {
-							if (implement.implement === response.implement && group.group === response.group) {
-								//$log.info('found such implement. added to it');
-								ret = true;
-								implement.passes.splice(implement.passes.length, 0, response);
-							}
-						});
-					});
-					if (!ret) {
-						//$log.info('search the same groups');
-						angular.forEach($scope.groups, function (group) {
-							if (group.group === response.group) {
-								//$log.info('found such group');
-								ret = true;
-								var o = {
-									'implement' : response.implement,
-									'passes' : [response]
-								};
-								group.implement.splice(group.implement.length, 0, o);
-							}
-						});
-						if (!ret) {
-							//$log.info('not found anything. added new group');
-							var o = {
-								'group' : response.group,
-								'implement' : [{
-										'implement' : response.implement,
-										'passes' : [response]
-									}
-								]
-							};
-							$scope.groups.splice($scope.groups.length, 0, o);
-							$scope.groups.sort(function (a, b) {
-								return a.group > b.group;
-							});
-						}
-					}
+        $scope.add = function() {
+            if (!$scope.passwords)
+                $scope.passwords = [];
+            if ($scope.dataModel === 1) {
+                $scope.pass.group = 'Корпоративная почта';
+                $scope.pass.implement = $scope.pass.corp_email.replace(/.*@/, '');
+                $scope.pass.resourceName = $scope.pass.corp_email.replace(/.*@/, '');
+                $scope.pass.resourceUrl = $scope.pass.corp_email.replace(/.*@/, '');
+                $scope.pass.email = $scope.pass.corp_email;
+                $scope.pass.login = $scope.pass.corp_email;
+                $scope.pass.hashed_password = $scope.pass.corp_hashed_password;
+                $scope.pass.comment = '---';
+            }
+            var temp = {
+                group: $scope.pass.group,
+                implement: $scope.pass.implement,
+                resourceName: $scope.pass.resourceName,
+                resourceUrl: $scope.pass.resourceUrl,
+                email: $scope.pass.email,
+                login: $scope.pass.login,
+                password: $scope.pass.hashed_password,
+                comment: $scope.pass.comment
+            };
+            if($scope.pass.forServer)
+                temp.forServer = $scope.pass.forServer;
+            if($scope.pass.forSite)
+                temp.forSite = $scope.pass.forSite;
+            var pass = new Passwords(temp);
+            pass.$save(function(response) {
+                var ret = false;
+                //$log.info('search the same implements');
+                angular.forEach($scope.groups, function(group) {
+                    angular.forEach(group.implement, function(implement) {
+                        if (implement.implement === response.implement && group.group === response.group) {
+                            //$log.info('found such implement. added to it');
+                            ret = true;
+                            implement.passes.splice(implement.passes.length, 0, response);
+                        }
+                    });
+                });
+                if (!ret) {
+                    //$log.info('search the same groups');
+                    angular.forEach($scope.groups, function(group) {
+                        if (group.group === response.group) {
+                            //$log.info('found such group');
+                            ret = true;
+                            var o = {
+                                'implement': response.implement,
+                                'passes': [response]
+                            };
+                            group.implement.splice(group.implement.length, 0, o);
+                        }
+                    });
+                    if (!ret) {
+                        //$log.info('not found anything. added new group');
+                        var o = {
+                            'group': response.group,
+                            'implement': [{
+                                'implement': response.implement,
+                                'passes': [response]
+                            }]
+                        };
+                        $scope.groups.splice($scope.groups.length, 0, o);
+                        $scope.groups.sort(function(a, b) {
+                            return a.group > b.group;
+                        });
+                    }
+                }
 
-					$scope.pass.group = $scope.pass.email = $scope.pass.implement = $scope.pass.resourceName = $scope.pass.resourceUrl = $scope.pass.login = $scope.pass.hashed_password = $scope.pass.comment = '';
-					
-					if($scope.dataModel === 1)
-						$scope.pass.corp_email = $scope.pass.corp_hashed_password = '';	
-				});							
-			};
+                $scope.pass.group = $scope.pass.email = $scope.pass.implement = $scope.pass.resourceName = $scope.pass.resourceUrl = $scope.pass.login = $scope.pass.hashed_password = $scope.pass.comment = '';
 
-			$scope.remove = function () {
-				var deleted = [];
-				angular.forEach($scope.isPassSelected, function (group, gid) {
-					angular.forEach(group, function (implement, impid) {
-						angular.forEach(implement, function (pass, pid) {
-							if (pass === true) {
-								Passwords.remove({
-									passId : $scope.groups[gid].implement[impid].passes[pid]._id
-								});
-								if (!deleted[gid])
-									deleted[gid] = [];
-								if (!deleted[gid][impid])
-									deleted[gid][impid] = [];
-								deleted[gid][impid][pid] = true;
-							}
-						});
-					});
-				});
-				angular.forEach(deleted, function (group, gid) {
-					angular.forEach(group, function (implement, impid) {
-						angular.forEach(implement, function (pass, pid) {
-							if (pass === true) {
-								$scope.groups[gid].implement[impid].passes.splice($scope.groups[gid].implement[impid].passes.indexOf($scope.groups[gid].implement[impid].passes[pid]), 1);
-							}
-						});
-					});
-				});
-				angular.forEach($scope.groups, function (group) {
-					angular.forEach(group.implement, function (impl) {
-						angular.forEach(impl.passes, function (pass) {
-							pass.Selected = false;
-						});
-					});
-				});
-				$scope.isPassSelected = [];
-				$scope.isSomeSelected = checkSelections();
-			};
+                if ($scope.dataModel === 1)
+                    $scope.pass.corp_email = $scope.pass.corp_hashed_password = '';
+            });
+        };
 
-			$scope.update = function (pass, passField) {
-				Passwords.update({
-					passId : pass._id
-				}, {
-					key : passField,
-					val : pass[passField]
-				});
-			};
+        $scope.remove = function() {
+            var deleted = [];
+            angular.forEach($scope.isPassSelected, function(group, gid) {
+                angular.forEach(group, function(implement, impid) {
+                    angular.forEach(implement, function(pass, pid) {
+                        if (pass === true) {
+                            Passwords.remove({
+                                passId: $scope.groups[gid].implement[impid].passes[pid]._id
+                            });
+                            if (!deleted[gid])
+                                deleted[gid] = [];
+                            if (!deleted[gid][impid])
+                                deleted[gid][impid] = [];
+                            deleted[gid][impid][pid] = true;
+                        }
+                    });
+                });
+            });
+            angular.forEach(deleted, function(group, gid) {
+                angular.forEach(group, function(implement, impid) {
+                    angular.forEach(implement, function(pass, pid) {
+                        if (pass === true) {
+                            $scope.groups[gid].implement[impid].passes.splice($scope.groups[gid].implement[impid].passes.indexOf($scope.groups[gid].implement[impid].passes[pid]), 1);
+                        }
+                    });
+                });
+            });
+            angular.forEach($scope.groups, function(group) {
+                angular.forEach(group.implement, function(impl) {
+                    angular.forEach(impl.passes, function(pass) {
+                        pass.Selected = false;
+                    });
+                });
+            });
+            $scope.isPassSelected = [];
+            $scope.isSomeSelected = checkSelections();
+        };
 
-			$scope.getSumLength = function (arr) {
-				var length = 0;
-				angular.forEach(arr, function (item, ind) {
-					angular.forEach(item.passes, function (item2, ind2) {
-						length += 1;
-					});
-				});
-				return length;
-			};
+        $scope.update = function(pass, passField) {
+            Passwords.update({
+                passId: pass._id
+            }, {
+                key: passField,
+                val: pass[passField]
+            });
+        };
 
-			$scope.closeAlert = function (index) {
-				$scope.alerts.splice(index, 1);
-			};
+        $scope.getSumLength = function(arr) {
+            var length = 0;
+            angular.forEach(arr, function(item, ind) {
+                angular.forEach(item.passes, function(item2, ind2) {
+                    length += 1;
+                });
+            });
+            return length;
+        };
 
-			$scope.getPass = function (pass) {
-				return pass;
-				//return crypter.decrypt(pass, crypter.hash($scope.global.user.username + $scope.global.user._id));
-			};
+        $scope.closeAlert = function(index) {
+            $scope.alerts.splice(index, 1);
+        };
 
-			$scope.showPass = function (group, implement, index) {
-				if (!$scope.isPassShown[group])
-					$scope.isPassShown[group] = [];
-				if (!$scope.isPassShown[group][implement])
-					$scope.isPassShown[group][implement] = [];
-				if (!$scope.isPassShown[group][implement][index]) {
-					/*$scope.pr_groups[group].passes[index].hashed_password = crypter.decrypt($scope.pr_groups[group].passes[index].hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id));*/
-					$scope.isPassShown[group][implement][index] = true;
-				} else {
-					/*$scope.pr_groups[group].passes[index].hashed_password = crypter.encrypt($scope.pr_groups[group].passes[index].hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id));*/
-					$scope.isPassShown[group][implement][index] = false;
-				}
-			};
+        $scope.getPass = function(pass) {
+            return pass;
+            //return crypter.decrypt(pass, crypter.hash($scope.global.user.username + $scope.global.user._id));
+        };
 
-			$scope.sendEditRequest = function (group, implement, index) {
-				if ($scope.groups[group].implement[implement].passes[index].edited === true)
-					return;
-				var modalOptions = {
-					closeButtonText : 'Cancel',
-					actionButtonText : 'Confirm',
-					headerText : 'Request for editing',
-					bodyText : 'The new data will be formed in the request, which will be reviewed by system administrators.',
-					type : 6,
-					editprp : JSON.parse(JSON.stringify($scope.groups[group].implement[implement].passes[index]))
-				};
+        $scope.showPass = function(group, implement, index) {
+            if (!$scope.isPassShown[group])
+                $scope.isPassShown[group] = [];
+            if (!$scope.isPassShown[group][implement])
+                $scope.isPassShown[group][implement] = [];
+            if (!$scope.isPassShown[group][implement][index]) {
+                /*$scope.pr_groups[group].passes[index].hashed_password = crypter.decrypt($scope.pr_groups[group].passes[index].hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id));*/
+                $scope.isPassShown[group][implement][index] = true;
+            } else {
+                /*$scope.pr_groups[group].passes[index].hashed_password = crypter.encrypt($scope.pr_groups[group].passes[index].hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id));*/
+                $scope.isPassShown[group][implement][index] = false;
+            }
+        };
 
-				modalService.showModal({}, modalOptions).then(function (result) {
-					result.hashed_password = result.password;
-					var difs = [], was = $scope.groups[group].implement[implement].passes[index];
-					for (var property in was) {
-						if (was[property] !== result[property]) {
-							var t = {};
-							t.propertyName = property;
-							t.values = [was[property], result[property]];
-							difs.splice(difs.length, 0, t);
-						}
-					}
-					var request = new Requests({
-							type : 2,
-							info : difs,
-							when : new Date().getTime() / 1000,
-							comment : 'User wants to edit password'
-						});
-					request.$save(function (response) {
-						if (response)
-							$scope.groups[group].implement[implement].passes[index].edited = true;
-					});
-				});
-			};
-		}
-	]);
+        $scope.sendEditRequest = function(group, implement, index) {
+            if ($scope.groups[group].implement[implement].passes[index].edited === true)
+                return;
+            var modalOptions = {
+                closeButtonText: 'Cancel',
+                actionButtonText: 'Confirm',
+                headerText: 'Request for editing',
+                bodyText: 'The new data will be formed in the request, which will be reviewed by system administrators.',
+                type: 6,
+                editprp: JSON.parse(JSON.stringify($scope.groups[group].implement[implement].passes[index]))
+            };
+
+            modalService.showModal({}, modalOptions).then(function(result) {
+                result.hashed_password = result.password;
+                var difs = [],
+                    was = $scope.groups[group].implement[implement].passes[index];
+                for (var property in was) {
+                    if (was[property] !== result[property]) {
+                        var t = {};
+                        t.propertyName = property;
+                        t.values = [was[property], result[property]];
+                        difs.splice(difs.length, 0, t);
+                    }
+                }
+                var request = new Requests({
+                    type: 2,
+                    info: difs,
+                    when: new Date().getTime() / 1000,
+                    comment: 'User wants to edit password'
+                });
+                request.$save(function(response) {
+                    if (response)
+                        $scope.groups[group].implement[implement].passes[index].edited = true;
+                });
+            });
+        };
+
+        $scope.initServers = function() {
+            $scope.getHttp3 = $http.get('/api/servers').success(function(response) {
+                $scope.servers = response;
+                //$log.info(response);
+            }).error(function(err) {
+                $log.error(err);
+            });
+        };
+
+        $scope.initSites = function() {
+            $scope.getHttp4 = $http.get('/api/sites').success(function(response) {
+                $scope.sites = response;
+                //$log.info(response);
+            }).error(function(err) {
+                $log.error(err);
+            });
+        };
+
+        $scope.checkPassType = function(pass) {
+            if ((pass.type === 0 || pass.type === -1) && pass.forSite)
+                delete pass.forSite;
+            if ((pass.type === 1 || pass.type === -1) && pass.forServer)
+                delete pass.forServer;
+        };
+    }
+]);

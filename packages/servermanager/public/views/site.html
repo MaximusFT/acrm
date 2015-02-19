@@ -28,12 +28,59 @@
 				</td>
 			</tr>
 		</table>
+		<div>
+			<legend>Referenced passwords</legend>
+			<alert type="info" data-ng-if="!referencedPasswords.length">No referenced passwords</alert>
+			<br />
+			<div data-ng-if="referencedPasswords.length">
+				<table class="table table-striped table-bordered table-hover editable-table">
+					<tr>
+						<th> <i class="glyphicon glyphicon-sort-by-order-alt"></i>
+						</th>
+						<th>Resource</th>
+						<th>URI</th>
+						<th>Email</th>
+						<th>Login</th>
+						<th>Password</th>
+					</tr>
+					<tr data-ng-repeat="pass in referencedPasswords">
+						<td>
+							<a href="/#!/manager/passwords/{{pass._id}}">{{$index+1}}.</a>
+						</td>
+						<td>
+							<span>{{pass.resourceName}}</span>
+						</td>
+						<td>
+							<span>{{pass.resourceUrl}}</span>
+						</td>
+						<td>
+							<span>{{pass.email}}</span>
+						</td>
+						<td>
+							<span>{{pass.login}}</span>
+						</td>
+						<td>
+							<div class="input-group input-group-sm">
+								<input type="password" class="form-control" data-ng-if="!isPassShown[$index]" value="********" readonly />
+								<input type="text" class="form-control" data-ng-if="isPassShown[$index]" value="{{pass.hashed_password}}" readonly />
+								<span class="input-group-addon" clip-copy="getPass(pass.hashed_password)"> <i class="glyphicon glyphicon-export"></i>
+								</span>
+								<span style="cursor:pointer" class="input-group-addon" data-ng-click="showPass($index)">
+									<i data-ng-class="isPassShown[$index] === true ? 'glyphicon glyphicon-eye-open' : 'glyphicon glyphicon-eye-close'"></i>
+								</span>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
 	</div>
 	<div class="row">
 		<div class="col-md-3" data-ng-init="initForms()" cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
 			<legend>Forms</legend>
 			<div class="input-group">
-				<span type="button" class="input-group-addon" style="cursor:pointer;" data-ng-click="addForm()" popover="Add new form" popover-trigger="mouseenter"> <i class="glyphicon glyphicon-plus"></i>
+				<span type="button" class="input-group-addon" style="cursor:pointer;" data-ng-click="addForm()" popover="Add new form" popover-trigger="mouseenter">
+					<i class="glyphicon glyphicon-plus"></i>
 				</span>
 				<input type="text" class="form-control" data-ng-model="search" placeholder="Search" />
 			</div>
@@ -42,7 +89,8 @@
 				<li role="presentation">
 					<span style="line-height:3;">
 						<a href="" data-ng-click="selectForm(form, $index)">
-							<span style="font-family:monospace;"> <i class="glyphicon glyphicon-list-alt"></i>
+							<span style="font-family:monospace;">
+								<i class="glyphicon glyphicon-list-alt"></i>
 								&nbsp;{{form.name}} ({{form.formId}})
 							</span>
 						</a>

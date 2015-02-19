@@ -17,6 +17,21 @@
                                 <span data-ng-repeat="field in passSchema">
                                     <input data-ng-if="(field['type'] == 'text' || field['type'] == 'password')" type="{{field['type']}}" class="span2" data-ng-model="pass[field['schemaKey']]" placeholder="{{field['title']}}" id="pass-add-title" required />
                                 </span>
+                                <label>For what:</label>
+                                <div style="display:flex;">
+                                    <ui-select style="width:48%;" data-ng-model="pass.type" data-ng-change="checkPassType(pass)">
+                                        <ui-select-match placeholder="Select type...">{{$select.selected.title}}</ui-select-match>
+                                        <ui-select-choices repeat="type.id as type in passTypes | filter:$select.search">{{type.title}}</ui-select-choices>
+                                    </ui-select>
+                                    <ui-select data-ng-if="pass.type === 0" style="width:48%;" data-ng-init="initServers()" data-ng-model="pass.forServer" data-ng-change="checkPassType(pass)" cg-busy="{promise:getHttp3,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+                                        <ui-select-match placeholder="Select server...">{{$select.selected.ip}}</ui-select-match>
+                                        <ui-select-choices repeat="server._id as server in servers | filter:$select.search">{{server.ip}} ({{server.location}})</ui-select-choices>
+                                    </ui-select>
+                                    <ui-select data-ng-if="pass.type === 1" style="width:48%;" data-ng-init="initSites()" data-ng-model="pass.forSite" data-ng-change="checkPassType(pass)" cg-busy="{promise:getHttp4,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+                                        <ui-select-match placeholder="Select site...">{{$select.selected.title}}</ui-select-match>
+                                        <ui-select-choices repeat="site._id as site in sites | filter:$select.search">{{site.title}} ({{site.uri}})</ui-select-choices>
+                                    </ui-select>
+                                </div>
                             </div>
                         </div>
                         <div data-ng-if="radioModel === 'Right'">
@@ -32,7 +47,6 @@
                 </form>
             </div>
         </div>
-
         <div class="panel panel-default">
             <div class="panel-heading">Control panel</div>
             <div class="panel-body" >

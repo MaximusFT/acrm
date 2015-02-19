@@ -45,7 +45,7 @@ Servermanager.register(function(app, auth, database) {
           //you now have the settings object
       });
       */
-    Servermanager.angularDependencies(['ngTagsInput', 'cgBusy']);
+    Servermanager.angularDependencies(['ui.select', 'ngTagsInput', 'cgBusy', 'ngClipboard']);
     Servermanager.aggregateAsset('css', 'servermanager.css');
 
     return Servermanager;

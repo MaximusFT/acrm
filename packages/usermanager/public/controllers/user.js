@@ -12,7 +12,6 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
         $scope.isPassShown1 = [];
         $scope.status = [true];
         $scope.isGroupOpened = [];
-        $scope.mailServerUrl = 'http://rez.mailgroup.pro/';
 
         if ($cookies.mode === 'Not verified')
             $location.url('/');
@@ -432,7 +431,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
 
                         $scope.wait = $http(request).success(function(data, status) {
                             if (status === 200)
-                                $window.location = $scope.mailServerUrl + 'roundcube/?_task=mail';
+                                $window.location = config.mailHost + (config.isRcInDefFolder ? '/roundcube' : config.RcCustomFolder) + '/?_task=mail';
 
                         }).error(function(data, status) {
                             $log.info('Error with getting response');

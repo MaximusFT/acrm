@@ -49,8 +49,56 @@
                     <strong>Type:</strong>
                     {{selectedServer.type === 0 ? 'Physical Server' : 'VPS/VDS'}}
                 </p>
-                <div cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+                <div>
                     <br />
+                    <legend>Referenced passwords</legend>
+                    <alert type="info" data-ng-if="!referencedPasswords.length">No referenced passwords</alert>
+                    <br />
+                    <div data-ng-if="referencedPasswords.length">
+                        <table class="table table-striped table-bordered table-hover editable-table">
+                            <tr>
+                                <th>
+                                    <i class="glyphicon glyphicon-sort-by-order-alt"></i>
+                                </th>
+                                <th>Resource</th>
+                                <th>URI</th>
+                                <th>Email</th>
+                                <th>Login</th>
+                                <th>Password</th>
+                            </tr>
+                            <tr data-ng-repeat="pass in referencedPasswords">
+                                <td>
+                                    <a href="/#!/manager/passwords/{{pass._id}}">{{$index+1}}.</a>
+                                </td>
+                                <td>
+                                    <span>{{pass.resourceName}}</span>
+                                </td>
+                                <td>
+                                    <span>{{pass.resourceUrl}}</span>
+                                </td>
+                                <td>
+                                    <span>{{pass.email}}</span>
+                                </td>
+                                <td>
+                                    <span>{{pass.login}}</span>
+                                </td>
+                                <td>
+                                    <div class="input-group input-group-sm">
+                                        <input type="password" class="form-control" data-ng-if="!isPassShown[$index]" value="********" readonly />
+                                        <input type="text" class="form-control" data-ng-if="isPassShown[$index]" value="{{pass.hashed_password}}" readonly />
+                                        <span class="input-group-addon" clip-copy="getPass(pass.hashed_password)">
+                                            <i class="glyphicon glyphicon-export"></i>
+                                        </span>
+                                        <span style="cursor:pointer" class="input-group-addon" data-ng-click="showPass($index)">
+                                            <i data-ng-class="isPassShown[$index] === true ? 'glyphicon glyphicon-eye-open' : 'glyphicon glyphicon-eye-close'"></i>
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div>
                     <legend>
                         Deployed sites
                         <i class="glyphicon glyphicon-plus" style="float:right;cursor:pointer;" data-ng-click="addSite()"></i>

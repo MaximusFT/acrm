@@ -46,7 +46,7 @@ Passmanager.register(function (app, auth, database) {
 	});
 	 */
 
-	Passmanager.angularDependencies(['ui.bootstrap', 'cgBusy', 'ngClipboard']);
+	Passmanager.angularDependencies(['ui.bootstrap', 'ui.select', 'cgBusy', 'ngClipboard']);
 	// Aggregate css
 	Passmanager.aggregateAsset('css', 'angular-busy.min.css');
 	// Aggregate js

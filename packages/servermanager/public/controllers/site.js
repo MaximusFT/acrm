@@ -39,8 +39,9 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
         }
 
         $scope.init = function() {
-            $scope.getHttp1 = $http.get('/api/servers/site/' + $scope.siteId).success(function(response) {
-                $scope.site = response;
+            $scope.getHttp1 = $http.get('/api/site/' + $scope.siteId).success(function(response) {
+                $scope.site = response.site;
+                $scope.referencedPasswords = response.passwords;
             }).error(function(err) {
                 $log.error(err);
             });
@@ -294,6 +295,16 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
 
         $scope.removeCheckboxData = function(index1, index2) {
             $scope.actions[index1].config.checkboxes.splice(index2, 1);
+        };
+
+        $scope.getPass = function(pass) {
+            return pass;
+        };
+
+        $scope.showPass = function(index) {
+            if (!$scope.isPassShown)
+                $scope.isPassShown = [];
+            $scope.isPassShown[index] = !$scope.isPassShown[index];
         };
     }
 ]);

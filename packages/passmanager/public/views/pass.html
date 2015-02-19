@@ -1,21 +1,34 @@
 <section data-ng-controller="PassController">
-<div data-ng-if="mode === 'Administrator'">
-    <h1>Password account</h1>
-    <div class="loader" data-ng-init="init()" data-ng-hide="passwords.length"></div>
-    <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="passwords.length">
-        <tr>
-            <th data-ng-repeat="field in passSchema" data-ng-if="field.inTable">{{field.title}}</th>
-        </tr>
-        <tr data-ng-repeat="pass in passwords">
-            <td class="table-editable-cell" data-ng-repeat="field in passSchema" data-ng-if="field.inTable">
-                <span data-ng-if="(field['type'] == 'text')" class="editable-span" data-ng-editable="update(pass, field['schemaKey'])" data-ng-editable-model="pass[field['schemaKey']]"></span>
-            </td>
-        </tr>
-    </table>
-	<div data-ng-if="!isPasses">
-		<p class='bg-danger'>
-			You have not permission for this pass.
-        </p>
-	</div>
-</div>
+    <div data-ng-if="mode === 'Administrator'">
+        <h1>Password account</h1>
+        <div class="loader" data-ng-init="init()" data-ng-hide="passwords.length"></div>
+        <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="passwords.length">
+            <tr>
+                <th data-ng-repeat="field in passSchema" data-ng-if="field.inTable">{{field.title}}</th>
+                <th>Referencing</th>
+            </tr>
+            <tr data-ng-repeat="pass in passwords">
+                <td class="table-editable-cell" data-ng-repeat="field in passSchema" data-ng-if="field.inTable">
+                    <span data-ng-if="(field['type'] == 'text')" class="editable-span" data-ng-editable="update(pass, field['schemaKey'])" data-ng-editable-model="pass[field['schemaKey']]"></span>
+                </td>
+                <td>
+                    <ui-select data-ng-model="pass.type" data-ng-change="checkPassType(pass)">
+                        <ui-select-match placeholder="Select type...">{{$select.selected.title}}</ui-select-match>
+                        <ui-select-choices repeat="type.id as type in passTypes | filter:$select.search">{{type.title}}</ui-select-choices>
+                    </ui-select>
+                    <ui-select data-ng-if="pass.type === 0" data-ng-init="initServers()" data-ng-model="pass.forServer" data-ng-change="checkPassType(pass)" cg-busy="{promise:getHttp3,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+                        <ui-select-match placeholder="Select server...">{{$select.selected.ip}}</ui-select-match>
+                        <ui-select-choices repeat="server._id as server in servers | filter:$select.search">{{server.ip}} ({{server.location}})</ui-select-choices>
+                    </ui-select>
+                    <ui-select data-ng-if="pass.type === 1" data-ng-init="initSites()" data-ng-model="pass.forSite" data-ng-change="checkPassType(pass)" cg-busy="{promise:getHttp4,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+                        <ui-select-match placeholder="Select site...">{{$select.selected.title}}</ui-select-match>
+                        <ui-select-choices repeat="site._id as site in sites | filter:$select.search">{{site.title}} ({{site.uri}})</ui-select-choices>
+                    </ui-select>
+                </td>
+            </tr>
+        </table>
+        <div data-ng-if="!isPasses">
+            <p class='bg-danger'>You have not permission for this pass.</p>
+        </div>
+    </div>
 </section>

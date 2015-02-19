@@ -1,7 +1,8 @@
 'use strict';
 
 var mongoose = require('mongoose'),
-    Site = mongoose.model('Site');
+    Site = mongoose.model('Site'),
+    Pass = mongoose.model('Pass');
 //_ = require('lodash');
 
 exports.create = function(req, res) {
@@ -66,10 +67,35 @@ exports.getSite = function(req, res) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
-                if (site)
-                    return res.jsonp(site);
-                else
+                if (site) {
+                    Pass
+                        .find({
+                            forSite: site._id
+                        }, function(err, passes) {
+                            if (err) {
+                                console.log(err);
+                                return res.status(500).send(err);
+                            } else {
+                                return res.jsonp({
+                                    site: site,
+                                    passwords: passes
+                                });
+                            }
+                        });
+                } else
                     return res.status(500).send('Site was not found');
+            }
+        });
+};
+
+exports.sites = function(req, res) {
+    Site
+        .find(function(err, sites) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                return res.jsonp(sites);
             }
         });
 };
