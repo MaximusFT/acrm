@@ -1,5 +1,5 @@
 <section data-ng-controller="SiteController">
-	<div data-ng-init="init()" cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+	<div data-ng-init="init()" cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}">
 		<h1>Site Overview - {{site.title}}</h1>
 		<hr />
 		<table class="table table-striped table-bordered table-hover editable-table">
@@ -76,7 +76,7 @@
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-md-3" data-ng-init="initForms()" cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+		<div class="col-md-3" data-ng-init="initForms()" cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}">
 			<legend>Forms</legend>
 			<div class="input-group">
 				<span type="button" class="input-group-addon" style="cursor:pointer;" data-ng-click="addForm()" popover="Add new form" popover-trigger="mouseenter">
@@ -107,7 +107,7 @@
 			<div data-ng-if="!selectedForm">
 				<p>Choose form.</p>
 			</div>
-			<div cg-busy="{promise:getHttp3,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}" data-ng-if="selectedForm">
+			<div cg-busy="{promise:getHttp3,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}" data-ng-if="selectedForm">
 				<div style="float:right;">
 					<input type="button" class="btn btn-warning btn-sm" value="Edit" data-ng-click="editForm(selectedForm)" />
 				</div>
@@ -178,15 +178,15 @@
 								<tr>
 									<td data-ng-repeat="tbody in action.tbody" class="table-editable-cell">
 										<span data-ng-if="tbody !== 'reqType' && tbody !== 'type' && tbody !== 'department'" class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="action.config[tbody]"></span>
-										<ui-select data-ng-if="tbody === 'reqType'" cg-busy="{promise:getHttp4,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}" data-ng-init="initTypes()" class="col-md-6" style="width:100%;" data-ng-model="action.config[tbody]" data-ng-change="updateBindedData()">
+										<ui-select data-ng-if="tbody === 'reqType'" cg-busy="{promise:getHttp4,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}" data-ng-init="initTypes()" class="col-md-6" style="width:100%;" data-ng-model="action.config[tbody]" data-ng-change="updateBindedData()">
 											<ui-select-match placeholder="Select type...">{{$select.selected.title}}</ui-select-match>
 											<ui-select-choices repeat="type.id as type in requestTypes | filter:$select.search">{{type.title}} ({{type.id}})</ui-select-choices>
 										</ui-select>
-										<ui-select data-ng-if="tbody === 'type'" cg-busy="{promise:getHttp5,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}" data-ng-init="initAcrmTypes()" class="col-md-6" style="width:100%;" data-ng-model="action.config[tbody]" data-ng-change="updateBindedData()">
+										<ui-select data-ng-if="tbody === 'type'" cg-busy="{promise:getHttp5,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}" data-ng-init="initAcrmTypes()" class="col-md-6" style="width:100%;" data-ng-model="action.config[tbody]" data-ng-change="updateBindedData()">
 											<ui-select-match placeholder="Select type...">{{$select.selected.title}}</ui-select-match>
 											<ui-select-choices repeat="type._id as type in acrmRequestTypes | filter:$select.search">{{type.title}}</ui-select-choices>
 										</ui-select>
-										<ui-select data-ng-if="tbody === 'department'" cg-busy="{promise:getHttp6,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}" data-ng-init="initDeps()" class="col-md-6" style="width:100%;" data-ng-model="action.config[tbody]" data-ng-change="updateBindedData()">
+										<ui-select data-ng-if="tbody === 'department'" cg-busy="{promise:getHttp6,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}" data-ng-init="initDeps()" class="col-md-6" style="width:100%;" data-ng-model="action.config[tbody]" data-ng-change="updateBindedData()">
 											<ui-select-match placeholder="Select department...">{{$select.selected.title}}</ui-select-match>
 											<ui-select-choices repeat="department._id as department in departments | filter:$select.search">{{department.title}}</ui-select-choices>
 										</ui-select>

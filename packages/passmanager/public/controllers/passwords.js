@@ -560,7 +560,7 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
         };
 
         $scope.initServers = function() {
-            $scope.getHttp3 = $http.get('/api/servers').success(function(response) {
+            $scope.getHttp3 = $http.get('/api/servers_').success(function(response) {
                 $scope.servers = response;
                 //$log.info(response);
             }).error(function(err) {

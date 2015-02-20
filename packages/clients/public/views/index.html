@@ -1,29 +1,166 @@
 <div class="" data-ng-controller="ClientsController">
-	<h1>Clients requests</h1>
-	<div data-ng-init="init()" cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}" class="panel panel-default">
-		<div class="panel-heading">
-			<h3 class="panel-title">Web requests</h3>
-		</div>
-		<div class="panel-body">
+	<h1>Requests from the Internet</h1>
+	<tabset>
+		<tab select="init(1)">
+			<tab-heading> <i class="glyphicon glyphicon-user"></i>
+				User requests
+			</tab-heading>
+			<div class="row">
+				<div class="col-md-3">
+					<br />
+					<accordion>
+						<accordion-group style="background-color:#efefef;">
+							<accordion-heading> <i class="glyphicon glyphicon-filter"></i>
+								&nbsp;Filters
+							</accordion-heading>
+							<form data-ng-submit="applyFilters()">
+								<div class="form-group" data-ng-repeat="filter in filters">
+									<label for="input{{filter.key}}">{{filter.title}}</label>
+									<input data-ng-if="filter.type === 'text'" id="input{{filter.key}}" type="text" class="form-control" data-ng-model="filterOptions[filter.key]" data-ng-change="updateByFilters(filterOptions)" />
+									<div data-ng-if="filter.type === 'select'">
+										<ui-select data-ng-if="filter.key === 'department'" id="input{{filter.key}}" cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}" data-ng-init="initDeps()" data-ng-model="filterOptions[filter.key]" data-ng-change="updateByFilters(filterOptions)">
+											<ui-select-match placeholder="Select department...">{{$select.selected.title}}</ui-select-match>
+											<ui-select-choices repeat="department._id as department in departments | filter:$select.search">{{department.title}}</ui-select-choices>
+										</ui-select>
+										<ui-select data-ng-if="filter.key === 'type'" id="input{{filter.key}}" cg-busy="{promise:getHttp3,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}" data-ng-init="initTypes()" data-ng-model="filterOptions[filter.key]" data-ng-change="updateByFilters(filterOptions)">
+											<ui-select-match placeholder="Select type...">{{$select.selected.title}}</ui-select-match>
+											<ui-select-choices repeat="type._id as type in types | filter:$select.search">{{type.title}}</ui-select-choices>
+										</ui-select>
+										<ui-select data-ng-if="filter.key === 'state'" id="input{{filter.key}}" data-ng-model="filterOptions[filter.key]" data-ng-change="updateByFilters(filterOptions)">
+											<ui-select-match placeholder="Select state...">{{$select.selected.title}}</ui-select-match>
+											<ui-select-choices repeat="state.id as state in states | filter:$select.search">{{state.title}}</ui-select-choices>
+										</ui-select>
+									</div>
+									<div data-ng-if="filter.type === 'date_period'" id="input{{filter.key}}">
+										<p class="input-group">
+											<input type="text" class="form-control" datepicker-popup="{{'dd.MM.yyyy'}}" data-ng-model="filterOptions[filter.key].start" is-open="isOpen[0]" max-date="getToday()" datepicker-options="dateOptions" close-text="Close" />
+											<span class="input-group-btn">
+												<button type="button" class="btn btn-default" data-ng-click="openDatepicker($event, 0)">
+													<i class="glyphicon glyphicon-calendar"></i>
+												</button>
+											</span>
+										</p>
+										<p class="input-group">
+											<input type="text" class="form-control" datepicker-popup="{{'dd.MM.yyyy'}}" data-ng-model="filterOptions[filter.key].end" is-open="isOpen[1]" max-date="getToday()" datepicker-options="dateOptions" close-text="Close" />
+											<span class="input-group-btn">
+												<button type="button" class="btn btn-default" data-ng-click="openDatepicker($event, 1)">
+													<i class="glyphicon glyphicon-calendar"></i>
+												</button>
+											</span>
+										</p>
+									</div>
+								</div>
+								<div class="btn-group btn-group-justified" role="group">
+									<div class="btn-group" role="group">
+										<button type="submit" class="btn btn-default">Search</button>
+									</div>
+									<div class="btn-group" role="group">
+										<button class="btn btn-default" value="Reset" data-ng-click="init(1)">Reset</button>
+									</div>
+								</div>
+							</form>
+						</accordion-group>
+						<accordion-group>
+							<accordion-heading>
+								<i class="glyphicon glyphicon-list"></i>
+								&nbsp;Categories
+							</accordion-heading>
+							...
+						</accordion-group>
+					</accordion>
+				</div>
+				<div class="col-md-9">
+					<br />
+					<div data-ng-if="webreqs.length">
+						<table class="table table-bordered  table-hover table-condensed">
+							<thead>
+								<tr>
+									<th>
+										<i class="glyphicon glyphicon-sort-by-order"></i>
+									</th>
+									<th data-ng-repeat="field in webreqSchema">{{field.title}}</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr data-ng-repeat="webreq in webreqs">
+									<td>{{$index+1+(curPage1-1)*20}}.</td>
+									<td data-ng-repeat="field in webreqSchema">
+										<span data-ng-if="field.type === 'text' && field.schemaKey !== 'fromForm'">
+											{{webreq[field['schemaKey']] ? webreq[field['schemaKey']] : '---'}}
+										</span>
+										<a data-ng-if="field.type === 'text' && field.schemaKey === 'fromForm'" href="#!/servers/site/{{webreq[field['schemaKey']].site}}/{{webreq[field['schemaKey']]._id}}">{{webreq[field['schemaKey']].uri}}</a>
+										<span data-ng-if="field.type === 'date'">{{formatDate(webreq[field['schemaKey']])}}</span>
+									</td>
+									<td>
+										<span class="dropdown" dropdown is-open="status.isDdOpen[$index]" data-ng-click="toggleDropdown($event)">
+											<a href class="dropdown-toggle" dropdown-toggle>Check as ...</a>
+											<ul class="dropdown-menu">
+												<li data-ng-click="checkAs(webreq, 1)">
+													<a href="">
+														<i class="glyphicon glyphicon-ok"></i>
+														&nbsp;read
+													</a>
+												</li>
+												<li data-ng-click="checkAs(webreq, 2)">
+													<a href="">
+														<i class="glyphicon glyphicon-ban-circle"></i>
+														&nbsp;spam
+													</a>
+												</li>
+												<li data-ng-click="checkAs(webreq, -1)">
+													<a href="">
+														<i class="glyphicon glyphicon-remove"></i>
+														&nbsp;removed
+													</a>
+												</li>
+											</ul>
+										</span>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<pagination total-items="count2" data-ng-model="curPage1" data-ng-change="init(curPage1)" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false"></pagination>
+					</div>
+					<alert type="info" data-ng-if="!webreqs || !webreqs.length">
+						<br />
+						No requests
+					</alert>
+				</div>
+			</div>
+		</tab>
+		<tab select="initOldRequests(1)" cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+			<tab-heading>
+				<i class="glyphicon glyphicon-folder-close"></i>
+				Old requests
+			</tab-heading>
+
 			<table class="table table-bordered  table-hover table-condensed">
 				<thead>
 					<tr>
-						<th>#</th>
-						<th data-ng-repeat="field in webreqSchema" data-ng-if="field.inTable">{{field.title}}</th>
+						<th>
+							<i class="glyphicon glyphicon-sort-by-order"></i>
+						</th>
+						<th data-ng-repeat="field in oldWebreqSchema" data-ng-if="field.inTable">{{field.title}}</th>
 					</tr>
 				</thead>
 				<tbody>
-					<tr data-ng-repeat="webreq in webreqs">
-						<td>{{$index+1+(curPage-1)*20}}</td>
-						<td data-ng-repeat="field in webreqSchema">
+					<tr data-ng-repeat="webreq in oldWebreqs">
+						<td>{{$index+1+(curPage2-1)*20}}.</td>
+						<td data-ng-repeat="field in oldWebreqSchema" data-ng-if="field.inTable">
 							<a data-ng-if="field['schemaKey'] === 'webreq_inside_id'" href="https://inside.teletrade-dj.com/#web_request_view/{{webreq[field['schemaKey']]}}">{{webreq[field['schemaKey']]}}</a>
 							<span data-ng-if="field['schemaKey'] === 'creation_date'">{{formatDate(webreq[field['schemaKey']])}}</span>
-							<span data-ng-if="field['schemaKey'] !== 'webreq_inside_id' && field['schemaKey'] !== 'creation_date'">{{webreq[field['schemaKey']]}}</span>
+							<span data-ng-if="field['schemaKey'] !== 'webreq_inside_id' && field['schemaKey'] !== 'creation_date' && field['schemaKey'] !== 'comment'">
+								{{webreq[field['schemaKey']] ? webreq[field['schemaKey']] : '---'}}
+							</span>
+							<span data-ng-if="field['schemaKey'] === 'comment'">
+								<a href="#" tooltip-html-unsafe="{{webreq[field['schemaKey']]}}">Check out</a>
+							</span>
 						</td>
 					</tr>
 				</tbody>
 			</table>
-			<pagination total-items="webreqsCount" data-ng-model="curPage" data-ng-change="init()" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false"></pagination>
-		</div>
-	</div>
+			<pagination total-items="count2" data-ng-model="curPage2" data-ng-change="initOldRequests(curPage2)" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false"></pagination>
+		</tab>
+	</tabset>
 </div>

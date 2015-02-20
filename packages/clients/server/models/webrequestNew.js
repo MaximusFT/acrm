@@ -14,7 +14,12 @@ var NewWebreqSchema = new Schema({
 		type: String
 	},
 	department: {
-		type: Schema.ObjectId
+		type: Schema.ObjectId,
+		ref: 'NewDepartment'
+	},
+	type: {
+		type: Schema.ObjectId,
+		ref: 'WebreqType'
 	},
 	comment: {
 		type: String
@@ -46,6 +51,7 @@ var NewWebreqSchema = new Schema({
 		default: 0
 		// 0 - unprocessed
 		// 1 - processed
+		// 2 - spam
 		// -1 - removed
 	}
 });

@@ -11,6 +11,9 @@ angular.module('mean.servermanager').config(['$stateProvider',
         }).state('site', {
             url: '/servers/site/:siteId',
             templateUrl: 'servermanager/views/site.html'
+        }).state('form', {
+            url: '/servers/site/:siteId/:formId',
+            templateUrl: 'servermanager/views/site.html'
         });
     }
 ]);

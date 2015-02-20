@@ -51,8 +51,8 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
     };
 
     $scope.initDeps = function() {
-        //$http.get('/api/getNewDeps')
-        $http.get('/api/getDeps')
+        $http.get('/api/getNewDeps')
+        //$http.get('/api/getDeps')
             .success(function(data) {
                 //$log.info(data);
                 $scope.departments = data;
@@ -100,17 +100,10 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
     };
 
     $scope.verifyAndSendForm = function(isFormValid, data) {
-        //$log.info(isFormValid, data, typeof data);
+        $log.info(isFormValid, data, typeof data);
         if (isFormValid) {
             $scope.modalOptions.ok(data);
         }
-        /*if (!newDepartment || !newDepartment.title || !newDepartment.head || !newDepartment.head._id || newDepartment.level === null || !newDepartment.parent || !newDepartment.parent._id)
-            $scope.isError = true;
-        else {
-            newDepartment.head = newDepartment.head._id;
-            newDepartment.parent = newDepartment.parent._id;
-            $scope.modalOptions.ok(newDepartment);
-        }*/
     };
     $scope.initMailConfig = function() {
         $http.get('/api/getMailConfig')

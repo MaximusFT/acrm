@@ -2,6 +2,7 @@
 
 var mongoose = require('mongoose'),
     Webreq = mongoose.model('Webreq'),
+    NewWebreq = mongoose.model('NewWebreq'),
     WebreqType = mongoose.model('WebreqType');
 //_ = require('lodash');
 
@@ -146,8 +147,42 @@ exports.webreqs = function(req, res) {
     if (!req.query || !req.query.curPage)
         return res.status(500).send('Empty request');
     var page = req.query.curPage;
+    NewWebreq
+        .find({
+            state: 0
+        })
+        .skip((page - 1) * 20)
+        .limit(20)
+        .populate('fromForm', '-actions -comment -formId -name')
+        .sort({
+            created: -1
+        })
+        .exec(function(err, webreqs) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                NewWebreq.count(function(err, count) {
+                    if (err) {
+                        console.log(err);
+                        return res.status(500).send(err);
+                    } else {
+                        return res.jsonp({
+                            webreqs: webreqs,
+                            count: Math.ceil(count / 20) * 10
+                        });
+                    }
+                });
+            }
+        });
+};
+
+exports.oldWebreqs = function(req, res) {
+    if (!req.query || !req.query.curPage)
+        return res.status(500).send('Empty request');
+    var page = req.query.curPage;
     Webreq
-        .find({})
+        .find()
         .skip((page - 1) * 20)
         .limit(20)
         .sort({
@@ -158,18 +193,17 @@ exports.webreqs = function(req, res) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
-                if (!webreqs) {
-                    console.log('no one webreq');
-                    return res.status(500).send('no one webreq');
-                } else {
-                    Webreq.count({}, function(err, count) {
-                        if (err) {
-                            return res.status(500).send(err);
-                        } else {
-                            return res.jsonp([webreqs, Math.ceil(count / 20) * 10]);
-                        }
-                    });
-                }
+                Webreq.count(function(err, count) {
+                    if (err) {
+                        console.log(err);
+                        return res.status(500).send(err);
+                    } else {
+                        return res.jsonp({
+                            webreqs: webreqs,
+                            count: Math.ceil(count / 20) * 10
+                        });
+                    }
+                });
             }
         });
 };
@@ -243,6 +277,95 @@ exports.acrmRequestTypes = function(req, res) {
                 return res.status(500).send(err);
             } else {
                 return res.jsonp(webreqTypes);
+            }
+        });
+};
+
+exports.applyFilters = function(req, res) {
+    if (!req.body || !req.body.params || !req.body.params.options)
+        return res.status(500).send('Empty query');
+    var options = req.body.params.options;
+    console.log('options', options);
+    var query = {};
+    if (options.department)
+        query.department = options.department;
+    if (options.type)
+        query.type = options.type;
+    if (options.name)
+        query.name = {
+            '$regex': new RegExp(options.name, 'i')
+        };
+    if (options.email)
+        query.email = {
+            '$regex': new RegExp(options.email, 'i')
+        };
+    if (options.phone)
+        query.phone = {
+            '$regex': new RegExp(options.phone, 'i')
+        };
+    if (options.state !== 'undefined' && options.state !== -11)
+        query.state = options.state;
+    if (options.date && options.date.start && options.date.end)
+        query.created = {
+            '$gte': options.date.start,
+            '$lt': options.date.end
+        };
+    NewWebreq
+        .find(query)
+        .populate('fromForm', '-actions -comment -formId -name')
+        .exec(function(err, webreqs) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                return res.jsonp(webreqs);
+            }
+        });
+};
+
+exports.changeWebreqState = function(req, res) {
+    if (!req.params && !req.params.webreqId && !req.body.params && !req.body.params.state)
+        return res.status(500).send('Empty query');
+    console.log(req.params.webreqId, req.body.params.state);
+    NewWebreq
+        .update({
+            _id: req.params.webreqId
+        }, {
+            $set: {
+                state: req.body.params.state
+            }
+        }, function(err) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                NewWebreq
+                    .find({
+                        state: 0
+                    })
+                    .limit(20)
+                    .populate('fromForm', '-actions -comment -formId -name')
+                    .sort({
+                        created: -1
+                    })
+                    .exec(function(err, webreqs) {
+                        if (err) {
+                            console.log(err);
+                            return res.status(500).send(err);
+                        } else {
+                            NewWebreq.count(function(err, count) {
+                                if (err) {
+                                    console.log(err);
+                                    return res.status(500).send(err);
+                                } else {
+                                    return res.jsonp({
+                                        webreqs: webreqs,
+                                        count: Math.ceil(count / 20) * 10
+                                    });
+                                }
+                            });
+                        }
+                    });
             }
         });
 };

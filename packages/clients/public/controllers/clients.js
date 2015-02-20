@@ -1,87 +1,207 @@
 'use strict';
 
 angular.module('mean.clients').controller('ClientsController', ['$scope', '$http', '$log', 'Global', 'Clients',
-		function ($scope, $http, $log, Global, Clients) {
-			$scope.global = Global;
-			$scope.maxSize = 5;
-			$scope.webreqsCount = 1;
-			$scope.curPage = 1;
+    function($scope, $http, $log, Global, Clients) {
+        $scope.global = Global;
+        $scope.maxSize = 5;
+        $scope.filterOptions = {};
+        $scope.count1 = $scope.count2 = $scope.curPage1 = $scope.curPage2 = 1;
+        $scope.dateOptions = {
+            formatYear: 'yy',
+            startingDay: 1
+        };
+        $scope.isOpen = [];
+        $scope.status = {};
+        $scope.status.isDdOpen = [];
 
-			$scope.webreqSchema = [{
-					title : 'Webrequest ID',
-					schemaKey : 'webreq_inside_id',
-					type : 'text',
-					inTable : true
-				}, {
-					title : 'Date',
-					schemaKey : 'creation_date',
-					type : 'text',
-					inTable : true
-				}, {
-					title : 'Last name',
-					schemaKey : 'lastname',
-					type : 'text',
-					inTable : true
-				}, {
-					title : 'First name',
-					schemaKey : 'firstname',
-					type : 'text',
-					inTable : true
-				}, {
-					title : 'Middle name',
-					schemaKey : 'middlename',
-					type : 'text',
-					inTable : true
-				}, {
-					title : 'Request type',
-					schemaKey : 'webreq_type',
-					type : 'text',
-					inTable : true
-				}, {
-					title : 'Office ID',
-					schemaKey : 'office_destination',
-					type : 'text',
-					inTable : true
-				}, {
-					title : 'Comment',
-					schemaKey : 'comment',
-					type : 'text',
-					inTable : true
-				}, {
-					title : 'Form',
-					schemaKey : 'form_address',
-					type : 'text',
-					inTable : true
-				}, {
-					title : 'Referer',
-					schemaKey : 'link_source',
-					type : 'text',
-					inTable : true
-				}, {
-					title : 'Target page',
-					schemaKey : 'target_page',
-					type : 'text',
-					inTable : true
-				}
-			];
-			
-			$scope.init = function () {
-				$scope.getHttp1 = null;
-				$scope.getHttp1 = $http.get('api/webreqs', {
-					params: {
-						curPage: $scope.curPage
-					}
-				}).success(function (data) {					
-						//$log.info(data);
-						$scope.webreqs = data[0];
-						$scope.webreqsCount = data[1];
-					}).error(function () {
-						$log.error('error');
-					});
-			};
-			
-			$scope.formatDate = function (date) {
-				return new Date(date).toLocaleString();
-			};
-		}
-	]);
+        $scope.oldWebreqSchema = [{
+            title: 'Webrequest ID',
+            schemaKey: 'webreq_inside_id',
+            type: 'text',
+            inTable: true
+        }, {
+            title: 'Date',
+            schemaKey: 'creation_date',
+            type: 'text',
+            inTable: true
+        }, {
+            title: 'Name',
+            schemaKey: 'lastname',
+            type: 'text',
+            inTable: true
+        }, {
+            title: 'Request type',
+            schemaKey: 'webreq_type',
+            type: 'text',
+            inTable: true
+        }, {
+            title: 'Office ID',
+            schemaKey: 'office_destination',
+            type: 'text',
+            inTable: true
+        }, {
+            title: 'Comment',
+            schemaKey: 'comment',
+            type: 'text',
+            inTable: true
+        }];
+
+        $scope.webreqSchema = [{
+            title: 'Name',
+            schemaKey: 'name',
+            type: 'text'
+        }, {
+            title: 'Email',
+            schemaKey: 'email',
+            type: 'text'
+        }, {
+            title: 'Phone',
+            schemaKey: 'phone',
+            type: 'text'
+        }, {
+            title: 'From form',
+            schemaKey: 'fromForm',
+            type: 'text'
+        }, {
+            title: 'Created',
+            schemaKey: 'created',
+            type: 'date'
+        }];
+
+        $scope.filters = [{
+            title: 'Department',
+            key: 'department',
+            type: 'select'
+        }, {
+            title: 'Type',
+            key: 'type',
+            type: 'select'
+        }, {
+            title: 'Name',
+            key: 'name',
+            type: 'text'
+        }, {
+            title: 'Email',
+            key: 'email',
+            type: 'text'
+        }, {
+            title: 'Phone',
+            key: 'phone',
+            type: 'text'
+        }, {
+            title: 'State',
+            key: 'state',
+            type: 'select'
+        }, {
+            title: 'Date',
+            key: 'date',
+            type: 'date_period'
+        }];
+
+        $scope.states = [{
+            title: 'Unprocessed',
+            id: 0
+        }, {
+            title: 'Processed',
+            id: 1
+        }, {
+            title: 'Spam',
+            id: 2
+        }, {
+            title: 'Removed',
+            id: -1
+        }, {
+            title: 'All',
+            id: -11
+        }];
+
+        $scope.init = function(curPage) {
+            $scope.getHttp1 = $http.get('api/webreqs', {
+                params: {
+                    curPage: curPage
+                }
+            }).success(function(data) {
+                //$log.info(data);
+                $scope.webreqs = data.webreqs;
+                $scope.count1 = data.count;
+            }).error(function(err) {
+                $log.error(err);
+            });
+        };
+
+        $scope.initOldRequests = function(curPage) {
+            $scope.getHttp2 = $http.get('api/oldWebreqs', {
+                params: {
+                    curPage: curPage
+                }
+            }).success(function(data) {
+                //$log.info(data);
+                $scope.oldWebreqs = data.webreqs;
+                $scope.count2 = data.count;
+            }).error(function(err) {
+                $log.error(err);
+            });
+        };
+
+        $scope.formatDate = function(date) {
+            return new Date(date).toLocaleString();
+        };
+
+        $scope.initDeps = function() {
+            $scope.getHttp3 = $http.get('/api/getNewDeps').success(function(response) {
+                $scope.departments = response;
+                $scope.departments.splice(0, 1);
+            });
+        };
+
+        $scope.initTypes = function() {
+            $scope.getHttp4 = $http.get('/api/acrmRequestTypes').success(function(response) {
+                $scope.types = response;
+            });
+        };
+
+        $scope.openDatepicker = function($event, index) {
+            $event.preventDefault();
+            $event.stopPropagation();
+            $scope.isOpen[index] = true;
+        };
+
+        $scope.getToday = function() {
+            return new Date().getFullYear() + '-' + ((new Date()).getMonth() + 1) + '-' + (new Date()).getDate();
+        };
+
+        $scope.applyFilters = function() {
+            //$log.info($scope.filterOptions, typeof $scope.filterOptions);
+            $scope.getHttp1 = $http.post('/api/applyFilters', {
+                params: {
+                    options: $scope.filterOptions
+                }
+            }).success(function(response) {
+                $scope.webreqs = response;
+            }).error(function(err) {
+                $log.error(err);
+            });
+        };
+
+        $scope.toggleDropdown = function($event, index) {
+            $event.preventDefault();
+            $event.stopPropagation();
+            $scope.status.isDdOpen[index] = !$scope.status.isDdOpen[index];
+        };
+
+        $scope.checkAs = function(webreq, state) {
+        	$log.info(webreq, state);
+            $scope.getHttp1 = $http.put('/api/changeWebreqState/' + webreq._id, {
+                params: {
+                    state: state
+                }
+            }).success(function(response) {
+                $scope.webreqs = response.webreqs;
+                $scope.count1 = response.count;
+                $scope.status.isDdOpen = [];
+            }).error(function(err) {
+                $log.error(err);
+            });
+        };
+    }
+]);

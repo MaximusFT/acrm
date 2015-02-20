@@ -54,6 +54,12 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
                 }
             }).success(function(response) {
                 $scope.forms = response;
+                if ($stateParams.formId) {
+                    angular.forEach($scope.forms, function(form, index) {
+                        if (form._id === $stateParams.formId)
+                            $scope.selectForm(form, index);
+                    });
+                }
             }).error(function(err) {
                 $log.error(err);
             });
@@ -129,6 +135,7 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
             }).success(function(response) {
                 //$log.info(response);
                 $scope.selectedForm = response.form;
+                $location.path('/servers/site/' + $stateParams.siteId + '/' + form._id);
                 if (!response.bindedData)
                     $scope.bindedData = [];
                 else

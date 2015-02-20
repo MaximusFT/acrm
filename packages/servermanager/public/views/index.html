@@ -2,7 +2,7 @@
     <h1>Server Infrastructure</h1>
     <br />
     <div class="row">
-        <div class="col-md-3" data-ng-init="init()" cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+        <div class="col-md-3" data-ng-init="init()" cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}">
             <legend>Servers</legend>
             <div class="input-group">
                 <span type="button" class="input-group-addon" style="cursor:pointer;" data-ng-click="addServer()" popover="Add new server" popover-trigger="mouseenter"> <i class="glyphicon glyphicon-plus"></i>
@@ -31,7 +31,7 @@
             <div data-ng-if="!selectedServer">
                 <p>Choose server.</p>
             </div>
-            <div cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}" data-ng-if="selectedServer">
+            <div cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}" data-ng-if="selectedServer">
                 <div style="float:right;">
                     <input type="button" class="btn btn-warning btn-sm" value="Edit" data-ng-click="editServer(selectedServer)" />
                 </div>
