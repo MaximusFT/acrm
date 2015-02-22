@@ -48,15 +48,15 @@ exports.department = function(req, res) {
         .findOne({
             _id: req.query.departmentId
         })
-        .populate('head')
+        .populate('head', '-roles -phone -hashed_password -salt -provider')
         .lean()
         .exec(function(err, department) {
             if (err) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
-                if (department && department.head && department.head.name)
-                    department.head = department.head.name;
+                /*if (department && department.head && department.head.name)
+                    department.head = department.head.name;*/
                 return res.jsonp(department);
             }
         });
@@ -66,12 +66,7 @@ exports.department = function(req, res) {
  * Update a department
  */
 exports.update = function(req, res) {
-    var department = req.profile;
-    //console.log(department);
-    department = _.extend(department, req.body);
-    department.save(function(err) {
-        res.jsonp(department);
-    });
+    console.log('upd dep', req.params, req.body);
 };
 
 /**

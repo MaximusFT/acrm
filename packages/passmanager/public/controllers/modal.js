@@ -15,7 +15,7 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
         //$modalInstance.close($scope.selected.item);
     };
     $scope.editprp = $scope.modalOptions.editprp;
-    $scope.newDepartment = $scope.server = $scope.site = {};
+    $scope.server = $scope.site = {};
     $scope.parent = null;
     $scope.isSynchronized = false;
     $scope.types = [{
@@ -29,6 +29,8 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
         $scope.server = JSON.parse(JSON.stringify($scope.modalOptions.server));
     if ($scope.modalOptions.form)
         $scope.form = JSON.parse(JSON.stringify($scope.modalOptions.form));
+    if ($scope.modalOptions.department)
+        $scope.newDepartment = JSON.parse(JSON.stringify($scope.modalOptions.department));
 
     $scope.cancel = function() {
         $log.info('cancel');
@@ -52,11 +54,10 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
 
     $scope.initDeps = function() {
         $http.get('/api/getNewDeps')
-        //$http.get('/api/getDeps')
+            //$http.get('/api/getDeps')
             .success(function(data) {
                 //$log.info(data);
                 $scope.departments = data;
-
                 if ($scope.modalOptions && $scope.modalOptions.selectedID && $scope.departments) {
                     var result = $scope.departments.filter(function(dep) {
                         return dep._id === $scope.modalOptions.selectedID;

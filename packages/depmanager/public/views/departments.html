@@ -2,18 +2,14 @@
     <h1>Departments Manager</h1>
     <div class="row">
         <div class="col-md-4" data-ng-init="init()">
-            <hr />
-            <h3>Departments hierarchy</h3>
-            <hr />
+            <br />
+            <legend>Departments hierarchy</legend>
             <div class="btn-group btn-group-justified">
-                <a href="" class="btn btn-info col-sm-3" data-ng-click="add(null, null)">
-                    <i class="glyphicon glyphicon-tree-deciduous"></i>
+                <a href="" class="btn btn-info col-sm-3" data-ng-click="add(null, null)"> <i class="glyphicon glyphicon-tree-deciduous"></i>
                 </a>
-                <a href="" class="btn btn-info col-sm-3" data-ng-click="switchDrag()">
-                    <i class="glyphicon glyphicon-move" style="{{isDragEnabled ? 'color:black;' : ''}}"></i>
+                <a href="" class="btn btn-info col-sm-3" data-ng-click="switchDrag()"> <i class="glyphicon glyphicon-move" style="{{isDragEnabled ? 'color:black;' : ''}}"></i>
                 </a>
             </div>
-            <hr />
             <script type="text/ng-template" id="items_renderer.html">
                 <div ui-tree-handle>
                     <a class="btn btn-default btn-xs" data-nodrag data-ng-click="toggle(this)">
@@ -26,7 +22,7 @@
                     <a class="pull-right btn btn-primary btn-xs" data-nodrag data-ng-click="add(this, item)" style="margin-right: 8px;">
                         <span class="glyphicon glyphicon-leaf"></span>
                     </a>
-                    <a class="pull-right btn btn-info btn-xs" data-nodrag data-ng-click="select(item)" style="margin-right: 8px;">
+                    <a class="pull-right btn btn-info btn-xs" data-nodrag data-ng-click="select(item.id)" style="margin-right: 8px;">
                         <span class="glyphicon glyphicon-chevron-right"></span>
                     </a>
                 </div>
@@ -35,21 +31,31 @@
                 </ol>
             </script>
             <div ui-tree="options">
-                <ol ui-tree-nodes data-ng-model="departments" >
+                <ol ui-tree-nodes data-ng-model="departments" cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}" >
                     <li data-ng-repeat="item in departments track by $index" ui-tree-node data-ng-include="'items_renderer.html'"></li>
                 </ol>
             </div>
         </div>
         <div class="col-md-8">
-            <div data-ng-if="selectedDepartment">
-                <hr />
-                <h3>Selected: {{selectedDepartment.title}}<i class="glyphicon glyphicon-pencil" style="cursor:pointer;float:right;" data-ng-click="editSelected()"></i></h3>
-                <hr />
-                <p><strong>Head:</strong> <em>{{selectedDepartment.head}}</em></p>
+            <div data-ng-if="selectedDepartment" cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}">
+                <br />
+                <legend>Department "{{selectedDepartment.title}}"</legend>
+                <div style="float:right;">
+                    <input type="button" class="btn btn-warning btn-sm" value="Edit" data-ng-click="editDepartment(selectedDepartment)" />
+                </div>
+                <p style="font-size:20px;text-align:center;font-weight:bolder;">
+                    Head – <a href="/#!/manager/users/{{selectedDepartment.head.username}}">{{selectedDepartment.head.name}}</a>
+                </p>
                 <div data-ng-if="selectedDepartment.additionalInfo && selectedDepartment.additionalInfo.description">
-                    <p><strong>Description:</strong></p>
+                    <p> <strong>Description:</strong>
+                    </p>
                     <p>{{selectedDepartment.additionalInfo.description}}</p>
-                </div>              
+                </div>
+            </div>
+            <div data-ng-if="!selectedDepartment">
+                <br />
+                <legend>Department Info</legend>
+                <alert type="info">Select department for showing details</alert>
             </div>
         </div>
     </div>

@@ -1,39 +1,34 @@
 'use strict';
 
-angular.module('mean.depmanager').controller('DepmanagerController', ['$scope', 'Global', 'Depmanager',
-    function($scope, Global, Depmanager) {
-        $scope.global = Global;
-        $scope.package = {
-            name: 'depmanager'
-        };
-    }
-]);
-
-angular.module('mean.depmanager').controller('DepartmentsController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$location', '$modal', 'Passwords', 'Users', 'Departments', 'modalService',
-    function($scope, Global, Menus, $rootScope, $http, $log, $location, $modal, Passwords, Users, Departments, modalService) {
+angular.module('mean.depmanager').controller('DepartmentsController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$location', '$stateParams', '$modal', 'Passwords', 'Users', 'Departments', 'modalService',
+    function($scope, Global, Menus, $rootScope, $http, $log, $location, $stateParams, $modal, Passwords, Users, Departments, modalService) {
         $scope.global = Global;
         $scope.isDragEnabled = false;
 
         $scope.init = function() {
             $scope.departments = [];
-            $http.get('api/newDepartmentsTree', {}).success(function(data) {
+            $scope.getHttp1 = $http.get('api/newDepartmentsTree', {}).success(function(data) {
                 $scope.departments = data;
-                //$log.info(data);
+                if ($stateParams.departmentId) {
+                    $scope.select($stateParams.departmentId);
+                }
             }).error(function(data, status) {
                 if (status === 500 || status === 400)
                     $location.path('/');
             });
         };
 
-        $scope.select = function(item) {
-            //$log.info('selected', item);
-            $http.get('/api/department', {
+        $scope.select = function(itemId) {
+            $scope.getHttp2 = $http.get('/api/department', {
                 params: {
-                    departmentId: item.id
+                    departmentId: itemId
                 }
             }).success(function(response) {
                 //$log.info(response);
                 $scope.selectedDepartment = response;
+                $location.path('/departments/' + response._id);
+            }).error(function(err) {
+                $log.error(err);
             });
         };
 
@@ -111,10 +106,38 @@ angular.module('mean.depmanager').controller('DepartmentsController', ['$scope',
                 }
             },
             beforeDrop: function(event) {
-                if ($scope.isDragEnabled === true && !window.confirm('Are you sure you want to drop it here?')) {
+                var elem = event.source.nodeScope.$modelValue;
+                var source = event.source.nodesScope.$parent.$modelValue;
+                var dest = event.dest.nodesScope.$parent.$modelValue;
+                if ($scope.isDragEnabled === true && !window.confirm('Are you sure you want to set ' + elem.title + ' department from under ' + source.title + '\' subordination to ' + dest.title + '?')) {
                     event.source.nodeScope.$$apply = false;
                 }
             }
+        };
+
+        $scope.editDepartment = function(department) {
+            var selectedID;
+            if (department && department.parents && department.parents.length > 0)
+                selectedID = department.parents[department.parents.length - 1];
+            var modalOptions = {
+                closeButtonText: 'Cancel',
+                actionButtonText: 'Confirm',
+                headerText: 'Editing department',
+                bodyText: 'Edit the information about department.',
+                type: 7,
+                selectedID: selectedID,
+                department: department
+            };
+
+            modalService.showModal({}, modalOptions).then(function(result) {
+                $http.put('/api/departments/' + department._id, {
+                    params: {
+                        department: result
+                    }
+                }).success(function(response) {
+                    $log.info('response', response);
+                });
+            });
         };
 
     }

@@ -19,7 +19,7 @@ Depmanager.register(function(app, auth, database) {
     //We are adding a link to the main menu for all authenticated users
     Depmanager.menus.add({
         title: 'Departments manager',
-        link: 'departments manager page',
+        link: 'departments',
         roles: ['admin'],
         menu: 'main'
     });
