@@ -1,11 +1,11 @@
 'use strict';
 
-angular.module('mean.clients').controller('ClientsController', ['$scope', '$http', '$log', 'Global', 'Clients',
-    function($scope, $http, $log, Global, Clients) {
+angular.module('mean.clients').controller('ClientsController', ['$scope', '$http', '$log', 'Global', 'Clients', 'modalService',
+    function($scope, $http, $log, Global, Clients, modalService) {
         $scope.global = Global;
         $scope.maxSize = 5;
         $scope.filterOptions = {};
-        $scope.count1 = $scope.count2 = $scope.curPage1 = $scope.curPage2 = 1;
+        $scope.count1 = $scope.count2 = $scope.count3 = $scope.curPage1 = $scope.curPage2 = $scope.curPage3 = 1;
         $scope.dateOptions = {
             formatYear: 'yy',
             startingDay: 1
@@ -13,11 +13,18 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
         $scope.isOpen = [];
         $scope.status = {};
         $scope.status.isDdOpen = [];
+        $scope.isResShown = [];
+        $scope.isCategoryActive = [];
 
         $scope.oldWebreqSchema = [{
             title: 'Webrequest ID',
             schemaKey: 'webreq_inside_id',
             type: 'text',
+            inTable: true
+        }, {
+            title: 'From',
+            schemaKey: 'form_address',
+            type: 'comment',
             inTable: true
         }, {
             title: 'Date',
@@ -68,6 +75,24 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
             type: 'date'
         }];
 
+        $scope.reportSchema = [{
+            title: 'Form',
+            schemaKey: 'form',
+            type: 'object'
+        }, {
+            title: 'Data',
+            schemaKey: 'formData',
+            type: 'object'
+        }, {
+            title: 'Actions',
+            schemaKey: 'actionsPerformed',
+            type: 'object'
+        }, {
+            title: 'When processed',
+            schemaKey: 'whenProcessed',
+            type: 'date'
+        }];
+
         $scope.filters = [{
             title: 'Department',
             key: 'department',
@@ -111,26 +136,32 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
             title: 'Removed',
             id: -1
         }, {
+            title: 'Test',
+            id: 3
+        }, {
             title: 'All',
             id: -11
         }];
 
         $scope.init = function(curPage) {
-            $scope.getHttp1 = $http.get('api/webreqs', {
-                params: {
-                    curPage: curPage
-                }
-            }).success(function(data) {
-                //$log.info(data);
-                $scope.webreqs = data.webreqs;
-                $scope.count1 = data.count;
-            }).error(function(err) {
-                $log.error(err);
-            });
+            if (JSON.stringify($scope.filterOptions) === '{}') {
+                $scope.getHttp1 = $http.get('/api/webreqs', {
+                    params: {
+                        curPage: curPage
+                    }
+                }).success(function(data) {
+                    //$log.info(data);
+                    $scope.webreqs = data.webreqs;
+                    $scope.count1 = data.count;
+                }).error(function(err) {
+                    $log.error(err);
+                });
+            } else
+                $scope.applyFilters();
         };
 
         $scope.initOldRequests = function(curPage) {
-            $scope.getHttp2 = $http.get('api/oldWebreqs', {
+            $scope.getHttp2 = $http.get('/api/oldWebreqs', {
                 params: {
                     curPage: curPage
                 }
@@ -138,6 +169,20 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
                 //$log.info(data);
                 $scope.oldWebreqs = data.webreqs;
                 $scope.count2 = data.count;
+            }).error(function(err) {
+                $log.error(err);
+            });
+        };
+
+        $scope.initReports = function(curPage) {
+            $scope.getHttp5 = $http.get('/api/webreqs/reports', {
+                params: {
+                    curPage: curPage
+                }
+            }).success(function(response) {
+                $log.info(response);
+                $scope.reports = response.reports;
+                $scope.count3 = response.count;
             }).error(function(err) {
                 $log.error(err);
             });
@@ -177,7 +222,8 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
                     options: $scope.filterOptions
                 }
             }).success(function(response) {
-                $scope.webreqs = response;
+                $scope.webreqs = response.webreqs;
+                $scope.count1 = response.count;
             }).error(function(err) {
                 $log.error(err);
             });
@@ -190,7 +236,7 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
         };
 
         $scope.checkAs = function(webreq, state) {
-        	$log.info(webreq, state);
+            $log.info(webreq, state);
             $scope.getHttp1 = $http.put('/api/changeWebreqState/' + webreq._id, {
                 params: {
                     state: state
@@ -202,6 +248,32 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
             }).error(function(err) {
                 $log.error(err);
             });
+        };
+
+        $scope.showRes = function(repIndex, index, action) {
+            if (!$scope.isResShown[repIndex])
+                $scope.isResShown[repIndex] = [];
+            $scope.isResShown[repIndex][index] = !$scope.isResShown[repIndex][index];
+            if (action === 'ACRM') {
+                var modalOptions = {
+                    closeButtonText: 'Ok',
+                    //actionButtonText: 'Ok',
+                    headerText: 'Request from internet',
+                    bodyText: 'There are request details.',
+                    type: 12,
+                    webreq: $scope.reports[repIndex].actionsPerformed[index].res
+                };
+                modalService.showModal({}, modalOptions);
+            }
+        };
+
+        $scope.selectCategory = function(id, index) {
+            $scope.isCategoryActive = [];
+            $scope.isCategoryActive[index] = true;
+            $scope.filterOptions = {
+                state: id
+            };
+            $scope.applyFilters();
         };
     }
 ]);

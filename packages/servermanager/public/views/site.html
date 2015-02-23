@@ -1,6 +1,10 @@
 <section data-ng-controller="SiteController">
 	<div data-ng-init="init()" cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}">
 		<h1>Site Overview - {{site.title}}</h1>
+		<br />
+		<div class="breadcrumb flat" data-ng-if="crumbs && crumbs.length">
+			<a data-ng-repeat="crumb in crumbs" href="#!/{{crumb.href}}" class="{{crumb.active ? 'active' : ''}}">{{crumb.title}}</a>
+		</div>
 		<hr />
 		<table class="table table-striped table-bordered table-hover editable-table">
 			<tr>
@@ -167,8 +171,8 @@
 						</ul>
 					</alert>
 					<div data-ng-repeat="action in actions" data-ng-init="actionIndex = $index">
-						{{$index+1}}.
-						<label for="checkbox_{{action.name}}">{{action.name}}</label>
+						<span style="font-weight:bolder;">{{$index+1}}.</span>
+						<label for="checkbox_{{action.name}}" style="font-size:17px;padding:15px;">{{action.name}}</label>
 						<input id="checkbox_{{action.name}}" type="checkbox" data-ng-model="action.isEnabled" />
 						<div data-ng-if="action.isEnabled">
 							<table class="table table-striped table-bordered table-hover editable-table">
@@ -192,11 +196,14 @@
 										</ui-select>
 									</td>
 								</tr>
-								<tr data-ng-if="action.name === 'Send to Inside' || action.name === 'Subscribe in JustClick' || action.name === 'Save in ACRM'">
+							</table>
+							<table class="table table-striped table-bordered table-hover editable-table">
+								<tr>
 									<th data-ng-if="action.name === 'Send to Inside' || action.name === 'Save in ACRM'" data-ng-repeat="appointment in appointments" style="text-transform:capitalize;">{{appointment}}</th>
 									<th data-ng-if="action.name === 'Subscribe in JustClick'" data-ng-repeat="appointment in appointments2" style="text-transform:capitalize;">{{appointment}}</th>
+									<th data-ng-if="action.name === 'Send SMS'" data-ng-repeat="appointment in appointments3" style="text-transform:capitalize;">{{appointment}}</th>
 								</tr>
-								<tr data-ng-if="action.name === 'Send to Inside' || action.name === 'Subscribe in JustClick' || action.name === 'Save in ACRM'">
+								<tr>
 									<td data-ng-if="action.name === 'Send to Inside' || action.name === 'Save in ACRM'" data-ng-repeat="appointment in appointments">
 										<ui-select class="col-md-6" style="width:100%;" data-ng-model="action.config[appointment]" data-ng-change="updateBindedData()">
 											<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
@@ -204,6 +211,12 @@
 										</ui-select>
 									</td>
 									<td data-ng-if="action.name === 'Subscribe in JustClick'" data-ng-repeat="appointment in appointments2">
+										<ui-select class="col-md-6" style="width:100%;" data-ng-model="action.config[appointment]" data-ng-change="updateBindedData()">
+											<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
+											<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}}</ui-select-choices>
+										</ui-select>
+									</td>
+									<td data-ng-if="action.name === 'Send SMS'" data-ng-repeat="appointment in appointments3">
 										<ui-select class="col-md-6" style="width:100%;" data-ng-model="action.config[appointment]" data-ng-change="updateBindedData()">
 											<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
 											<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}}</ui-select-choices>

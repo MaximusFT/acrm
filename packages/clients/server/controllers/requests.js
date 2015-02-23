@@ -10,7 +10,8 @@ var mongoose = require('mongoose'),
     _ = require('lodash'),
     request = require('request'),
     async = require('async'),
-    crypto = require('crypto');
+    crypto = require('crypto'),
+    parseString = require('xml2js').parseString;
 
 function saveRequestInAcrm(actions, data, analyticsData, formId, callback) {
     var response = {
@@ -58,7 +59,7 @@ function saveRequestInAcrm(actions, data, analyticsData, formId, callback) {
         }
     });
     if (analyticsData.ip && analyticsData.ip === '195.138.91.97')
-        requestData.isTest = true;
+        requestData.state = 3;
 
     var newNewWebreq = new NewWebreq(requestData);
     newNewWebreq.save(function(err) {
@@ -109,10 +110,36 @@ function sendToInside(actions, data, analyticsData, callback) {
     var tmpP = _.filter(data, function(d) {
         return d.htmlId === options.phone;
     });
-    if (analyticsData.ip)
-        postData.ip = analyticsData.ip;
     if (tmpP.length > 0)
         postData.phone = tmpP[0].value;
+    if (analyticsData.ip)
+        postData.ip = analyticsData.ip;
+    if (analyticsData.url_form)
+        postData.url_form = analyticsData.url_form;
+    if (analyticsData.url_local)
+        postData.url_local = analyticsData.url_local;
+    if (analyticsData.url_referer)
+        postData.url_referer = analyticsData.url_referer;
+    var utmBuild = false;
+    if (analyticsData.utm_source) {
+        postData.url_local += (!utmBuild ? '/?' : '') + 'utm_source=' + analyticsData.utm_source + '&';
+        utmBuild = true;
+    }
+    if (analyticsData.utm_medium) {
+        postData.url_local += (!utmBuild ? '/?' : '') + 'utm_medium=' + analyticsData.utm_medium + '&';
+        utmBuild = true;
+    }
+    if (analyticsData.utm_term) {
+        postData.url_local += (!utmBuild ? '/?' : '') + 'utm_term=' + analyticsData.utm_term + '&';
+        utmBuild = true;
+    }
+    if (analyticsData.utm_content) {
+        postData.url_local += (!utmBuild ? '/?' : '') + 'utm_content=' + analyticsData.utm_content + '&';
+        utmBuild = true;
+    }
+    if (analyticsData.utm_campaign) {
+        postData.url_local += (!utmBuild ? '/?' : '') + 'utm_campaign=' + analyticsData.utm_campaign;
+    }
     _.forEach(options.checkboxes, function(chkb) {
         var tmp = _.filter(data, function(d) {
             return d.htmlId === chkb.field;
@@ -150,7 +177,7 @@ function sendToInside(actions, data, analyticsData, callback) {
                 }, function(error, resp, body) {
                     if (!error && resp.statusCode === 200) {
                         //console.log(body);
-                        if(body.indexOf('id') === -1)
+                        if (body.indexOf('id') === -1)
                             response.res = body;
                         else
                             response.res = body.split(':')[1].split('}])')[0].trim();
@@ -266,9 +293,63 @@ function sendSMS(actions, data, callback) {
         return callback(response);
     }
     var options = temp[0].config;
+    var sendData = {};
+    var tmpP = _.filter(data, function(d) {
+        return d.htmlId === options.phone;
+    });
+    if (tmpP.length === 0) {
+        response.error('Phone option missed');
+        return callback(response);
+    } else {
+        sendData.phone = tmpP[0].value;
+    }
+    var tmpN = _.filter(data, function(d) {
+        return d.htmlId === options.name;
+    });
+    if (tmpN.length > 0)
+        sendData.name = tmpN[0].value;
+    if (options.appeal)
+        sendData.textSms = options.appeal + ' ' + sendData.name + '! ' + options.textSms;
+    else
+        sendData.textSms = options.textSms;
 
-    response.res = options;
-    return callback(response);
+    var src = '<?xml version="1.0" encoding="UTF-8"?>' +
+        '<SMS>' +
+        '<operations>' +
+        '<operation>SEND</operation>' +
+        '</operations>' +
+        '<authentification>' +
+        '<username>' + options.username + '</username>' +
+        '<password>' + options.password + '</password>' +
+        '</authentification>' +
+        '<message>' +
+        '<sender>' + options.from + '</sender>' +
+        '<text>' + sendData.textSms + '</text>' +
+        '</message>' +
+        '<numbers>' +
+        '<number messageID="msg11">' + sendData.phone + '</number>' +
+        '</numbers>' +
+        '</SMS>';
+
+    //console.log('send sms', sendData);
+
+    request.post({
+        url: 'https://my.atompark.com/sms/xml.php',
+        body: src,
+        headers: {
+            'Content-Type': 'text/xml'
+        }
+    }, function(error, resp, body) {
+        parseString(body, function(err, result) {
+            if (err) {
+                response.error = err;
+                return callback(response);
+            } else {
+                response.res = result;
+                return callback(response);
+            }
+        });
+    });
 }
 
 exports.getDocumentFields = function(req, res) {
@@ -321,6 +402,7 @@ exports.processUserRequest = function(req, res) {
     var href = req.body.href,
         formData = req.body.formData,
         analyticsData = req.body.analyticsData;
+    href = href.substring(0, href.indexOf('?'));
     if (href.substr(href.length - 1, href.length) === '/')
         href = href.substr(0, href.length - 1);
     console.log('REQUEST FROM', href);

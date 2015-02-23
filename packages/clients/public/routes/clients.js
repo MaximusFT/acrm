@@ -2,8 +2,8 @@
 
 angular.module('mean.clients').config(['$stateProvider',
 		function ($stateProvider) {
-			$stateProvider.state('clients manager page', {
-				url : '/manager/clients',
+			$stateProvider.state('requests from internet', {
+				url : '/requests',
 				templateUrl : 'clients/views/index.html'
 			})
 			.state('webinar clients phones', {

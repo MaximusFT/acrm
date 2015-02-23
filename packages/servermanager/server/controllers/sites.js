@@ -62,7 +62,9 @@ exports.getSite = function(req, res) {
     Site
         .findOne({
             _id: req.params.site
-        }, function(err, site) {
+        })
+        .populate('server', '-ips -location -type')
+        .exec(function(err, site) {
             if (err) {
                 console.log(err);
                 return res.status(500).send(err);

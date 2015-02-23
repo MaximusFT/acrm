@@ -3,7 +3,8 @@
 var mongoose = require('mongoose'),
     Webreq = mongoose.model('Webreq'),
     NewWebreq = mongoose.model('NewWebreq'),
-    WebreqType = mongoose.model('WebreqType');
+    WebreqType = mongoose.model('WebreqType'),
+    FormProcessingReport = mongoose.model('FormProcessingReport');
 //_ = require('lodash');
 
 exports.web_request_form_add = function(req, res, next) {
@@ -146,11 +147,38 @@ exports.web_request_form_add = function(req, res, next) {
 exports.webreqs = function(req, res) {
     if (!req.query || !req.query.curPage)
         return res.status(500).send('Empty request');
-    var page = req.query.curPage;
+    var page = req.query.curPage,
+        query = {};
+    if (req.query.options) {
+        var options = req.query.options;
+        if (options.department)
+            query.department = options.department;
+        if (options.type)
+            query.type = options.type;
+        if (options.name)
+            query.name = {
+                '$regex': new RegExp(options.name, 'i')
+            };
+        if (options.email)
+            query.email = {
+                '$regex': new RegExp(options.email, 'i')
+            };
+        if (options.phone)
+            query.phone = {
+                '$regex': new RegExp(options.phone, 'i')
+            };
+        if (options.state !== 'undefined' && options.state !== -11)
+            query.state = options.state;
+        if (options.date && options.date.start && options.date.end)
+            query.created = {
+                '$gte': options.date.start,
+                '$lt': options.date.end
+            };
+    } else {
+        query.state = 0;
+    }
     NewWebreq
-        .find({
-            state: 0
-        })
+        .find(query)
         .skip((page - 1) * 20)
         .limit(20)
         .populate('fromForm', '-actions -comment -formId -name')
@@ -162,16 +190,9 @@ exports.webreqs = function(req, res) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
-                NewWebreq.count(function(err, count) {
-                    if (err) {
-                        console.log(err);
-                        return res.status(500).send(err);
-                    } else {
-                        return res.jsonp({
-                            webreqs: webreqs,
-                            count: Math.ceil(count / 20) * 10
-                        });
-                    }
+                return res.jsonp({
+                    webreqs: webreqs,
+                    count: Math.ceil(webreqs.length / 20) * 10
                 });
             }
         });
@@ -285,7 +306,7 @@ exports.applyFilters = function(req, res) {
     if (!req.body || !req.body.params || !req.body.params.options)
         return res.status(500).send('Empty query');
     var options = req.body.params.options;
-    console.log('options', options);
+    //console.log('options', options);
     var query = {};
     if (options.department)
         query.department = options.department;
@@ -318,7 +339,10 @@ exports.applyFilters = function(req, res) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
-                return res.jsonp(webreqs);
+                return res.jsonp({
+                    webreqs: webreqs,
+                    count: Math.ceil(webreqs.length / 20) * 10
+                });
             }
         });
 };
@@ -366,6 +390,55 @@ exports.changeWebreqState = function(req, res) {
                             });
                         }
                     });
+            }
+        });
+};
+
+exports.reports = function(req, res) {
+    if (!req.query || !req.query.curPage)
+        return res.status(500).send('Empty request');
+    var page = req.query.curPage;
+    FormProcessingReport
+        .find()
+        .skip((page - 1) * 20)
+        .limit(20)
+        .populate('form', '-actions -comment -formId')
+        .sort({
+            whenProcessed: -1
+        })
+        .lean()
+        .exec(function(err, reports) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                return res.jsonp({
+                    reports: reports,
+                    count: Math.ceil(reports.length / 20) * 10
+                });
+            }
+        });
+};
+
+exports.webreq = function(req, res) {
+    if(!req.params.webreqId)
+        return res.status(500).send('Empty request');
+    NewWebreq
+        .findOne({
+            _id: req.params.webreqId
+        })
+        .populate('fromForm', '-actions -comment -formId -name')
+        .exec(function(err, webreq) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                if (!webreq) {
+                    console.log('Webrequest was not found');
+                    return res.status(500).send('Webrequest was not found');
+                } else {
+                    return res.jsonp(webreq);
+                }
             }
         });
 };

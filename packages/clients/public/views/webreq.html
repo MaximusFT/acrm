@@ -1,0 +1,36 @@
+<table class="table table-bordered  table-hover table-condensed" cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:300}">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>From form</th>
+            <th>Created</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <span>
+                    {{webreq.name ? webreq.name : '---'}}
+                </span>
+            </td>
+            <td>
+                <span>
+                    {{webreq.email ? webreq.email : '---'}}
+                </span>
+            </td>
+            <td>
+                <span>
+                    {{webreq.phone ? webreq.phone : '---'}}
+                </span>
+            </td>
+            <td>
+                 <a href="#!/servers/site/{{webreq.fromForm.site}}/{{webreq.fromForm._id}}">{{webreq.fromForm.uri}}</a>
+            </td>
+            <td>
+                <span>{{formatDate(webreq.created)}}</span>
+            </td>
+        </tr>
+    </tbody>
+</table>

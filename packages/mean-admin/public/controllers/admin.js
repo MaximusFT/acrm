@@ -37,7 +37,7 @@ angular.module('mean.mean-admin').controller('AdminController', ['$scope', 'Glob
         }, {
             'roles': ['admin'],
             'title': 'REQUESTS',
-            'link': 'clients manager page',
+            'link': 'requests from internet',
             'icon': icons + 'users.png'
         }, {
             'roles': ['admin'],

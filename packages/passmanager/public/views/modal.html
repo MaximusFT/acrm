@@ -18,9 +18,10 @@
         <div data-ng-if="modalOptions.type === 9" data-ng-include src="'servermanager/views/addSite.html'"></div>
         <div data-ng-if="modalOptions.type === 10" data-ng-include src="'servermanager/views/addForm.html'"></div>
         <div data-ng-if="modalOptions.type === 11" data-ng-include src="'mailmanager/views/configForm.html'"></div>
+        <div data-ng-if="modalOptions.type === 12" data-ng-include src="'clients/views/webreq.html'"></div>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn" data-ng-click="modalOptions.close()">{{modalOptions.closeButtonText}}</button>
-        <input class="btn btn-primary" type="submit" form="modalForm" value="{{modalOptions.actionButtonText}}" />
+        <input data-ng-if="modalOptions.actionButtonText" class="btn btn-primary" type="submit" form="modalForm" value="{{modalOptions.actionButtonText}}" />
     </div>
 </div>

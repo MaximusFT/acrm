@@ -1,6 +1,9 @@
 <div class="" data-ng-controller="ServermanagerController">
     <h1>Server Infrastructure</h1>
     <br />
+    <div class="breadcrumb flat" data-ng-if="crumbs && crumbs.length">
+        <a data-ng-repeat="crumb in crumbs" href="#!/{{crumb.href}}" class="{{crumb.active ? 'active' : ''}}">{{crumb.title}}</a>
+    </div>
     <div class="row">
         <div class="col-md-3" data-ng-init="init()" cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}">
             <legend>Servers</legend>
@@ -11,7 +14,7 @@
             </div>
             <br />
             <ul class="nav nav-pills nav-stacked" data-ng-repeat="server in servers | filter:search" data-ng-if="servers.length">
-                <li role="presentation">
+                <li role="presentation" style="{{isVisibleRemoveButton[$index] === true ? 'background:aliceblue;padding-left:10px;padding-right:10px;' : ''}}">
                     <span style="line-height:3;">
                         <a href="" data-ng-click="selectServer(server, $index)">
                             <span style="font-family:monospace;"> <i class="glyphicon glyphicon-hdd"></i>

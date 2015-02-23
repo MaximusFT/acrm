@@ -5,6 +5,11 @@ angular.module('mean.servermanager').controller('ServermanagerController', ['$sc
         $scope.global = Global;
         $scope.isVisibleRemoveButton = [];
         $scope.deployedSites = [];
+        $scope.crumbs = [{
+            title: 'Servers',
+            href: 'servers',
+            active: true
+        }];
 
         $scope.init = function() {
             $scope.getHttp1 = $http.get('/api/servers_').success(function(response) {
@@ -57,6 +62,14 @@ angular.module('mean.servermanager').controller('ServermanagerController', ['$sc
                 $scope.deployedSites = response.sites;
                 $scope.referencedPasswords = response.passwords;
                 $location.path('/servers/' + server._id);
+                $scope.crumbs = [{
+                    title: 'Servers',
+                    href: 'servers'
+                }, {
+                    title: server.ip,
+                    href: 'servers/'+server._id,
+                    active: true
+                }];
             }).error(function(err) {
                 $log.error(err);
             });

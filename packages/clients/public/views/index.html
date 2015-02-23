@@ -65,7 +65,11 @@
 								<i class="glyphicon glyphicon-list"></i>
 								&nbsp;Categories
 							</accordion-heading>
-							...
+							<ul class="nav nav-pills nav-stacked">
+								<li data-ng-repeat="state in states" data-ng-click="selectCategory(state.id, $index)" class="{{isCategoryActive[$index] || isCategoryActive.length === 0 && state.id === 0 ? 'active' : ''}}">
+									<a href="">{{state.title}}</a>
+								</li>
+							</ul>
 						</accordion-group>
 					</accordion>
 				</div>
@@ -122,10 +126,7 @@
 						</table>
 						<pagination total-items="count2" data-ng-model="curPage1" data-ng-change="init(curPage1)" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false"></pagination>
 					</div>
-					<alert type="info" data-ng-if="!webreqs || !webreqs.length">
-						<br />
-						No requests
-					</alert>
+					<alert type="info" data-ng-if="!webreqs || !webreqs.length">No requests</alert>
 				</div>
 			</div>
 		</tab>
@@ -134,7 +135,6 @@
 				<i class="glyphicon glyphicon-folder-close"></i>
 				Old requests
 			</tab-heading>
-
 			<table class="table table-bordered  table-hover table-condensed">
 				<thead>
 					<tr>
@@ -150,10 +150,10 @@
 						<td data-ng-repeat="field in oldWebreqSchema" data-ng-if="field.inTable">
 							<a data-ng-if="field['schemaKey'] === 'webreq_inside_id'" href="https://inside.teletrade-dj.com/#web_request_view/{{webreq[field['schemaKey']]}}">{{webreq[field['schemaKey']]}}</a>
 							<span data-ng-if="field['schemaKey'] === 'creation_date'">{{formatDate(webreq[field['schemaKey']])}}</span>
-							<span data-ng-if="field['schemaKey'] !== 'webreq_inside_id' && field['schemaKey'] !== 'creation_date' && field['schemaKey'] !== 'comment'">
+							<span data-ng-if="field['schemaKey'] !== 'webreq_inside_id' && field['schemaKey'] !== 'creation_date' && field['schemaKey'] !== 'comment' && field['schemaKey'] !== 'form_address'">
 								{{webreq[field['schemaKey']] ? webreq[field['schemaKey']] : '---'}}
 							</span>
-							<span data-ng-if="field['schemaKey'] === 'comment'">
+							<span data-ng-if="field['schemaKey'] === 'comment' || field['schemaKey'] === 'form_address'">
 								<a href="#" tooltip-html-unsafe="{{webreq[field['schemaKey']]}}">Check out</a>
 							</span>
 						</td>
@@ -162,5 +162,63 @@
 			</table>
 			<pagination total-items="count2" data-ng-model="curPage2" data-ng-change="initOldRequests(curPage2)" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false"></pagination>
 		</tab>
-	</tabset>
-</div>
+		<tab select="initReports(1)">
+			<tab-heading>
+				<i class="glyphicon glyphicon-pushpin"></i>
+				Reports
+			</tab-heading>
+			<div data-ng-if="reports && reports.length">
+				<table class="table table-bordered  table-hover table-condensed">
+					<thead>
+						<tr>
+							<th>
+								<i class="glyphicon glyphicon-sort-by-order"></i>
+							</th>
+							<th data-ng-repeat="field in reportSchema">{{field.title}}</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr data-ng-repeat="report in reports" data-ng-init="reportIndex = $index">
+							<td>{{$index+1+(curPage2-1)*20}}.</td>
+							<td data-ng-repeat="field in reportSchema">
+								<span data-ng-if="field['schemaKey'] === 'whenProcessed'">{{formatDate(report[field['schemaKey']])}}</span>
+								<div data-ng-if="field['schemaKey'] === 'form'">
+									<p>
+										Form
+										<a href="#!/servers/site/{{report[field['schemaKey']].site}}/{{report[field['schemaKey']]._id}}">{{report[field['schemaKey']].name}}</a>
+									</p>
+									<p>
+										Located on the
+										<a href="{{report[field['schemaKey']].uri}}" target="_blank">page</a>
+									</p>
+								</div>
+								<ul data-ng-if="field['schemaKey'] === 'formData'" data-ng-repeat="formField in report[field['schemaKey']] track by $index">
+									<li>
+										{{formField.htmlId}}: <em>"{{formField.value}}"</em>
+									</li>
+								</ul>
+								<div data-ng-if="field['schemaKey'] === 'actionsPerformed'">
+									<ul data-ng-repeat="action in report[field['schemaKey']]">
+										<li>
+											{{action.action}}
+											<i class="{{report.error && report.error.length ? 'glyphicon glyphicon-remove' : 'glyphicon glyphicon-ok'}}" style="{{report.error && report.error.length ? 'colod:red;' : 'color:green;'}}cursor:pointer;" data-ng-click="showRes(reportIndex, $index, action.action)"></i>
+											<div collapse="!isResShown[reportIndex][$index]" data-ng-if="action.action !== 'ACRM'">
+												<pre>{{action.res | json}}</pre>
+											</div>
+										</li>
+									</ul>
+								</div>
+								<span data-ng-if="field['schemaKey'] !== 'whenProcessed' && field['schemaKey'] !== 'form' && field['schemaKey'] !== 'formData' && field['schemaKey'] !== 'actionsPerformed'">
+									{{report[field['schemaKey']] ? report[field['schemaKey']] : '---'}}
+								</span>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<pagination total-items="count3" data-ng-model="curPage3" data-ng-change="initReports(curPage3)" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false"></pagination>
+			</div>
+			<div data-ng-if="!reports || (reports && !reports.length)">
+				<alert type="info">No reports</div>
+			</tab>
+		</tabset>
+	</div>

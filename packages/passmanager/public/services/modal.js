@@ -11,10 +11,10 @@ angular.module('mean.passmanager').service('modalService', ['$modal', '$log',
 			};
 
 			var modalOptions = {
-				closeButtonText : 'Close',
-				actionButtonText : 'OK',
-				headerText : 'Proceed?',
-				bodyText : 'Perform this action?'
+				closeButtonText : 'Close'
+				//actionButtonText : 'OK',
+				//headerText : 'Proceed?',
+				//bodyText : 'Perform this action?'
 			};
 
 			this.showModal = function (customModalDefaults, customModalOptions) {

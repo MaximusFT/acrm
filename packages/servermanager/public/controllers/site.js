@@ -2,13 +2,14 @@
 
 angular.module('mean.servermanager').controller('SiteController', ['$scope', '$http', '$log', '$location', '$stateParams', 'Global', 'modalService',
     function($scope, $http, $log, $location, $stateParams, Global, modalService) {
-        $scope.global = Global;
+        $scope.global = Global;       
         $scope.forms = [];
         $scope.isVisibleRemoveButton = [];
         $scope.isError = [];
         $scope.saveEnabled = false;
         $scope.appointments = ['name', 'email', 'phone'];
         $scope.appointments2 = ['name', 'email', 'phone', 'city'];
+        $scope.appointments3 = ['name', 'phone'];
         $scope.checkboxes = [];
         $scope.actions = [{
             name: 'Save in ACRM',
@@ -27,8 +28,8 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
             config: {}
         }, {
             name: 'Send SMS',
-            thead: ['From', 'Text for SMS'],
-            tbody: ['from', 'textSms'],
+            thead: ['Username', 'Password', 'From', 'Text for SMS', 'Appeal'],
+            tbody: ['username', 'password', 'from', 'textSms', 'appeal'],
             config: {}
         }];
 
@@ -40,8 +41,20 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
 
         $scope.init = function() {
             $scope.getHttp1 = $http.get('/api/site/' + $scope.siteId).success(function(response) {
+                $log.info(response);
                 $scope.site = response.site;
                 $scope.referencedPasswords = response.passwords;
+                $scope.crumbs = [{
+                    title: 'Servers',
+                    href: 'servers'
+                }, {
+                    title: $scope.site.server.ip,
+                    href: 'servers/' + $scope.site.server._id
+                }, {
+                    title: $scope.site.title,
+                    href: 'servers/site/' + $scope.site._id,
+                    active: true
+                }];
             }).error(function(err) {
                 $log.error(err);
             });
@@ -136,6 +149,20 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
                 //$log.info(response);
                 $scope.selectedForm = response.form;
                 $location.path('/servers/site/' + $stateParams.siteId + '/' + form._id);
+                $scope.crumbs = [{
+                    title: 'Servers',
+                    href: 'servers'
+                }, {
+                    title: $scope.site.server.ip,
+                    href: 'servers/' + $scope.site.server._id
+                }, {
+                    title: $scope.site.title,
+                    href: 'servers/site/' + $scope.site._id
+                }, {
+                    title: $scope.selectedForm.name,
+                    href: 'servers/site/' + $stateParams.siteId + '/' + form._id,
+                    active: true
+                }];
                 if (!response.bindedData)
                     $scope.bindedData = [];
                 else

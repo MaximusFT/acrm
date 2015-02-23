@@ -38,10 +38,6 @@ var NewWebreqSchema = new Schema({
 		type: Date,
 		default: Date.now
 	},
-	isTest: {
-		type: Boolean,
-		default: false
-	},
 	client: {
 		type: Schema.ObjectId,
 		ref: 'Client'
@@ -53,6 +49,7 @@ var NewWebreqSchema = new Schema({
 		// 1 - processed
 		// 2 - spam
 		// -1 - removed
+		// 3 - test
 	}
 });
 

@@ -31,6 +31,13 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
         $scope.form = JSON.parse(JSON.stringify($scope.modalOptions.form));
     if ($scope.modalOptions.department)
         $scope.newDepartment = JSON.parse(JSON.stringify($scope.modalOptions.department));
+    if ($scope.modalOptions.webreq) {
+        $scope.getHttp1 = $http.get('/api/webrequest/' + $scope.modalOptions.webreq).success(function(response) {
+            $scope.webreq = response;
+        }).error(function(err) {
+            $log.error(err);
+        });
+    }
 
     $scope.cancel = function() {
         $log.info('cancel');
@@ -106,6 +113,7 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
             $scope.modalOptions.ok(data);
         }
     };
+
     $scope.initMailConfig = function() {
         $http.get('/api/getMailConfig')
             .success(function(data) {
@@ -121,6 +129,7 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
                 $log.error('error');
             });
     };
+    
     $scope.manualSynchronization = function() {
         $http.get('/api/getMailConfig')
             .success(function(data) {
@@ -142,8 +151,9 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
             .error(function() {
                 $log.error('error');
             });
+    };
 
-
-
+    $scope.formatDate = function(date) {
+        return new Date(date).toLocaleString();
     };
 });

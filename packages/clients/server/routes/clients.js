@@ -13,6 +13,8 @@ module.exports = function(Clients, app, auth, database) {
     app.get('/api/acrmRequestTypes', auth.requiresLogin, webreqs.acrmRequestTypes);
     app.post('/api/applyFilters', auth.requiresAdmin, webreqs.applyFilters);
     app.put('/api/changeWebreqState/:webreqId', auth.requiresAdmin, webreqs.changeWebreqState);
+    app.get('/api/webreqs/reports', auth.requiresAdmin, webreqs.reports);
+    app.get('/api/webrequest/:webreqId', auth.requiresAdmin, webreqs.webreq);
 
     app.get('/api/getDocumentFields', requests.getDocumentFields);
     app.post('/api/sendUserRequest', requests.processUserRequest);
