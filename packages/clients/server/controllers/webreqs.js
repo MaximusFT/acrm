@@ -182,6 +182,7 @@ exports.webreqs = function(req, res) {
         .skip((page - 1) * 20)
         .limit(20)
         .populate('fromForm', '-actions -comment -formId -name')
+        .populate('type')
         .sort({
             created: -1
         })
@@ -334,6 +335,7 @@ exports.applyFilters = function(req, res) {
     NewWebreq
         .find(query)
         .populate('fromForm', '-actions -comment -formId -name')
+        .populate('type')
         .exec(function(err, webreqs) {
             if (err) {
                 console.log(err);

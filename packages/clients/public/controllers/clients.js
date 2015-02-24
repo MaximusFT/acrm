@@ -66,8 +66,16 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
             schemaKey: 'phone',
             type: 'text'
         }, {
+            title: 'Type',
+            schemaKey: 'type',
+            type: 'text'
+        }, {
             title: 'From form',
             schemaKey: 'fromForm',
+            type: 'text'
+        }, {
+            title: 'Comment',
+            schemaKey: 'comment',
             type: 'text'
         }, {
             title: 'Created',
@@ -150,7 +158,7 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
                         curPage: curPage
                     }
                 }).success(function(data) {
-                    //$log.info(data);
+                    $log.info(data);
                     $scope.webreqs = data.webreqs;
                     $scope.count1 = data.count;
                 }).error(function(err) {

@@ -67,7 +67,10 @@
 							</accordion-heading>
 							<ul class="nav nav-pills nav-stacked">
 								<li data-ng-repeat="state in states" data-ng-click="selectCategory(state.id, $index)" class="{{isCategoryActive[$index] || isCategoryActive.length === 0 && state.id === 0 ? 'active' : ''}}">
-									<a href="">{{state.title}}</a>
+									<a href="">
+										{{state.title}}
+										<span data-ng-if="webreqs && (isCategoryActive[$index] || isCategoryActive.length === 0 && state.id === 0)" class="badge" style="float:right;">{{webreqs.length}}</span>
+									</a>
 								</li>
 							</ul>
 						</accordion-group>
@@ -76,6 +79,10 @@
 				<div class="col-md-9">
 					<br />
 					<div data-ng-if="webreqs.length">
+						<div style="float:right;">
+							<label for="irm1">Show analytics info</label>
+							<input id="irm1" type="checkbox" class="btn" data-ng-model="removeMode1" />
+						</div>
 						<table class="table table-bordered  table-hover table-condensed">
 							<thead>
 								<tr>
@@ -90,11 +97,14 @@
 								<tr data-ng-repeat="webreq in webreqs">
 									<td>{{$index+1+(curPage1-1)*20}}.</td>
 									<td data-ng-repeat="field in webreqSchema">
-										<span data-ng-if="field.type === 'text' && field.schemaKey !== 'fromForm'">
-											{{webreq[field['schemaKey']] ? webreq[field['schemaKey']] : '---'}}
+										<span data-ng-if="field.type === 'text' && field.schemaKey !== 'fromForm' && field.schemaKey !== 'comment'">
+											{{field['schemaKey'] === 'type' ? webreq[field['schemaKey']].title : (webreq[field['schemaKey']] ? webreq[field['schemaKey']] : '---')}}
 										</span>
 										<a data-ng-if="field.type === 'text' && field.schemaKey === 'fromForm'" href="#!/servers/site/{{webreq[field['schemaKey']].site}}/{{webreq[field['schemaKey']]._id}}">{{webreq[field['schemaKey']].uri}}</a>
 										<span data-ng-if="field.type === 'date'">{{formatDate(webreq[field['schemaKey']])}}</span>
+										<span data-ng-if="field['schemaKey'] === 'comment'">
+											<a href="#" tooltip-html-unsafe="{{webreq[field['schemaKey']]}}">Check out</a>
+										</span>
 									</td>
 									<td>
 										<span class="dropdown" dropdown is-open="status.isDdOpen[$index]" data-ng-click="toggleDropdown($event)">
@@ -120,6 +130,9 @@
 												</li>
 											</ul>
 										</span>
+									</td>
+									<td data-ng-if="webreq.analyticsInfo && removeMode1">
+										<pre>{{webreq.analyticsInfo | json}}</pre>
 									</td>
 								</tr>
 							</tbody>

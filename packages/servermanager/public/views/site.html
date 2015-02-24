@@ -143,7 +143,7 @@
 							<th>
 								<i class="glyphicon glyphicon-sort-by-order-alt"></i>
 							</th>
-							<th>ID in HTML</th>
+							<th>ID (or Name) in HTML</th>
 							<th>Comment</th>
 							<th data-ng-show="removeMode">
 								<i class="glyphicon glyphicon-trash"></i>
@@ -226,7 +226,7 @@
 							</table>
 							<div data-ng-if="action.name === 'Send to Inside' || action.name === 'Save in ACRM'">
 								<div>
-									<label for="checkbox_{{action.name}}chks">Is checkboxes?</label>
+									<label for="checkbox_{{action.name}}chks">Need to append something to request comment?</label>
 									<input id="checkbox_{{action.name}}chks" type="checkbox" data-ng-model="action.isCheckboxes" />
 									<i data-ng-show="action.isCheckboxes" class="glyphicon glyphicon-plus" data-ng-click="addCheckboxInfo(action.config)" style="float:right;cursor:pointer;"></i>
 								</div>
@@ -238,9 +238,8 @@
 									<table class="table table-striped table-bordered table-hover editable-table">
 										<tr>
 											<th>Field</th>
-											<th>Text if true</th>
-											<th>Text if false</th>
-											<th>Concat text to comment?</th>
+											<th>Text if true (exists)</th>
+											<th>Text if false (doesn't exist)</th>
 											<th data-ng-show="removeMode2">
 												<i class="glyphicon glyphicon-trash"></i>
 											</th>
@@ -253,13 +252,18 @@
 												</ui-select>
 											</td>
 											<td class="table-editable-cell">
-												<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifTrue"></span>
+												<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifTrue1"></span>
+												<ui-select class="col-md-6" style="width:100%;" data-ng-model="checkbox.ifTrue2" data-ng-change="updateBindedData()">
+													<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
+													<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}}</ui-select-choices>
+												</ui-select>
 											</td>
 											<td class="table-editable-cell">
-												<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifFalse"></span>
-											</td>
-											<td>
-												<input type="checkbox" data-ng-model="checkbox.isConcat" />
+												<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifFalse1"></span>
+												<ui-select class="col-md-6" style="width:100%;" data-ng-model="checkbox.ifFalse2" data-ng-change="updateBindedData()">
+													<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
+													<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}}</ui-select-choices>
+												</ui-select>
 											</td>
 											<td data-ng-show="removeMode2" style="text-align:center;">
 												<input class="btn btn-danger btn-xs" type="button" value="Remove" data-ng-click="removeCheckboxData(actionIndex, $index)" />
