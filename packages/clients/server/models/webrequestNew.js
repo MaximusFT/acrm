@@ -50,6 +50,10 @@ var NewWebreqSchema = new Schema({
 		// 2 - spam
 		// -1 - removed
 		// 3 - test
+	},
+	unread: {
+		type: Boolean,
+		default: true
 	}
 });
 

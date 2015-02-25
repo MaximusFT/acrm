@@ -336,6 +336,9 @@ exports.applyFilters = function(req, res) {
         .find(query)
         .populate('fromForm', '-actions -comment -formId -name')
         .populate('type')
+        .sort({
+            created: -1
+        })
         .exec(function(err, webreqs) {
             if (err) {
                 console.log(err);

@@ -68,6 +68,8 @@ exports.server = function(req, res) {
                                 Pass
                                     .find({
                                         forServer: req.query.server
+                                    }, {
+                                        accessedFor: 0
                                     }, function(err, passes) {
                                         if (err) {
                                             console.log(err);

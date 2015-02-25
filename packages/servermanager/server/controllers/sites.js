@@ -73,6 +73,8 @@ exports.getSite = function(req, res) {
                     Pass
                         .find({
                             forSite: site._id
+                        }, {
+                            accessedFor: 0
                         }, function(err, passes) {
                             if (err) {
                                 console.log(err);
