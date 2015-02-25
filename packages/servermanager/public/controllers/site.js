@@ -2,7 +2,7 @@
 
 angular.module('mean.servermanager').controller('SiteController', ['$scope', '$http', '$log', '$location', '$stateParams', 'Global', 'modalService',
     function($scope, $http, $log, $location, $stateParams, Global, modalService) {
-        $scope.global = Global;       
+        $scope.global = Global;
         $scope.forms = [];
         $scope.isVisibleRemoveButton = [];
         $scope.isError = [];
@@ -22,6 +22,11 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
             tbody: ['officeId', 'reqType', 'comment'],
             config: {}
         }, {
+            name: 'Google Analytics',
+            thead: ['Version', 'Category', 'Action', 'Label', 'Value'],
+            tbody: ['version', 'category', 'action', 'opt_label', 'opt_value'],
+            config: {}
+        }, {
             name: 'Subscribe in JustClick',
             thead: ['JustClick account ID', 'API Key', 'Target group', 'Done URL'],
             tbody: ['userId', 'userKey', 'targetGroup', 'doneUrl'],
@@ -31,6 +36,18 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
             thead: ['Username', 'Password', 'From', 'Text for SMS', 'Appeal'],
             tbody: ['username', 'password', 'from', 'textSms', 'appeal'],
             config: {}
+        }, {
+            name: 'Replace form by thanksgiving block',
+            thead: ['Custom HTML'],
+            tbody: ['thanksBlock']
+        }];
+
+        $scope.gaVersions = [{
+            title: 'Old (ga.js)',
+            id: 0
+        }, {
+            title: 'Universal (analytics.js)',
+            id: 1
         }];
 
         if (!$stateParams.siteId) {
@@ -258,26 +275,36 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
                 if (actionData.isEnabled) {
                     if (actionData.name === 'Send to Inside') {
                         if (!actionData.config.officeId) {
-                            $scope.errors.push('Empty office ID field');
+                            $scope.errors.push('Empty office ID field (Send to Inside)');
                         }
                         if (!actionData.config.reqType) {
-                            $scope.errors.push('Empty request type field');
+                            $scope.errors.push('Empty request type field (Send to Inside)');
                         }
                         if (!actionData.config.comment) {
-                            $scope.errors.push('Empty comment field');
+                            $scope.errors.push('Empty comment field (Send to Inside)');
                         }
                         if (!actionData.config.email) {
-                            $scope.errors.push('Empty email field');
+                            $scope.errors.push('Empty email field (Send to Inside)');
                         }
                         if (actionData.isCheckboxes && (!actionData.config.checkboxes || actionData.config.checkboxes.length === 0)) {
-                            $scope.errors.push('Empty checkboxes data');
+                            $scope.errors.push('Empty checkboxes data (Send to Inside)');
                         }
                         if (actionData.isCheckboxes && actionData.config.checkboxes) {
                             angular.forEach(actionData.config.checkboxes, function(chkbd, index2) {
-                                if (!chkbd.field || !chkbd.ifTrue || !chkbd.ifFalse)
-                                    $scope.errors.push('Incomplete data on the checkbox (' + (index2 + 1) + ' row)');
+                                if (chkbd.field && !chkbd.ifTrue1 && !chkbd.ifTrue2 && !chkbd.ifFalse1 && !chkbd.ifFalse2)
+                                    $scope.errors.push('Incomplete data on the checkbox (' + (index2 + 1) + ' row) (Send to Inside)');
                             });
                         }
+                    }
+                    if (actionData.name === 'Google Analytics') {
+                        if (!actionData.config.category)
+                            $scope.errors.push('Empty category field (Google Analytics)');
+                        if (!actionData.config.action)
+                            $scope.errors.push('Empty action field (Google Analytics)');
+                    }
+                    if (actionData.name === 'Replace form by thanksgiving block') {
+                        if (!actionData.config || !actionData.config.thanksBlock)
+                            $scope.errors.push('Empty thanksgiving block (Replace form by thanksgiving block)');
                     }
                 }
             });

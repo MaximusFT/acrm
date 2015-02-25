@@ -135,7 +135,7 @@ angular.module('mean.passmanager').controller('PassController', ['$scope', 'Glob
         };
 
         $scope.initServers = function() {
-            $scope.getHttp3 = $http.get('/api/servers').success(function(response) {
+            $scope.getHttp3 = $http.get('/api/servers_').success(function(response) {
                 $scope.servers = response;
                 //$log.info(response);
             }).error(function(err) {

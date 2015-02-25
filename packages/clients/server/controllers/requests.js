@@ -11,7 +11,8 @@ var mongoose = require('mongoose'),
     request = require('request'),
     async = require('async'),
     crypto = require('crypto'),
-    parseString = require('xml2js').parseString;
+    parseString = require('xml2js').parseString,
+    safeParse = require('safe-json-parse/callback');
 
 function saveRequestInAcrm(actions, data, analyticsData, formId, callback) {
     var response = {
@@ -56,9 +57,8 @@ function saveRequestInAcrm(actions, data, analyticsData, formId, callback) {
             return d.htmlId === chkb.field;
         });
         if (tmp.length > 0) {
-            requestData.comment = requestData.comment + '. ';
             if (tmp[0].value && (chkb.ifTrue1 || chkb.ifTrue2)) {
-                requestData.comment += chkb.ifTrue1 ? chkb.ifTrue1 : '';
+                requestData.comment += ' ' + chkb.ifTrue1 ? chkb.ifTrue1 : '';
                 var tmpIT2 = _.filter(data, function(tdd) {
                     return tdd.htmlId === chkb.ifTrue2;
                 });
@@ -66,7 +66,7 @@ function saveRequestInAcrm(actions, data, analyticsData, formId, callback) {
                     requestData.comment += ' ' + tmpIT2[0].value;
             }
             if (!tmp[0].value && (chkb.ifFalse1 || chkb.ifFalse2)) {
-                requestData.comment += chkb.ifFalse1 ? chkb.ifFalse1 : '';
+                requestData.comment += ' ' + chkb.ifFalse1 ? chkb.ifFalse1 : '';
                 var tmpIF2 = _.filter(data, function(tdd) {
                     return tdd.htmlId === chkb.ifFalse2;
                 });
@@ -133,31 +133,16 @@ function sendToInside(actions, data, analyticsData, callback) {
     if (analyticsData.ip)
         postData.ip = analyticsData.ip;
     if (analyticsData.url_form)
-        postData.url_form = analyticsData.url_form;
-    if (analyticsData.url_local)
-        postData.url_local = analyticsData.url_local;
+        postData.url_form = encodeURI(analyticsData.url_form);
+    if (analyticsData.url_local) {
+        var tul = analyticsData.url_local;
+        if (analyticsData.url_local.indexOf('?') !== -1 && tul.substring(tul.indexOf('?') - 1, tul.indexOf('?')) !== '/')
+            tul = tul.substring(0, tul.indexOf('?')) + '/' + tul.substring(tul.indexOf('?'), tul.length - 1);
+        postData.url_local = encodeURI(tul);
+    }
     if (analyticsData.url_referer)
-        postData.url_referer = analyticsData.url_referer;
-    var utmBuild = false;
-    if (analyticsData.utm_source) {
-        postData.url_local += (!utmBuild ? '/?' : '') + 'utm_source=' + analyticsData.utm_source + '&';
-        utmBuild = true;
-    }
-    if (analyticsData.utm_medium) {
-        postData.url_local += (!utmBuild ? '/?' : '') + 'utm_medium=' + analyticsData.utm_medium + '&';
-        utmBuild = true;
-    }
-    if (analyticsData.utm_term) {
-        postData.url_local += (!utmBuild ? '/?' : '') + 'utm_term=' + analyticsData.utm_term + '&';
-        utmBuild = true;
-    }
-    if (analyticsData.utm_content) {
-        postData.url_local += (!utmBuild ? '/?' : '') + 'utm_content=' + analyticsData.utm_content + '&';
-        utmBuild = true;
-    }
-    if (analyticsData.utm_campaign) {
-        postData.url_local += (!utmBuild ? '/?' : '') + 'utm_campaign=' + analyticsData.utm_campaign;
-    }
+        postData.url_referer = encodeURI(analyticsData.url_referer);
+
     _.forEach(options.checkboxes, function(chkb) {
         var tmp = _.filter(data, function(d) {
             return d.htmlId === chkb.field;
@@ -274,8 +259,13 @@ function subscribeInJustclick(actions, data, callback) {
         request.post({
             url: url,
             form: sendData
-        }, function(error, response, body) {
-            cb(response.body);
+        }, function(error, resp, body) {
+            console.log('justclick ztchk');
+            if (!error) {
+                cb(resp.body);
+            } else {
+                cb(null, error);
+            }
         });
     }
 
@@ -310,9 +300,16 @@ function subscribeInJustclick(actions, data, callback) {
     sendData.doneurl2 = options.doneUrl;
     sendData.hash = getHash(sendData, authData);
 
-    send_('http://' + options.userId + '.justclick.ru/api/AddLeadToGroup', sendData, function(resp) {
-        response.res = JSON.parse(resp);
-        return callback(response);
+    send_('http://' + options.userId + '.justclick.ru/api/AddLeadToGroup', sendData, function(resp, error) {
+        if (resp) {
+            safeParse(resp, function(err, json) {
+                response.res = err ? resp : json;
+                return callback(response);
+            });
+        } else {
+            response.error = error;
+            return callback(response);
+        }
     });
 }
 
@@ -332,7 +329,7 @@ function sendSMS(actions, data, callback) {
         return d.htmlId === options.phone;
     });
     if (tmpP.length === 0) {
-        response.error('Phone option missed');
+        response.error = 'Phone option missed';
         return callback(response);
     } else {
         sendData.phone = tmpP[0].value;
@@ -440,6 +437,8 @@ exports.processUserRequest = function(req, res) {
         href = href.substring(0, href.indexOf('?'));
     if (href.substr(href.length - 1, href.length) === '/')
         href = href.substr(0, href.length - 1);
+    if (href.indexOf('#') !== -1)
+        href = href.substring(0, href.indexOf('#'));
     console.log('REQUEST FROM', href);
     console.log('FORM DATA', formData);
     console.log('ANALYTICS DATA', analyticsData);
@@ -508,7 +507,22 @@ exports.processUserRequest = function(req, res) {
                                                 console.log(err);
                                                 return res.status(500).send(err);
                                             } else {
-                                                return res.status(200).send();
+                                                var options = {};
+                                                var tempGA = _.filter(form.actions, function(fa) {
+                                                    return fa.name === 'Google Analytics';
+                                                });
+                                                if (tempGA.length > 0 && tempGA[0].isEnabled) {
+                                                    options.ga = tempGA[0].config;
+                                                }
+                                                var tempRF = _.filter(form.actions, function(fa) {
+                                                    return fa.name === 'Replace form by thanksgiving block';
+                                                });
+                                                if (tempRF.length > 0 && tempRF[0].isEnabled) {
+                                                    options.rf = tempRF[0].config;
+                                                }
+                                                res.header('Access-Control-Allow-Origin', '*');
+                                                res.header('Access-Control-Allow-Headers', 'X-Requested-With');
+                                                return res.jsonp(options);
                                             }
                                         });
                                     });

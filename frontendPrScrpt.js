@@ -22,7 +22,6 @@ jQuery(document).ready(function($) {
                 href: window.location.protocol + '//' + window.location.host + window.location.pathname
             },
             success: function(response) {
-                console.log('response getDocumentFields', response);
                 var formData = [];
                 $($.map(response.fields, function(id) {
                     var val = $('#' + id).attr('type') !== 'checkbox' ? $('#' + id).val() : $('#' + id).prop('checked');
@@ -54,17 +53,22 @@ jQuery(document).ready(function($) {
                 }));
                 //preparing data for analytics
                 var analyticsData = {};
-                if (window.XMLHttpRequest) xmlhttp = new XMLHttpRequest();
-                else xmlhttp = new ActiveXObject('Microsoft.XMLHTTP');
-                xmlhttp.open('GET', 'http://api.hostip.info/get_html.php', false);
-                xmlhttp.send();
-                hostipInfo = xmlhttp.responseText.split(':');
-                analyticsData.ip = hostipInfo[hostipInfo.length - 1].trim();
+                $.ajax({
+                    url: 'http://api.hostip.info/get_html.php',
+                    type: 'GET',
+                    success: function(res) {
+                        var temp = res.split(':');
+                        analyticsData.ip = temp[temp.length - 1].trim();
+                    },
+                    error: function(err) {
+                        console.log('err', err);
+                    }
+                });
                 if ($.sessionStorage('url_local'))
                     analyticsData.url_local = $.sessionStorage('url_local');
                 if ($.sessionStorage('url_referer'))
                     analyticsData.url_referer = $.sessionStorage('url_referer');
-                analyticsData.url_form = window.location.protocol + '//' + window.location.host + window.location.pathname;
+                analyticsData.url_form = window.location.href;
                 if ($.sessionStorage('utm_source'))
                     analyticsData.utm_source = $.sessionStorage('utm_source');
                 if ($.sessionStorage('utm_medium'))
@@ -77,20 +81,43 @@ jQuery(document).ready(function($) {
                     analyticsData.utm_campaign = $.sessionStorage('utm_campaign');
                 //console.log(analyticsData);
                 $.ajax({
-                    type: 'POST',
                     url: 'http://dev.mapqo.com/api/sendUserRequest',
-                    crossDomain: true,
+                    type: 'POST',
+                    dataType: 'json',
                     data: {
                         formData: formData,
-                        href: window.location.href,
+                        href: window.location.protocol + '//' + window.location.host + window.location.pathname,
                         analyticsData: analyticsData
                     },
-                    dataType: 'json',
-                    success: function(responseData) {
-                        console.log(responseData);
+                    crossDomain: true,
+                    success: function(res) {
+                        if (res.ga && res.ga.category && res.ga.action) {
+                            switch (res.ga.version) {
+                                case 0:
+                                    _gaq.push(['_trackEvent', res.ga.category, res.ga.action, res.ga.opt_label ? res.ga.opt_label : null, res.ga.opt_value ? res.ga.opt_value : null]);
+                                    break;
+                                case 1:
+                                    var gaData = {
+                                        hitType: 'event',
+                                        eventCategory: res.ga.category,
+                                        eventAction: res.ga.action
+                                    };
+                                    if (res.ga.opt_label)
+                                        gaData.eventLabel = res.ga.opt_label;
+                                    if (res.ga.opt_value)
+                                        gaData.eventValue = res.ga.opt_value;
+                                    ga('send', gaData);
+                                    break;
+                                default:
+                                    console.error('Unknown version of GA');
+                            }
+                        }
+                        if (res.rf && res.rf.thanksBlock) {
+                            $('#'+response.form).empty().append(res.rf.thanksBlock);
+                        }
                     },
-                    error: function(responseData) {
-                        console.log(responseData);
+                    error: function(err) {
+                        console.log(err);
                     }
                 });
             }
