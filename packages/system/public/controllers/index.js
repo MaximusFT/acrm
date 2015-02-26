@@ -4,20 +4,6 @@ angular.module('mean.system').controller('IndexController', ['$scope', '$rootSco
 		function ($scope, $rootScope, $http, $location, $cookies, $log, Global) {
 			$scope.global = Global;
 			
-			$scope.myInterval = 5000;
-			var slides = $scope.slides = [];
-			$scope.addSlide = function () {
-				var newWidth = 1 + slides.length;
-				slides.push({
-					image : '/system/assets/img/slider/' + newWidth + '.jpg'
-					/*text : ['Learning from experience', 'Choosing the Right Approach', 'Your experience is important', 'We will help you to find a solution',
-					'And share it with others'][slides.length % 5]*/
-				});
-			};
-			$scope.addSlide();
-			$scope.addSlide();
-			$scope.addSlide();
-			
 			// LOGIN ON MAIN PAGE
 			$scope.user = {};
 			$scope.global = Global;

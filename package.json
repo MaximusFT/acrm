@@ -91,7 +91,9 @@
     "time-grunt": "^0.3.1",
     "view-helpers": "^0.1.4",
     "xml2js": "^0.4.5",
-    "zeroclipboard": "^2.1.6"
+    "zeroclipboard": "^2.1.6",
+    "q": "^1.2.0",
+    "safe-json-parse": "^4.0.0"
   },
   "devDependencies": {
     "del": "^1.1.1",
