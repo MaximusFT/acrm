@@ -426,7 +426,7 @@ exports.reports = function(req, res) {
 };
 
 exports.webreq = function(req, res) {
-    if(!req.params.webreqId)
+    if (!req.params.webreqId)
         return res.status(500).send('Empty request');
     NewWebreq
         .findOne({
@@ -444,6 +444,27 @@ exports.webreq = function(req, res) {
                 } else {
                     return res.jsonp(webreq);
                 }
+            }
+        });
+};
+exports.reportForWebreq = function(req, res) {
+    if (!req.params.webreqId)
+        return res.status(500).send('Empty request');
+    FormProcessingReport
+        .findOne({
+            actionsPerformed: {
+                $elemMatch: {
+                    res: mongoose.Types.ObjectId(req.params.webreqId)
+                }
+            }
+        })
+        .populate('form', '-actions -comment -formId')
+        .exec(function(err, report) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                return res.jsonp(report);
             }
         });
 };

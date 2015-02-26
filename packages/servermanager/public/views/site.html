@@ -90,7 +90,7 @@
 			</div>
 			<br />
 			<ul class="nav nav-pills nav-stacked" data-ng-repeat="form in forms | filter:search" data-ng-if="forms.length">
-				<li role="presentation">
+				<li role="presentation" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">
 					<span style="line-height:3;">
 						<a href="" data-ng-click="selectForm(form, $index)">
 							<span style="font-family:monospace;">

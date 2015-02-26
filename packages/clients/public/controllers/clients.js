@@ -283,5 +283,23 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
             };
             $scope.applyFilters();
         };
+
+        $scope.showReport = function(webreqId) {
+            $scope.getHttp5 = $http.get('/api/reportForWebreq/' + webreqId).success(function(response) {
+                if (response) {
+                    var modalOptions = {
+                        closeButtonText: 'Ok',
+                        //actionButtonText: 'Ok',
+                        headerText: 'Report for request',
+                        bodyText: 'There are report details.',
+                        type: 13,
+                        report: response
+                    };
+                    modalService.showModal({}, modalOptions);
+                }
+            }).error(function(err) {
+                $log.error(err);
+            });
+        };
     }
 ]);

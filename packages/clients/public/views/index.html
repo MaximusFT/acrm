@@ -91,6 +91,9 @@
 									</th>
 									<th data-ng-repeat="field in webreqSchema">{{field.title}}</th>
 									<th>Action</th>
+									<th>
+										<i class="glyphicon glyphicon-hand-right"></i>
+									</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -130,6 +133,9 @@
 												</li>
 											</ul>
 										</span>
+									</td>
+									<td>
+										<i class="glyphicon glyphicon-check" style="cursor:pointer;color:blue;" data-ng-click="showReport(webreq._id)"></i>
 									</td>
 									<td data-ng-if="webreq.analyticsInfo && removeMode1">
 										<pre>{{webreq.analyticsInfo | json}}</pre>
