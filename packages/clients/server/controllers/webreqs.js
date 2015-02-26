@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 var mongoose = require('mongoose'),
     Webreq = mongoose.model('Webreq'),
@@ -191,10 +191,35 @@ exports.webreqs = function(req, res) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
-                return res.jsonp({
-                    webreqs: webreqs,
-                    count: Math.ceil(webreqs.length / 20) * 10
-                });
+                NewWebreq
+                    .find({
+                        state: 3,
+                        isRead: false
+                    }, {
+                        _id: 1
+                    }, function(err, testUnreadRequests) {
+                        if (err) {
+                            console.log(err);
+                            return res.status(500).send(err);
+                        } else {
+                            NewWebreq
+                                .find(query, {
+                                    _id: 1
+                                })
+                                .exec(function(err, count) {
+                                    if (err) {
+                                        console.log(err);
+                                        return res.status(500).send(err);
+                                    } else {
+                                        return res.jsonp({
+                                            webreqs: webreqs,
+                                            count: Math.ceil(count.length / 20) * 10,
+                                            testUnreadCount: testUnreadRequests.length
+                                        });
+                                    }
+                                });
+                        }
+                    });
             }
         });
 };
@@ -306,7 +331,8 @@ exports.acrmRequestTypes = function(req, res) {
 exports.applyFilters = function(req, res) {
     if (!req.body || !req.body.params || !req.body.params.options)
         return res.status(500).send('Empty query');
-    var options = req.body.params.options;
+    var page = req.body.params.curPage,
+        options = req.body.params.options;
     //console.log('options', options);
     var query = {};
     if (options.department)
@@ -334,6 +360,8 @@ exports.applyFilters = function(req, res) {
         };
     NewWebreq
         .find(query)
+        .skip((page - 1) * 20)
+        .limit(20)
         .populate('fromForm', '-actions -comment -formId -name')
         .populate('type')
         .sort({
@@ -344,10 +372,35 @@ exports.applyFilters = function(req, res) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
-                return res.jsonp({
-                    webreqs: webreqs,
-                    count: Math.ceil(webreqs.length / 20) * 10
-                });
+                NewWebreq
+                    .find({
+                        state: 3,
+                        isRead: false
+                    }, {
+                        _id: 1
+                    }, function(err, testUnreadRequests) {
+                        if (err) {
+                            console.log(err);
+                            return res.status(500).send(err);
+                        } else {
+                            NewWebreq
+                                .find(query, {
+                                    _id: 1
+                                })
+                                .exec(function(err, count) {
+                                    if (err) {
+                                        console.log(err);
+                                        return res.status(500).send(err);
+                                    } else {
+                                        return res.jsonp({
+                                            webreqs: webreqs,
+                                            count: Math.ceil(count.length / 20) * 10,
+                                            testUnreadCount: testUnreadRequests.length
+                                        });
+                                    }
+                                });
+                        }
+                    });
             }
         });
 };
@@ -355,46 +408,36 @@ exports.applyFilters = function(req, res) {
 exports.changeWebreqState = function(req, res) {
     if (!req.params && !req.params.webreqId && !req.body.params && !req.body.params.state)
         return res.status(500).send('Empty query');
-    console.log(req.params.webreqId, req.body.params.state);
     NewWebreq
-        .update({
+        .findOne({
             _id: req.params.webreqId
         }, {
-            $set: {
-                state: req.body.params.state
-            }
-        }, function(err) {
+            state: 1
+        }, function(err, webreq) {
             if (err) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
-                NewWebreq
-                    .find({
-                        state: 0
-                    })
-                    .limit(20)
-                    .populate('fromForm', '-actions -comment -formId -name')
-                    .sort({
-                        created: -1
-                    })
-                    .exec(function(err, webreqs) {
-                        if (err) {
-                            console.log(err);
-                            return res.status(500).send(err);
-                        } else {
-                            NewWebreq.count(function(err, count) {
-                                if (err) {
-                                    console.log(err);
-                                    return res.status(500).send(err);
-                                } else {
-                                    return res.jsonp({
-                                        webreqs: webreqs,
-                                        count: Math.ceil(count / 20) * 10
-                                    });
-                                }
-                            });
-                        }
-                    });
+                if (webreq) {
+                    var setQuery = {};
+                    if (webreq.state !== 3)
+                        setQuery.state = req.body.params.state;
+                    else
+                        setQuery.isRead = true;
+                    NewWebreq
+                        .update({
+                            _id: req.params.webreqId
+                        }, {
+                            $set: setQuery
+                        }, function(err) {
+                            if (err) {
+                                console.log(err);
+                                return res.status(500).send(err);
+                            } else {
+                                return res.status(200).send();
+                            }
+                        });
+                }
             }
         });
 };

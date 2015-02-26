@@ -152,15 +152,19 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
         }];
 
         $scope.init = function(curPage) {
+            $scope.curPage1 = curPage;
+            $scope.webreqs = [];
             if (JSON.stringify($scope.filterOptions) === '{}') {
                 $scope.getHttp1 = $http.get('/api/webreqs', {
                     params: {
                         curPage: curPage
                     }
                 }).success(function(data) {
-                    $log.info(data);
+                    //$log.info('init', data);
                     $scope.webreqs = data.webreqs;
                     $scope.count1 = data.count;
+                    $scope.unreadCount = data.count;
+                    $scope.unreadTestCount = data.testUnreadCount;
                 }).error(function(err) {
                     $log.error(err);
                 });
@@ -225,13 +229,19 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
 
         $scope.applyFilters = function() {
             //$log.info($scope.filterOptions, typeof $scope.filterOptions);
+            $scope.webreqs = [];
             $scope.getHttp1 = $http.post('/api/applyFilters', {
                 params: {
+                    curPage: $scope.curPage1,
                     options: $scope.filterOptions
                 }
             }).success(function(response) {
+                //$log.info('applyFilters', response);
                 $scope.webreqs = response.webreqs;
                 $scope.count1 = response.count;
+                if ($scope.filterOptions.state === 0)
+                    $scope.unreadCount = response.count;
+                $scope.unreadTestCount = response.testUnreadCount;
             }).error(function(err) {
                 $log.error(err);
             });
@@ -244,15 +254,14 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
         };
 
         $scope.checkAs = function(webreq, state) {
-            $log.info(webreq, state);
+            //$log.info(webreq, state);
             $scope.getHttp1 = $http.put('/api/changeWebreqState/' + webreq._id, {
                 params: {
                     state: state
                 }
-            }).success(function(response) {
-                $scope.webreqs = response.webreqs;
-                $scope.count1 = response.count;
+            }).success(function() {
                 $scope.status.isDdOpen = [];
+                $scope.applyFilters();
             }).error(function(err) {
                 $log.error(err);
             });

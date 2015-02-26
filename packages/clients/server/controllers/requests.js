@@ -76,8 +76,10 @@ function saveRequestInAcrm(actions, data, analyticsData, formId, callback) {
         }
     });
 
-    if (analyticsData && analyticsData.ip && analyticsData.ip === '195.138.91.97')
+    if (analyticsData && analyticsData.ip && analyticsData.ip === '195.138.91.97') {
         requestData.state = 3;
+        requestData.isRead = false;
+    }
 
     var newNewWebreq = new NewWebreq(requestData);
     newNewWebreq.save(function(err) {

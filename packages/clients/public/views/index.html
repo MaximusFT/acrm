@@ -8,7 +8,7 @@
 			<div class="row">
 				<div class="col-md-3">
 					<br />
-					<accordion>
+					<accordion close-others="true">
 						<accordion-group style="background-color:#efefef;">
 							<accordion-heading> <i class="glyphicon glyphicon-filter"></i>
 								&nbsp;Filters
@@ -60,7 +60,7 @@
 								</div>
 							</form>
 						</accordion-group>
-						<accordion-group>
+						<accordion-group is-open="isOpen">
 							<accordion-heading>
 								<i class="glyphicon glyphicon-list"></i>
 								&nbsp;Categories
@@ -69,7 +69,8 @@
 								<li data-ng-repeat="state in states" data-ng-click="selectCategory(state.id, $index)" class="{{isCategoryActive[$index] || isCategoryActive.length === 0 && state.id === 0 ? 'active' : ''}}">
 									<a href="">
 										{{state.title}}
-										<span data-ng-if="webreqs && (isCategoryActive[$index] || isCategoryActive.length === 0 && state.id === 0)" class="badge" style="float:right;">{{webreqs.length}}</span>
+										<span data-ng-if="webreqs && state.id === 0 && unreadCount" class="badge" style="float:right;">{{unreadCount}}</span>
+										<span data-ng-if="webreqs && state.id === 3 && unreadTestCount" class="badge" style="float:right;">{{unreadTestCount}}</span>
 									</a>
 								</li>
 							</ul>
@@ -97,13 +98,13 @@
 								</tr>
 							</thead>
 							<tbody>
-								<tr data-ng-repeat="webreq in webreqs">
+								<tr data-ng-repeat="webreq in webreqs" style="{{webreq.isRead === false || webreq.state === 0 ? 'background:lightblue;' : ''}}">
 									<td>{{$index+1+(curPage1-1)*20}}.</td>
 									<td data-ng-repeat="field in webreqSchema">
 										<span data-ng-if="field.type === 'text' && field.schemaKey !== 'fromForm' && field.schemaKey !== 'comment'">
 											{{field['schemaKey'] === 'type' ? webreq[field['schemaKey']].title : (webreq[field['schemaKey']] ? webreq[field['schemaKey']] : '---')}}
 										</span>
-										<a data-ng-if="field.type === 'text' && field.schemaKey === 'fromForm'" href="#!/servers/site/{{webreq[field['schemaKey']].site}}/{{webreq[field['schemaKey']]._id}}">{{webreq[field['schemaKey']].uri}}</a>
+										<a data-ng-if="field.type === 'text' && field.schemaKey === 'fromForm'" href="#!/servers/site/{{webreq[field['schemaKey']].site}}/{{webreq[field['schemaKey']]._id}}" tooltip-html-unsafe="{{webreq[field['schemaKey']].uri}}">Check out</a>
 										<span data-ng-if="field.type === 'date'">{{formatDate(webreq[field['schemaKey']])}}</span>
 										<span data-ng-if="field['schemaKey'] === 'comment'">
 											<a href="#" tooltip-html-unsafe="{{webreq[field['schemaKey']]}}">Check out</a>
@@ -143,7 +144,7 @@
 								</tr>
 							</tbody>
 						</table>
-						<pagination total-items="count2" data-ng-model="curPage1" data-ng-change="init(curPage1)" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false"></pagination>
+						<pagination total-items="count1" data-ng-model="curPage1" data-ng-change="init(curPage1)" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false"></pagination>
 					</div>
 					<alert type="info" data-ng-if="!webreqs || !webreqs.length">No requests</alert>
 				</div>
