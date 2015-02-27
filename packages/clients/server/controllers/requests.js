@@ -12,7 +12,8 @@ var mongoose = require('mongoose'),
     async = require('async'),
     crypto = require('crypto'),
     parseString = require('xml2js').parseString,
-    safeParse = require('safe-json-parse/callback');
+    safeParse = require('safe-json-parse/callback'),
+    url = require('url');
 
 function saveRequestInAcrm(actions, data, analyticsData, formId, callback) {
     var response = {
@@ -386,20 +387,23 @@ function sendSMS(actions, data, callback) {
 }
 
 exports.getDocumentFields = function(req, res) {
-    if (!req.query.href)
+    if (!req.query.href && !req.query.form)
         return res.status(500).send('Empty query');
-    var href = req.query.href;
+    var href = req.query.href,
+        formId = req.query.form;
     if (href.substr(href.length - 1, href.length) === '/')
         href = href.substr(0, href.length - 1);
     Form
         .findOne({
-            uri: href
-        }, function(err, form) {
+            formId: formId
+        })
+        .populate('site', '-title -ip -comment -server')
+        .exec(function(err, form) {
             if (err) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
-                if (form) {
+                if (form && !form.throughAllSite && form.uri === href || form && form.throughAllSite && url.parse(form.site.uri).hostname === url.parse(href).hostname) {
                     FormBindedData
                         .find({
                             form: form._id
@@ -414,7 +418,6 @@ exports.getDocumentFields = function(req, res) {
                                 return res.status(500).send(err);
                             } else {
                                 if (fields) {
-                                    //console.log(_.map(fields, 'htmlId'));
                                     return res.jsonp({
                                         form: form.formId,
                                         fields: _.map(fields, 'htmlId')
@@ -424,7 +427,7 @@ exports.getDocumentFields = function(req, res) {
                             }
                         });
                 } else
-                    return res.status(500).send('Form was not found');
+                    return res.jsonp('Form was not found');
             }
         });
 };

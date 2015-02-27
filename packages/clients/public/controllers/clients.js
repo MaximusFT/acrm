@@ -153,7 +153,6 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
 
         $scope.init = function(curPage) {
             $scope.curPage1 = curPage;
-            $scope.webreqs = [];
             if (JSON.stringify($scope.filterOptions) === '{}') {
                 $scope.getHttp1 = $http.get('/api/webreqs', {
                     params: {

@@ -16,6 +16,9 @@ var FormSchema = new Schema({
         type: String,
         required: true
     },
+    throughAllSite: {
+        type: Boolean
+    },
     site: {
         type: Schema.ObjectId,
         ref: 'Site'

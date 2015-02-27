@@ -212,12 +212,12 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
                 /* jshint ignore:start */
                 var difs = [],
                     ips = [];
-                for (var property in form) {
-                    if (form[property] !== result[property]) {
+                for (var property in result) {
+                    if (form[property] !== result[property] && typeof result[property] !== 'object') {
                         var t = {};
                         t.propertyName = property;
                         t.values = [form[property], result[property]];
-                        difs.splice(difs.length, 0, t);
+                        difs.push(t);
                     }
                 }
                 $http.put('/api/form/' + form._id, {

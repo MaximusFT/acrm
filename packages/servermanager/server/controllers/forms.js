@@ -72,11 +72,10 @@ exports.update = function(req, res) {
         return res.status(500).send('Empty query');
     var form = {};
     _.forEach(req.body.params.difs, function(dif) {
-        console.log('dif', dif);
+        //console.log('dif', dif);
         if (dif.propertyName && dif.values.length === 2)
             form[dif.propertyName] = dif.values[1];
     });
-    console.log(form);
     Form
         .findOneAndUpdate({
             _id: req.params.form
