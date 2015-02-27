@@ -89,19 +89,23 @@
 				<input type="text" class="form-control" data-ng-model="search" placeholder="Search" />
 			</div>
 			<br />
-			<ul class="nav nav-pills nav-stacked" data-ng-repeat="form in forms | filter:search" data-ng-if="forms.length">
-				<li role="presentation" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">
-					<span style="line-height:3;">
-						<a href="" data-ng-click="selectForm(form, $index)">
-							<span style="font-family:monospace;">
-								<i class="glyphicon glyphicon-list-alt"></i>
-								&nbsp;{{form.name}} ({{form.formId}})
-							</span>
-						</a>
-						<button type="button" class="btn btn-xs btn-danger" style="float:right;margin-top:9px;" data-ng-click="removeForm(form, $index)" data-ng-show="isVisibleRemoveButton[$index] === true">
-							<i class="glyphicon glyphicon-remove"></i>
-						</button>
-					</span>
+			<ul class="nav nav-pills nav-stacked" data-ng-if="forms.length">
+				<li role="presentation" data-ng-repeat="form in forms | filter:search">
+					<ul class="list-inline">
+						<li style="font-family:monospace;white-space:nowrap;overflow: hidden;text-overflow:ellipsis;width:85%;">
+							<a href="" data-ng-click="selectForm(form, $index)">
+								<span>
+									<i class="glyphicon glyphicon-list-alt"></i>
+									&nbsp;{{form.name}} ({{form.formId}})
+								</span>
+							</a>
+						</li>
+						<li>
+							<button type="button" class="btn btn-xs btn-danger" style="float:right;" data-ng-click="removeForm(form, $index)" data-ng-show="isVisibleRemoveButton[$index] === true">
+								<i class="glyphicon glyphicon-remove"></i>
+							</button>
+						</li>
+					</ul>
 				</li>
 			</ul>
 			<alert type="info" data-ng-if="!forms || !forms.length">No forms</alert>
@@ -166,8 +170,8 @@
 					<legend>Actions</legend>
 					<alert type="danger" data-ng-if="errors.length">
 						Invalid data. Try to fill fields correctly again:
-						<ul data-ng-repeat="error in errors">
-							<li>{{error}}</li>
+						<ul>
+							<li data-ng-repeat="error in errors">{{error}}</li>
 						</ul>
 					</alert>
 					<div data-ng-repeat="action in actions" data-ng-init="actionIndex = $index">
@@ -257,18 +261,20 @@
 												</ui-select>
 											</td>
 											<td class="table-editable-cell">
-												<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifTrue1"></span>
-												<ui-select class="col-md-6" style="width:100%;" data-ng-model="checkbox.ifTrue2" data-ng-change="updateBindedData()">
+												<span class="editable-span" style="display:block;" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifTrue1"></span>
+												<ui-select class="col-md-6" style="width:100%;display:block;" data-ng-model="checkbox.ifTrue2" data-ng-change="updateBindedData()">
 													<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
 													<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}}</ui-select-choices>
 												</ui-select>
+												<span class="editable-span" style="display:block;" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifTrue3"></span>
 											</td>
 											<td class="table-editable-cell">
-												<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifFalse1"></span>
-												<ui-select class="col-md-6" style="width:100%;" data-ng-model="checkbox.ifFalse2" data-ng-change="updateBindedData()">
+												<span class="editable-span" style="display:block;" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifFalse1"></span>
+												<ui-select class="col-md-6" style="width:100%;display:block;" data-ng-model="checkbox.ifFalse2" data-ng-change="updateBindedData()">
 													<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
 													<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}}</ui-select-choices>
 												</ui-select>
+												<span class="editable-span" style="display:block;" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifFalse3"></span>
 											</td>
 											<td data-ng-show="removeMode2" style="text-align:center;">
 												<input class="btn btn-danger btn-xs" type="button" value="Remove" data-ng-click="removeCheckboxData(actionIndex, $index)" />

@@ -58,21 +58,23 @@ function saveRequestInAcrm(actions, data, analyticsData, formId, callback) {
             return d.htmlId === chkb.field;
         });
         if (tmp.length > 0) {
-            if (tmp[0].value && (chkb.ifTrue1 || chkb.ifTrue2)) {
+            if (tmp[0].value && (chkb.ifTrue1 || chkb.ifTrue2 || chkb.ifTrue3)) {
                 requestData.comment += ' ' + chkb.ifTrue1 ? chkb.ifTrue1 : '';
                 var tmpIT2 = _.filter(data, function(tdd) {
                     return tdd.htmlId === chkb.ifTrue2;
                 });
                 if (tmpIT2.length > 0)
                     requestData.comment += ' ' + tmpIT2[0].value;
+                requestData.comment += ' ' + chkb.ifTrue3 ? chkb.ifTrue3 : '';
             }
-            if (!tmp[0].value && (chkb.ifFalse1 || chkb.ifFalse2)) {
+            if (!tmp[0].value && (chkb.ifFalse1 || chkb.ifFalse2 || chkb.ifFalse3)) {
                 requestData.comment += ' ' + chkb.ifFalse1 ? chkb.ifFalse1 : '';
                 var tmpIF2 = _.filter(data, function(tdd) {
                     return tdd.htmlId === chkb.ifFalse2;
                 });
                 if (tmpIF2.length > 0)
                     requestData.comment += ' ' + tmpIF2[0].value;
+                requestData.comment += ' ' + chkb.ifFalse3 ? chkb.ifFalse3 : '';
             }
         }
     });
@@ -151,22 +153,23 @@ function sendToInside(actions, data, analyticsData, callback) {
             return d.htmlId === chkb.field;
         });
         if (tmp.length > 0) {
-            postData.comments = postData.comments + '. ';
             if (tmp[0].value && (chkb.ifTrue1 || chkb.ifTrue2)) {
-                postData.comments += chkb.ifTrue1 ? chkb.ifTrue1 : '';
+                postData.comments += ' ' + chkb.ifTrue1 ? chkb.ifTrue1 : '';
                 var tmpIT2 = _.filter(data, function(tdd) {
                     return tdd.htmlId === chkb.ifTrue2;
                 });
                 if (tmpIT2.length > 0)
                     postData.comments += ' ' + tmpIT2[0].value;
+                postData.comments += ' ' + chkb.ifTrue3 ? chkb.ifTrue3 : '';
             }
             if (!tmp[0].value && (chkb.ifFalse1 || chkb.ifFalse2)) {
-                postData.comments += chkb.ifFalse1 ? chkb.ifFalse1 : '';
+                postData.comments += ' ' + chkb.ifFalse1 ? chkb.ifFalse1 : '';
                 var tmpIF2 = _.filter(data, function(tdd) {
                     return tdd.htmlId === chkb.ifFalse2;
                 });
                 if (tmpIF2.length > 0)
                     postData.comments += ' ' + tmpIF2[0].value;
+                postData.comments += ' ' + chkb.ifFalse3 ? chkb.ifFalse3 : '';
             }
         }
     });
@@ -393,43 +396,83 @@ exports.getDocumentFields = function(req, res) {
         formId = req.query.form;
     if (href.substr(href.length - 1, href.length) === '/')
         href = href.substr(0, href.length - 1);
-    Form
-        .findOne({
-            formId: formId
-        })
-        .populate('site', '-title -ip -comment -server')
-        .exec(function(err, form) {
-            if (err) {
-                console.log(err);
-                return res.status(500).send(err);
-            } else {
-                if (form && !form.throughAllSite && form.uri === href || form && form.throughAllSite && url.parse(form.site.uri).hostname === url.parse(href).hostname) {
-                    FormBindedData
-                        .find({
-                            form: form._id
-                        }, {
-                            htmlId: 1,
-                            _id: 0
-                        })
-                        .lean()
-                        .exec(function(err, fields) {
-                            if (err) {
-                                console.log(err);
-                                return res.status(500).send(err);
-                            } else {
-                                if (fields) {
-                                    return res.jsonp({
-                                        form: form.formId,
-                                        fields: _.map(fields, 'htmlId')
-                                    });
-                                } else
-                                    return res.status(500).send('Form binded data was not found');
-                            }
-                        });
-                } else
-                    return res.jsonp('Form was not found');
-            }
-        });
+    if (formId.indexOf('fc') === 0) {
+        Form
+            .findOne({
+                uri: href
+            })
+            .populate('site', '-title -ip -comment -server')
+            .exec(function(err, form) {
+                if (err) {
+                    console.log(err);
+                    return res.status(500).send(err);
+                } else {
+                    if (form) {
+                        FormBindedData
+                            .find({
+                                form: form._id
+                            }, {
+                                htmlId: 1,
+                                _id: 0
+                            })
+                            .lean()
+                            .exec(function(err, fields) {
+                                if (err) {
+                                    console.log(err);
+                                    return res.status(500).send(err);
+                                } else {
+                                    if (fields) {
+                                        return res.jsonp({
+                                            form: form.formId,
+                                            fields: _.map(fields, 'htmlId')
+                                        });
+                                    } else
+                                        return res.status(500).send('Form binded data was not found');
+                                }
+                            });
+                    } else
+                        return res.jsonp('Form was not found');
+                }
+            });
+    } else {
+        Form
+            .findOne({
+                formId: formId
+            })
+            .populate('site', '-title -ip -comment -server')
+            .exec(function(err, form) {
+                if (err) {
+                    console.log(err);
+                    return res.status(500).send(err);
+                } else {
+                    if (form && !form.throughAllSite && form.uri === href || form && form.throughAllSite && url.parse(form.site.uri).hostname === url.parse(href).hostname) {
+                        FormBindedData
+                            .find({
+                                form: form._id
+                            }, {
+                                htmlId: 1,
+                                _id: 0
+                            })
+                            .lean()
+                            .exec(function(err, fields) {
+                                if (err) {
+                                    console.log(err);
+                                    return res.status(500).send(err);
+                                } else {
+                                    if (fields) {
+                                        return res.jsonp({
+                                            form: form.formId,
+                                            fields: _.map(fields, 'htmlId')
+                                        });
+                                    } else
+                                        return res.status(500).send('Form binded data was not found');
+                                }
+                            });
+                    } else
+                        return res.jsonp('Form was not found');
+                }
+            });
+    }
 };
 
 exports.processUserRequest = function(req, res) {
