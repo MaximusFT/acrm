@@ -229,6 +229,7 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
         $scope.applyFilters = function() {
             //$log.info($scope.filterOptions, typeof $scope.filterOptions);
             $scope.webreqs = [];
+            $scope.curPage1 = 1;
             $scope.getHttp1 = $http.post('/api/applyFilters', {
                 params: {
                     curPage: $scope.curPage1,
@@ -238,8 +239,8 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
                 //$log.info('applyFilters', response);
                 $scope.webreqs = response.webreqs;
                 $scope.count1 = response.count;
-                if ($scope.filterOptions.state === 0)
-                    $scope.unreadCount = response.count;
+                if ($scope.filterOptions.state === 0 && response.allUnreadCount)
+                    $scope.unreadCount = response.allUnreadCount;
                 $scope.unreadTestCount = response.testUnreadCount;
             }).error(function(err) {
                 $log.error(err);

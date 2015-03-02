@@ -392,11 +392,32 @@ exports.applyFilters = function(req, res) {
                                         console.log(err);
                                         return res.status(500).send(err);
                                     } else {
-                                        return res.jsonp({
-                                            webreqs: webreqs,
-                                            count: Math.ceil(count.length / 20) * 10,
-                                            testUnreadCount: testUnreadRequests.length
-                                        });
+                                        if (options.state === 0) {
+                                            NewWebreq
+                                                .find({
+                                                    state: 0
+                                                }, {
+                                                    _id: 1
+                                                }, function(err, allUnreadCount) {
+                                                    if (err) {
+                                                        console.log(err);
+                                                        return res.status(500).send(err);
+                                                    } else {
+                                                        return res.jsonp({
+                                                            webreqs: webreqs,
+                                                            count: Math.ceil(count.length / 20) * 10,
+                                                            allUnreadCount: allUnreadCount.length,
+                                                            testUnreadCount: testUnreadRequests.length
+                                                        });
+                                                    }
+                                                });
+                                        } else {
+                                            return res.jsonp({
+                                                webreqs: webreqs,
+                                                count: Math.ceil(count.length / 20) * 10,
+                                                testUnreadCount: testUnreadRequests.length
+                                            });
+                                        }
                                     }
                                 });
                         }
