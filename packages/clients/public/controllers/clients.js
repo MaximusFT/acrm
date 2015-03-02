@@ -152,15 +152,18 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
         }];
 
         $scope.init = function(curPage) {
+            $scope.curPage1 = curPage;
             if (JSON.stringify($scope.filterOptions) === '{}') {
                 $scope.getHttp1 = $http.get('/api/webreqs', {
                     params: {
                         curPage: curPage
                     }
                 }).success(function(data) {
-                    $log.info(data);
+                    //$log.info('init', data);
                     $scope.webreqs = data.webreqs;
                     $scope.count1 = data.count;
+                    $scope.unreadCount = $scope.webreqs.length;
+                    $scope.unreadTestCount = data.testUnreadCount;
                 }).error(function(err) {
                     $log.error(err);
                 });
@@ -225,13 +228,20 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
 
         $scope.applyFilters = function() {
             //$log.info($scope.filterOptions, typeof $scope.filterOptions);
+            $scope.webreqs = [];
+            $scope.curPage1 = 1;
             $scope.getHttp1 = $http.post('/api/applyFilters', {
                 params: {
+                    curPage: $scope.curPage1,
                     options: $scope.filterOptions
                 }
             }).success(function(response) {
+                //$log.info('applyFilters', response);
                 $scope.webreqs = response.webreqs;
                 $scope.count1 = response.count;
+                if ($scope.filterOptions.state === 0 && response.allUnreadCount)
+                    $scope.unreadCount = response.allUnreadCount;
+                $scope.unreadTestCount = response.testUnreadCount;
             }).error(function(err) {
                 $log.error(err);
             });
@@ -244,15 +254,14 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
         };
 
         $scope.checkAs = function(webreq, state) {
-            $log.info(webreq, state);
+            //$log.info(webreq, state);
             $scope.getHttp1 = $http.put('/api/changeWebreqState/' + webreq._id, {
                 params: {
                     state: state
                 }
-            }).success(function(response) {
-                $scope.webreqs = response.webreqs;
-                $scope.count1 = response.count;
+            }).success(function() {
                 $scope.status.isDdOpen = [];
+                $scope.applyFilters();
             }).error(function(err) {
                 $log.error(err);
             });
@@ -282,6 +291,24 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
                 state: id
             };
             $scope.applyFilters();
+        };
+
+        $scope.showReport = function(webreqId) {
+            $scope.getHttp5 = $http.get('/api/reportForWebreq/' + webreqId).success(function(response) {
+                if (response) {
+                    var modalOptions = {
+                        closeButtonText: 'Ok',
+                        //actionButtonText: 'Ok',
+                        headerText: 'Report for request',
+                        bodyText: 'There are report details.',
+                        type: 13,
+                        report: response
+                    };
+                    modalService.showModal({}, modalOptions);
+                }
+            }).error(function(err) {
+                $log.error(err);
+            });
         };
     }
 ]);

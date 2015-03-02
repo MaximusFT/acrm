@@ -1,0 +1,42 @@
+<table class="table table-bordered  table-hover table-condensed">
+    <tr>
+        <th>Form</th>
+        <th>Data</th>
+    </tr>
+    <tr>
+        <td>
+            <p>
+                Form
+                <a href="#!/servers/site/{{report.form.site}}/{{report.form._id}}">{{report.form.name}}</a>
+            </p>
+            <p>
+                Located on the
+                <a href="{{report.form.uri}}" target="_blank">page</a>
+            </p>
+        </td>
+        <td>
+            <ul data-ng-repeat="formField in report.formData track by $index">
+                <li>
+                    {{formField.htmlId}}: <em>"{{formField.value}}"</em>
+                </li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <th>Actions</th>
+        <th>When processed</th>
+    </tr>
+    <tr>
+        <td>
+            <ul data-ng-repeat="action in report.actionsPerformed">
+                <li>
+                    {{action.action}} <i class="{{report.error && report.error.length ? 'glyphicon glyphicon-remove' : 'glyphicon glyphicon-ok'}}" style="{{report.error && report.error.length ? 'colod:red;' : 'color:green;'}}cursor:pointer;" data-ng-click="showRes($index)"></i>
+                    <div collapse="!isResShown[$index]">
+                        <pre>{{action.res | json}}</pre>
+                    </div>
+                </li>
+            </ul>
+        </td>
+        <td>{{formatDate(report.whenProcessed)}}</td>
+    </tr>
+</table>

@@ -15,6 +15,7 @@ module.exports = function(Clients, app, auth, database) {
     app.put('/api/changeWebreqState/:webreqId', auth.requiresAdmin, webreqs.changeWebreqState);
     app.get('/api/webreqs/reports', auth.requiresAdmin, webreqs.reports);
     app.get('/api/webrequest/:webreqId', auth.requiresAdmin, webreqs.webreq);
+    app.get('/api/reportForWebreq/:webreqId', auth.requiresAdmin, webreqs.reportForWebreq);
 
     app.get('/api/getDocumentFields', requests.getDocumentFields);
     app.post('/api/sendUserRequest', requests.processUserRequest);

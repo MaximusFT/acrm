@@ -12,7 +12,8 @@ var mongoose = require('mongoose'),
     async = require('async'),
     crypto = require('crypto'),
     parseString = require('xml2js').parseString,
-    safeParse = require('safe-json-parse/callback');
+    safeParse = require('safe-json-parse/callback'),
+    url = require('url');
 
 function saveRequestInAcrm(actions, data, analyticsData, formId, callback) {
     var response = {
@@ -57,27 +58,35 @@ function saveRequestInAcrm(actions, data, analyticsData, formId, callback) {
             return d.htmlId === chkb.field;
         });
         if (tmp.length > 0) {
-            if (tmp[0].value && (chkb.ifTrue1 || chkb.ifTrue2)) {
-                requestData.comment += ' ' + chkb.ifTrue1 ? chkb.ifTrue1 : '';
+            if (tmp[0].value && (chkb.ifTrue1 || chkb.ifTrue2 || chkb.ifTrue3)) {
+                if (chkb.ifTrue1)
+                    requestData.comment += ' ' + chkb.ifTrue1;
                 var tmpIT2 = _.filter(data, function(tdd) {
                     return tdd.htmlId === chkb.ifTrue2;
                 });
                 if (tmpIT2.length > 0)
                     requestData.comment += ' ' + tmpIT2[0].value;
+                if (chkb.ifTrue3)
+                    requestData.comment += ' ' + chkb.ifTrue3;
             }
-            if (!tmp[0].value && (chkb.ifFalse1 || chkb.ifFalse2)) {
-                requestData.comment += ' ' + chkb.ifFalse1 ? chkb.ifFalse1 : '';
+            if (!tmp[0].value && (chkb.ifFalse1 || chkb.ifFalse2 || chkb.ifFalse3)) {
+                if (chkb.ifFalse1)
+                    requestData.comment += ' ' + chkb.ifFalse1;
                 var tmpIF2 = _.filter(data, function(tdd) {
                     return tdd.htmlId === chkb.ifFalse2;
                 });
                 if (tmpIF2.length > 0)
                     requestData.comment += ' ' + tmpIF2[0].value;
+                if (chkb.ifFalse3)
+                    requestData.comment += ' ' + chkb.ifFalse3;
             }
         }
     });
 
-    if (analyticsData && analyticsData.ip && analyticsData.ip === '195.138.91.97')
+    if (analyticsData && analyticsData.ip && analyticsData.ip === '195.138.91.97') {
         requestData.state = 3;
+        requestData.isRead = false;
+    }
 
     var newNewWebreq = new NewWebreq(requestData);
     newNewWebreq.save(function(err) {
@@ -148,22 +157,27 @@ function sendToInside(actions, data, analyticsData, callback) {
             return d.htmlId === chkb.field;
         });
         if (tmp.length > 0) {
-            postData.comments = postData.comments + '. ';
-            if (tmp[0].value && (chkb.ifTrue1 || chkb.ifTrue2)) {
-                postData.comments += chkb.ifTrue1 ? chkb.ifTrue1 : '';
+            if (tmp[0].value && (chkb.ifTrue1 || chkb.ifTrue2 || chkb.ifTrue3)) {
+                if (chkb.ifTrue1)
+                    postData.comments += ' ' + chkb.ifTrue1;
                 var tmpIT2 = _.filter(data, function(tdd) {
                     return tdd.htmlId === chkb.ifTrue2;
                 });
                 if (tmpIT2.length > 0)
                     postData.comments += ' ' + tmpIT2[0].value;
+                if (chkb.ifTrue3)
+                    postData.comments += ' ' + chkb.ifTrue3;
             }
-            if (!tmp[0].value && (chkb.ifFalse1 || chkb.ifFalse2)) {
-                postData.comments += chkb.ifFalse1 ? chkb.ifFalse1 : '';
+            if (!tmp[0].value && (chkb.ifFalse1 || chkb.ifFalse2 || chkb.ifFalse3)) {
+                if (chkb.ifFalse1)
+                    postData.comments += ' ' + chkb.ifFalse1;
                 var tmpIF2 = _.filter(data, function(tdd) {
                     return tdd.htmlId === chkb.ifFalse2;
                 });
                 if (tmpIF2.length > 0)
                     postData.comments += ' ' + tmpIF2[0].value;
+                if (chkb.ifFalse3)
+                    postData.comments += ' ' + chkb.ifFalse3;
             }
         }
     });
@@ -175,7 +189,7 @@ function sendToInside(actions, data, analyticsData, callback) {
         transData.name = postData.name;
 
     request.post({
-        url: 'https://mapqo.com/temporaryApi/conv.php',
+        url: 'http://mapqo.com/temporaryApi/conv.php',
         form: {
             txt: transData
         }
@@ -384,53 +398,98 @@ function sendSMS(actions, data, callback) {
 }
 
 exports.getDocumentFields = function(req, res) {
-    if (!req.query.href)
+    if (!req.query.href && !req.query.form)
         return res.status(500).send('Empty query');
-    var href = req.query.href;
+    var href = req.query.href,
+        formId = req.query.form;
     if (href.substr(href.length - 1, href.length) === '/')
         href = href.substr(0, href.length - 1);
-    Form
-        .findOne({
-            uri: href
-        }, function(err, form) {
-            if (err) {
-                console.log(err);
-                return res.status(500).send(err);
-            } else {
-                if (form) {
-                    FormBindedData
-                        .find({
-                            form: form._id
-                        }, {
-                            htmlId: 1,
-                            _id: 0
-                        })
-                        .lean()
-                        .exec(function(err, fields) {
-                            if (err) {
-                                console.log(err);
-                                return res.status(500).send(err);
-                            } else {
-                                if (fields) {
-                                    //console.log(_.map(fields, 'htmlId'));
-                                    return res.jsonp({
-                                        form: form.formId,
-                                        fields: _.map(fields, 'htmlId')
-                                    });
-                                } else
-                                    return res.status(500).send('Form binded data was not found');
-                            }
-                        });
-                } else
-                    return res.status(500).send('Form was not found');
-            }
-        });
+    if (formId.indexOf('fc') === 0) {
+        Form
+            .findOne({
+                uri: href
+            })
+            .populate('site', '-title -ip -comment -server')
+            .exec(function(err, form) {
+                if (err) {
+                    console.log(err);
+                    return res.status(500).send(err);
+                } else {
+                    if (form) {
+                        FormBindedData
+                            .find({
+                                form: form._id
+                            }, {
+                                htmlId: 1,
+                                _id: 0
+                            })
+                            .lean()
+                            .exec(function(err, fields) {
+                                if (err) {
+                                    console.log(err);
+                                    return res.status(500).send(err);
+                                } else {
+                                    if (fields) {
+                                        return res.jsonp({
+                                            form: form.formId,
+                                            fields: _.map(fields, 'htmlId')
+                                        });
+                                    } else
+                                        return res.status(500).send('Form binded data was not found');
+                                }
+                            });
+                    } else
+                        return res.jsonp('Form was not found');
+                }
+            });
+    } else {
+        Form
+            .findOne({
+                formId: formId
+            })
+            .populate('site', '-title -ip -comment -server')
+            .exec(function(err, form) {
+                if (err) {
+                    console.log(err);
+                    return res.status(500).send(err);
+                } else {
+                    if (form && !form.throughAllSite && form.uri === href || form && form.throughAllSite && url.parse(form.site.uri).hostname === url.parse(href).hostname) {
+                        FormBindedData
+                            .find({
+                                form: form._id
+                            }, {
+                                htmlId: 1,
+                                _id: 0
+                            })
+                            .lean()
+                            .exec(function(err, fields) {
+                                if (err) {
+                                    console.log(err);
+                                    return res.status(500).send(err);
+                                } else {
+                                    if (fields) {
+                                        return res.jsonp({
+                                            form: form.formId,
+                                            fields: _.map(fields, 'htmlId')
+                                        });
+                                    } else
+                                        return res.status(500).send('Form binded data was not found');
+                                }
+                            });
+                    } else
+                        return res.jsonp('Form was not found');
+                }
+            });
+    }
 };
 
 exports.processUserRequest = function(req, res) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With');
     if (!req.body.formData || !req.body.href)
         return res.status(500).send('Empty query');
     var href = req.body.href,
+        formId = req.body.form,
         formData = req.body.formData,
         analyticsData = req.body.analyticsData;
     if (href.indexOf('?') !== -1)
@@ -439,20 +498,31 @@ exports.processUserRequest = function(req, res) {
         href = href.substr(0, href.length - 1);
     if (href.indexOf('#') !== -1)
         href = href.substring(0, href.indexOf('#'));
-    console.log('REQUEST FROM', href);
+    console.log('REQUEST FROM', href, formId);
     console.log('FORM DATA', formData);
     console.log('ANALYTICS DATA', analyticsData);
+    var query = {};
+    if (formId.indexOf('fc') === 0) {
+        query.uri = href;
+    } else {
+        query.$or = [{
+            uri: href,
+            formId: formId
+        }, {
+            uri: url.parse(href).protocol + '//' + url.parse(href).hostname,
+            formId: formId
+        }];
+    }
     Form
-        .findOne({
-            uri: href
-        })
+        .findOne(query)
+        .populate('site', '-title -ip -comment -server')
         .lean()
         .exec(function(err, form) {
             if (err) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
-                if (form) {
+                if (form && !form.throughAllSite && form.uri === href || form && form.throughAllSite && url.parse(form.site.uri).hostname === url.parse(href).hostname) {
                     console.log('FORM WAS FOUND', form.formId);
                     FormBindedData
                         .find({
@@ -520,8 +590,6 @@ exports.processUserRequest = function(req, res) {
                                                 if (tempRF.length > 0 && tempRF[0].isEnabled) {
                                                     options.rf = tempRF[0].config;
                                                 }
-                                                res.header('Access-Control-Allow-Origin', '*');
-                                                res.header('Access-Control-Allow-Headers', 'X-Requested-With');
                                                 return res.jsonp(options);
                                             }
                                         });
@@ -534,7 +602,7 @@ exports.processUserRequest = function(req, res) {
                         });
                 } else {
                     console.log('Form was not found');
-                    return res.status(500).send('Form was not found');
+                    return res.jsonp('Form was not found');
                 }
             }
         });

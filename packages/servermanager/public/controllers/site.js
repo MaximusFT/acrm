@@ -156,7 +156,7 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
 
         $scope.selectForm = function(form, index) {
             $scope.isVisibleRemoveButton = [];
-            if (index)
+            if (typeof index !== undefined || index !== null)
                 $scope.isVisibleRemoveButton[index] = true;
             $scope.getHttp3 = $http.get('/api/form', {
                 params: {
@@ -212,12 +212,12 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
                 /* jshint ignore:start */
                 var difs = [],
                     ips = [];
-                for (var property in form) {
-                    if (form[property] !== result[property]) {
+                for (var property in result) {
+                    if (form[property] !== result[property] && typeof result[property] !== 'object') {
                         var t = {};
                         t.propertyName = property;
                         t.values = [form[property], result[property]];
-                        difs.splice(difs.length, 0, t);
+                        difs.push(t);
                     }
                 }
                 $http.put('/api/form/' + form._id, {
@@ -291,7 +291,7 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
                         }
                         if (actionData.isCheckboxes && actionData.config.checkboxes) {
                             angular.forEach(actionData.config.checkboxes, function(chkbd, index2) {
-                                if (chkbd.field && !chkbd.ifTrue1 && !chkbd.ifTrue2 && !chkbd.ifFalse1 && !chkbd.ifFalse2)
+                                if (chkbd.field && !chkbd.ifTrue1 && !chkbd.ifTrue2 && !chkbd.ifTrue3 && !chkbd.ifFalse1 && !chkbd.ifFalse2 && !chkbd.ifFalse3)
                                     $scope.errors.push('Incomplete data on the checkbox (' + (index2 + 1) + ' row) (Send to Inside)');
                             });
                         }

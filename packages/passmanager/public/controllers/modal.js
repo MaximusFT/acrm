@@ -9,6 +9,7 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
     $scope.temp = {};
     $scope.temp.selectedDepartment = '';
     $scope.temp.selectedDepartments = [];
+    $scope.isResShown = [];
     $scope.temp.tempPass = '';
     $scope.ok = function() {
         $log.info('ok');
@@ -38,6 +39,8 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
             $log.error(err);
         });
     }
+    if ($scope.modalOptions.report)
+        $scope.report = JSON.parse(JSON.stringify($scope.modalOptions.report));
 
     $scope.cancel = function() {
         $log.info('cancel');
@@ -129,7 +132,7 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
                 $log.error('error');
             });
     };
-    
+
     $scope.manualSynchronization = function() {
         $http.get('/api/getMailConfig')
             .success(function(data) {
@@ -155,5 +158,10 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
 
     $scope.formatDate = function(date) {
         return new Date(date).toLocaleString();
+    };
+
+    $scope.showRes = function(index) {
+        $log.info(index);
+        $scope.isResShown[index] = !$scope.isResShown[index];
     };
 });
