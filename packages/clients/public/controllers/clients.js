@@ -162,7 +162,7 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
                     //$log.info('init', data);
                     $scope.webreqs = data.webreqs;
                     $scope.count1 = data.count;
-                    $scope.unreadCount = data.count;
+                    $scope.unreadCount = $scope.webreqs.length;
                     $scope.unreadTestCount = data.testUnreadCount;
                 }).error(function(err) {
                     $log.error(err);
