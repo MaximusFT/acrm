@@ -4,7 +4,6 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
 
     <title>{{appName}}</title>
-    
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
     <meta name="keywords" content="node.js, express, mongoose, mongodb, angularjs, swig">
     <meta name="description" content="ACRM">
@@ -20,53 +19,20 @@
 
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet" type="text/css">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-    
     {% for file in assets.core.css %}
     <link rel="stylesheet" href="/{{file}}">
     {% endfor %}
-    
+
     <link href="//mapqo.com/atlant/css/theme-default.css" rel="stylesheet" type="text/css">
+
     <link rel="stylesheet" href="/modules/aggregated.css">
 
-    {% for file in assets.core.js %}
-    <script type="text/javascript" src="/{{file}}"></script>
-    {% endfor %}
+    <!-- Inline javascript. Can set the src /modules/aggregated.js?group=header-->
+    <script type="text/javascript">{{headerJs|raw}}</script>
 
-    <script type="text/javascript" src="/modules/aggregated.js"></script>
 
-    {% if (process.env.NODE_ENV == 'development') %}
-    <!-- Livereload script rendered -->
-    <script type="text/javascript" src="{{'//' + req.hostname + ':35729/livereload.js'}}"></script>
-    {% endif %}
 
-    <!-- START SCRIPTS -->
-    <script src="//mapqo.com/atlant/js/plugins/jquery/jquery-ui.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-growl/1.0.0/jquery.bootstrap-growl.min.js"></script>
-    <!-- END PLUGINS -->
-
-    <!-- START THIS PAGE PLUGINS
-        <script src="//mapqo.com/atlant/js/plugins/icheck/icheck.min.js"></script>
-        <script src="//mapqo.com/atlant/js/plugins/mcustomscrollbar/jquery.mCustomScrollbar.min.js"></script>
-        <script src="//mapqo.com/atlant/js/plugins/scrolltotop/scrolltopcontrol.js"></script>
-        
-        <script src="//mapqo.com/atlant/js/plugins/morris/raphael-min.js"></script>
-        <script src="//mapqo.com/atlant/js/plugins/morris/morris.min.js"></script>       
-        <script src="//mapqo.com/atlant/js/plugins/rickshaw/d3.v3.js"></script>
-        <script src="//mapqo.com/atlant/js/plugins/rickshaw/rickshaw.min.js"></script>
-        <script src="//mapqo.com/atlant/js/plugins/jvectormap/jquery-jvectormap-1.2.2.min.js"></script>
-        <script src="//mapqo.com/atlant/js/plugins/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
-        <script src="//mapqo.com/atlant/js/plugins/bootstrap/bootstrap-datepicker.js"></script>
-        <script src="//mapqo.com/atlant/js/plugins/owl/owl.carousel.min.js"></script>                 
-        
-        <script src="//mapqo.com/atlant/js/plugins/moment.min.js"></script>
-        <script src="//mapqo.com/atlant/js/plugins/daterangepicker/daterangepicker.js"></script>
-        -->
-    <!-- END THIS PAGE PLUGINS-->
-
-    <script src="//mapqo.com/atlant/js/settings.js"></script>
-    <script src="//mapqo.com/atlant/js/plugins.js"></script>
-    <script src="//mapqo.com/atlant/js/actions.js"></script>
-    <!-- END SCRIPTS
-    <script src="//mapqo.com/atlant/js/demo_dashboard.js"></script>
-    -->
+    <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
 </head>
