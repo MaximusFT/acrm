@@ -484,9 +484,12 @@ exports.getDocumentFields = function(req, res) {
 };
 
 exports.processUserRequest = function(req, res) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With');
     if (!req.body.formData || !req.body.href)
         return res.status(500).send('Empty query');
     var href = req.body.href,
+        formId = req.body.form,
         formData = req.body.formData,
         analyticsData = req.body.analyticsData;
     if (href.indexOf('?') !== -1)
@@ -495,20 +498,31 @@ exports.processUserRequest = function(req, res) {
         href = href.substr(0, href.length - 1);
     if (href.indexOf('#') !== -1)
         href = href.substring(0, href.indexOf('#'));
-    console.log('REQUEST FROM', href);
+    console.log('REQUEST FROM', href, formId);
     console.log('FORM DATA', formData);
     console.log('ANALYTICS DATA', analyticsData);
+    var query = {};
+    if (formId.indexOf('fc') === 0) {
+        query.uri = href;
+    } else {
+        query.$or = [{
+            uri: href,
+            formId: formId
+        }, {
+            uri: url.parse(href).protocol + '//' + url.parse(href).hostname,
+            formId: formId
+        }];
+    }
     Form
-        .findOne({
-            uri: href
-        })
+        .findOne(query)
+        .populate('site', '-title -ip -comment -server')
         .lean()
         .exec(function(err, form) {
             if (err) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
-                if (form) {
+                if (form && !form.throughAllSite && form.uri === href || form && form.throughAllSite && url.parse(form.site.uri).hostname === url.parse(href).hostname) {
                     console.log('FORM WAS FOUND', form.formId);
                     FormBindedData
                         .find({
@@ -576,8 +590,6 @@ exports.processUserRequest = function(req, res) {
                                                 if (tempRF.length > 0 && tempRF[0].isEnabled) {
                                                     options.rf = tempRF[0].config;
                                                 }
-                                                res.header('Access-Control-Allow-Origin', '*');
-                                                res.header('Access-Control-Allow-Headers', 'X-Requested-With');
                                                 return res.jsonp(options);
                                             }
                                         });
@@ -590,7 +602,7 @@ exports.processUserRequest = function(req, res) {
                         });
                 } else {
                     console.log('Form was not found');
-                    return res.status(500).send('Form was not found');
+                    return res.jsonp('Form was not found');
                 }
             }
         });
