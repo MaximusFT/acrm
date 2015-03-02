@@ -4,11 +4,11 @@
 
 <body>
 	{% if (req.user) %}
-		111
-		{% include 'auth.html' %}
+        111
+		{# include 'auth.html' #}
 	{% else %}
-		222
-		{% include 'none.html' %}
+        222
+		{# include 'none.html' #}
 	{% endif %}
 
     {% include '../includes/foot.html' %}

@@ -175,7 +175,7 @@ function sendToInside(actions, data, analyticsData, callback) {
         transData.name = postData.name;
 
     request.post({
-        url: 'http://mapqo.com/temporaryApi/conv.php',
+        url: 'https://mapqo.com/temporaryApi/conv.php',
         form: {
             txt: transData
         }

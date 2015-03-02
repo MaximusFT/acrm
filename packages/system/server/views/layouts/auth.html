@@ -2,7 +2,7 @@
 <div class="page-container">
 
     <!-- START PAGE SIDEBAR -->
-    <nav class="page-sidebar" data-ng-controller="AsideController">
+    <nav class="page-sidebar" data-ng-controller="HeaderController">
         <!-- START X-NAVIGATION -->
         <ul class="x-navigation" data-ng-init="checkFeatures()">
             <li class="xn-logo">
@@ -568,9 +568,6 @@
                 </div>
             </div>
             <!-- END DASHBOARD CHART -->
-
-            <div data-ng-include="'/mean-admin/views/index.html'"></div>
-
         </div>
         <!-- END PAGE CONTENT WRAPPER -->
     </div>
@@ -602,3 +599,5 @@
 <audio id="audio-alert" src="//mapqo.com/atlant/audio/alert.mp3" preload="auto"></audio>
 <audio id="audio-fail" src="//mapqo.com/atlant/audio/fail.mp3" preload="auto"></audio>
 <!-- END PRELOADS -->
+
+<div data-ng-include="'/mean-admin/views/index.html'"></div>
