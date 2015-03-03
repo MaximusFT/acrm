@@ -1,41 +1,11 @@
 {% for file in assets.core.js %}
   <script type="text/javascript" src="/{{file}}"></script>
 {% endfor %}
+  <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.2/js/bootstrap.min.js"></script>
 
-<script type="text/javascript" src="/modules/aggregated.js"></script>
+  <script type="text/javascript" src="/modules/aggregated.js"></script>
 
 {% if (process.env.NODE_ENV == 'development') %}
   <!-- Livereload script rendered -->
   <script type="text/javascript" src="{{'//' + req.hostname + ':35729/livereload.js'}}"></script>
 {% endif %}
-
-    <!-- START SCRIPTS -->
-    <script src="//mapqo.com/atlant/js/plugins/jquery/jquery-ui.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-growl/1.0.0/jquery.bootstrap-growl.min.js"></script>
-    <!-- END PLUGINS -->
-
-    <!-- START THIS PAGE PLUGINS
-        <script src="//mapqo.com/atlant/js/plugins/icheck/icheck.min.js"></script>
-        <script src="//mapqo.com/atlant/js/plugins/mcustomscrollbar/jquery.mCustomScrollbar.min.js"></script>
-        <script src="//mapqo.com/atlant/js/plugins/scrolltotop/scrolltopcontrol.js"></script>
-        
-        <script src="//mapqo.com/atlant/js/plugins/morris/raphael-min.js"></script>
-        <script src="//mapqo.com/atlant/js/plugins/morris/morris.min.js"></script>       
-        <script src="//mapqo.com/atlant/js/plugins/rickshaw/d3.v3.js"></script>
-        <script src="//mapqo.com/atlant/js/plugins/rickshaw/rickshaw.min.js"></script>
-        <script src="//mapqo.com/atlant/js/plugins/jvectormap/jquery-jvectormap-1.2.2.min.js"></script>
-        <script src="//mapqo.com/atlant/js/plugins/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
-        <script src="//mapqo.com/atlant/js/plugins/bootstrap/bootstrap-datepicker.js"></script>
-        <script src="//mapqo.com/atlant/js/plugins/owl/owl.carousel.min.js"></script>                 
-        
-        <script src="//mapqo.com/atlant/js/plugins/moment.min.js"></script>
-        <script src="//mapqo.com/atlant/js/plugins/daterangepicker/daterangepicker.js"></script>
-        -->
-    <!-- END THIS PAGE PLUGINS-->
-
-    <script src="//mapqo.com/atlant/js/plugins.js"></script>
-    <script src="//mapqo.com/atlant/js/actions.js"></script>
-    <!-- END SCRIPTS
-    <script src="//mapqo.com/atlant/js/settings.js"></script>
-    <script src="//mapqo.com/atlant/js/demo_dashboard.js"></script>
-    -->
