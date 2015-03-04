@@ -1,5 +1,31 @@
-<div class="" data-ng-controller="ClientsController">
-	<h1>Requests from the Internet</h1>
+<!-- START CONTENT FRAME -->
+<section data-ng-controller="ClientsController">
+    <div class="content-frame">
+        <!-- START CONTENT FRAME TOP -->
+        <div class="content-frame-top">                        
+            <div class="page-title">                    
+                <h2><span class="fa fa-arrow-circle-o-left"></span> Requests from the Internet</h2>
+            </div>                                      
+            <div class="pull-right">
+                <button class="btn btn-default content-frame-left-toggle"><span class="fa fa-bars"></span></button>
+            </div>                        
+        </div>
+        <!-- END CONTENT FRAME TOP -->
+
+        <!-- START CONTENT FRAME LEFT -->
+        <div class="content-frame-left">
+
+            <div class="panel panel-default">
+                <div class="panel-heading">Control panel</div>
+                <div class="panel-body"></div>
+            </div>
+
+        </div>
+        <!-- END CONTENT FRAME LEFT -->
+
+        <!-- START CONTENT FRAME BODY -->
+        <div class="content-frame-body">
+
 	<tabset>
 		<tab select="init(1)">
 			<tab-heading> <i class="glyphicon glyphicon-user"></i>
@@ -247,4 +273,9 @@
 				<alert type="info">No reports</div>
 			</tab>
 		</tabset>
-	</div>
+
+        </div>
+        <!-- END CONTENT FRAME BODY -->        
+    </div>
+</section>
+<!-- END CONTENT FRAME -->
