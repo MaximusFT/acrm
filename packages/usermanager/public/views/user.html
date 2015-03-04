@@ -1,32 +1,68 @@
+<!-- START CONTENT FRAME -->
 <section data-ng-controller="UserController">
-	<h1>User information</h1>
-	<div data-ng-if="!isUser"><p class='bg-warning'>You have not access to this user.</p></div>
-    <div class="loader" data-ng-init="init()" data-ng-hide="users.length"></div>
-	<div cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
-    <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="users.length">
-        <tr>
-            <th data-ng-repeat="field in userSchema" data-ng-if="field.inTable">{{field.title}}</th>
-        </tr>
-        <tr data-ng-repeat="user in users">
-            <td class="table-editable-cell" data-ng-repeat="field in userSchema" data-ng-if="field.inTable && user['username'] === userId">
-                <div data-ng-if="mode === 'Administrator'">
-					<span data-ng-click="beforeSelect(field['schemaKey'], user)" data-ng-if="(field['schemaKey'] !== 'department')" class="editable-span" data-ng-editable="update(user, field['schemaKey'])" data-ng-editable-model="user[field['schemaKey']]"></span>
-					<span data-ng-if="field['schemaKey'] === 'department'">{{user[field['schemaKey']]}}</span>
-				</div>
-				<div data-ng-if="mode === 'Manager'">
-					<span data-ng-click="beforeSelect(field['schemaKey'], user)" data-ng-if="(field['type'] == 'text' && field['schemaKey'] !== 'email' && field['schemaKey'] !== 'username')" class="editable-span" data-ng-editable="update(user, field['schemaKey'])" data-ng-editable-model="user[field['schemaKey']]"></span>
-					<span data-ng-click="beforeSelect(field['schemaKey'], user)" data-ng-if="(field['type'] == 'select' && field['schemaKey'] === 'roles')" class="editable-span" data-ng-editable-select="update(user, field['schemaKey'])" data-ng-editable-select-model="user[field['schemaKey']]" data-ng-editable-select-options="field['options']"></span>
-					<span data-ng-if="(field['type'] == 'select' && field['schemaKey'] === 'department') || field['schemaKey'] === 'email' || field['schemaKey'] === 'username'">{{user[field['schemaKey']]}}</span>
-				</div>
-				<div data-ng-if="mode === 'Employee' || mode === 'Not verified'">
-					<span>{{user[field['schemaKey']]}}</span>
-				</div>
-            </td>
-        </tr>
-    </table>	
-	</div>
-	<div class="loader" data-ng-init="p_init()" data-ng-hide="groups.length"></div>
-	<h1>Accessible passwords</h1>
-	<div data-ng-if="me" ng-include src="'usermanager/views/user_me.html'" />
-	<div data-ng-if="!me" ng-include src="'usermanager/views/user_others.html'" />
+    <div class="content-frame">
+        <!-- START CONTENT FRAME TOP -->
+        <div class="content-frame-top">                        
+            <div class="page-title">                    
+                <h2><span class="fa fa-arrow-circle-o-left"></span> User information</h2>
+            </div>                                      
+            <div class="pull-right">
+                <button class="btn btn-default content-frame-left-toggle"><span class="fa fa-bars"></span></button>
+            </div>                        
+            <div data-ng-if="!isUser"><p class='bg-warning'>You have not access to this user.</p></div>
+        </div>
+        <!-- END CONTENT FRAME TOP -->
+
+        
+        <!-- START CONTENT FRAME LEFT -->
+        <div class="content-frame-left">
+
+            <div class="panel panel-default">
+                <div class="panel-heading">Control panel</div>
+                <div class="panel-body">
+                    <h2>User information</h2>
+                    <div class="loader" data-ng-init="init()" data-ng-hide="users.length"></div>
+                    <div cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+
+                        <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="users.length">
+                            <tbody data-ng-repeat="user in users">
+                                <tr data-ng-repeat="field in userSchema" data-ng-if="field.inTable && user['username'] === userId">
+                                    <td><strong>{{field['schemaKey']}}</strong></td>
+                                    <td>
+                                        <div data-ng-if="mode === 'Administrator'">
+                                            <span data-ng-click="beforeSelect(field['schemaKey'], user)" data-ng-if="(field['schemaKey'] !== 'department')" class="editable-span" data-ng-editable="update(user, field['schemaKey'])" data-ng-editable-model="user[field['schemaKey']]"></span>
+                                            <span data-ng-if="field['schemaKey'] === 'department'">{{user[field['schemaKey']]}}</span>
+                                        </div>
+                                        <div data-ng-if="mode === 'Manager'">
+                                            <span data-ng-click="beforeSelect(field['schemaKey'], user)" data-ng-if="(field['type'] == 'text' && field['schemaKey'] !== 'email' && field['schemaKey'] !== 'username')" class="editable-span" data-ng-editable="update(user, field['schemaKey'])" data-ng-editable-model="user[field['schemaKey']]"></span>
+                                            <span data-ng-click="beforeSelect(field['schemaKey'], user)" data-ng-if="(field['type'] == 'select' && field['schemaKey'] === 'roles')" class="editable-span" data-ng-editable-select="update(user, field['schemaKey'])" data-ng-editable-select-model="user[field['schemaKey']]" data-ng-editable-select-options="field['options']"></span>
+                                            <span data-ng-if="(field['type'] == 'select' && field['schemaKey'] === 'department') || field['schemaKey'] === 'email' || field['schemaKey'] === 'username'">{{user[field['schemaKey']]}}</span>
+                                        </div>
+                                        <div data-ng-if="mode === 'Employee' || mode === 'Not verified'">
+                                            <span>{{user[field['schemaKey']]}}</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- END CONTENT FRAME LEFT -->
+
+        <!-- START CONTENT FRAME BODY -->
+        <div class="content-frame-body">
+            
+            <div class="loader" data-ng-init="p_init()" data-ng-hide="groups.length"></div>
+            
+            <div data-ng-if="me" ng-include src="'usermanager/views/user_me.html'" />
+            <div data-ng-if="!me" ng-include src="'usermanager/views/user_others.html'" />
+
+        </div>
+        <!-- END CONTENT FRAME BODY -->        
+    </div>
 </section>
+<!-- END CONTENT FRAME -->
