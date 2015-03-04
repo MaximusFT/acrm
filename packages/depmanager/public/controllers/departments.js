@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('mean.depmanager').controller('DepartmentsController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$location', '$stateParams', '$modal', 'Passwords', 'Users', 'Departments', 'modalService',
-    function($scope, Global, Menus, $rootScope, $http, $log, $location, $stateParams, $modal, Passwords, Users, Departments, modalService) {
+angular.module('mean.depmanager').controller('DepartmentsController', ['$scope', 'Global', '$rootScope', '$http', '$log', '$location', '$stateParams', '$modal', 'Passwords', 'Users', 'Departments', 'modalService',
+    function($scope, Global, $rootScope, $http, $log, $location, $stateParams, $modal, Passwords, Users, Departments, modalService) {
         $scope.global = Global;
         $scope.isDragEnabled = false;
 
@@ -107,9 +107,9 @@ angular.module('mean.depmanager').controller('DepartmentsController', ['$scope',
             },
             beforeDrop: function(event) {
                 var elem = event.source.nodeScope.$modelValue;
-                var source = event.source.nodesScope.$parent.$modelValue;
-                var dest = event.dest.nodesScope.$parent.$modelValue;
-                if ($scope.isDragEnabled === true && !window.confirm('Are you sure you want to set ' + elem.title + ' department from under ' + source.title + '\' subordination to ' + dest.title + '?')) {
+                //var source = event.source.nodesScope.$parent.$modelValue;
+                //var dest = event.dest.nodesScope.$parent.$modelValue;
+                if ($scope.isDragEnabled === true && !window.confirm('Are you sure you want change hierarchy for ' + elem.title + '?')) {
                     event.source.nodeScope.$$apply = false;
                 }
             }

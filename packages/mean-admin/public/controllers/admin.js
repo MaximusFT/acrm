@@ -26,6 +26,11 @@ angular.module('mean.mean-admin').controller('AdminController', ['$scope', 'Glob
             'icon': icons + 'settings.png'
         }, {
             'roles': ['admin'],
+            'title': 'DEPARTMENTS',
+            'link': 'departments',
+            'icon': icons + 'departments.png'
+        }, {
+            'roles': ['admin'],
             'title': 'FEATURES',
             'link': 'features',
             'icon': icons + 'features.png'

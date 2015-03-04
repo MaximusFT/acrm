@@ -16,7 +16,7 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
         //$modalInstance.close($scope.selected.item);
     };
     $scope.editprp = $scope.modalOptions.editprp;
-    $scope.server = $scope.site = {};
+    $scope.newDepartment = $scope.server = $scope.site = {};
     $scope.parent = null;
     $scope.isSynchronized = false;
     $scope.types = [{
@@ -64,7 +64,6 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
 
     $scope.initDeps = function() {
         $http.get('/api/getNewDeps')
-            //$http.get('/api/getDeps')
             .success(function(data) {
                 //$log.info(data);
                 $scope.departments = data;
@@ -111,7 +110,7 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
     };
 
     $scope.verifyAndSendForm = function(isFormValid, data) {
-        $log.info(isFormValid, data, typeof data);
+        //$log.info(isFormValid, data, typeof data);
         if (isFormValid) {
             $scope.modalOptions.ok(data);
         }

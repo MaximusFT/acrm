@@ -51,6 +51,7 @@
                     </p>
                     <p>{{selectedDepartment.additionalInfo.description}}</p>
                 </div>
+                <div data-ng-include src="'depmanager/views/staff.html'" data-ng-controller="UsersController" />
             </div>
             <div data-ng-if="!selectedDepartment">
                 <br />

@@ -427,14 +427,10 @@ exports.assignRole = function(req, res) {
 };
 
 exports.bindToDep = function(req, res) {
+    if (!req.body.users || !req.body.users.length || !req.body.dep)
+        return res.status(500).send('Empty request');
     var users = req.body.users;
     var dep = req.body.dep;
-    console.log(users, dep);
-    if (!users || !dep) {
-        return res.jsonp(500, {
-            error: 'empty request'
-        });
-    }
     User
         .update({
             _id: {
@@ -449,12 +445,10 @@ exports.bindToDep = function(req, res) {
         })
         .exec(function(err) {
             if (err) {
-                //console.log(err);
-                return res.json(500, {
-                    error: err
-                });
-            }
-            return res.jsonp('ok');
+                console.log(err);
+                return res.status(500).send(err);
+            } else
+                return res.status(200).send();
         });
 };
 
