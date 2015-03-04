@@ -1,8 +1,9 @@
 {% for file in assets.core.js %}
   <script type="text/javascript" src="/{{file}}"></script>
 {% endfor %}
+  <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.2/js/bootstrap.min.js"></script>
 
-<script type="text/javascript" src="/modules/aggregated.js"></script>
+  <script type="text/javascript" src="/modules/aggregated.js"></script>
 
 {% if (process.env.NODE_ENV == 'development') %}
   <!-- Livereload script rendered -->

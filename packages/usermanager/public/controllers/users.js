@@ -1,17 +1,11 @@
 'use strict';
 
-angular.module('mean.usermanager').controller('UsermanagerController', ['$scope', 'Global', 'Usermanager',
-		function ($scope, Global, Usermanager) {
+angular.module('mean.usermanager').controller('UsersController', ['$scope', '$cookies', 'Global', 'Menus', '$rootScope', '$http', '$log', 'Users1', 'modalService',
+		function ($scope, $cookies, Global, Menus, $rootScope, $http, $log, Users1, modalService) {
 			$scope.global = Global;
 			$scope.package = {
 				name : 'usermanager'
 			};
-		}
-	]);
-
-angular.module('mean.usermanager').controller('UsersController', ['$scope', '$cookies', 'Global', 'Menus', '$rootScope', '$http', '$log', 'Users1', 'modalService',
-		function ($scope, $cookies, Global, Menus, $rootScope, $http, $log, Users1, modalService) {
-			$scope.global = Global;
 			$scope.mode = $cookies.mode;
 			$scope.isSomeSelected = true;
 			$scope.isUserSelected = [];

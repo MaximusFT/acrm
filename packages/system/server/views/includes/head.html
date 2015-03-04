@@ -1,31 +1,36 @@
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
 
-  <title>{{appName}}</title>
-  <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
-  <meta name="keywords" content="node.js, express, mongoose, mongodb, angularjs, swig">
-  <meta name="description" content="ACRM">
+    <title>{{appName}}</title>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+    <meta name="keywords" content="node.js, express, mongoose, mongodb, angularjs, swig">
+    <meta name="description" content="ACRM">
 
-  <meta property="fb:app_id" content="APP_ID">
-  <meta property="og:title" content="{{appName}} - {{title}}">
-  <meta property="og:description" content="ACRM">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="APP_URL">
-  <meta property="og:image" content="APP_LOGO">
-  <meta property="og:site_name" content="ACRM">
-  <meta property="fb:admins" content="APP_ADMIN">
+    <meta property="fb:app_id" content="APP_ID">
+    <meta property="og:title" content="{{appName}} - {{title}}">
+    <meta property="og:description" content="ACRM">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="APP_URL">
+    <meta property="og:image" content="APP_LOGO">
+    <meta property="og:site_name" content="ACRM">
+    <meta property="fb:admins" content="APP_ADMIN">
 
-  <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.css">
-  <link rel="stylesheet" href="/modules/aggregated.css">
-
-  <!-- Inline javascript. Can set the src /modules/aggregated.js?group=header-->
-  <script type="text/javascript">{{headerJs|raw}}</script>
-
-  {% for file in assets.core.css %}
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    {% for file in assets.core.css %}
     <link rel="stylesheet" href="/{{file}}">
-  {% endfor %}
+    {% endfor %}
+
+    <link href="//mapqo.com/atlant/css/theme-mapqo.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="/modules/aggregated.css">
+
+    <!-- Inline javascript. Can set the src /modules/aggregated.js?group=header-->
+    <script type="text/javascript">{{headerJs|raw}}</script>
+
+
 
     <!--[if lt IE 9]>
     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>

@@ -1,14 +1,85 @@
-<section data-ng-controller="ArticlesController" data-ng-init="findOne()">
-  <span>{{article.created | date:'medium'}}</span> /
-  <span>{{article.user.name}}</span>
-  <h2>{{article.title}}</h2>
-  <div data-ng-if="hasAuthorization(article)">
-    <a class="btn" href="/#!/articles/{{article._id}}/edit">
-      <i class="glyphicon glyphicon-edit"></i>
-    </a>
-    <a class="btn" data-ng-click="remove(article);">
-      <i class="glyphicon glyphicon-trash"></i>
-    </a>
-  </div>
-  <div ng-bind-html="renderHtml(article.content)"></div>
-</section>
+<div data-ng-controller="ArticlesController" data-ng-init="findOne()">
+    <!-- PAGE TITLE -->
+    <div class="page-title">                    
+        <h2><span class="fa fa-arrow-circle-o-left"></span> Post</h2>
+    </div>
+    <!-- END PAGE TITLE -->                
+
+    <!-- PAGE CONTENT WRAPPER -->
+    <div class="page-content-wrap">
+        
+        <div class="row">
+            <div class="col-md-9">
+                
+                <div class="panel panel-default">
+                    <div class="panel-body posts">
+                                
+                        <div class="post-item">
+                            <div class="post-title">{{article.title}}</div>
+                            <div class="post-date"><span class="fa fa-calendar"></span> {{article.created | date:'medium'}} / <a>{{article.user.name}}</a></div>
+                            <div class="post-text" ng-bind-html="renderHtml(article.content)"></div>
+                            <div class="post-row">
+                                <div class="post-info" data-ng-if="hasAuthorization(article)">
+                                    <a class="btn" href="/#!/news/{{article._id}}/edit"><span class="fa fa-edit"> </span> </a>
+                                    <a class="btn" data-ng-click="remove(article);"><span class="fa fa-trash"> </span> </a>
+                                </div>
+                            </div>
+                        </div>                                            
+                    </div>
+                </div>
+                
+            </div>
+            <div class="col-md-3">
+
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <h3>Categories</h3>
+                        <div class="links">
+                            <a>Front-end <span class="label label-default">195</span></a>
+                            <a>Back-end <span class="label label-default">278</span></a>
+                            <a>Frameworks <span class="label label-default">48</span></a>
+                            <a>Programming <span class="label label-default">311</span></a>
+                            <a>Management <span class="label label-default">94</span></a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <h3>Recent</h3>
+                        <div class="links small">
+                            <a>Vestibulum porttitor neque vitae odio vulputate molestie</a>
+                            <a>Etiam tellus mi, interdum id nulla in</a>
+                            <a>Cras eu tincidunt quam</a>
+                            <a>Donec rhoncus quam tortor, id pulvinar erat elementum eu</a>
+                            <a>Nunc lorem est, suscipit bibendum</a>
+                            <a>Fusce sollicitudin quis turpis eget mollis</a>
+                            <a>Cras eget sagittis dui, et mollis tortor</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <h3>Tags</h3>
+                        <ul class="list-tags push-up-10">
+                            <li><a><span class="fa fa-tag"></span> Donec</a></li>
+                            <li><a><span class="fa fa-tag"></span> Bibendum</a></li>
+                            <li><a><span class="fa fa-tag"></span> Praesent</a></li>
+                            <li><a><span class="fa fa-tag"></span> Fusce</a></li>
+                            <li><a><span class="fa fa-tag"></span> Nam quis</a></li>
+                            <li><a><span class="fa fa-tag"></span> Maecenas</a></li>
+                            <li><a><span class="fa fa-tag"></span> Nulla facilisi</a></li>
+                            <li><a><span class="fa fa-tag"></span> Donec</a></li>
+                            <li><a><span class="fa fa-tag"></span> Nam vitae</a></li>
+                            <li><a><span class="fa fa-tag"></span> Malesuada</a></li>
+                        </ul>
+                    </div>
+                </div>                            
+                
+            </div>
+        </div>
+                                                
+    </div>
+    <!-- END PAGE CONTENT WRAPPER -->                       
+</div>
