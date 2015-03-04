@@ -162,13 +162,14 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
                     //$log.info('init', data);
                     $scope.webreqs = data.webreqs;
                     $scope.count1 = data.count;
-                    $scope.unreadCount = $scope.webreqs.length;
+                    if (data.allUnreadCount)
+                        $scope.unreadCount = data.allUnreadCount;
                     $scope.unreadTestCount = data.testUnreadCount;
                 }).error(function(err) {
                     $log.error(err);
                 });
             } else
-                $scope.applyFilters();
+                $scope.applyFilters(curPage);
         };
 
         $scope.initOldRequests = function(curPage) {
@@ -226,10 +227,10 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
             return new Date().getFullYear() + '-' + ((new Date()).getMonth() + 1) + '-' + (new Date()).getDate();
         };
 
-        $scope.applyFilters = function() {
+        $scope.applyFilters = function(curPage) {
             //$log.info($scope.filterOptions, typeof $scope.filterOptions);
             $scope.webreqs = [];
-            $scope.curPage1 = 1;
+            $scope.curPage1 = curPage ? curPage : 1;
             $scope.getHttp1 = $http.post('/api/applyFilters', {
                 params: {
                     curPage: $scope.curPage1,
@@ -261,7 +262,7 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
                 }
             }).success(function() {
                 $scope.status.isDdOpen = [];
-                $scope.applyFilters();
+                $scope.applyFilters($scope.curPage1);
             }).error(function(err) {
                 $log.error(err);
             });
@@ -309,6 +310,10 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
             }).error(function(err) {
                 $log.error(err);
             });
+        };
+
+        $scope.briefString = function(str) {
+            return str.length > 17 ? str.substring(0, 17).trim() + '...' : str;
         };
     }
 ]);

@@ -130,10 +130,10 @@
 										<span data-ng-if="field.type === 'text' && field.schemaKey !== 'fromForm' && field.schemaKey !== 'comment'">
 											{{field['schemaKey'] === 'type' ? webreq[field['schemaKey']].title : (webreq[field['schemaKey']] ? webreq[field['schemaKey']] : '---')}}
 										</span>
-										<a data-ng-if="field.type === 'text' && field.schemaKey === 'fromForm'" href="#!/servers/site/{{webreq[field['schemaKey']].site}}/{{webreq[field['schemaKey']]._id}}" tooltip-html-unsafe="{{webreq[field['schemaKey']].uri}}">Check out</a>
+										<a data-ng-if="field.type === 'text' && field.schemaKey === 'fromForm'" href="#!/servers/site/{{webreq[field['schemaKey']].site}}/{{webreq[field['schemaKey']]._id}}" tooltip-html-unsafe="{{webreq[field['schemaKey']].uri}}">{{briefString(webreq[field['schemaKey']].uri)}}</a>
 										<span data-ng-if="field.type === 'date'">{{formatDate(webreq[field['schemaKey']])}}</span>
 										<span data-ng-if="field['schemaKey'] === 'comment'">
-											<a href="#" tooltip-html-unsafe="{{webreq[field['schemaKey']]}}">Check out</a>
+											<a href="#" tooltip-html-unsafe="{{webreq[field['schemaKey']]}}">{{briefString(webreq[field['schemaKey']])}}</a>
 										</span>
 									</td>
 									<td>
@@ -150,6 +150,12 @@
 													<a href="">
 														<i class="glyphicon glyphicon-ban-circle"></i>
 														&nbsp;spam
+													</a>
+												</li>
+												<li data-ng-click="checkAs(webreq, 3)">
+													<a href="">
+														<i class="glyphicon glyphicon-record"></i>
+														&nbsp;test
 													</a>
 												</li>
 												<li data-ng-click="checkAs(webreq, -1)">
@@ -200,7 +206,7 @@
 								{{webreq[field['schemaKey']] ? webreq[field['schemaKey']] : '---'}}
 							</span>
 							<span data-ng-if="field['schemaKey'] === 'comment' || field['schemaKey'] === 'form_address'">
-								<a href="#" tooltip-html-unsafe="{{webreq[field['schemaKey']]}}">Check out</a>
+								<a href="#" tooltip-html-unsafe="{{webreq[field['schemaKey']]}}">{{briefString(webreq[field['schemaKey']])}}</a>
 							</span>
 						</td>
 					</tr>
