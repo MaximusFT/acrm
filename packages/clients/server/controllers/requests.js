@@ -13,7 +13,8 @@ var mongoose = require('mongoose'),
     crypto = require('crypto'),
     parseString = require('xml2js').parseString,
     safeParse = require('safe-json-parse/callback'),
-    url = require('url');
+    url = require('url'),
+    Iconv = require('iconv').Iconv;
 
 function saveRequestInAcrm(actions, data, analyticsData, formId, callback) {
     var response = {
@@ -210,9 +211,10 @@ function sendToInside(actions, data, analyticsData, callback) {
                 }, function(error, resp, body) {
                     if (!error && resp.statusCode === 200) {
                         //console.log(body);
-                        if (body.indexOf('id') === -1)
-                            response.res = body;
-                        else
+                        if (body.indexOf('id') === -1) {
+                            var translator = new Iconv('cp1251', 'utf-8');
+                            response.res = translator.convert(body).toString();
+                        } else
                             response.res = body.split(':')[1].split('}])')[0].trim();
                         return callback(response);
                     } else {

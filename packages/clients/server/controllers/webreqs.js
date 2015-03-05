@@ -502,10 +502,20 @@ exports.reports = function(req, res) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
-                return res.jsonp({
-                    reports: reports,
-                    count: Math.ceil(reports.length / 20) * 10
-                });
+                FormProcessingReport
+                    .find({}, {
+                        _id: 1
+                    }, function(err, allCount) {
+                        if (err) {
+                            console.log(err);
+                            return res.status(500).send(err);
+                        } else {
+                            return res.jsonp({
+                                reports: reports,
+                                count: Math.ceil(allCount.length / 20) * 10
+                            });
+                        }
+                    });
             }
         });
 };

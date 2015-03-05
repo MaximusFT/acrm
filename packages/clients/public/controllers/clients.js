@@ -192,7 +192,7 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
                     curPage: curPage
                 }
             }).success(function(response) {
-                $log.info(response);
+                //$log.info(response);
                 $scope.reports = response.reports;
                 $scope.count3 = response.count;
             }).error(function(err) {
@@ -314,6 +314,21 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
 
         $scope.briefString = function(str) {
             return str.length > 17 ? str.substring(0, 17).trim() + '...' : str;
+        };
+
+        $scope.hasError = function(action) {
+            if(action.action === 'ACRM') {
+                return !!action.res.error;
+            }
+            if(action.action === 'Inside') {
+                return action.res.indexOf('formCallback') !== -1 && action.res.indexOf('error') !== -1;
+            }
+            if(action.action === 'Justclick') {
+                return action.res.error_code !== 0;
+            }
+            if(action.action === 'SMS') {
+                return action.res.RESPONSE && action.res.RESPONSE.status && typeof action.res.RESPONSE.status === 'object' && action.res.RESPONSE.status.length > 0 && action.res.RESPONSE.status[0] !== '1';
+            }
         };
     }
 ]);

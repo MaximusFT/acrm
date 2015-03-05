@@ -1,109 +1,102 @@
 <!-- START CONTENT FRAME -->
 <section data-ng-controller="ClientsController">
-    <div class="content-frame">
-        <!-- START CONTENT FRAME TOP -->
-        <div class="content-frame-top">                        
-            <div class="page-title">                    
-                <h2><span class="fa fa-arrow-circle-o-left"></span> Requests from the Internet</h2>
-            </div>                                      
-            <div class="pull-right">
-                <button class="btn btn-default content-frame-left-toggle"><span class="fa fa-bars"></span></button>
-            </div>                        
-        </div>
-        <!-- END CONTENT FRAME TOP -->
+	<div class="content-frame">
+		<!-- START CONTENT FRAME TOP -->
+		<div class="content-frame-top">
+			<div class="page-title">
+				<h2>
+					<span class="fa fa-arrow-circle-o-left"></span>
+					Requests from the Internet
+				</h2>
+			</div>
+			<div class="pull-right">
+				<button class="btn btn-default content-frame-left-toggle">
+					<span class="fa fa-bars"></span>
+				</button>
+			</div>
+		</div>
+		<!-- END CONTENT FRAME TOP -->
 
-        <!-- START CONTENT FRAME LEFT -->
-        <div class="content-frame-left">
+		<!-- START CONTENT FRAME LEFT -->
+		<div class="content-frame-left">
+			<accordion close-others="true">
+				<accordion-group style="background-color:#efefef;">
+					<accordion-heading> <i class="glyphicon glyphicon-filter"></i>
+						&nbsp;Filters
+					</accordion-heading>
+					<form data-ng-submit="applyFilters()">
+						<div class="form-group" data-ng-repeat="filter in filters">
+							<label for="input{{filter.key}}">{{filter.title}}</label>
+							<input data-ng-if="filter.type === 'text'" id="input{{filter.key}}" type="text" class="form-control" data-ng-model="filterOptions[filter.key]" data-ng-change="updateByFilters(filterOptions)" />
+							<div data-ng-if="filter.type === 'select'">
+								<ui-select data-ng-if="filter.key === 'department'" id="input{{filter.key}}" cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}" data-ng-init="initDeps()" data-ng-model="filterOptions[filter.key]" data-ng-change="updateByFilters(filterOptions)">
+									<ui-select-match placeholder="Select department...">{{$select.selected.title}}</ui-select-match>
+									<ui-select-choices repeat="department._id as department in departments | filter:$select.search">{{department.title}}</ui-select-choices>
+								</ui-select>
+								<ui-select data-ng-if="filter.key === 'type'" id="input{{filter.key}}" cg-busy="{promise:getHttp3,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}" data-ng-init="initTypes()" data-ng-model="filterOptions[filter.key]" data-ng-change="updateByFilters(filterOptions)">
+									<ui-select-match placeholder="Select type...">{{$select.selected.title}}</ui-select-match>
+									<ui-select-choices repeat="type._id as type in types | filter:$select.search">{{type.title}}</ui-select-choices>
+								</ui-select>
+								<ui-select data-ng-if="filter.key === 'state'" id="input{{filter.key}}" data-ng-model="filterOptions[filter.key]" data-ng-change="updateByFilters(filterOptions)">
+									<ui-select-match placeholder="Select state...">{{$select.selected.title}}</ui-select-match>
+									<ui-select-choices repeat="state.id as state in states | filter:$select.search">{{state.title}}</ui-select-choices>
+								</ui-select>
+							</div>
+							<div data-ng-if="filter.type === 'date_period'" id="input{{filter.key}}">
+								<p class="input-group">
+									<input type="text" class="form-control" datepicker-popup="{{'dd.MM.yyyy'}}" data-ng-model="filterOptions[filter.key].start" is-open="isOpen[0]" max-date="getToday()" datepicker-options="dateOptions" close-text="Close" />
+									<span class="input-group-btn">
+										<button type="button" class="btn btn-default" data-ng-click="openDatepicker($event, 0)"> <i class="glyphicon glyphicon-calendar"></i>
+										</button>
+									</span>
+								</p>
+								<p class="input-group">
+									<input type="text" class="form-control" datepicker-popup="{{'dd.MM.yyyy'}}" data-ng-model="filterOptions[filter.key].end" is-open="isOpen[1]" max-date="getToday()" datepicker-options="dateOptions" close-text="Close" />
+									<span class="input-group-btn">
+										<button type="button" class="btn btn-default" data-ng-click="openDatepicker($event, 1)">
+											<i class="glyphicon glyphicon-calendar"></i>
+										</button>
+									</span>
+								</p>
+							</div>
+						</div>
+						<div class="btn-group btn-group-justified" role="group">
+							<div class="btn-group" role="group">
+								<button type="submit" class="btn btn-default">Search</button>
+							</div>
+							<div class="btn-group" role="group">
+								<button class="btn btn-default" value="Reset" data-ng-click="init(1)">Reset</button>
+							</div>
+						</div>
+					</form>
+				</accordion-group>
+				<accordion-group is-open="isOpen">
+					<accordion-heading>
+						<i class="glyphicon glyphicon-list"></i>
+						&nbsp;Categories
+					</accordion-heading>
+					<ul class="nav nav-pills nav-stacked">
+						<li data-ng-repeat="state in states" data-ng-click="selectCategory(state.id, $index)" class="{{isCategoryActive[$index] || isCategoryActive.length === 0 && state.id === 0 ? 'active' : ''}}">
+							<a href="">
+								{{state.title}}
+								<span data-ng-if="webreqs && state.id === 0 && unreadCount" class="badge" style="float:right;">{{unreadCount}}</span>
+								<span data-ng-if="webreqs && state.id === 3 && unreadTestCount" class="badge" style="float:right;">{{unreadTestCount}}</span>
+							</a>
+						</li>
+					</ul>
+				</accordion-group>
+			</accordion>
+		</div>
+		<!-- END CONTENT FRAME LEFT -->
 
-            <div class="panel panel-default">
-                <div class="panel-heading">Control panel</div>
-                <div class="panel-body"></div>
-            </div>
-
-        </div>
-        <!-- END CONTENT FRAME LEFT -->
-
-        <!-- START CONTENT FRAME BODY -->
-        <div class="content-frame-body">
-
-	<tabset>
-		<tab select="init(1)">
-			<tab-heading> <i class="glyphicon glyphicon-user"></i>
-				User requests
-			</tab-heading>
-			<div class="row">
-				<div class="col-md-3">
-					<br />
-					<accordion close-others="true">
-						<accordion-group style="background-color:#efefef;">
-							<accordion-heading> <i class="glyphicon glyphicon-filter"></i>
-								&nbsp;Filters
-							</accordion-heading>
-							<form data-ng-submit="applyFilters()">
-								<div class="form-group" data-ng-repeat="filter in filters">
-									<label for="input{{filter.key}}">{{filter.title}}</label>
-									<input data-ng-if="filter.type === 'text'" id="input{{filter.key}}" type="text" class="form-control" data-ng-model="filterOptions[filter.key]" data-ng-change="updateByFilters(filterOptions)" />
-									<div data-ng-if="filter.type === 'select'">
-										<ui-select data-ng-if="filter.key === 'department'" id="input{{filter.key}}" cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}" data-ng-init="initDeps()" data-ng-model="filterOptions[filter.key]" data-ng-change="updateByFilters(filterOptions)">
-											<ui-select-match placeholder="Select department...">{{$select.selected.title}}</ui-select-match>
-											<ui-select-choices repeat="department._id as department in departments | filter:$select.search">{{department.title}}</ui-select-choices>
-										</ui-select>
-										<ui-select data-ng-if="filter.key === 'type'" id="input{{filter.key}}" cg-busy="{promise:getHttp3,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}" data-ng-init="initTypes()" data-ng-model="filterOptions[filter.key]" data-ng-change="updateByFilters(filterOptions)">
-											<ui-select-match placeholder="Select type...">{{$select.selected.title}}</ui-select-match>
-											<ui-select-choices repeat="type._id as type in types | filter:$select.search">{{type.title}}</ui-select-choices>
-										</ui-select>
-										<ui-select data-ng-if="filter.key === 'state'" id="input{{filter.key}}" data-ng-model="filterOptions[filter.key]" data-ng-change="updateByFilters(filterOptions)">
-											<ui-select-match placeholder="Select state...">{{$select.selected.title}}</ui-select-match>
-											<ui-select-choices repeat="state.id as state in states | filter:$select.search">{{state.title}}</ui-select-choices>
-										</ui-select>
-									</div>
-									<div data-ng-if="filter.type === 'date_period'" id="input{{filter.key}}">
-										<p class="input-group">
-											<input type="text" class="form-control" datepicker-popup="{{'dd.MM.yyyy'}}" data-ng-model="filterOptions[filter.key].start" is-open="isOpen[0]" max-date="getToday()" datepicker-options="dateOptions" close-text="Close" />
-											<span class="input-group-btn">
-												<button type="button" class="btn btn-default" data-ng-click="openDatepicker($event, 0)">
-													<i class="glyphicon glyphicon-calendar"></i>
-												</button>
-											</span>
-										</p>
-										<p class="input-group">
-											<input type="text" class="form-control" datepicker-popup="{{'dd.MM.yyyy'}}" data-ng-model="filterOptions[filter.key].end" is-open="isOpen[1]" max-date="getToday()" datepicker-options="dateOptions" close-text="Close" />
-											<span class="input-group-btn">
-												<button type="button" class="btn btn-default" data-ng-click="openDatepicker($event, 1)">
-													<i class="glyphicon glyphicon-calendar"></i>
-												</button>
-											</span>
-										</p>
-									</div>
-								</div>
-								<div class="btn-group btn-group-justified" role="group">
-									<div class="btn-group" role="group">
-										<button type="submit" class="btn btn-default">Search</button>
-									</div>
-									<div class="btn-group" role="group">
-										<button class="btn btn-default" value="Reset" data-ng-click="init(1)">Reset</button>
-									</div>
-								</div>
-							</form>
-						</accordion-group>
-						<accordion-group is-open="isOpen">
-							<accordion-heading>
-								<i class="glyphicon glyphicon-list"></i>
-								&nbsp;Categories
-							</accordion-heading>
-							<ul class="nav nav-pills nav-stacked">
-								<li data-ng-repeat="state in states" data-ng-click="selectCategory(state.id, $index)" class="{{isCategoryActive[$index] || isCategoryActive.length === 0 && state.id === 0 ? 'active' : ''}}">
-									<a href="">
-										{{state.title}}
-										<span data-ng-if="webreqs && state.id === 0 && unreadCount" class="badge" style="float:right;">{{unreadCount}}</span>
-										<span data-ng-if="webreqs && state.id === 3 && unreadTestCount" class="badge" style="float:right;">{{unreadTestCount}}</span>
-									</a>
-								</li>
-							</ul>
-						</accordion-group>
-					</accordion>
-				</div>
-				<div class="col-md-9">
+		<!-- START CONTENT FRAME BODY -->
+		<div class="content-frame-body">
+			<tabset>
+				<tab select="init(1)">
+					<tab-heading>
+						<i class="glyphicon glyphicon-user"></i>
+						User requests
+					</tab-heading>
 					<br />
 					<div data-ng-if="webreqs.length">
 						<div style="float:right;">
@@ -179,103 +172,102 @@
 						<pagination total-items="count1" data-ng-model="curPage1" data-ng-change="init(curPage1)" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false"></pagination>
 					</div>
 					<alert type="info" data-ng-if="!webreqs || !webreqs.length">No requests</alert>
-				</div>
-			</div>
-		</tab>
-		<tab select="initOldRequests(1)" cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
-			<tab-heading>
-				<i class="glyphicon glyphicon-folder-close"></i>
-				Old requests
-			</tab-heading>
-			<table class="table table-bordered  table-hover table-condensed">
-				<thead>
-					<tr>
-						<th>
-							<i class="glyphicon glyphicon-sort-by-order"></i>
-						</th>
-						<th data-ng-repeat="field in oldWebreqSchema" data-ng-if="field.inTable">{{field.title}}</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr data-ng-repeat="webreq in oldWebreqs">
-						<td>{{$index+1+(curPage2-1)*20}}.</td>
-						<td data-ng-repeat="field in oldWebreqSchema" data-ng-if="field.inTable">
-							<a data-ng-if="field['schemaKey'] === 'webreq_inside_id'" href="https://inside.teletrade-dj.com/#web_request_view/{{webreq[field['schemaKey']]}}">{{webreq[field['schemaKey']]}}</a>
-							<span data-ng-if="field['schemaKey'] === 'creation_date'">{{formatDate(webreq[field['schemaKey']])}}</span>
-							<span data-ng-if="field['schemaKey'] !== 'webreq_inside_id' && field['schemaKey'] !== 'creation_date' && field['schemaKey'] !== 'comment' && field['schemaKey'] !== 'form_address'">
-								{{webreq[field['schemaKey']] ? webreq[field['schemaKey']] : '---'}}
-							</span>
-							<span data-ng-if="field['schemaKey'] === 'comment' || field['schemaKey'] === 'form_address'">
-								<a href="#" tooltip-html-unsafe="{{webreq[field['schemaKey']]}}">{{briefString(webreq[field['schemaKey']])}}</a>
-							</span>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-			<pagination total-items="count2" data-ng-model="curPage2" data-ng-change="initOldRequests(curPage2)" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false"></pagination>
-		</tab>
-		<tab select="initReports(1)">
-			<tab-heading>
-				<i class="glyphicon glyphicon-pushpin"></i>
-				Reports
-			</tab-heading>
-			<div data-ng-if="reports && reports.length">
-				<table class="table table-bordered  table-hover table-condensed">
-					<thead>
-						<tr>
-							<th>
-								<i class="glyphicon glyphicon-sort-by-order"></i>
-							</th>
-							<th data-ng-repeat="field in reportSchema">{{field.title}}</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr data-ng-repeat="report in reports" data-ng-init="reportIndex = $index">
-							<td>{{$index+1+(curPage2-1)*20}}.</td>
-							<td data-ng-repeat="field in reportSchema">
-								<span data-ng-if="field['schemaKey'] === 'whenProcessed'">{{formatDate(report[field['schemaKey']])}}</span>
-								<div data-ng-if="field['schemaKey'] === 'form'">
-									<p>
-										Form
-										<a href="#!/servers/site/{{report[field['schemaKey']].site}}/{{report[field['schemaKey']]._id}}">{{report[field['schemaKey']].name}}</a>
-									</p>
-									<p>
-										Located on the
-										<a href="{{report[field['schemaKey']].uri}}" target="_blank">page</a>
-									</p>
-								</div>
-								<ul data-ng-if="field['schemaKey'] === 'formData'" data-ng-repeat="formField in report[field['schemaKey']] track by $index">
-									<li>
-										{{formField.htmlId}}: <em>"{{formField.value}}"</em>
-									</li>
-								</ul>
-								<div data-ng-if="field['schemaKey'] === 'actionsPerformed'">
-									<ul data-ng-repeat="action in report[field['schemaKey']]">
-										<li>
-											{{action.action}}
-											<i class="{{report.error && report.error.length ? 'glyphicon glyphicon-remove' : 'glyphicon glyphicon-ok'}}" style="{{report.error && report.error.length ? 'colod:red;' : 'color:green;'}}cursor:pointer;" data-ng-click="showRes(reportIndex, $index, action.action)"></i>
-											<div collapse="!isResShown[reportIndex][$index]" data-ng-if="action.action !== 'ACRM'">
-												<pre>{{action.res | json}}</pre>
-											</div>
-										</li>
-									</ul>
-								</div>
-								<span data-ng-if="field['schemaKey'] !== 'whenProcessed' && field['schemaKey'] !== 'form' && field['schemaKey'] !== 'formData' && field['schemaKey'] !== 'actionsPerformed'">
-									{{report[field['schemaKey']] ? report[field['schemaKey']] : '---'}}
-								</span>
-							</td>
-						</tr>
-					</tbody>
-				</table>
-				<pagination total-items="count3" data-ng-model="curPage3" data-ng-change="initReports(curPage3)" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false"></pagination>
-			</div>
-			<div data-ng-if="!reports || (reports && !reports.length)">
-				<alert type="info">No reports</div>
-			</tab>
-		</tabset>
+				</tab>
+				<tab select="initOldRequests(1)" cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+					<tab-heading>
+						<i class="glyphicon glyphicon-folder-close"></i>
+						Old requests
+					</tab-heading>
+					<table class="table table-bordered  table-hover table-condensed">
+						<thead>
+							<tr>
+								<th>
+									<i class="glyphicon glyphicon-sort-by-order"></i>
+								</th>
+								<th data-ng-repeat="field in oldWebreqSchema" data-ng-if="field.inTable">{{field.title}}</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr data-ng-repeat="webreq in oldWebreqs">
+								<td>{{$index+1+(curPage2-1)*20}}.</td>
+								<td data-ng-repeat="field in oldWebreqSchema" data-ng-if="field.inTable">
+									<a data-ng-if="field['schemaKey'] === 'webreq_inside_id'" href="https://inside.teletrade-dj.com/#web_request_view/{{webreq[field['schemaKey']]}}">{{webreq[field['schemaKey']]}}</a>
+									<span data-ng-if="field['schemaKey'] === 'creation_date'">{{formatDate(webreq[field['schemaKey']])}}</span>
+									<span data-ng-if="field['schemaKey'] !== 'webreq_inside_id' && field['schemaKey'] !== 'creation_date' && field['schemaKey'] !== 'comment' && field['schemaKey'] !== 'form_address'">
+										{{webreq[field['schemaKey']] ? webreq[field['schemaKey']] : '---'}}
+									</span>
+									<span data-ng-if="field['schemaKey'] === 'comment' || field['schemaKey'] === 'form_address'">
+										<a href="#" tooltip-html-unsafe="{{webreq[field['schemaKey']]}}">{{briefString(webreq[field['schemaKey']])}}</a>
+									</span>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<pagination total-items="count2" data-ng-model="curPage2" data-ng-change="initOldRequests(curPage2)" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false"></pagination>
+				</tab>
+				<tab select="initReports(1)">
+					<tab-heading>
+						<i class="glyphicon glyphicon-pushpin"></i>
+						Reports
+					</tab-heading>
+					<div data-ng-if="reports && reports.length">
+						<table class="table table-bordered  table-hover table-condensed">
+							<thead>
+								<tr>
+									<th>
+										<i class="glyphicon glyphicon-sort-by-order"></i>
+									</th>
+									<th data-ng-repeat="field in reportSchema">{{field.title}}</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr data-ng-repeat="report in reports" data-ng-init="reportIndex = $index">
+									<td>{{$index+1+(curPage3-1)*20}}.</td>
+									<td data-ng-repeat="field in reportSchema">
+										<span data-ng-if="field['schemaKey'] === 'whenProcessed'">{{formatDate(report[field['schemaKey']])}}</span>
+										<div data-ng-if="field['schemaKey'] === 'form'">
+											<p>
+												Form
+												<a href="#!/servers/site/{{report[field['schemaKey']].site}}/{{report[field['schemaKey']]._id}}">{{report[field['schemaKey']].name}}</a>
+											</p>
+											<p>
+												Located on the
+												<a href="{{report[field['schemaKey']].uri}}" target="_blank">page</a>
+											</p>
+										</div>
+										<ul data-ng-if="field['schemaKey'] === 'formData'" data-ng-repeat="formField in report[field['schemaKey']] track by $index">
+											<li>
+												{{formField.htmlId}}: <em>"{{formField.value}}"</em>
+											</li>
+										</ul>
+										<div data-ng-if="field['schemaKey'] === 'actionsPerformed'">
+											<ul data-ng-repeat="action in report[field['schemaKey']]">
+												<li>
+													{{action.action}}
+													<i class="{{hasError(action) ? 'glyphicon glyphicon-remove' : 'glyphicon glyphicon-ok'}}" style="{{hasError(action) ? 'colod:red;' : 'color:green;'}}cursor:pointer;" data-ng-click="showRes(reportIndex, $index, action.action)"></i>
+													<div collapse="!isResShown[reportIndex][$index]" data-ng-if="action.action !== 'ACRM'">
+														<pre>{{action.res | json}}</pre>
+													</div>
+												</li>
+											</ul>
+										</div>
+										<span data-ng-if="field['schemaKey'] !== 'whenProcessed' && field['schemaKey'] !== 'form' && field['schemaKey'] !== 'formData' && field['schemaKey'] !== 'actionsPerformed'">
+											{{report[field['schemaKey']] ? report[field['schemaKey']] : '---'}}
+										</span>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<pagination total-items="count3" data-ng-model="curPage3" data-ng-change="initReports(curPage3)" max-size="maxSize" class="pagination-sm" boundary-links="true" rotate="false"></pagination>
+					</div>
+					<div data-ng-if="!reports || (reports && !reports.length)">
+						<alert type="info">No reports</alert>
+					</div>
+				</tab>
+			</tabset>
 
-        </div>
-        <!-- END CONTENT FRAME BODY -->        
-    </div>
+		</div>
+		<!-- END CONTENT FRAME BODY -->
+	</div>
 </section>
 <!-- END CONTENT FRAME -->
