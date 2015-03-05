@@ -119,7 +119,18 @@ function sendToInside(actions, data, analyticsData, callback) {
         return callback(response);
     }
     var postData = {};
-    postData.office_id = options.officeId;
+    if (!options.isOfficeIdField) {
+        postData.office_id = options.officeId;
+    } else {
+        var tmpOf = _.filter(data, function(d) {
+            return d.htmlId === options.officeIdField;
+        });
+        if (tmpOf.length === 0) {
+            response.error = 'Empty office ID field value';
+            return callback(response);
+        }
+        postData.office_id = tmpOf[0].value;
+    }
     postData.type_id = options.reqType;
     postData.comments = options.comment;
     var tmpE = _.filter(data, function(d) {
