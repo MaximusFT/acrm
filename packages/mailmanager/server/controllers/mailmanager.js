@@ -7,24 +7,6 @@ var mongoose = require('mongoose'),
     request = require('request'),
     _ = require('lodash');
 var config = '';
-// function reloadConfig() {
-
-// PackConfig
-//     .findOne({
-//         packageName: 'mailmanager'
-//     }, {
-//         _id: 0,
-//         packageName: 1,
-//         data: 1
-//     })
-//     .exec(function(err, data) {
-//         if (err) {
-//             console.log(err);
-//         } else config = data.data;
-
-//     });
-// }
-// reloadConfig();
 function sortMailboxes(arr) {
     var result = _.chain(arr)
         .groupBy('domain')
@@ -189,8 +171,6 @@ exports.synchronizemailboxes = function(req, res) {
                                                         console.log('Mail', mail, 'set to DELETED');
                                                     }
                                                 });
-
-
                                             });
                                         }
                                         var newMails = [];
@@ -219,15 +199,17 @@ exports.synchronizemailboxes = function(req, res) {
                                                 var result2 = _.filter(mails, function(m) {
                                                     return m.mail === mail;
                                                 });
-                                                if (result2.length > 0 && (result[0].state !== result2[0].state + '')) {
+                                                if (result2.length > 0) {
+                                                    if ((result[0].state !== result2[0].state + '') || (result[0].messages+'' !== result2[0].messages+'')|| (result[0].quota !== result2[0].quota)) {
                                                     // update element
                                                     mailBox
                                                         .update({
                                                             mail: result[0].mail
                                                         }, {
                                                             $set: {
-                                                                // password: result[0].password,
-                                                                state: result[0].state
+                                                                state: result[0].state,
+                                                                quota: result[0].quota,
+                                                                messages: result[0].messages
                                                             }
                                                         }, function(err, numAffected) {
                                                             if (err) {
@@ -237,7 +219,7 @@ exports.synchronizemailboxes = function(req, res) {
                                                                 console.log('updated', numAffected);
                                                             }
                                                         });
-                                                }
+                                                }}
                                             }
                                         });
                                         return res.status(200).send();
