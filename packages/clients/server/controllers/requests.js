@@ -14,6 +14,7 @@ var mongoose = require('mongoose'),
     parseString = require('xml2js').parseString,
     safeParse = require('safe-json-parse/callback'),
     url = require('url'),
+    Buffer = require('buffer').Buffer,
     Iconv = require('iconv').Iconv;
 
 function saveRequestInAcrm(actions, data, analyticsData, formId, callback) {
@@ -218,14 +219,16 @@ function sendToInside(actions, data, analyticsData, callback) {
                     postData.name = encoded.name;
                 request.post({
                     url: 'https://my.teletrade-dj.com/webform/crm/web_request_form_add',
-                    form: postData
+                    form: postData,
+                    encoding: null
                 }, function(error, resp, body) {
                     if (!error && resp.statusCode === 200) {
                         //console.log(body);
-                        if (body.indexOf('id') === -1) {
-                            var translator = new Iconv('cp1251', 'utf-8');
-                            response.res = translator.convert(body).toString();
-                        } else
+                        var buf = new Buffer(body, 'binary');
+                        body = new Iconv('CP1251', 'UTF-8').convert(buf).toString();
+                        if (body.indexOf('id') === -1)
+                            response.res = body;
+                        else
                             response.res = body.split(':')[1].split('}])')[0].trim();
                         return callback(response);
                     } else {

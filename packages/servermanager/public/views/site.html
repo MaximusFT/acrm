@@ -236,9 +236,9 @@
 							<div data-ng-if="action.name === 'Send to Inside'">
 								<div>
 									<label for="dynOfficeId{{action.name}}">Need to configure office ID by field?</label>
-									<input id="dynOfficeId{{action.name}}" type="checkbox" data-ng-model="action.isOfficeIdField" />
+									<input id="dynOfficeId{{action.name}}" type="checkbox" data-ng-model="action.config.isOfficeIdField" />
 								</div>
-								<div data-ng-if="action.isOfficeIdField">
+								<div data-ng-if="action.config.isOfficeIdField">
 									<table class="table table-striped table-bordered table-hover">
 										<tr>
 											<td>Field with value of office ID</td>

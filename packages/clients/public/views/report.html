@@ -30,7 +30,7 @@
         <td>
             <ul data-ng-repeat="action in report.actionsPerformed">
                 <li>
-                    {{action.action}} <i class="{{report.error && report.error.length ? 'glyphicon glyphicon-remove' : 'glyphicon glyphicon-ok'}}" style="{{report.error && report.error.length ? 'colod:red;' : 'color:green;'}}cursor:pointer;" data-ng-click="showRes($index)"></i>
+                    {{action.action}} <i class="{{hasError(action) ? 'glyphicon glyphicon-remove' : 'glyphicon glyphicon-ok'}}" style="{{hasError(action) ? 'colod:red;' : 'color:green;'}}cursor:pointer;" data-ng-click="showRes($index)"></i>
                     <div collapse="!isResShown[$index]">
                         <pre>{{action.res | json}}</pre>
                     </div>
