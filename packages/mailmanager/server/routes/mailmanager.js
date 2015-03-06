@@ -12,4 +12,5 @@ module.exports = function(Mailmanager, app, auth, database) {
     app.post('/api/revokeAccessForMailbox', auth.requiresAdmin, mailmanager.revokeAccessForMailbox);
     app.get ('/api/getAccessibleMails', auth.requiresLogin, mailmanager.getAccessibleMails);
     app.get ('/api/getMailConfig', auth.requiresLogin, mailmanager.getConfig);
+    app.post ('/api/getOneMailbox', auth.requiresLogin, mailmanager.getOneMailbox);
 };

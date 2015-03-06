@@ -1,0 +1,6 @@
+<div data-ng-controller="MailmanagerController">
+    <div data-ng-hide="autologinStatus">
+        <alert type="danger" class="h3 text-center">{{autologinErrorText}}</alert>
+    </div>
+    <img data-ng-show="autologinStatus" style="padding: 25%" data-ng-init="autologin()" src="/mailmanager/assets/img/TeddyBearLoading.gif">
+</div>

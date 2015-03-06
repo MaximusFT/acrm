@@ -3,6 +3,7 @@
 var mongoose = require('mongoose'),
     mailBox = mongoose.model('mailBox'),
     PackConfig = mongoose.model('PackConfig'),
+    User = mongoose.model('User'),
     request = require('request'),
     _ = require('lodash');
 var config = '';
@@ -147,9 +148,6 @@ exports.synchronizemailboxes = function(req, res) {
             } else
             if (data) {
                 config = data.data;
-
-
-                //reloadConfig();
                 request(config.mailHost + (config.isPfInDefFolder ? '/postfixadmin' : config.PfCustomFolder) + '/get_mailboxes.php', function(error, response, body) {
                     if (!error && response.statusCode === 200) {
                         var postfix = JSON.parse(body);
@@ -271,6 +269,48 @@ exports.getmailboxes = function(req, res) {
             return res.jsonp(sortMailboxes(response));
         }
     });
+};
+exports.getOneMailbox = function(req, res) {
+    User.findOne({
+            _id: req.user._id,
+        }, {})
+        .exec(function(err, user) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                if (user) {
+                    mailBox
+                        .findOne({
+                            mail: req.body.mail,
+                            deleted: false,
+                        }, {})
+                        .exec(function(err, resault) {
+                            if (err) {
+                                console.log(err);
+                                return res.status(500).send(err);
+                            } else {
+                                if (resault) {
+                                    if (user.roles.indexOf('admin') !== -1) {
+                                        return res.jsonp(resault);
+                                    } else {
+                                        if (resault.accessedFor.indexOf(user._id) !== -1) {
+                                            return res.jsonp(resault);
+                                        } else {
+                                            return res.status(403).send(err);
+                                        }
+                                    }
+                                } else {
+                                    return res.status(204).send(err);
+                                }
+                            }
+
+                        });
+                } else {
+                    return res.status(401).send(err);
+                }
+            }
+        });
 };
 exports.updateConfig = function(req, res) {
     PackConfig

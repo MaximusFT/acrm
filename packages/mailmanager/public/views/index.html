@@ -24,7 +24,7 @@
       <div class="panel-heading">All Mailboxes</div>
       <div class="panel-body" >
         <accordion close-others="oneAtATime" data-ng-init="getMailboxes()">
-          <accordion-group heading="{{$index+1}}. {{mailbox.domain}}" data-ng-repeat="mailbox in mailboxes" data-ng-init="sectionIndex=$index">
+          <accordion-group heading="{{$index+1}}. {{mailbox.domain}}" data-ng-repeat="mailbox in mailboxes | filter:search" data-ng-init="sectionIndex=$index">
             <div class="panel-body" cg-busy="{promise:wait,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
               <table class="table table-striped table-bordered table-hover editable-table" >
                 <tbody>
@@ -34,20 +34,25 @@
                     <th> <i class="glyphicon glyphicon-ok" data-ng-click="selectAll(sectionIndex)"></i>
                     </th>
                     <th>MailBox</th>
-                    <th>Password</th>
-                    <th>Login</th>
+                    <th>Quota</th>
+                    <th>Messages</th>
+                    <th>State</th>
+                    <th>Action</th>
                   </tr>
                 </tbody>
                 <tr data-ng-repeat="box in mailbox.data" class="ng-scope">
                   <td>
-                    <a href="#!/manager/passwords/{{box['_id']}}">{{$index+1}}</a>
+                    {{$index+1}}
                   </td>
                   <td>
                     <input type="checkbox" data-ng-model="box.Selected" data-ng-click="checkMail(sectionIndex, $index, box)"></td>
                   <td>{{box.mail}}</td>
-                  <td>**********</td>
+                   <td><progressbar class="progress-striped active" value="box.quota" type="success"><b style="color:black">{{box.quota}}%</b></progressbar></td>
+                   <td class="text-center"><b>{{box.messages}}</b></td>
+                   <td> <span class="btn col-xs-12 {{box.state == 1 ? 'btn-success' : 'btn-danger'}}" style="pointer-events:none">{{box.state == 1 ? 'Active' : 'Disable' }}</span></td>
                   <td>
-                    <span class='glyphicon glyphicon-export' data-ng-click="logInToMail(box)"></span>
+                   <a class="btn btn-primary col-xs-12" type="button" style="pointer-events: {{box.state==0?'none': ''}};" href="#!/mailmanager/{{box.mail}}" target="_blank">Login</a>
+                    <!-- <input type="button" class="btn btn-primary col-xs-12" data-ng-click="logInToMail(box)" value="Login" /> -->
                   </td>
                 </tr>
               </table>

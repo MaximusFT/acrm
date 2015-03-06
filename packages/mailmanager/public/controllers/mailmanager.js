@@ -1,8 +1,8 @@
 'use strict';
 
 /* jshint -W098 */
-angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope', '$window', '$http', '$log', 'Global', 'Mailmanager', 'modalService', 'crypter',
-    function($scope, $window, $http, $log, Global, Mailmanager, modalService, crypter) {
+angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope', '$window', '$http', '$log', '$stateParams', 'Global', 'Mailmanager', 'modalService', 'crypter',
+    function($scope, $window, $http, $log, $stateParams, Global, Mailmanager, modalService, crypter) {
         $scope.global = Global;
         $scope.package = {
             name: 'mailmanager'
@@ -14,6 +14,8 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
         $scope.isMailSelected = [];
         $scope.tempdomain = '';
         $scope.domainAddState = false;
+        $scope.autologinStatus = true;
+        $scope.autologinErrorText = '';
 
         $scope.checkMail = function(sectionIndex, index, mail) {
             if (!$scope.isMailSelected[sectionIndex])
@@ -49,6 +51,19 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
             $scope.isMailSelected = [];
             $scope.isSomeSelected = true;
         }
+        $scope.selectAll = function(sectionIndex) {
+            var clear;
+            if ($scope.isMailSelected[sectionIndex] && $scope.isMailSelected[sectionIndex][0] === true)
+                clear = false;
+            else
+                clear = true;
+
+            for (var i = 0; i < $scope.mailboxes[sectionIndex].data.length; i += 1) {
+                $scope.mailboxes[sectionIndex].data[i].Selected = clear;
+                $scope.checkMail(sectionIndex, i, $scope.mailboxes[sectionIndex].data[i]);
+            }
+            $scope.isSomeSelected = checkSelections();
+        };
         $scope.remove = function() {
             unselectAll();
         };
@@ -108,6 +123,7 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
                         data: result
                     }
                 });
+                window.location.reload();
             });
         };
         $scope.assignToPerson = function() {
@@ -147,52 +163,61 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
             });
         };
         $scope.logInToMail = function(data) {
-            $http.get('/api/getMailConfig').success(function(response) {
-                if (response === 'needNewConfig') {
-                    $scope.configModal();
-                    return;
-                } else {
-                    if (response.packageName === 'mailmanager') {
-                        var config = response.data;
-                        var request = {
-                            method: 'POST',
-                            url: config.mailHost + (config.isRcInDefFolder ? '/roundcube' : config.RcCustomFolder) + '/?_task=login',
-                            transformRequest: function(obj) {
-                                var str = [];
-                                for (var p in obj)
-                                    str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
-                                return str.join('&');
-                            },
-                            data: {
-                                _task: 'login',
-                                _action: 'login',
-                                _timezone: '_default_',
-                                _url: '',
-                                _user: data.mail,
-                                _crypt: 'yes',
-                                _pass: crypter.hash(data.mail + 'kingston')
-                            },
-                            withCredentials: true,
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded'
-                            }
-                        };
-                        $scope.wait = $http(request).success(function(data, status) {
-                            if (status === 200)
-                               $window.location = config.mailHost + (config.isRcInDefFolder ? '/roundcube' : config.RcCustomFolder) + '/?_task=mail';
+            if (data.state === 1) {
+                $http.get('/api/getMailConfig').success(function(response) {
+                    if (response === 'needNewConfig') {
+                        $scope.configModal();
+                        return;
+                    } else {
+                        if (response.packageName === 'mailmanager') {
+                            var config = response.data;
+                            var request = {
+                                method: 'POST',
+                                url: config.mailHost + (config.isRcInDefFolder ? '/roundcube' : config.RcCustomFolder) + '/?_task=login',
+                                transformRequest: function(obj) {
+                                    var str = [];
+                                    for (var p in obj)
+                                        str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+                                    return str.join('&');
+                                },
+                                data: {
+                                    _task: 'login',
+                                    _action: 'login',
+                                    _timezone: 'America/Chicago',
+                                    _url: '',
+                                    _user: data.mail,
+                                    _crypt: 'yes',
+                                    _pass: crypter.hash(data.mail + 'kingston')
+                                },
+                                withCredentials: true,
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded'
+                                }
+                            };
+                            $scope.wait = $http(request).success(function(data, status) {
+                                if (status === 200)
+                                    $window.location = config.mailHost + (config.isRcInDefFolder ? '/roundcube' : config.RcCustomFolder) + '/?_task=mail';
 
-                        }).error(function(data, status) {
-                            $log.info('Error with getting response');
-                        });
-                    } else
-                        $log.info('Error in getting settings');
-                }
-
-            });
+                            }).error(function(data, status) {
+                                $log.error('Error with getting response');
+                            });
+                        } else
+                            $log.error('Error in getting settings');
+                    }
+                });
+            }
         };
         $scope.getMailboxes = function() {
             $http.get('/api/getAllMailboxes').success(function(response) {
                 $scope.mailboxes = response;
+                $scope.mailboxes.sort(function compare(a, b) {
+                    return a.domain < b.domain ? false : true;
+                });
+                angular.forEach($scope.mailboxes, function(element, index) {
+                    element.data.sort(function compare(a, b) {
+                        return a.mail < b.mail ? false : true;
+                    });
+                });
             });
         };
         $scope.synchronizemailboxes = function() {
@@ -201,7 +226,6 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
             });
         };
         $scope.updateConfig = function() {
-            $log.info($scope.config);
             $http.post('/api/updateConfig', {
                 params: $scope.config
             });
@@ -210,6 +234,47 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
         $scope.status = {
             isFirstOpen: true,
             isFirstDisabled: false
+        };
+        $scope.autologin = function() {
+            $http({
+                    url: '/api/getOneMailbox',
+                    method: 'POST',
+                    data: {
+                        'mail': $stateParams.email,
+                    }
+                })
+                .then(function(response) {
+                        if (response.status === 200 && response.data) {
+                            //$log.info('login');
+                            $scope.logInToMail(response.data);
+                        } else if (response.status === 204) {
+                            $scope.autologinStatus = false;
+                            $scope.autologinErrorText = 'No such mailBox or its deleted!';
+                        }
+                    },
+                    function(response) {
+                        switch (response.status) {
+                            case 403:
+                                $scope.autologinStatus = false;
+                                $scope.autologinErrorText = 'You have no access for this mail!';
+                                $log.error('No Access');
+                                break;
+                            case 401:
+                                $scope.autologinStatus = false;
+                                $log.error('Need to authorize');
+                                $scope.autologinErrorText = 'User error, need authorization!';
+                                break;
+                            case 500:
+                                $scope.autologinStatus = false;
+                                $log.error(response);
+                                $scope.autologinErrorText = 'Server Error!';
+                                break;
+                            default:
+                                $scope.autologinStatus = false;
+                                $log.error('Cant get response from server');
+                                break;
+                        }
+                    });
         };
     }
 ]);

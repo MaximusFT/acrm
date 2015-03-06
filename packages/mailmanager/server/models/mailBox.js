@@ -19,6 +19,8 @@ var mailBoxSchema = new Schema({
         type: String,
         unique: true
     },
+    quota: Number,
+    messages: Number,
     deleted: {
         type: Boolean,
         default: false
