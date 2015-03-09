@@ -397,52 +397,52 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
                     $scope.isSent = true;
             });
         };
-        $scope.logInToMail = function(data) {
-            $http.get('/api/getMailConfig').success(function(response) {
-                if (response === 'needNewConfig') {
-                    $scope.mailboxes.configError = true;
-                    return;
-                } else {
-                    if (response.packageName === 'mailmanager') {
-                        var config = response.data;
-                        var request = {
-                            method: 'POST',
-                            url: config.mailHost + (config.isRcInDefFolder ? '/roundcube' : config.RcCustomFolder) + '/?_task=login',
-                            transformRequest: function(obj) {
-                                var str = [];
-                                for (var p in obj)
-                                    str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
-                                return str.join('&');
-                            },
-                            data: {
-                                _task: 'login',
-                                _action: 'login',
-                                _timezone: '_default_',
-                                _url: '',
-                                _user: data.mail,
-                                _crypt: 'yes',
-                                _pass: crypter.hash(data.mail + 'kingston')
-                            },
-                            withCredentials: true,
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded'
-                            }
-                        };
+        // $scope.logInToMail = function(data) {
+        //     $http.get('/api/getMailConfig').success(function(response) {
+        //         if (response === 'needNewConfig') {
+        //             $scope.mailboxes.configError = true;
+        //             return;
+        //         } else {
+        //             if (response.packageName === 'mailmanager') {
+        //                 var config = response.data;
+        //                 var request = {
+        //                     method: 'POST',
+        //                     url: config.mailHost + (config.isRcInDefFolder ? '/roundcube' : config.RcCustomFolder) + '/?_task=login',
+        //                     transformRequest: function(obj) {
+        //                         var str = [];
+        //                         for (var p in obj)
+        //                             str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+        //                         return str.join('&');
+        //                     },
+        //                     data: {
+        //                         _task: 'login',
+        //                         _action: 'login',
+        //                         _timezone: '_default_',
+        //                         _url: '',
+        //                         _user: data.mail,
+        //                         _crypt: 'yes',
+        //                         _pass: crypter.hash(data.mail + 'kingston')
+        //                     },
+        //                     withCredentials: true,
+        //                     headers: {
+        //                         'Content-Type': 'application/x-www-form-urlencoded'
+        //                     }
+        //                 };
 
-                        $scope.wait = $http(request).success(function(data, status) {
-                            if (status === 200)
-                                $window.location = config.mailHost + (config.isRcInDefFolder ? '/roundcube' : config.RcCustomFolder) + '/?_task=mail';
+        //                 $scope.wait = $http(request).success(function(data, status) {
+        //                     if (status === 200)
+        //                         $window.location = config.mailHost + (config.isRcInDefFolder ? '/roundcube' : config.RcCustomFolder) + '/?_task=mail';
 
-                        }).error(function(data, status) {
-                            $log.info('Error with getting response');
-                        });
-                    } else $log.info('Error in getting config');
-                }
-            });
-
-
+        //                 }).error(function(data, status) {
+        //                     $log.info('Error with getting response');
+        //                 });
+        //             } else $log.info('Error in getting config');
+        //         }
+        //     });
 
 
-        };
+
+
+        // };
     }
 ]);

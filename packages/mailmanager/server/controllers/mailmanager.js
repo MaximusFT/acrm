@@ -139,7 +139,7 @@ exports.synchronizemailboxes = function(req, res) {
                                 // mail: {
                                 //     $in: onlyMailsFromPostfix
                                 // }
-                                deleted: false
+                                //deleted: false
                             }, {
                                 _id: 0,
                                 created: 0,
@@ -176,6 +176,7 @@ exports.synchronizemailboxes = function(req, res) {
                                         var newMails = [];
                                         if (notInBase && notInBase.length > 0) {
                                             //insert this mails
+
                                             _.forEach(postfix, function(p) {
                                                 if (notInBase.indexOf(p.mail) !== -1)
                                                     newMails.push(p);
@@ -200,7 +201,7 @@ exports.synchronizemailboxes = function(req, res) {
                                                     return m.mail === mail;
                                                 });
                                                 if (result2.length > 0) {
-                                                    if ((result[0].state !== result2[0].state + '') || (result[0].messages+'' !== result2[0].messages+'')|| (result[0].quota !== result2[0].quota)) {
+                                                    if ((result[0].state !== result2[0].state + '') || (result[0].messages+'' !== result2[0].messages+'')|| (result[0].quota+'' !== result2[0].quota+'')) {
                                                     // update element
                                                     mailBox
                                                         .update({
@@ -209,7 +210,8 @@ exports.synchronizemailboxes = function(req, res) {
                                                             $set: {
                                                                 state: result[0].state,
                                                                 quota: result[0].quota,
-                                                                messages: result[0].messages
+                                                                messages: result[0].messages,
+                                                                deleted: false
                                                             }
                                                         }, function(err, numAffected) {
                                                             if (err) {

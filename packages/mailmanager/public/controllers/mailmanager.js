@@ -27,7 +27,6 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
             $scope.isSomeSelected = checkSelections();
 
         };
-
         function checkSelections() {
             var ret = false;
             $scope.isMailSelected.forEach(function(group) {
@@ -38,7 +37,6 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
             });
             return !ret;
         }
-
         function unselectAll() {
             angular.forEach($scope.mailboxes, function(group) {
                 angular.forEach(group.data, function(mail) {
@@ -63,6 +61,11 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
                 $scope.checkMail(sectionIndex, i, $scope.mailboxes[sectionIndex].data[i]);
             }
             $scope.isSomeSelected = checkSelections();
+        };
+        $scope.sortbyfield = function(sectionIndex, field) {
+            $scope.mailboxes[sectionIndex].data.sort(function compare(a, b) {
+                return a[field] < b[field] ? 1 : -1;
+            });
         };
         $scope.remove = function() {
             unselectAll();
@@ -209,13 +212,13 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
         };
         $scope.getMailboxes = function() {
             $http.get('/api/getAllMailboxes').success(function(response) {
-                $scope.mailboxes = response;
-                $scope.mailboxes.sort(function compare(a, b) {
-                    return a.domain < b.domain ? false : true;
+                response.sort(function compare(a, b) {
+                    return a.domain < b.domain ? -1 : 1;
                 });
+                $scope.mailboxes = response;
                 angular.forEach($scope.mailboxes, function(element, index) {
                     element.data.sort(function compare(a, b) {
-                        return a.mail < b.mail ? false : true;
+                        return a.mail < b.mail ? -1 : 1;
                     });
                 });
             });
