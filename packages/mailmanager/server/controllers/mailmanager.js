@@ -7,6 +7,7 @@ var mongoose = require('mongoose'),
     request = require('request'),
     _ = require('lodash');
 var config = '';
+
 function sortMailboxes(arr) {
     var result = _.chain(arr)
         .groupBy('domain')
@@ -57,6 +58,34 @@ exports.getAccessibleMails = function(req, res) {
 
             } else return res.jsonp(sortMailboxes(mails));
 
+        });
+};
+exports.getAccessibleMailsByName = function(req, res) {
+    User.findOne({
+            username: req.body.user
+        })
+        .exec(function(err, user) {
+            if (err) {
+                return res.status(500).send(err);
+            } else if (user) {
+                mailBox
+                    .find({
+                        accessedFor: user._id,
+                        state: 1,
+                        deleted: false
+                    }, {
+                        mail: 1,
+                        domain: 1,
+
+                    }, function(err, mails) {
+                        if (err) {
+                            console.log(err);
+                            return res.status(500).send(err);
+
+                        } else return res.jsonp(sortMailboxes(mails));
+
+                    });
+            }
         });
 };
 exports.provideAccessForMailbox = function(req, res) {
@@ -201,27 +230,28 @@ exports.synchronizemailboxes = function(req, res) {
                                                     return m.mail === mail;
                                                 });
                                                 if (result2.length > 0) {
-                                                    if ((result[0].state !== result2[0].state + '') || (result[0].messages+'' !== result2[0].messages+'')|| (result[0].quota+'' !== result2[0].quota+'')) {
-                                                    // update element
-                                                    mailBox
-                                                        .update({
-                                                            mail: result[0].mail
-                                                        }, {
-                                                            $set: {
-                                                                state: result[0].state,
-                                                                quota: result[0].quota,
-                                                                messages: result[0].messages,
-                                                                deleted: false
-                                                            }
-                                                        }, function(err, numAffected) {
-                                                            if (err) {
-                                                                console.log(err);
-                                                                return res.status(500).send(err);
-                                                            } else {
-                                                                console.log('updated', numAffected);
-                                                            }
-                                                        });
-                                                }}
+                                                    if ((result[0].state !== result2[0].state + '') || (result[0].messages + '' !== result2[0].messages + '') || (result[0].quota + '' !== result2[0].quota + '')) {
+                                                        // update element
+                                                        mailBox
+                                                            .update({
+                                                                mail: result[0].mail
+                                                            }, {
+                                                                $set: {
+                                                                    state: result[0].state,
+                                                                    quota: result[0].quota,
+                                                                    messages: result[0].messages,
+                                                                    deleted: false
+                                                                }
+                                                            }, function(err, numAffected) {
+                                                                if (err) {
+                                                                    console.log(err);
+                                                                    return res.status(500).send(err);
+                                                                } else {
+                                                                    console.log('updated', numAffected);
+                                                                }
+                                                            });
+                                                    }
+                                                }
                                             }
                                         });
                                         return res.status(200).send();

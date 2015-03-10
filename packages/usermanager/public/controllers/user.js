@@ -235,7 +235,9 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
         };
 
         $scope.mails_init = function() {
-            $http.get('/api/getAccessibleMails').success(function(response) {
+            $http.post('/api/getAccessibleMailsByName', {
+                user: $scope.userId
+            }).success(function(response) {
                 $scope.mailboxes = response;
                 if (response.length === 0)
                     $scope.mailboxes.empty = true;
