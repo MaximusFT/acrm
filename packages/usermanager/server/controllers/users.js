@@ -6,6 +6,7 @@
 var mongoose = require('mongoose'),
     User = mongoose.model('User'),
     Pass = mongoose.model('Pass'),
+    NewDepartment = mongoose.model('NewDepartment'),
     _ = require('lodash');
 
 /**
@@ -175,7 +176,7 @@ exports.groups = function(req, res) {
                                     });
                                 } else {
                                     _(user).forEach(function(u) {
-                                        if(u.department && u.name)
+                                        if (u.department && u.name)
                                             u.department = u.department.name;
                                         if (u.roles && u.roles.length > 1)
                                             u.roles = u.roles[1].substring(0, 1).toUpperCase();
@@ -349,7 +350,8 @@ exports.searchUsers = function(req, res) {
                                 });
                             } else {
                                 _(users).forEach(function(u, uid) {
-                                    u.department = u.department.name;
+                                    if(u.department && u.department.title)
+                                        u.department = u.department.title;
                                     if (uid === users.length - 1)
                                         return res.jsonp(users);
                                 });
@@ -402,8 +404,13 @@ exports.searchUsers = function(req, res) {
 };
 
 exports.assignRole = function(req, res) {
-    var users = req.body.users;
-    var role = req.body.role === 1 ? 'admin' : (req.body.role === 2 ? 'manager' : (req.body.role === 3 ? 'employee' : ''));
+    if (!req.body.params || !req.body.params.users || !req.body.params.role)
+        return res.status(500).send('Empty query');
+    var users = req.body.params.users,
+        roles = ['authenticated'],
+        role = req.body.params.role === 1 ? 'admin' : (req.body.params.role === 2 ? 'manager' : (req.body.params.role === 3 ? 'employee' : ''));
+    if (role)
+        roles.push(role);
     User
         .update({
             _id: {
@@ -411,34 +418,7 @@ exports.assignRole = function(req, res) {
             }
         }, {
             $set: {
-                roles: ['authenticated', role]
-            }
-        }, {
-            multi: true
-        })
-        .exec(function(err) {
-            if (err) {
-                return res.json(500, {
-                    error: err
-                });
-            }
-            return res.jsonp(role);
-        });
-};
-
-exports.bindToDep = function(req, res) {
-    if (!req.body.users || !req.body.users.length || !req.body.dep)
-        return res.status(500).send('Empty request');
-    var users = req.body.users;
-    var dep = req.body.dep;
-    User
-        .update({
-            _id: {
-                $in: users
-            }
-        }, {
-            $set: {
-                department: dep
+                roles: roles
             }
         }, {
             multi: true
@@ -448,17 +428,14 @@ exports.bindToDep = function(req, res) {
                 console.log(err);
                 return res.status(500).send(err);
             } else
-                return res.status(200).send();
+                return res.jsonp(roles);
         });
 };
 
 exports.clearAccesses = function(req, res) {
-    var users = req.body.users;
-    if (!users) {
-        return res.jsonp(500, {
-            error: 'empty request'
-        });
-    }
+    if (!req.body.params || !req.body.params.users)
+        return res.status(500).send('empty request');
+    var users = req.body.params.users;
     Pass
         .update({
             accessedFor: {
@@ -474,11 +451,9 @@ exports.clearAccesses = function(req, res) {
         .exec(function(err) {
             if (err) {
                 console.log(err);
-                return res.json(500, {
-                    error: err
-                });
-            }
-            res.jsonp('ok');
+                return res.status(500).send(err);
+            } else
+                return res.status(200).send();
         });
 };
 
@@ -501,6 +476,39 @@ exports.getForHead = function(req, res) {
                                 return res.status(500).send(err);
                             } else {
                                 return res.jsonp(users);
+                            }
+                        });
+                } else if (user && user.roles && user.roles.indexOf('manager') !== -1) {
+                    NewDepartment
+                        .find({
+                            $or: [{
+                                parents: mongoose.Types.ObjectId(user.department)
+                            }, {
+                                _id: user.department
+                            }]
+                        }, {
+                            _id: 1
+                        }, function(err, departments) {
+                            if (err) {
+                                console.log(err);
+                                return res.status(500).send(err);
+                            } else {
+                                var deps = _.map(departments, '_id');
+                                User
+                                    .find({
+                                        department: {
+                                            $in: deps
+                                        }
+                                    }, {
+                                        name: 1
+                                    }, function(err, users) {
+                                        if (err) {
+                                            console.log(err);
+                                            return res.status(500).send(err);
+                                        } else {
+                                            return res.jsonp(users);
+                                        }
+                                    });
                             }
                         });
                 } else {

@@ -84,46 +84,11 @@ angular.module('mean.passmanager').controller('PassController', ['$scope', 'Glob
                 });
                 if (data.length > 0)
                     $scope.isPasses = true;
-            }).error(function(data, status) {
-                if (status === 400)
-                    $location.path('manager/passwords');
+            }).error(function(err, status) {
+                $log.error(err);
+                $location.url('/error/' + status);
             });
-            /*Passwords.query({}, function (passwords) {
-				$scope.passwords = passwords;
-				});*/
         };
-
-        /*$scope.add = function () {
-			if (!$scope.passwords)
-			$scope.passwords = [];
-
-			var pass = new Passwords({
-			group : $scope.pass.group,
-			resourceName : $scope.pass.resourceName,
-			resourceUrl : $scope.pass.resourceUrl,
-			email : $scope.pass.email,
-			login : $scope.pass.login,
-			hash_password : $scope.pass.hash_password,
-			comment : $scope.pass.comment,
-			accessedFor : $scope.pass.accessedFor
-			});
-
-			pass.$save(function (response) {
-			$scope.passwords.push(response);
-			});
-
-			//this.firstName = this.lastName = this.email = this.password = this.role = '';
-			};*/
-
-        /*$scope.remove = function (pass) {
-			for (var i in $scope.passwords) {
-			if ($scope.passwords[i] === pass) {
-			$scope.passwords.splice(i, 1);
-			}
-			}
-
-			pass.$remove();
-			};*/
 
         $scope.update = function(pass, passField) {
             Passwords.update({
@@ -138,8 +103,9 @@ angular.module('mean.passmanager').controller('PassController', ['$scope', 'Glob
             $scope.getHttp3 = $http.get('/api/servers_').success(function(response) {
                 $scope.servers = response;
                 //$log.info(response);
-            }).error(function(err) {
+            }).error(function(err, status) {
                 $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 
@@ -147,8 +113,9 @@ angular.module('mean.passmanager').controller('PassController', ['$scope', 'Glob
             $scope.getHttp4 = $http.get('/api/sites').success(function(response) {
                 $scope.sites = response;
                 //$log.info(response);
-            }).error(function(err) {
+            }).error(function(err, status) {
                 $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 

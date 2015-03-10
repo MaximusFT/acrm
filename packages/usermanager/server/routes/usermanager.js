@@ -14,8 +14,6 @@ module.exports = function(Usermanager, app, auth, database) {
     app.get('/api/getUsers', auth.requiresLogin, users.groups);
     app.get('/api/searchUsers', auth.requiresLogin, users.searchUsers);
     app.post('/api/assignRole', auth.requiresAdmin, users.assignRole);
-    app.post('/api/bindToDep', auth.requiresAdmin, users.bindToDep);
     app.post('/api/clearAccesses', auth.requiresAdmin, users.clearAccesses);
     app.get('/api/getForHead', auth.requiresAdmin, users.getForHead);
-
 };

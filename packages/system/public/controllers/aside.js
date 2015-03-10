@@ -38,11 +38,11 @@ angular.module('mean.system').controller('AsideController', ['$scope', '$rootSco
             };
         });
 
-        $scope.checkFeatures = function() {
+        /*$scope.checkFeatures = function() {
             $http.get('/api/isFeatures').success(function(data) {
                 $scope.isFeatures = data.isFeatures;
             });
-        };
+        };*/
 
     }
 ]);

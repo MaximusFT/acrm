@@ -1,9 +1,11 @@
 <!-- !AUTHENTICATED -->
-
 <div data-ng-if="global.authenticated">
     <!-- PAGE TITLE -->
-    <div class="page-title">                    
-        <h2><span class="fa fa-arrow-circle-o-left"></span> Dashboard</h2>
+    <div class="page-title">
+        <h2>
+            <span class="fa fa-arrow-circle-o-left"></span>
+            Dashboard
+        </h2>
     </div>
     <!-- END PAGE TITLE -->
 
@@ -32,13 +34,12 @@
                         </div>
                     </div>
                     <div class="widget-controls">
-                        <a href="#" class="widget-control-right widget-remove" data-toggle="tooltip" data-placement="top" title="Remove Widget"><span class="fa fa-times"></span>
+                        <a href="#" class="widget-control-right widget-remove" data-toggle="tooltip" data-placement="top" title="Remove Widget">
+                            <span class="fa fa-times"></span>
                         </a>
                     </div>
                 </div>
-                <!-- END WIDGET SLIDER -->
-
-            </div>
+                <!-- END WIDGET SLIDER --> </div>
             <div class="col-md-3">
 
                 <!-- START WIDGET MESSAGES -->
@@ -52,13 +53,12 @@
                         <div class="widget-subtitle">In your mailbox</div>
                     </div>
                     <div class="widget-controls">
-                        <a href="#" class="widget-control-right widget-remove" data-toggle="tooltip" data-placement="top" title="Remove Widget"><span class="fa fa-times"></span>
+                        <a href="#" class="widget-control-right widget-remove" data-toggle="tooltip" data-placement="top" title="Remove Widget">
+                            <span class="fa fa-times"></span>
                         </a>
                     </div>
                 </div>
-                <!-- END WIDGET MESSAGES -->
-
-            </div>
+                <!-- END WIDGET MESSAGES --> </div>
             <div class="col-md-3">
 
                 <!-- START WIDGET REGISTRED -->
@@ -72,13 +72,12 @@
                         <div class="widget-subtitle">On your website</div>
                     </div>
                     <div class="widget-controls">
-                        <a href="#" class="widget-control-right widget-remove" data-toggle="tooltip" data-placement="top" title="Remove Widget"><span class="fa fa-times"></span>
+                        <a href="#" class="widget-control-right widget-remove" data-toggle="tooltip" data-placement="top" title="Remove Widget">
+                            <span class="fa fa-times"></span>
                         </a>
                     </div>
                 </div>
-                <!-- END WIDGET REGISTRED -->
-
-            </div>
+                <!-- END WIDGET REGISTRED --> </div>
             <div class="col-md-3">
 
                 <!-- START WIDGET CLOCK -->
@@ -86,26 +85,29 @@
                     <div class="widget-big-int plugin-clock">00:00</div>
                     <div class="widget-subtitle plugin-date">Loading...</div>
                     <div class="widget-controls">
-                        <a href="#" class="widget-control-right widget-remove" data-toggle="tooltip" data-placement="left" title="Remove Widget"><span class="fa fa-times"></span>
+                        <a href="#" class="widget-control-right widget-remove" data-toggle="tooltip" data-placement="left" title="Remove Widget">
+                            <span class="fa fa-times"></span>
                         </a>
                     </div>
                     <div class="widget-buttons widget-c3">
                         <div class="col">
-                            <a href="#"><span class="fa fa-clock-o"></span>
+                            <a href="#">
+                                <span class="fa fa-clock-o"></span>
                             </a>
                         </div>
                         <div class="col">
-                            <a href="#"><span class="fa fa-bell"></span>
+                            <a href="#">
+                                <span class="fa fa-bell"></span>
                             </a>
                         </div>
                         <div class="col">
-                            <a href="#"><span class="fa fa-calendar"></span>
+                            <a href="#">
+                                <span class="fa fa-calendar"></span>
                             </a>
                         </div>
                     </div>
                 </div>
-                <!-- END WIDGET CLOCK -->
-            </div>
+                <!-- END WIDGET CLOCK --> </div>
         </div>
 
     </div>
@@ -118,7 +120,9 @@
     <div class="login-box animated fadeInDown">
         <div class="login-logo"></div>
         <div class="login-body">
-            <div class="login-title"><strong>Log In</strong> to your account</div>
+            <div class="login-title"> <strong>Log In</strong>
+                to your account
+            </div>
             <div class="alert alert-danger animated fadeIn" ng-show="loginerror">{{loginerror}}</div>
             <form class="form-horizontal" method="post" ng-submit="login()">
                 <div class="form-group">
@@ -135,13 +139,30 @@
                     <div class="col-md-6">
                         <a ui-sref='forgot-password' class="btn btn-link btn-block">Forgot your password?</a>
                     </div>
-                    <div class="col-md-6"><button type="submit" class="btn btn-info btn-block">Login</button></div>
+                    <div class="col-md-6">
+                        <button type="submit" class="btn btn-info btn-block">Login</button>
+                    </div>
                 </div>
                 <div class="login-or">OR</div>
                 <div class="form-group">
-                    <div class="col-md-4"><button class="btn btn-info btn-block btn-twitter"><span class="fa fa-twitter"></span> Twitter</button></div>
-                    <div class="col-md-4"><button class="btn btn-info btn-block btn-facebook"><span class="fa fa-facebook"></span> Facebook</button></div>
-                    <div class="col-md-4"><button class="btn btn-info btn-block btn-google"><span class="fa fa-google-plus"></span> Google</button></div>
+                    <div class="col-md-4">
+                        <button class="btn btn-info btn-block btn-twitter">
+                            <span class="fa fa-twitter"></span>
+                            Twitter
+                        </button>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-info btn-block btn-facebook">
+                            <span class="fa fa-facebook"></span>
+                            Facebook
+                        </button>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-info btn-block btn-google">
+                            <span class="fa fa-google-plus"></span>
+                            Google
+                        </button>
+                    </div>
                 </div>
                 <div class="login-subtitle">
                     Don't have an account yet?
@@ -150,12 +171,12 @@
             </form>
         </div>
         <div class="login-footer">
-            <div class="pull-left">
-                &copy; 2014 ACRM
-            </div>
+            <div class="pull-left">&copy; 2015 ACRM</div>
             <div class="pull-right">
-                <a href="#">About</a> |
-                <a href="#">Privacy</a> |
+                <a href="#">About</a>
+                |
+                <a href="#">Privacy</a>
+                |
                 <a href="#">Contact Us</a>
             </div>
         </div>

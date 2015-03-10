@@ -156,12 +156,8 @@ function sendToInside(actions, data, analyticsData, callback) {
         postData.ip = analyticsData.ip;
     if (analyticsData.url_form)
         postData.url_form = encodeURI(analyticsData.url_form);
-    if (analyticsData.url_local) {
-        var tul = analyticsData.url_local;
-        if (analyticsData.url_local.indexOf('?') !== -1 && tul.substring(tul.indexOf('?') - 1, tul.indexOf('?')) !== '/')
-            tul = tul.substring(0, tul.indexOf('?')) + '/' + tul.substring(tul.indexOf('?'), tul.length - 1);
-        postData.url_local = encodeURI(tul);
-    }
+    if (analyticsData.url_local)
+        postData.url_local = analyticsData.url_local;
     if (analyticsData.url_referer)
         postData.url_referer = encodeURI(analyticsData.url_referer);
 
@@ -194,6 +190,9 @@ function sendToInside(actions, data, analyticsData, callback) {
             }
         }
     });
+    /*if (options.concatOfficeDest) {
+
+    }*/
 
     var transData = {
         comments: postData.comments
@@ -420,83 +419,54 @@ exports.getDocumentFields = function(req, res) {
         formId = req.query.form;
     if (href.substr(href.length - 1, href.length) === '/')
         href = href.substr(0, href.length - 1);
+    console.log('href:', href);
+    var query = {};
     if (formId.indexOf('fc') === 0) {
-        Form
-            .findOne({
-                uri: href
-            })
-            .populate('site', '-title -ip -comment -server')
-            .exec(function(err, form) {
-                if (err) {
-                    console.log(err);
-                    return res.status(500).send(err);
-                } else {
-                    if (form) {
-                        FormBindedData
-                            .find({
-                                form: form._id
-                            }, {
-                                htmlId: 1,
-                                _id: 0
-                            })
-                            .lean()
-                            .exec(function(err, fields) {
-                                if (err) {
-                                    console.log(err);
-                                    return res.status(500).send(err);
-                                } else {
-                                    if (fields) {
-                                        return res.jsonp({
-                                            form: form.formId,
-                                            fields: _.map(fields, 'htmlId')
-                                        });
-                                    } else
-                                        return res.status(500).send('Form binded data was not found');
-                                }
-                            });
-                    } else
-                        return res.jsonp('Form was not found');
-                }
-            });
+        query.uri = href;
     } else {
-        Form
-            .findOne({
-                formId: formId
-            })
-            .populate('site', '-title -ip -comment -server')
-            .exec(function(err, form) {
-                if (err) {
-                    console.log(err);
-                    return res.status(500).send(err);
-                } else {
-                    if (form && !form.throughAllSite && form.uri === href || form && form.throughAllSite && url.parse(form.site.uri).hostname === url.parse(href).hostname) {
-                        FormBindedData
-                            .find({
-                                form: form._id
-                            }, {
-                                htmlId: 1,
-                                _id: 0
-                            })
-                            .lean()
-                            .exec(function(err, fields) {
-                                if (err) {
-                                    console.log(err);
-                                    return res.status(500).send(err);
-                                } else {
-                                    if (fields) {
-                                        return res.jsonp({
-                                            form: form.formId,
-                                            fields: _.map(fields, 'htmlId')
-                                        });
-                                    } else
-                                        return res.status(500).send('Form binded data was not found');
-                                }
-                            });
-                    } else
-                        return res.jsonp('Form was not found');
-                }
-            });
+        query.$or = [{
+            uri: href,
+            formId: formId
+        }, {
+            uri: url.parse(href).protocol + '//' + url.parse(href).hostname,
+            formId: formId
+        }];
     }
+    Form
+        .findOne(query)
+        .populate('site', '-title -ip -comment -server')
+        .exec(function(err, form) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                if (form && !form.throughAllSite && form.uri === href || form && form.throughAllSite && url.parse(form.site.uri).hostname === url.parse(href).hostname) {
+                    FormBindedData
+                        .find({
+                            form: form._id
+                        }, {
+                            htmlId: 1,
+                            _id: 0
+                        })
+                        .lean()
+                        .exec(function(err, fields) {
+                            if (err) {
+                                console.log(err);
+                                return res.status(500).send(err);
+                            } else {
+                                if (fields) {
+                                    return res.jsonp({
+                                        form: form.formId,
+                                        fields: _.map(fields, 'htmlId')
+                                    });
+                                } else
+                                    return res.status(500).send('Form binded data was not found');
+                            }
+                        });
+                } else
+                    return res.jsonp('Form was not found');
+            }
+        });
 };
 
 exports.processUserRequest = function(req, res) {

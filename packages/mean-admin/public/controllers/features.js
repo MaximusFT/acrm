@@ -1,6 +1,6 @@
 'use strict';
-angular.module('mean.mean-admin').controller('FeaturesController', ['$scope', '$log', '$http', 'Global', 'modalService',
-    function($scope, $log, $http, Global, modalService) {
+angular.module('mean.mean-admin').controller('FeaturesController', ['$scope', '$location', '$log', '$http', 'Global', 'modalService',
+    function($scope, $location, $log, $http, Global, modalService) {
         $scope.init = function() {
             $http.get('/api/features').success(function(data) {
                 if (data) {
@@ -61,12 +61,11 @@ angular.module('mean.mean-admin').controller('FeaturesController', ['$scope', '$
                             'users': result,
                             'feature': feature._id
                         }
-                    })
-                    .success(function(response) {
+                    }).success(function(response) {
                         //$log.info('success');
-                    })
-                    .error(function(response) {
-                        $log.error(response);
+                    }).error(function(err, status) {
+                        $log.error(err);
+                        $location.url('/error/' + status);
                     });
             });
         };

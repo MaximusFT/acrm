@@ -10,9 +10,9 @@ angular.module('mean.chatmanager').controller('ChatmanagerController', ['$scope'
             }
         }).success(function(data) {
             $scope.isAccess = true;
-        }).error(function(err) {
+        }).error(function(err, status) {
             $log.error(err);
-            $location.path('/');
+            $location.url('/error/' + status);
         });
 
         $scope.options = [{
@@ -52,6 +52,9 @@ angular.module('mean.chatmanager').controller('ChatmanagerController', ['$scope'
                     $scope.options[1].statNum = response.analysts.length;
                     $scope.options[2].statNum = response.clients.length;
                 }
+            }).error(function(err, status) {
+                $log.error(err);
+                $location.url('/error/' + status);
             });
         }, 5000);
 
@@ -71,6 +74,9 @@ angular.module('mean.chatmanager').controller('ChatmanagerController', ['$scope'
             }).success(function(response) {
                 $log.info(response);
                 $scope.isGuestModeEnabled = !$scope.isGuestModeEnabled;
+            }).error(function(err, status) {
+                $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 
@@ -79,6 +85,9 @@ angular.module('mean.chatmanager').controller('ChatmanagerController', ['$scope'
                 $scope.isInitialized = true;
                 if (response && response.isGuestModeEnabled)
                     $scope.isGuestModeEnabled = response.isGuestModeEnabled;
+            }).error(function(err, status) {
+                $log.error(err);
+                $location.url('/error/' + status);
             });
         };
     }

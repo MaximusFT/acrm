@@ -14,15 +14,15 @@ angular.module('mean.servermanager').controller('ServermanagerController', ['$sc
         $scope.init = function() {
             $scope.getHttp1 = $http.get('/api/servers_').success(function(response) {
                 $scope.servers = response;
-                //$log.info(response);
                 if ($stateParams.serverId) {
                     angular.forEach($scope.servers, function(server, index) {
                         if (server._id === $stateParams.serverId)
                             $scope.selectServer(server, index);
                     });
                 }
-            }).error(function(err) {
+            }).error(function(err, status) {
                 $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 
@@ -43,8 +43,9 @@ angular.module('mean.servermanager').controller('ServermanagerController', ['$sc
                     }
                 }).success(function(response) {
                     $scope.servers.push(response);
-                }).error(function(err) {
+                }).error(function(err, status) {
                     $log.error(err);
+                    $location.url('/error/' + status);
                 });
             });
         };
@@ -67,11 +68,12 @@ angular.module('mean.servermanager').controller('ServermanagerController', ['$sc
                     href: 'servers'
                 }, {
                     title: server.ip,
-                    href: 'servers/'+server._id,
+                    href: 'servers/' + server._id,
                     active: true
                 }];
-            }).error(function(err) {
+            }).error(function(err, status) {
                 $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 
@@ -122,8 +124,9 @@ angular.module('mean.servermanager').controller('ServermanagerController', ['$sc
                         if (s._id === $scope.selectedServer._id)
                             $scope.selectedServer = response;
                     });
-                }).error(function(err) {
+                }).error(function(err, status) {
                     $log.error(err);
+                    $location.url('/error/' + status);
                 });
                 /* jshint ignore:end */
             });
@@ -139,8 +142,9 @@ angular.module('mean.servermanager').controller('ServermanagerController', ['$sc
                     $scope.servers.splice(index, 1);
                     if ($scope.selectedServer._id === server._id)
                         $scope.selectedServer = null;
-                }).error(function(err) {
+                }).error(function(err, status) {
                     $log.error(err);
+                    $location.url('/error/' + status);
                 });
             }
         };
@@ -163,8 +167,9 @@ angular.module('mean.servermanager').controller('ServermanagerController', ['$sc
                     }
                 }).success(function(response) {
                     $scope.deployedSites.push(response);
-                }).error(function(err) {
+                }).error(function(err, status) {
                     $log.error(err);
+                    $location.url('/error/' + status);
                 });
             });
         };
@@ -175,16 +180,18 @@ angular.module('mean.servermanager').controller('ServermanagerController', ['$sc
                     key: field,
                     val: site[field]
                 }
-            }).error(function(err) {
+            }).error(function(err, status) {
                 $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 
         $scope.removeSite = function(site, index) {
             $http.delete('/api/site/' + site._id).success(function(response) {
                 $scope.deployedSites.splice(index, 1);
-            }).error(function(err) {
+            }).error(function(err, status) {
                 $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 

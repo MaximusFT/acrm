@@ -1,16 +1,7 @@
 'use strict';
 
-angular.module('mean.support').controller('SupportController', ['$scope', 'Global', 'Support',
-    function($scope, Global, Support) {
-        $scope.global = Global;
-        $scope.package = {
-            name: 'support'
-        };
-    }
-]);
-
-angular.module('mean.support').controller('TicketsController', ['$scope', 'Global', '$http', '$cookies', '$log', 'modalService', 'Tickets',
-    function($scope, Global, $http, $cookies, $log, modalService, Tickets) {
+angular.module('mean.support').controller('TicketsController', ['$scope', 'Global', '$http', '$location', '$cookies', '$log', 'modalService', 'Tickets',
+    function($scope, Global, $http, $location, $cookies, $log, modalService, Tickets) {
         $scope.global = Global;
         $scope.mode = $cookies.mode;
         $scope.tabs = [{
@@ -50,8 +41,9 @@ angular.module('mean.support').controller('TicketsController', ['$scope', 'Globa
                     $scope.isTickets = true;
                 else
                     $scope.isTickets = false;
-            }).error(function() {
-                $log.error('error');
+            }).error(function(err, status) {
+                $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 
@@ -72,8 +64,9 @@ angular.module('mean.support').controller('TicketsController', ['$scope', 'Globa
                     $scope.isTickets = true;
                 else
                     $scope.isTickets = false;
-            }).error(function() {
-                $log.error('error');
+            }).error(function(err, status) {
+                $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 
@@ -153,8 +146,9 @@ angular.module('mean.support').controller('TicketsController', ['$scope', 'Globa
                     }
                     $scope.tickets[ticketIndex].correspondence = $scope.tickets[ticketIndex].correspondence.concat(data.msgs);
                     $scope.tickets[ticketIndex].isRefreshing = false;
-                }).error(function() {
-                    $log.error('error');
+                }).error(function(err, status) {
+                    $log.error(err);
+                    $location.url('/error/' + status);
                 });
             }
         };
@@ -181,8 +175,9 @@ angular.module('mean.support').controller('TicketsController', ['$scope', 'Globa
                             //$log.info(data);
                             $scope.tickets[ticketIndex].status = 1;
                         })
-                        .error(function(data, status) {
-                            $log.error(status);
+                        .error(function(err, status) {
+                            $log.error(err);
+                            $location.url('/error/' + status);
                         });
                 }
             });

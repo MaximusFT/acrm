@@ -1,8 +1,8 @@
 'use strict';
 
 /* jshint -W098 */
-angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope', '$window', '$http', '$log', '$stateParams', 'Global', 'Mailmanager', 'modalService', 'crypter',
-    function($scope, $window, $http, $log, $stateParams, Global, Mailmanager, modalService, crypter) {
+angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope', '$window', '$http', '$location', '$log', '$stateParams', 'Global', 'Mailmanager', 'modalService', 'crypter',
+    function($scope, $window, $http, $lcoation, $log, $stateParams, Global, Mailmanager, modalService, crypter) {
         $scope.global = Global;
         $scope.package = {
             name: 'mailmanager'
@@ -201,8 +201,9 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
                                 if (status === 200)
                                     $window.location = config.mailHost + (config.isRcInDefFolder ? '/roundcube' : config.RcCustomFolder) + '/?_task=mail';
 
-                            }).error(function(data, status) {
-                                $log.error('Error with getting response');
+                            }).error(function(err, status) {
+                                $log.error(err);
+                                $location.url('/error/' + status);
                             });
                         } else
                             $log.error('Error in getting settings');

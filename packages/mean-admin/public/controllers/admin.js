@@ -9,7 +9,7 @@ angular.module('mean.mean-admin').controller('AdminController', ['$scope', 'Glob
         var icons = 'mean-admin/assets/img/icons/';
         
         // Default hard coded menu items for main menu
-        var defaultAdminMenu = [{
+        var defaultAdminMenu = [/*{
             'roles': ['admin'],
             'title': 'MODULES',
             'link': 'modules',
@@ -24,29 +24,29 @@ angular.module('mean.mean-admin').controller('AdminController', ['$scope', 'Glob
             'title': 'SETTINGS',
             'link': 'settings',
             'icon': icons + 'settings.png'
-        }, {
+        }, */{
             'roles': ['admin'],
-            'title': 'DEPARTMENTS',
+            'title': 'Departments',
             'link': 'departments',
             'icon': icons + 'departments.png'
         }, {
             'roles': ['admin'],
-            'title': 'FEATURES',
+            'title': 'Features',
             'link': 'features',
             'icon': icons + 'features.png'
         }, {
             'roles': ['admin'],
-            'title': 'SERVERS',
+            'title': 'Servers',
             'link': 'servers',
             'icon': icons + 'servers.png'
         }, {
             'roles': ['admin'],
-            'title': 'REQUESTS',
+            'title': 'Requests',
             'link': 'requests from internet',
             'icon': icons + 'users.png'
         }, {
             'roles': ['admin'],
-            'title': 'MAILS',
+            'title': 'Emails',
             'link': 'mailmanager',
             'icon': icons + 'mails.png'
         }];

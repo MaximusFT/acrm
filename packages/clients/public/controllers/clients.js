@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('mean.clients').controller('ClientsController', ['$scope', '$http', '$log', 'Global', 'Clients', 'modalService',
-    function($scope, $http, $log, Global, Clients, modalService) {
+angular.module('mean.clients').controller('ClientsController', ['$scope', '$http', '$location', '$log', 'Global', 'Clients', 'modalService',
+    function($scope, $http, $location, $log, Global, Clients, modalService) {
         $scope.global = Global;
         $scope.maxSize = 5;
         $scope.filterOptions = {};
@@ -165,8 +165,9 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
                     if (data.allUnreadCount)
                         $scope.unreadCount = data.allUnreadCount;
                     $scope.unreadTestCount = data.testUnreadCount;
-                }).error(function(err) {
+                }).error(function(err, status) {
                     $log.error(err);
+                    $location.url('/error/' + status);
                 });
             } else
                 $scope.applyFilters(curPage);
@@ -181,8 +182,9 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
                 //$log.info(data);
                 $scope.oldWebreqs = data.webreqs;
                 $scope.count2 = data.count;
-            }).error(function(err) {
+            }).error(function(err, status) {
                 $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 
@@ -195,8 +197,9 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
                 //$log.info(response);
                 $scope.reports = response.reports;
                 $scope.count3 = response.count;
-            }).error(function(err) {
+            }).error(function(err, status) {
                 $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 
@@ -243,8 +246,9 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
                 if ($scope.filterOptions.state === 0 && response.allUnreadCount)
                     $scope.unreadCount = response.allUnreadCount;
                 $scope.unreadTestCount = response.testUnreadCount;
-            }).error(function(err) {
+            }).error(function(err, status) {
                 $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 
@@ -263,8 +267,9 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
             }).success(function() {
                 $scope.status.isDdOpen = [];
                 $scope.applyFilters($scope.curPage1);
-            }).error(function(err) {
+            }).error(function(err, status) {
                 $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 
@@ -307,8 +312,9 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
                     };
                     modalService.showModal({}, modalOptions);
                 }
-            }).error(function(err) {
+            }).error(function(err, status) {
                 $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 
@@ -317,16 +323,16 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
         };
 
         $scope.hasError = function(action) {
-            if(action.action === 'ACRM') {
+            if (action.action === 'ACRM') {
                 return !!action.res.error;
             }
-            if(action.action === 'Inside') {
+            if (action.action === 'Inside') {
                 return action.res.indexOf('formCallback') !== -1 && action.res.indexOf('error') !== -1;
             }
-            if(action.action === 'Justclick') {
+            if (action.action === 'Justclick') {
                 return action.res.error_code !== 0;
             }
-            if(action.action === 'SMS') {
+            if (action.action === 'SMS') {
                 return action.res.RESPONSE && action.res.RESPONSE.status && typeof action.res.RESPONSE.status === 'object' && action.res.RESPONSE.status.length > 0 && action.res.RESPONSE.status[0] !== '1';
             }
         };

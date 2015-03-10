@@ -1,16 +1,7 @@
 'use strict';
 
-angular.module('mean.passmanager').controller('PassmanagerController', ['$scope', 'Global', 'Passmanager',
-    function($scope, Global, Passmanager) {
-        $scope.global = Global;
-        $scope.package = {
-            name: 'passmanager'
-        };
-    }
-]);
-
-angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$cookies', '$q', 'modalService', 'Passwords', 'Users', 'Requests', 'crypter',
-    function($scope, Global, Menus, $rootScope, $http, $log, $cookies, $q, modalService, Passwords, Users, Requests, crypter) {
+angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$location', '$log', '$cookies', '$q', 'modalService', 'Passwords', 'Users', 'Requests', 'crypter',
+    function($scope, Global, Menus, $rootScope, $http, $location, $log, $cookies, $q, modalService, Passwords, Users, Requests, crypter) {
         $scope.mode = $cookies.mode;
         $scope.global = Global;
         $scope.isSomeSelected = true;
@@ -111,8 +102,9 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
             $scope.getHttp1 = $http.get('api/getGroups').success(function(data) {
                 $scope.groups = data;
                 //$log.info($scope.groups);
-            }).error(function() {
-                $log.error('error');
+            }).error(function(err, status) {
+                $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 
@@ -124,8 +116,9 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
                 if (data.length > 0)
                     $scope.isPasses = true;
                 //$log.warn($scope.groups);
-            }).error(function() {
-                $log.error('error');
+            }).error(function(err, status) {
+                $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 
@@ -147,8 +140,9 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
                     $scope.isRequests = true;
                 else
                     $scope.isRequests = false;
-            }).error(function() {
-                $log.error('error');
+            }).error(function(err, status) {
+                $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 
@@ -292,9 +286,9 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
                     .success(function(response) {
                         //$log.info('success');
                         unselectAll();
-                    })
-                    .error(function(response) {
-                        $log.error('error');
+                    }).error(function(err, status) {
+                        $log.error(err);
+                        $location.url('/error/' + status);
                     });
             });
         };
@@ -389,9 +383,9 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
                 password: $scope.pass.hashed_password,
                 comment: $scope.pass.comment
             };
-            if($scope.pass.forServer)
+            if ($scope.pass.forServer)
                 temp.forServer = $scope.pass.forServer;
-            if($scope.pass.forSite)
+            if ($scope.pass.forSite)
                 temp.forSite = $scope.pass.forSite;
             var pass = new Passwords(temp);
             pass.$save(function(response) {
@@ -560,8 +554,9 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
             $scope.getHttp3 = $http.get('/api/servers_').success(function(response) {
                 $scope.servers = response;
                 //$log.info(response);
-            }).error(function(err) {
+            }).error(function(err, status) {
                 $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 
@@ -569,8 +564,9 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
             $scope.getHttp4 = $http.get('/api/sites').success(function(response) {
                 $scope.sites = response;
                 //$log.info(response);
-            }).error(function(err) {
+            }).error(function(err, status) {
                 $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 

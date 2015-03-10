@@ -175,9 +175,9 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
                     userId: $stateParams.userId
                 }
             }).success(function(data) {
-                //$log.info(data);
-                if (data !== 'null') {
-                    data.department = data.department.name;
+                $log.info(data);
+                if (data && data.department) {
+                    data.department = data.department.title;
                     $scope.users = [data];
                 } else
                     $scope.isUser = false;

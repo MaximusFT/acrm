@@ -15,9 +15,9 @@ angular.module('mean.currencymanager').controller('CurrencymanagerController', [
             }
         }).success(function(data) {
             $scope.isAccess = true;
-        }).error(function(err) {
+        }).error(function(err, status) {
             $log.error(err);
-            $location.path('/');
+            $location.url('/error/' + status);
         });
 
         $scope.init = function() {
@@ -29,6 +29,9 @@ angular.module('mean.currencymanager').controller('CurrencymanagerController', [
                     $scope.cols = data.cols;
                     $scope.colCount = data.cols.length;
                 }
+            }).error(function(err, status) {
+                $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 
@@ -39,6 +42,9 @@ angular.module('mean.currencymanager').controller('CurrencymanagerController', [
                     cols: $scope.cols,
                     rows: $scope.rows
                 }
+            }).error(function(err, status) {
+                $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 

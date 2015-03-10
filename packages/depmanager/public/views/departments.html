@@ -1,17 +1,30 @@
 <section data-ng-controller="DepartmentsController">
-    <h1>Departments Manager</h1>
-    <div class="row">
-        <div class="col-md-4" data-ng-init="init()">
-            <br />
-            <legend>Departments hierarchy</legend>
-            <div class="btn-group btn-group-justified">
-                <a href="" class="btn btn-info col-sm-3" data-ng-click="add(null, null)"> <i class="glyphicon glyphicon-tree-deciduous"></i>
-                </a>
-                <a href="" class="btn btn-info col-sm-3" data-ng-click="switchDrag()"> <i class="glyphicon glyphicon-move" style="{{isDragEnabled ? 'color:black;' : ''}}"></i>
-                </a>
+    <div class="content-frame">
+        <div class="content-frame-top">
+            <div class="page-title">
+                <h2>
+                    <span class="fa fa-arrow-circle-o-left"></span>
+                    Departments Manager
+                </h2>
             </div>
-            <script type="text/ng-template" id="items_renderer.html">
-                <div ui-tree-handle>
+            <div class="pull-right">
+                <button class="btn btn-default content-frame-left-toggle">
+                    <span class="fa fa-bars"></span>
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3" data-ng-init="init()">
+                <br />
+                <div class="btn-group btn-group-justified">
+                    <a href="" class="btn btn-info col-sm-3" data-ng-click="add(null, null)"> <i class="glyphicon glyphicon-tree-deciduous"></i>
+                    </a>
+                    <a href="" class="btn btn-info col-sm-3" data-ng-click="switchDrag()"> <i class="glyphicon glyphicon-move" style="{{isDragEnabled ? 'color:black;' : ''}}"></i>
+                    </a>
+                </div>
+                <br />
+                <script type="text/ng-template" id="items_renderer.html">
+                <div ui-tree-handle style="line-height:27px;">
                     <a class="btn btn-default btn-xs" data-nodrag data-ng-click="toggle(this)">
                         <span class="glyphicon" ng-class="{'glyphicon-chevron-right': collapsed, 'glyphicon-chevron-down': !collapsed}"></span>
                     </a>
@@ -30,33 +43,68 @@
                   <li ng-repeat="item in item.items" ui-tree-node ng-include="'items_renderer.html'"></li>
                 </ol>
             </script>
-            <div ui-tree="options">
-                <ol ui-tree-nodes data-ng-model="departments" cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}" >
-                    <li data-ng-repeat="item in departments track by $index" ui-tree-node data-ng-include="'items_renderer.html'"></li>
-                </ol>
-            </div>
-        </div>
-        <div class="col-md-8">
-            <div data-ng-if="selectedDepartment" cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}">
-                <br />
-                <legend>Department "{{selectedDepartment.title}}"</legend>
-                <div style="float:right;">
-                    <input type="button" class="btn btn-warning btn-sm" value="Edit" data-ng-click="editDepartment(selectedDepartment)" />
+                <div ui-tree="options">
+                    <ol ui-tree-nodes data-ng-model="departments" cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}" >
+                        <li data-ng-repeat="item in departments track by $index" ui-tree-node data-ng-include="'items_renderer.html'"></li>
+                    </ol>
                 </div>
-                <p style="font-size:20px;text-align:center;font-weight:bolder;">
-                    Head – <a href="/#!/manager/users/{{selectedDepartment.head.username}}">{{selectedDepartment.head.name}}</a>
-                </p>
-                <div data-ng-if="selectedDepartment.additionalInfo && selectedDepartment.additionalInfo.description">
-                    <p> <strong>Description:</strong>
+            </div>
+            <div class="{{selectedDepartment ? 'col-md-6' : 'col-md-9'}}">
+                <div data-ng-if="selectedDepartment" cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}">
+                    <br />
+                    <legend style="text-align:center;">Department "{{selectedDepartment.title}}"</legend>
+                    <div style="float:right;">
+                        <input type="button" class="btn btn-warning btn-sm" value="Edit" data-ng-click="editDepartment(selectedDepartment)" />
+                    </div>
+                    <p style="font-size:20px;font-weight:bolder;">
+                        Head –
+                        <a href="/#!/manager/users/{{selectedDepartment.head.username}}">{{selectedDepartment.head.name}}</a>
                     </p>
-                    <p>{{selectedDepartment.additionalInfo.description}}</p>
+                    <div data-ng-if="selectedDepartment.additionalInfo && selectedDepartment.additionalInfo.description">
+                        <p> <strong>Description:</strong>
+                        </p>
+                        <p>{{selectedDepartment.additionalInfo.description}}</p>
+                    </div>
+                    <div data-ng-include src="'depmanager/views/staff.html'" />
                 </div>
-                <div data-ng-include src="'depmanager/views/staff.html'" data-ng-controller="UsersController" />
+                <div data-ng-if="!selectedDepartment">
+                    <br />
+                    <alert type="info">Select department for showing details</alert>
+                </div>
             </div>
-            <div data-ng-if="!selectedDepartment">
-                <br />
-                <legend>Department Info</legend>
-                <alert type="info">Select department for showing details</alert>
+            <div data-ng-if="selectedDepartment" class="col-md-3">
+                <div class="content-frame-left content-frame-fixed">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Control panel</div>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <input class="form-control" type="text" placeholder="Search" ng-model="search"></div>
+                            <hr>
+                            <div class="btn-group-vertical btn-block" role="group">
+                                <div class="btn-group dropup" role="group">
+                                    <a class="btn btn-warning btn-block dropdown-toggle" data-toggle="dropdown" data-ng-disabled="isSomeSelected">
+                                        Assign role
+                                        <span class="caret"></span>
+                                    </a>
+                                    <ul class="dropdown-menu" data-ng-hide="isSomeSelected">
+                                        <li data-ng-click="assignRole(1)">
+                                            <a href="">Administrator</a>
+                                        </li>
+                                        <li data-ng-click="assignRole(2)">
+                                            <a href="">Manager</a>
+                                        </li>
+                                        <li data-ng-click="assignRole(3)">
+                                            <a href="">Employee</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <a class="btn btn-info" data-ng-disabled="isSomeSelected" data-ng-click="bind2dep()">Bind to the department</a>
+                                <a class="btn btn-primary" data-ng-disabled="isSomeSelected" data-ng-click="clearAccesses()">Clear accesses</a>
+                                <a class="btn btn-danger" data-ng-disabled="isSomeSelected" data-ng-click="remove()">Remove</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

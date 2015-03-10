@@ -42,11 +42,11 @@ exports.me = function(req, res) {
  * Find pass by id
  */
 exports.department = function(req, res) {
-    if (!req.query || !req.query.departmentId)
+    if (!req.params || !req.params.departmentId)
         return res.status(500).send('Empty query');
     NewDepartment
         .findOne({
-            _id: req.query.departmentId
+            _id: req.params.departmentId
         })
         .populate('head', '-roles -phone -hashed_password -salt -provider')
         .lean()
@@ -133,28 +133,6 @@ exports.all = function(req, res) {
     }
 };
 
-exports.getNewDeps = function(req, res) {
-    NewDepartment
-        .find({}, {
-            '_id': 1,
-            'title': 1
-        })
-        .lean()
-        .exec(function(err, deps) {
-            if (err) {
-                return res.json(500, {
-                    error: err
-                });
-            } else {
-                deps.splice(0, 0, {
-                    _id: '-1',
-                    title: 'None'
-                });
-                return res.jsonp(deps);
-            }
-        });
-};
-
 exports.getDeps = function(req, res) {
     Department
         .find({}, {
@@ -168,31 +146,8 @@ exports.getDeps = function(req, res) {
                     error: err
                 });
             } else {
-                /*deps.splice(0, 0, {
-                    _id: '-1',
-                    title: 'None'
-                });*/
                 return res.jsonp(deps);
             }
-        });
-};
-
-exports.getDepartment = function(req, res) {
-    if (req.user.roles.indexOf('employee') !== -1) {
-        res.status(500).send('Permission denied');
-    }
-    var departmentId = req.query.departmentId;
-    if (departmentId === '') {
-        res.status(400).send('Invalid URI');
-        return;
-    }
-    console.log(departmentId);
-    Department
-        .findOne({
-            _id: departmentId
-        })
-        .exec(function(err, department) {
-            res.jsonp(department);
         });
 };
 
@@ -237,7 +192,7 @@ function createTree(departments) {
         var result = _.filter(departments, function(dep) {
             return dep.level === index;
         });
-        if (index === 0) {
+        if (index === departments[0].level) {
             _.forEach(result, function(department) {
                 tree.push({
                     id: department._id,
@@ -262,40 +217,138 @@ function createTree(departments) {
     return tree;
 }
 
-exports.newDepartmentsTree = function(req, res) {
-    if (req.user.roles.indexOf('admin') !== -1) {
-        NewDepartment
-            .find()
-            .sort('title')
-            .exec(
-                function(err, departments) {
-                    if (err) {
-                        res.render('error', {
-                            status: 500
-                        });
-                    } else {
-                        if (departments && departments.length > 0)
-                            return res.jsonp(createTree(departments));
-                        else
-                            return res.jsonp(departments);
-                    }
+function searchList(list, matchingId, cb) {
+    var ret = null;
+    _.forEach(list, function(element, index) {
+        if (JSON.stringify(element._id) === JSON.stringify(matchingId)) {
+            //console.log('match!!', element);
+            ret = index + 1;
+            return cb(ret);
+        }
+    });
+    //return cb(ret);
+}
+
+function createList(departments) {
+    departments = _.sortBy(departments, 'level');
+    var list = [];
+    _.forEach(new Array(departments[departments.length - 1].level + 1), function(t, index) {
+        var result = _.filter(departments, function(dep) {
+            return dep.level === index;
+        });
+        if (index === 0) {
+            _.forEach(result, function(department) {
+                list.push({
+                    _id: department._id,
+                    title: department.title
                 });
-    }
-    if (req.user.roles.indexOf('manager') !== -1) {
-        NewDepartment.find().sort('name').exec(
-            function(err, departments) {
-                if (err) {
-                    res.render('error', {
-                        status: 500
-                    });
-                } else {
-                    res.jsonp(createTree(departments));
-                }
             });
-    }
-    if (req.user.roles.indexOf('employee') !== -1) {
-        res.status(500).send('Access denied');
-    }
+        } else {
+            _.forEach(result, function(department) {
+                searchList(list, department.parents[department.parents.length - 1], function(spliceIndex) {
+                    //console.log('found', spliceIndex);
+                    if (spliceIndex)
+                        list.splice(spliceIndex, 0, {
+                            _id: department._id,
+                            title: new Array(department.level).join('- ') + department.title
+                        });
+                });
+            });
+        }
+    });
+    return list;
+}
+
+exports.getNewDeps = function(req, res) {
+    NewDepartment
+        .find()
+        .lean()
+        .exec(function(err, deps) {
+            if (err) {
+                return res.json(500, {
+                    error: err
+                });
+            } else {
+                if (deps && deps.length > 0) {
+                    var result = createList(deps);
+                    result.splice(0, 0, {
+                        _id: '-1',
+                        title: 'None'
+                    });
+                    return res.jsonp(result);
+                } else {
+                    deps.splice(0, 0, {
+                        _id: '-1',
+                        title: 'None'
+                    });
+                    return res.jsonp(deps);
+                }
+            }
+        });
+};
+
+exports.departmentsTree = function(req, res) {
+    if (!req.user)
+        return res.status(401).send('Not authenticated');
+    User
+        .findOne({
+            _id: req.user._id
+        }, function(err, user) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                if (user) {
+                    if (user.roles.indexOf('admin') !== -1) {
+                        NewDepartment
+                            .find()
+                            .sort('title')
+                            .exec(
+                                function(err, departments) {
+                                    if (err) {
+                                        res.render('error', {
+                                            status: 500
+                                        });
+                                    } else {
+                                        if (departments && departments.length > 0)
+                                            return res.jsonp({
+                                                departments: createTree(departments),
+                                                drag: true
+                                            });
+                                        else
+                                            return res.jsonp(departments);
+                                    }
+                                });
+                    } else if (user.roles.indexOf('manager') !== -1 && user.department) {
+                        NewDepartment
+                            .find({
+                                parents: mongoose.Types.ObjectId(user.department)
+                            })
+                            .sort('title')
+                            .exec(
+                                function(err, departments) {
+                                    if (err) {
+                                        res.render('error', {
+                                            status: 500
+                                        });
+                                    } else {
+                                        if (departments && departments.length > 0) {
+                                            return res.jsonp({
+                                                departments: createTree(departments)
+                                            });
+                                        } else {
+                                            return res.jsonp({
+                                                departments: []
+                                            });
+                                        }
+                                    }
+                                });
+                    } else
+                        res.status(403).send('Access denied');
+                } else
+                    return res.status(500).send('Invalid user');
+            }
+        });
 };
 
 exports.addNewDepartmentBranch = function(req, res) {

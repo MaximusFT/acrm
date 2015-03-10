@@ -72,8 +72,9 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
                     href: 'servers/site/' + $scope.site._id,
                     active: true
                 }];
-            }).error(function(err) {
+            }).error(function(err, status) {
                 $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 
@@ -90,32 +91,36 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
                             $scope.selectForm(form, index);
                     });
                 }
-            }).error(function(err) {
+            }).error(function(err, status) {
                 $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 
         $scope.initTypes = function() {
             $scope.getHttp4 = $http.get('/api/requestTypes').success(function(response) {
                 $scope.requestTypes = response;
-            }).error(function(err) {
+            }).error(function(err, status) {
                 $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 
         $scope.initAcrmTypes = function() {
             $scope.getHttp5 = $http.get('/api/acrmRequestTypes').success(function(response) {
                 $scope.acrmRequestTypes = response;
-            }).error(function(err) {
+            }).error(function(err, status) {
                 $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 
         $scope.initDeps = function() {
             $scope.getHttp6 = $http.get('/api/getNewDeps').success(function(response) {
                 $scope.departments = response;
-            }).error(function(err) {
+            }).error(function(err, status) {
                 $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 
@@ -125,8 +130,9 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
                     key: field,
                     val: site[field]
                 }
-            }).error(function(err) {
+            }).error(function(err, status) {
                 $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 
@@ -148,8 +154,9 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
                     }
                 }).success(function(response) {
                     $scope.forms.push(response);
-                }).error(function(err) {
+                }).error(function(err, status) {
                     $log.error(err);
+                    $location.url('/error/' + status);
                 });
             });
         };
@@ -193,8 +200,9 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
                     });
                 }
                 //$log.warn($scope.actions);
-            }).error(function(err) {
+            }).error(function(err, status) {
                 $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 
@@ -233,23 +241,25 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
                         if (s._id === $scope.selectedForm._id)
                             $scope.selectedForm = response;
                     });
-                }).error(function(err) {
+                }).error(function(err, status) {
                     $log.error(err);
+                    $location.url('/error/' + status);
                 });
                 /* jshint ignore:end */
             });
         };
 
         $scope.removeForm = function(form, index) {
-            //if ($scope.bindedData.length === 0) {
-            $http.delete('/api/form/' + form._id).success(function(response) {
-                $scope.forms.splice(index, 1);
-                if ($scope.selectedForm._id === form._id)
-                    $scope.selectedForm = null;
-            }).error(function(err) {
-                $log.error(err);
-            });
-            //}
+            if ($scope.bindedData.length === 0) {
+                $http.delete('/api/form/' + form._id).success(function(response) {
+                    $scope.forms.splice(index, 1);
+                    if ($scope.selectedForm._id === form._id)
+                        $scope.selectedForm = null;
+                }).error(function(err, status) {
+                    $log.error(err);
+                    $location.url('/error/' + status);
+                });
+            }
         };
 
         $scope.addFormData = function() {
@@ -324,8 +334,9 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
                 }).success(function(response) {
                     $scope.saveEnabled = false;
                     $scope.selectForm($scope.selectedForm);
-                }).error(function(err) {
+                }).error(function(err, status) {
                     $log.error(err);
+                    $location.url('/error/' + status);
                 });
             }
         };
@@ -352,6 +363,12 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
             if (!config.checkboxes)
                 config.checkboxes = [];
             config.checkboxes.push({});
+        };
+
+        $scope.addOfficeIdField = function(config) {
+            if (!config.officeIdFieldVals)
+                config.officeIdFieldVals = [];
+            config.officeIdFieldVals.push({});
         };
 
         $scope.removeCheckboxData = function(index1, index2) {
