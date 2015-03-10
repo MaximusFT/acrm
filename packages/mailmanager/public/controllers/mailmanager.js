@@ -2,7 +2,7 @@
 
 /* jshint -W098 */
 angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope', '$window', '$http', '$location', '$log', '$stateParams', 'Global', 'Mailmanager', 'modalService', 'crypter',
-    function($scope, $window, $http, $lcoation, $log, $stateParams, Global, Mailmanager, modalService, crypter) {
+    function($scope, $window, $http, $location, $log, $stateParams, Global, Mailmanager, modalService, crypter) {
         $scope.global = Global;
         $scope.package = {
             name: 'mailmanager'

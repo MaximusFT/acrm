@@ -21,13 +21,15 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
             msg: 'The system provides the ability to store private passwords. These are the passwords that are not related to corporate, but you often use them. They are protected from other users, administrators, etc. Enjoy using the system.'
         }];
 
-        $http.get('users/me').success(function(data) {
-            //$log.info(data);
-            if (data.username === $scope.userId)
-                $scope.me = true;
-        }).error(function(data, status) {
-            $log.error(data);
-        });
+        $scope.initUser = function() {
+            $http.get('users/me').success(function(data) {
+                //$log.info(data);
+                if (data.username === $scope.userId)
+                    $scope.me = true;
+            }).error(function(data, status) {
+                $log.error(data);
+            });
+        };
 
         //$http.get('api/getDepartments').success(function (data) {
         //$log.info(data);
