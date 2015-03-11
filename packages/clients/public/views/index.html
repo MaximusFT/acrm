@@ -235,11 +235,14 @@
 												<a href="{{report[field['schemaKey']].uri}}" target="_blank">{{report[field['schemaKey']].uri}}</a>
 											</p>
 										</div>
-										<ul data-ng-if="field['schemaKey'] === 'formData'" data-ng-repeat="formField in report[field['schemaKey']] track by $index">
-											<li>
-												{{formField.htmlId}}: <em>"{{formField.value}}"</em>
-											</li>
-										</ul>
+										<div data-ng-if="field['schemaKey'] === 'formData'">
+											<ul data-ng-repeat="formField in report[field['schemaKey']] track by $index">
+												<li>
+													{{formField.htmlId}}: <em>"{{formField.value}}"</em>
+												</li>
+											</ul>
+											<alert data-ng-if="!report[field['schemaKey']] || !report[field['schemaKey']].length" type="warning">No data</alert>
+										</div>
 										<ul data-ng-if="field['schemaKey'] === 'analyticsData'" data-ng-repeat="(key, val) in report[field['schemaKey']] track by $index">
 											<li>
 												{{key}}: <em>"{{val}}"</em>

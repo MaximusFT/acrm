@@ -161,7 +161,7 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
 
     $scope.hasError = function(action) {
         if (action.action === 'ACRM') {
-            return !!action.res.error;
+            return !!action.error;
         }
         if (action.action === 'Inside') {
             return action.res.indexOf('formCallback') !== -1 && action.res.indexOf('error') !== -1;
