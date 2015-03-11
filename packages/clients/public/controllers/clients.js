@@ -92,6 +92,10 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
             schemaKey: 'formData',
             type: 'object'
         }, {
+            title: 'Analytics',
+            schemaKey: 'analyticsData',
+            type: 'object'
+        }, {
             title: 'Actions',
             schemaKey: 'actionsPerformed',
             type: 'object'
@@ -277,7 +281,7 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
             if (!$scope.isResShown[repIndex])
                 $scope.isResShown[repIndex] = [];
             $scope.isResShown[repIndex][index] = !$scope.isResShown[repIndex][index];
-            if (action === 'ACRM') {
+            if (action.action === 'ACRM' && !$scope.hasError(action)) {
                 var modalOptions = {
                     closeButtonText: 'Ok',
                     //actionButtonText: 'Ok',
@@ -324,7 +328,7 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
 
         $scope.hasError = function(action) {
             if (action.action === 'ACRM') {
-                return !!action.res.error;
+                return !!action.error;
             }
             if (action.action === 'Inside') {
                 return action.res.indexOf('formCallback') !== -1 && action.res.indexOf('error') !== -1;

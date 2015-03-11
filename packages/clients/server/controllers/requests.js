@@ -39,7 +39,7 @@ function saveRequestInAcrm(actions, data, analyticsData, formId, callback) {
     var tmpE = _.filter(data, function(d) {
         return d.htmlId === options.email;
     });
-    if (tmpE.length === 0) {
+    if (tmpE.length === 0 || !tmpE[0].value) {
         response.error = 'Empty email value';
         return callback(response);
     }
@@ -472,11 +472,11 @@ exports.getDocumentFields = function(req, res) {
 exports.processUserRequest = function(req, res) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'X-Requested-With');
-    if (!req.body.formData || !req.body.href)
+    if (!req.body.href)
         return res.status(500).send('Empty query');
     var href = req.body.href,
         formId = req.body.form,
-        formData = req.body.formData,
+        formData = req.body.formData ? req.body.formData : [],
         analyticsData = req.body.analyticsData;
     if (href.indexOf('?') !== -1)
         href = href.substring(0, href.indexOf('?'));
@@ -531,32 +531,32 @@ exports.processUserRequest = function(req, res) {
                                     async.series([
                                         function(callback) {
                                             saveRequestInAcrm(form.actions, bindedData, analyticsData, form._id, function(response) {
-                                                callback(response.error ? response.error : null, !response.error ? response : null);
+                                                callback(null, response);
                                             });
                                         },
                                         function(callback) {
                                             sendToInside(form.actions, bindedData, analyticsData, function(response) {
-                                                callback(response.error ? response.error : null, !response.error ? response : null);
+                                                callback(null, response);
                                             });
                                         },
                                         function(callback) {
                                             subscribeInJustclick(form.actions, bindedData, function(response) {
-                                                callback(response.error ? response.error : null, !response.error ? response : null);
+                                                callback(null, response);
                                             });
                                         },
                                         function(callback) {
                                             sendSMS(form.actions, bindedData, function(response) {
-                                                callback(response.error ? response.error : null, !response.error ? response : null);
+                                                callback(null, response);
                                             });
                                         }
                                     ], function(err, results) {
                                         var formProcessingReport = new FormProcessingReport({
                                             form: form._id,
                                             formData: formData,
-                                            actionsPerformed: _.filter(results, function(r) {
-                                                return !!r.res;
-                                            }),
-                                            error: err
+                                            analyticsData: analyticsData,
+                                            actionsPerformed: _.filter(results, function(res) {
+                                                return res && (res.error || res.res);
+                                            })
                                         });
                                         formProcessingReport.save(function(err) {
                                             if (err) {

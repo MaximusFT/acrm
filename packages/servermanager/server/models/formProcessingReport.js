@@ -10,13 +10,12 @@ var FormProcessingReportSchema = new Schema({
 		required: true
 	},
 	formData: {
-		type: Schema.Types.Mixed,
-		required: true
+		type: Schema.Types.Mixed
+	},
+	analyticsData: {
+		type: Schema.Types.Mixed
 	},
 	actionsPerformed: {
-		type: Array
-	},
-	error: {
 		type: Array
 	},
 	whenProcessed: {

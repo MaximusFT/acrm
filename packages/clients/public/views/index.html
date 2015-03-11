@@ -232,7 +232,7 @@
 											</p>
 											<p>
 												Located on the
-												<a href="{{report[field['schemaKey']].uri}}" target="_blank">page</a>
+												<a href="{{report[field['schemaKey']].uri}}" target="_blank">{{report[field['schemaKey']].uri}}</a>
 											</p>
 										</div>
 										<ul data-ng-if="field['schemaKey'] === 'formData'" data-ng-repeat="formField in report[field['schemaKey']] track by $index">
@@ -240,18 +240,23 @@
 												{{formField.htmlId}}: <em>"{{formField.value}}"</em>
 											</li>
 										</ul>
+										<ul data-ng-if="field['schemaKey'] === 'analyticsData'" data-ng-repeat="(key, val) in report[field['schemaKey']] track by $index">
+											<li>
+												{{key}}: <em>"{{val}}"</em>
+											</li>
+										</ul>
 										<div data-ng-if="field['schemaKey'] === 'actionsPerformed'">
 											<ul data-ng-repeat="action in report[field['schemaKey']]">
 												<li>
 													{{action.action}}
-													<i class="{{hasError(action) ? 'glyphicon glyphicon-remove' : 'glyphicon glyphicon-ok'}}" style="{{hasError(action) ? 'colod:red;' : 'color:green;'}}cursor:pointer;" data-ng-click="showRes(reportIndex, $index, action.action)"></i>
-													<div collapse="!isResShown[reportIndex][$index]" data-ng-if="action.action !== 'ACRM'">
-														<pre>{{action.res | json}}</pre>
+													<i class="{{hasError(action) ? 'glyphicon glyphicon-remove' : 'glyphicon glyphicon-ok'}}" style="{{hasError(action) ? 'colod:red;' : 'color:green;'}}cursor:pointer;" data-ng-click="showRes(reportIndex, $index, action)"></i>
+													<div collapse="!isResShown[reportIndex][$index]" data-ng-if="action.action === 'ACRM' && hasError(action) || action.action !== 'ACRM'">
+														<pre>{{action.res | json}}{{action.error | json}}</pre>
 													</div>
 												</li>
 											</ul>
 										</div>
-										<span data-ng-if="field['schemaKey'] !== 'whenProcessed' && field['schemaKey'] !== 'form' && field['schemaKey'] !== 'formData' && field['schemaKey'] !== 'actionsPerformed'">
+										<span data-ng-if="field['schemaKey'] !== 'whenProcessed' && field['schemaKey'] !== 'form' && field['schemaKey'] !== 'formData' && field['schemaKey'] !== 'actionsPerformed' && field['schemaKey'] !== 'analyticsData'">
 											{{report[field['schemaKey']] ? report[field['schemaKey']] : '---'}}
 										</span>
 									</td>
