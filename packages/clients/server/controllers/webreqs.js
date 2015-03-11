@@ -4,7 +4,8 @@ var mongoose = require('mongoose'),
     Webreq = mongoose.model('Webreq'),
     NewWebreq = mongoose.model('NewWebreq'),
     WebreqType = mongoose.model('WebreqType'),
-    FormProcessingReport = mongoose.model('FormProcessingReport');
+    FormProcessingReport = mongoose.model('FormProcessingReport'),
+    LogWebRequest = mongoose.model('LogWebRequest');
 //_ = require('lodash');
 
 exports.web_request_form_add = function(req, res, next) {
@@ -560,6 +561,54 @@ exports.reportForWebreq = function(req, res) {
                 return res.status(500).send(err);
             } else {
                 return res.jsonp(report);
+            }
+        });
+};
+
+exports.logRequest = function(req, res) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With');
+    if (!req.body.logData)
+        return res.status(200).send();
+    var log = new LogWebRequest(req.body.logData);
+    log.save(function(err) {
+        if (err) {
+            console.log(err);
+            return res.status(500).send(err);
+        } else {
+            return res.status(200).send();
+        }
+    });
+};
+
+exports.logsRequest = function(req, res) {
+    if (!req.query || !req.query.curPage)
+        return res.status(500).send('Empty request');
+    var page = req.query.curPage;
+    LogWebRequest
+        .find()
+        .skip((page - 1) * 20)
+        .limit(20)
+        .sort({
+            time: -1
+        })
+        .exec(function(err, logs) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                LogWebRequest
+                    .find(function(err, count) {
+                        if (err) {
+                            console.log(err);
+                            return res.status(500).send(err);
+                        } else {
+                            return res.jsonp({
+                                logs: logs,
+                                count: count.length
+                            });
+                        }
+                    });
             }
         });
 };

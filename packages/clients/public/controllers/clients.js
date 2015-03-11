@@ -5,7 +5,7 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
         $scope.global = Global;
         $scope.maxSize = 5;
         $scope.filterOptions = {};
-        $scope.count1 = $scope.count2 = $scope.count3 = $scope.curPage1 = $scope.curPage2 = $scope.curPage3 = 1;
+        $scope.count1 = $scope.count2 = $scope.count3 = $scope.count4 = $scope.curPage1 = $scope.curPage2 = $scope.curPage3 = $scope.curPage4 = 1;
         $scope.dateOptions = {
             formatYear: 'yy',
             startingDay: 1
@@ -102,6 +102,36 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
         }, {
             title: 'When processed',
             schemaKey: 'whenProcessed',
+            type: 'date'
+        }];
+
+        $scope.logSchema = [{
+            title: 'URI',
+            schemaKey: 'uri',
+            type: 'text'
+        }, {
+            title: 'Form ID',
+            schemaKey: 'form',
+            type: 'text'
+        }, {
+            title: 'Form data',
+            schemaKey: 'formData',
+            type: 'object'
+        }, {
+            title: 'IP (1)',
+            schemaKey: 'ip1',
+            type: 'text'
+        }, {
+            title: 'IP (2)',
+            schemaKey: 'ip2',
+            type: 'text'
+        }, {
+            title: 'Browser',
+            schemaKey: 'browser',
+            type: 'object'
+        }, {
+            title: 'Time',
+            schemaKey: 'time',
             type: 'date'
         }];
 
@@ -339,6 +369,21 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
             if (action.action === 'SMS') {
                 return action.res.RESPONSE && action.res.RESPONSE.status && typeof action.res.RESPONSE.status === 'object' && action.res.RESPONSE.status.length > 0 && action.res.RESPONSE.status[0] !== '1';
             }
+        };
+
+        $scope.initLogs = function(curPage) {
+            $scope.getHttp6 = $http.get('/api/logsRequest', {
+                params: {
+                    curPage: curPage
+                }
+            }).success(function(response) {
+                $log.info(response);
+                $scope.logs = response.logs;
+                $scope.count4 = response.count;
+            }).error(function(err, status) {
+                $log.error(err);
+                $location.url('/error/' + status);
+            });
         };
     }
 ]);

@@ -1,3 +1,4 @@
+<p>Date: {{formatDate(report.whenProcessed)}}</p>
 <table class="table table-bordered  table-hover table-condensed">
     <tr>
         <th>Form</th>
@@ -15,18 +16,27 @@
             </p>
         </td>
         <td>
-            <ul data-ng-repeat="formField in report.formData track by $index">
+            <ul data-ng-if="report.formData && report.formData.length" data-ng-repeat="formField in report.formData track by $index">
                 <li>
                     {{formField.htmlId}}: <em>"{{formField.value}}"</em>
                 </li>
             </ul>
+            <alert data-ng-if="!report.formData || !report.formData.length" type="warning">No data</alert>
         </td>
     </tr>
     <tr>
+        <th>Analytics</th>
         <th>Actions</th>
-        <th>When processed</th>
     </tr>
     <tr>
+        <td>
+            <ul data-ng-if="report.analyticsData" data-ng-repeat="(key, val) in report.analyticsData track by $index">
+                <li>
+                    {{key}}: <em>{{val}}</em>
+                </li>
+            </ul>
+            <alert data-ng-if="!report.analyticsData" type="warning">No data</alert>
+        </td>
         <td>
             <ul data-ng-repeat="action in report.actionsPerformed">
                 <li>
@@ -37,6 +47,5 @@
                 </li>
             </ul>
         </td>
-        <td>{{formatDate(report.whenProcessed)}}</td>
     </tr>
 </table>
