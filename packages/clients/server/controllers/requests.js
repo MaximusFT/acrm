@@ -484,6 +484,7 @@ exports.processUserRequest = function(req, res) {
         href = href.substr(0, href.length - 1);
     if (href.indexOf('#') !== -1)
         href = href.substring(0, href.indexOf('#'));
+    analyticsData.ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
     console.log('REQUEST FROM', href, formId);
     console.log('FORM DATA', formData);
     console.log('ANALYTICS DATA', analyticsData);

@@ -26,7 +26,7 @@ var LogWebRequestSchema = new Schema({
 		type: String
 	},
 	ip2: {
-		type: String
+		type: Schema.Types.Mixed
 	},
 	time: {
 		type: Date,

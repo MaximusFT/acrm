@@ -570,7 +570,13 @@ exports.logRequest = function(req, res) {
     res.header('Access-Control-Allow-Headers', 'X-Requested-With');
     if (!req.body.logData)
         return res.status(200).send();
-    var log = new LogWebRequest(req.body.logData);
+    var logData = req.body.logData;
+    logData.ip1 = req.headers['x-forwarded-for'] ||
+        req.connection.remoteAddress ||
+        req.socket.remoteAddress ||
+        req.connection.socket.remoteAddress;
+    logData.ip2 = req.headers['x-forwarded-for'];
+    var log = new LogWebRequest(logData);
     log.save(function(err) {
         if (err) {
             console.log(err);
