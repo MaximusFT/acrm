@@ -360,5 +360,9 @@ angular.module('mean.depmanager').controller('DepartmentsController', ['$scope',
             });
         };
 
+        $scope.goTo = function(url) {
+            $location.url(url);
+        };
+
     }
 ]);

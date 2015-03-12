@@ -19,4 +19,5 @@ module.exports = function(Depmanager, app, auth, database) {
 
     app.get('/api/department/users/:department', auth.requiresLogin, users.usersByDepartment);
     app.post('/api/bindToDep', auth.requiresAdmin, users.bindToDep);
+    app.get('/api/allUsersByDeps', auth.requiresAdmin, users.allUsersByDeps);
 };

@@ -1,5 +1,5 @@
 <!-- START X-NAVIGATION -->
-<ul class="x-navigation" data-ng-init="checkFeatures()">
+<ul class="x-navigation">
     <li class="xn-logo">
         <a href="/#!/">ACRM</a>
         <a href="/#!/" class="x-navigation-control"></a>
@@ -34,7 +34,7 @@
     
     <li data-ng-if="isFeatures"><a href="#!/my-features"><span class="xn-text">Features</span> </a> </li>
     
-    <li class="xn-openable active" data-ng-include="'/mean-admin/views/index.html'"> </li>
+    <li data-ng-if="isAdmin" class="xn-openable active" data-ng-include="'/mean-admin/views/index.html'"> </li>
 
     <li class="xn-title">Navigation</li>
     <li class="active">

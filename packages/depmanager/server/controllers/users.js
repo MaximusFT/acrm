@@ -38,6 +38,7 @@ function createTree(departments) {
                     id: department._id,
                     title: department.title,
                     head: department.head,
+                    level: department.level,
                     items: []
                 });
             });
@@ -120,4 +121,44 @@ exports.bindToDep = function(req, res) {
             } else
                 return res.status(200).send();
         });
+};
+
+exports.allUsersByDeps = function(req, res) {
+    User
+        .find()
+        .populate('department')
+        .sort({
+            department: 1,
+            name: 1,
+            username: 1
+        })
+        .lean()
+        .exec(
+            function(err, users) {
+                if (err) {
+                    console.log(err);
+                    return res.status(500).send(err);
+                } else {
+                    _.forEach(users, function(u) {
+                        if (u.department) {
+                            u.departmentTitle = u.department.title;
+                            u.departmentLevel = u.department.level;
+                        }
+                        if (u.roles && u.roles.length > 1)
+                            u.roles = u.roles[1].substring(0, 1).toUpperCase();
+                        else
+                            u.roles = 'N/v';
+                    });
+                    var result = _.chain(users)
+                        .groupBy(function(n) {
+                            return new Array(n.departmentLevel).join('- ') + n.departmentTitle /*+ ' (level ' + n.departmentLevel + ')'*/;
+                        })
+                        .pairs()
+                        .map(function(currentItem) {
+                            return _.object(_.zip(['department', 'users'], currentItem));
+                        })
+                        .value();
+                    return res.jsonp(result);
+                }
+            });
 };

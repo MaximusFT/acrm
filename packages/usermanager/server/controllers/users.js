@@ -117,17 +117,40 @@ exports.update = function(req, res) {
  * Delete an user
  */
 exports.destroy = function(req, res) {
-    var user = req.profile;
+    if (!req.params.userId)
+        return res.status(500).send('Empty query');
+    User
+        .remove({
+            _id: req.params.userId
+        }, function(err, deleted) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                console.log(deleted);
+                return res.status(200).send();
+            }
+        });
+};
 
-    user.remove(function(err) {
-        if (err) {
-            res.render('error', {
-                status: 500
-            });
-        } else {
-            res.jsonp(user);
-        }
-    });
+exports.removeUsers = function(req, res) {
+    if (!req.body.params || !req.body.params.users)
+        return res.status(500).send('Empty query');
+    var users = req.body.params.users;
+    User
+        .remove({
+            _id: {
+                $in: users
+            }
+        }, function(err, deleted) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                console.log('deleted', deleted);
+                return res.status(200).send();
+            }
+        });
 };
 
 /**
@@ -145,101 +168,12 @@ exports.all = function(req, res) {
     });
 };
 
-exports.groups = function(req, res) {
-    User.findOne({
-        _id: req.user._id
-    }, {
-        '_id': 0,
-        'department': 1,
-        'roles': 1
-    }).exec(
-        function(err, user) {
-            if (err) {
-                res.render('error', {
-                    status: 500
-                });
-            } else {
-                var roles = user.roles;
-                if (roles.indexOf('admin') !== -1) {
-                    User.find({}).sort({
-                            'department': 1,
-                            'name': 1,
-                            'username': 1
-                        })
-                        .populate('department')
-                        .lean()
-                        .exec(
-                            function(err, user) {
-                                if (err) {
-                                    res.render('error', {
-                                        status: 500
-                                    });
-                                } else {
-                                    _(user).forEach(function(u) {
-                                        if (u.department && u.name)
-                                            u.department = u.department.name;
-                                        if (u.roles && u.roles.length > 1)
-                                            u.roles = u.roles[1].substring(0, 1).toUpperCase();
-                                        else
-                                            u.roles = 'N/v';
-                                    });
-                                    var result = _.chain(user)
-                                        .groupBy('department')
-                                        .pairs()
-                                        .map(function(currentItem) {
-                                            return _.object(_.zip(['department', 'users'], currentItem));
-                                        })
-                                        .value();
-                                    res.jsonp(result);
-                                }
-                            });
-                }
-                if (roles.indexOf('manager') !== -1 || roles.indexOf('employee') !== -1) {
-                    User.find({
-                            department: user.department
-                        }).sort({
-                            'department': 1,
-                            'name': 1,
-                            'username': 1
-                        })
-                        .populate('department')
-                        .lean()
-                        .exec(
-                            function(err, users) {
-                                if (err) {
-                                    res.render('error', {
-                                        status: 500
-                                    });
-                                } else {
-                                    _(users).forEach(function(u) {
-                                        u.department = u.department.name;
-                                        if (u.roles && u.roles.length > 1)
-                                            u.roles = u.roles[1].substring(0, 1).toUpperCase();
-                                        else
-                                            u.roles = 'N/v';
-                                    });
-
-                                    var result = _.chain(users)
-                                        .groupBy('department')
-                                        .pairs()
-                                        .map(function(currentItem) {
-                                            return _.object(_.zip(['department', 'users'], currentItem));
-                                        })
-                                        .value();
-                                    res.jsonp(result);
-                                }
-                            });
-                }
-            }
-        });
-};
-
 exports.getUser = function(req, res) {
     User.findOne({
         _id: req.user._id
     }, {
-        'roles': 1,
-        'department': 1
+        roles: 1,
+        department: 1
     }, function(err, curUser) {
         if (err) {
             res.render('error', {
@@ -249,9 +183,14 @@ exports.getUser = function(req, res) {
             if (curUser.roles.indexOf('admin') !== -1) {
                 User
                     .findOne({
-                        'username': req.query.userId
+                        username: req.query.userId
+                    }, {
+                        hashed_password: 0,
+                        salt: 0,
+                        __v: 0,
+                        provider: 0
                     })
-                    .populate('department')
+                    .populate('department', '-parents -__v')
                     .exec(function(err, user) {
                         if (err) {
                             return res.render('error', {
@@ -267,8 +206,8 @@ exports.getUser = function(req, res) {
             } else if (curUser.roles.indexOf('manager') !== -1 || curUser.roles.indexOf('employee') !== -1) {
                 User
                     .findOne({
-                        'username': req.query.userId,
-                        'department': curUser.department
+                        username: req.query.userId,
+                        department: curUser.department
                     })
                     .populate('department')
                     .exec(function(err, user) {
@@ -350,7 +289,7 @@ exports.searchUsers = function(req, res) {
                                 });
                             } else {
                                 _(users).forEach(function(u, uid) {
-                                    if(u.department && u.department.title)
+                                    if (u.department && u.department.title)
                                         u.department = u.department.title;
                                     if (uid === users.length - 1)
                                         return res.jsonp(users);

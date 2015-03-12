@@ -4,7 +4,13 @@
             <div class="page-title">
                 <h2>
                     <span class="fa fa-arrow-circle-o-left"></span>
-                    Departments Manager
+                    Departments
+                </h2>
+            </div>
+            <div class="page-title" style="float:right;cursor:pointer;" data-ng-click="goTo('/users')">
+                <h2>
+                    <span class="fa fa-arrow-circle-o-right"></span>
+                    All users
                 </h2>
             </div>
             <div class="pull-right">
@@ -53,19 +59,21 @@
                 <div data-ng-if="selectedDepartment" cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}">
                     <br />
                     <legend style="text-align:center;">Department "{{selectedDepartment.title}}"</legend>
-                    <div style="float:right;">
-                        <input type="button" class="btn btn-warning btn-sm" value="Edit" data-ng-click="editDepartment(selectedDepartment)" />
-                    </div>
-                    <p style="font-size:20px;font-weight:bolder;">
-                        Head –
-                        <a href="/#!/manager/users/{{selectedDepartment.head.username}}">{{selectedDepartment.head.name}}</a>
-                    </p>
-                    <div data-ng-if="selectedDepartment.additionalInfo && selectedDepartment.additionalInfo.description">
-                        <p> <strong>Description:</strong>
+                    <div style="padding-left:10px;padding-right:10px;">
+                        <div style="float:right;">
+                            <input type="button" class="btn btn-warning btn-sm" value="Edit" data-ng-click="editDepartment(selectedDepartment)" />
+                        </div>
+                        <p style="font-size:20px;font-weight:bolder;">
+                            Head –
+                            <a href="/#!/manager/users/{{selectedDepartment.head.username}}">{{selectedDepartment.head.name}}</a>
                         </p>
-                        <p>{{selectedDepartment.additionalInfo.description}}</p>
+                        <div data-ng-if="selectedDepartment.additionalInfo && selectedDepartment.additionalInfo.description">
+                            <p> <strong>Description:</strong>
+                            </p>
+                            <p>{{selectedDepartment.additionalInfo.description}}</p>
+                        </div>
+                        <div data-ng-include src="'depmanager/views/staff.html'" />
                     </div>
-                    <div data-ng-include src="'depmanager/views/staff.html'" />
                 </div>
                 <div data-ng-if="!selectedDepartment">
                     <br />

@@ -306,9 +306,8 @@ exports.departmentsTree = function(req, res) {
                             .exec(
                                 function(err, departments) {
                                     if (err) {
-                                        res.render('error', {
-                                            status: 500
-                                        });
+                                        console.log(err);
+                                        return res.status(500).send(err);
                                     } else {
                                         if (departments && departments.length > 0)
                                             return res.jsonp({
@@ -328,9 +327,8 @@ exports.departmentsTree = function(req, res) {
                             .exec(
                                 function(err, departments) {
                                     if (err) {
-                                        res.render('error', {
-                                            status: 500
-                                        });
+                                        console.log(err);
+                                        return res.status(500).send(err);
                                     } else {
                                         if (departments && departments.length > 0) {
                                             return res.jsonp({
