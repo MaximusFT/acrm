@@ -143,6 +143,9 @@ exports.allUsersByDeps = function(req, res) {
                         if (u.department) {
                             u.departmentTitle = u.department.title;
                             u.departmentLevel = u.department.level;
+                        } else {
+                            u.departmentTitle = 'None';
+                            u.departmentLevel = 0;
                         }
                         if (u.roles && u.roles.length > 1)
                             u.roles = u.roles[1].substring(0, 1).toUpperCase();
@@ -151,13 +154,25 @@ exports.allUsersByDeps = function(req, res) {
                     });
                     var result = _.chain(users)
                         .groupBy(function(n) {
-                            return new Array(n.departmentLevel).join('- ') + n.departmentTitle /*+ ' (level ' + n.departmentLevel + ')'*/;
+                            return new Array(n.departmentLevel+1).join('- ') + n.departmentTitle /*+ ' (level ' + n.departmentLevel + ')'*/;
                         })
                         .pairs()
                         .map(function(currentItem) {
                             return _.object(_.zip(['department', 'users'], currentItem));
                         })
                         .value();
+                    result = result.sort(function(a, b) {
+                        if(a.department && a.department === 'None' && b.department && b.department !== 'None')
+                            return -1;
+                        if(a.department && a.department !== 'None' && b.department && b.department === 'None')
+                            return 1;
+                        if(a.department && (a.department.split('- ').length - 1) < (b.department.split('- ').length - 1))
+                            return -1;
+                        if(a.department && (a.department.split('- ').length - 1) > (b.department.split('- ').length - 1))
+                            return 1;
+                        if(a.department && (a.department.split('- ').length - 1) === (b.department.split('- ').length - 1))
+                            return 0;
+                    });
                     return res.jsonp(result);
                 }
             });

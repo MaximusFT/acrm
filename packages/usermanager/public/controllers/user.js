@@ -1,19 +1,18 @@
 'use strict';
 
-angular.module('mean.usermanager').controller('UserController', ['$scope', '$window', 'Global', 'Menus', '$rootScope', '$http', '$log', '$stateParams', '$cookies', '$location', 'Users1', 'crypter', 'PrPasswords', 'modalService', 'Requests',
-    function($scope, $window, Global, Menus, $rootScope, $http, $log, $stateParams, $cookies, $location, Users1, crypter, PrPasswords, modalService, Requests) {
+angular.module('mean.usermanager').controller('UserController', ['$scope', '$window', 'Global', 'Menus', '$rootScope', '$http', '$log', '$stateParams', '$cookies', '$location', 'Users', 'crypter', 'PrPasswords', 'modalService', 'Requests',
+    function($scope, $window, Global, Menus, $rootScope, $http, $log, $stateParams, $cookies, $location, Users, crypter, PrPasswords, modalService, Requests) {
         $scope.global = Global;
-        $scope.userId = $stateParams.userId;
         $scope.mode = $cookies.mode;
-        $scope.isPasses = false;
-        $scope.isUser = true;
-        $scope.permsg = 'You have not access for any password account.';
         $scope.isPassShown = [];
         $scope.isPassShown1 = [];
         $scope.status = [true];
         $scope.isGroupOpened = [];
+        $scope.user = {};
+        $scope.pass = {};
+        $scope.prpass = {};
 
-        if ($cookies.mode === 'Not verified')
+        if(!$stateParams.username || $cookies.mode === 'Not verified')
             $location.url('/');
 
         $scope.alerts = [{
@@ -22,17 +21,15 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
         }];
 
         $scope.initUser = function() {
-            $http.get('users/me').success(function(data) {
+            $http.get('users/me').success(function(response) {
                 //$log.info(data);
-                if (data.username === $scope.userId)
+                if (response.username === $stateParams.username)
                     $scope.me = true;
             }).error(function(data, status) {
                 $log.error(data);
             });
         };
 
-        //$http.get('api/getDepartments').success(function (data) {
-        //$log.info(data);
         $scope.userSchema = [{
             title: 'Email',
             schemaKey: 'email',
@@ -69,10 +66,6 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
             type: 'password',
             inTable: false
         }];
-        $scope.user = {};
-        /*}).error(function () {
-                $log.error('error');
-            });*/
 
         $scope.passSchema = [{
             title: 'Resource Title',
@@ -111,7 +104,6 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
             inTable: true,
             popover: 'You can specify a comment if required.'
         }];
-        $scope.prpass = {};
 
         $scope.passSchema1 = [{
                 title: 'Group',
@@ -119,15 +111,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
                 type: 'text',
                 inTable: false,
                 popover: 'Used for subsequent passwords grouping'
-            },
-            /*{
-                            title : 'Appointment',
-                            schemaKey : 'implement',
-                            type : 'text',
-                            inTable : false,
-                            popover : 'Type of the password (social network, messenger, etc.)'
-                            },*/
-            {
+            }, {
                 title: 'Resource Title',
                 schemaKey: 'resourceName',
                 type: 'text',
@@ -165,25 +149,18 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
                 popover: 'You can specify a comment if required.'
             }
         ];
-        $scope.pass = {};
 
         $scope.init = function() {
-            /*Users.query({}, function(users) {
-                $scope.users = users;
-                });*/
             $scope.users = [];
             $scope.getHttp1 = $http.get('api/getUser', {
                 params: {
-                    userId: $stateParams.userId
+                    username: $stateParams.username
                 }
-            }).success(function(data) {
-                $log.info(data);
-                if (data && data.department) {
-                    data.department = data.department.title;
-                    $scope.users = [data];
-                } else
-                    $scope.isUser = false;
-                //$log.info($scope.users);
+            }).success(function(response) {
+                $log.info(response);
+                if (response && response.department)
+                    response.department = response.department.title;
+                $scope.user = response;
             }).error(function(data, status) {
                 if (status === 500)
                     $location.path('manager/users');
@@ -193,18 +170,15 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
         $scope.p_init = function() {
             $scope.groups = [];
             $scope.isPassShown1 = [];
-            if ($scope.global.mode === 'Employee' && $scope.global.user.username !== $scope.userId) {
+            if ($scope.global.mode === 'Employee' && $scope.global.user.username !== $stateParams.username) {
                 $scope.permsg = 'You have not access for this view.';
             } else {
                 $scope.getHttp2 = $http.get('api/getPassesByUser', {
                     params: {
-                        userId: $scope.userId
+                        username: $stateParams.username
                     }
-                }).success(function(data) {
-                    //$log.info(data);
-                    $scope.groups = data;
-                    if (data.length > 0)
-                        $scope.isPasses = true;
+                }).success(function(response) {
+                    $scope.groups = response;
                 }).error(function(data, status) {
                     if (status === 500) {
                         $scope.permsg = 'You have not access for this view.';
@@ -217,7 +191,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
         $scope.pp_init = function() {
             $scope.pr_groups = [];
             $scope.isPassShown = [];
-            if ($scope.global.user.username !== $scope.userId) {
+            if ($scope.global.user.username !== $stateParams.username) {
                 $scope.permsg = 'You have not access for this view.';
             } else {
                 $scope.getHttp2 = $http.get('api/getPrPassesByUser', {
@@ -238,11 +212,9 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
 
         $scope.mails_init = function() {
             $http.post('/api/getAccessibleMailsByName', {
-                user: $scope.userId
+                user: $stateParams.username
             }).success(function(response) {
                 $scope.mailboxes = response;
-                if (response.length === 0)
-                    $scope.mailboxes.empty = true;
             }).error(function(err) {
                 $log.error(err);
             });
@@ -285,25 +257,12 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
         };
 
         $scope.update = function(user, userField) {
-            Users1.update({
+            Users.update({
                 userId: user._id
             }, {
                 key: userField,
                 val: user[userField]
             });
-        };
-
-        $scope.beforeSelect = function(userField, user) {
-            if (userField === 'email')
-                user.tmpEmail = user.email;
-            if (userField === 'name')
-                user.tmpName = user.name;
-            if (userField === 'username')
-                user.tmpUsername = user.username;
-            if (userField === 'department')
-                user.tmpDepartment = user.department;
-            if (userField === 'roles')
-                user.tmpRoles = ['authenticated']; //user.roles;
         };
 
         $scope.getSumLength = function(arr) {
@@ -401,52 +360,5 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
                     $scope.isSent = true;
             });
         };
-        // $scope.logInToMail = function(data) {
-        //     $http.get('/api/getMailConfig').success(function(response) {
-        //         if (response === 'needNewConfig') {
-        //             $scope.mailboxes.configError = true;
-        //             return;
-        //         } else {
-        //             if (response.packageName === 'mailmanager') {
-        //                 var config = response.data;
-        //                 var request = {
-        //                     method: 'POST',
-        //                     url: config.mailHost + (config.isRcInDefFolder ? '/roundcube' : config.RcCustomFolder) + '/?_task=login',
-        //                     transformRequest: function(obj) {
-        //                         var str = [];
-        //                         for (var p in obj)
-        //                             str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
-        //                         return str.join('&');
-        //                     },
-        //                     data: {
-        //                         _task: 'login',
-        //                         _action: 'login',
-        //                         _timezone: '_default_',
-        //                         _url: '',
-        //                         _user: data.mail,
-        //                         _crypt: 'yes',
-        //                         _pass: crypter.hash(data.mail + 'kingston')
-        //                     },
-        //                     withCredentials: true,
-        //                     headers: {
-        //                         'Content-Type': 'application/x-www-form-urlencoded'
-        //                     }
-        //                 };
-
-        //                 $scope.wait = $http(request).success(function(data, status) {
-        //                     if (status === 200)
-        //                         $window.location = config.mailHost + (config.isRcInDefFolder ? '/roundcube' : config.RcCustomFolder) + '/?_task=mail';
-
-        //                 }).error(function(data, status) {
-        //                     $log.info('Error with getting response');
-        //                 });
-        //             } else $log.info('Error in getting config');
-        //         }
-        //     });
-
-
-
-
-        // };
     }
 ]);

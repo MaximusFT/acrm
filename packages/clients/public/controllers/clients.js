@@ -163,6 +163,10 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
             title: 'Date',
             key: 'date',
             type: 'date_period'
+        }, {
+            title: 'Form URI',
+            key: 'formUri',
+            type: 'text'
         }];
 
         $scope.states = [{
@@ -384,6 +388,12 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
                 $log.error(err);
                 $location.url('/error/' + status);
             });
+        };
+
+        $scope.resetFilters = function() {
+            //$log.info($scope.filterOptions);
+            $scope.filterOptions = {};
+            $scope.init(1);
         };
     }
 ]);

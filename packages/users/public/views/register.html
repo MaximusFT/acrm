@@ -1,66 +1,85 @@
-<div data-ng-controller="RegisterCtrl">
-    <div ng-repeat="error in registerError">
-        <div class="alert alert-danger animated fadeIn">{{error.msg}}</div>
+<div class="login-container lightmode" data-ng-controller="RegisterCtrl">
+    <div class="login-box animated fadeInDown">
+        <div class="login-logo"></div>
+        <div class="login-body">
+            <div class="login-title"> <strong>Sign Up</strong>
+            </div>
+            <div ng-repeat="error in registerError">
+                <div class="alert alert-danger animated fadeIn">{{error.msg}}</div>
+            </div>
+            <div class="alert alert-danger animated fadeIn" ng-show="usernameError">{{usernameError}}</div>
+            <div class="alert alert-danger animated fadeIn" ng-show="emailError">{{emailError}}</div>
+            <form class="form-horizontal" method="post" ng-submit="register()">
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <input ng-model="user.name" id="email_block" type="text" class="form-control" placeholder="Your full name" required />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <input ng-model="user.email" id="email_block" type="email" class="form-control" placeholder="Your e-mail" required />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <input ng-model="user.username" id="email_block" type="text" class="form-control" placeholder="Your nick" required />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <input ng-model="user.password" id="password_block" type="password" class="form-control" placeholder="Password" required/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-12">
+                        <input ng-model="user.confirmPassword" id="password_block" type="password" class="form-control" placeholder="Confirm password" required/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-6">
+                        <a ui-sref='forgot-password' class="btn btn-link btn-block">Forgot your password?</a>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="submit" class="btn btn-info btn-block">Sign Up!</button>
+                    </div>
+                </div>
+                <!--<div class="login-or">OR</div>
+                <div class="form-group">
+                <div class="col-md-4">
+                    <button class="btn btn-info btn-block btn-twitter">
+                        <span class="fa fa-twitter"></span>
+                        Twitter
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-info btn-block btn-facebook">
+                        <span class="fa fa-facebook"></span>
+                        Facebook
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-info btn-block btn-google">
+                        <span class="fa fa-google-plus"></span>
+                        Google
+                    </button>
+                </div>
+                </div>
+                -->
+                <div class="login-subtitle">
+                    Already a member?
+                    <a ui-sref='auth.login'>Sign In</a>
+                </div>
+            </form>
+        </div>
+        <div class="login-footer">
+            <div class="pull-left">&copy; 2015 ACRM</div>
+            <div class="pull-right">
+                <a href="#">About</a>
+                |
+                <a href="#">Privacy</a>
+                |
+                <a href="#">Contact Us</a>
+            </div>
+        </div>
     </div>
-    <div class="alert alert-danger animated fadeIn" ng-show="usernameError">{{usernameError}}</div>
-    <div class="alert alert-danger animated fadeIn" ng-show="emailError">{{emailError}}</div>
-    <form id="register_form" ng-submit="register()">
-        <h2>Sign Up</h2>
-
-        <div class="input-wrapper">
-            <input required id="name" type="text" name="name" placeholder="Name Surname"
-                   ng-model="user.name">
-
-            <div class="error_message">Please enter a correct info #</div>
-            <span class="pic user"></span>
-        </div>
-
-        <div class="input-wrapper">
-            <input required id="email_block" type="email" name="email" placeholder="Email Address"
-                   ng-model="user.email">
-
-            <div class="error_message">Please enter a correct info #</div>
-            <span class="pic email"></span>
-        </div>
-
-        <div class="input-wrapper">
-            <input required id="username" type="text" name="username" placeholder="Username"
-                   ng-model="user.username">
-
-            <div class="error_message">Please enter a correct info #</div>
-            <span class="pic username"></span>
-        </div>
-
-        <div class="input-wrapper">
-            <input required id="password_block" name="password" type="{{input.type}}"
-                   placeholder="{{input.placeholder}}" ng-model="user.password">
-
-            <div class="error_message">Please enter a correct info #</div>
-        <span class="pic password {{input.iconClass}}" ng-click="togglePasswordVisible()">
-              <div class="hide_text_password">
-                  {{input.tooltipText}}
-              </div>
-        </span>
-        </div>
-        <div class="input-wrapper">
-            <input required id="confirm_password" name="confirm_password" type="{{input.type}}"
-                   placeholder="{{input.placeholderConfirmPass}}" ng-model="user.confirmPassword">
-
-            <div class="error_message">Please enter a correct info #</div>
-        <span class="pic password {{input.iconClassConfirmPass}}" ng-click="togglePasswordConfirmVisible()">
-              <div class="hide_text_password">
-                  {{input.tooltipTextConfirmPass}}
-              </div>
-        </span>
-        </div>
-
-        <div class="button_register">
-            <button type="submit" class="submit_button">Sign up</button>
-            <p>Already have an account?</p>
-            <a ui-sref='auth.login'>Log in</a>
-        </div>
-        <!--<div class="woman_ninja_bottom">
-            <img src="/theme/assets/img/woman_ninja.png" alt="#">
-        </div>-->
-    </form>
 </div>

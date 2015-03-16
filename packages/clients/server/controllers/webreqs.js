@@ -6,7 +6,7 @@ var mongoose = require('mongoose'),
     WebreqType = mongoose.model('WebreqType'),
     FormProcessingReport = mongoose.model('FormProcessingReport'),
     LogWebRequest = mongoose.model('LogWebRequest');
-//_ = require('lodash');
+    //_ = require('lodash');
 
 exports.web_request_form_add = function(req, res, next) {
     //console.log(req.body);
@@ -355,7 +355,7 @@ exports.applyFilters = function(req, res) {
         return res.status(500).send('Empty query');
     var page = req.body.params.curPage,
         options = req.body.params.options;
-    //console.log('options', options);
+    console.log('options', options);
     var query = {};
     if (options.department)
         query.department = options.department;
@@ -373,22 +373,35 @@ exports.applyFilters = function(req, res) {
         query.phone = {
             '$regex': new RegExp(options.phone, 'i')
         };
-    if (options.state !== 'undefined' && options.state !== -11)
+    if (options.state !== 'undefined' && typeof options.state !== 'undefined' && options.state !== -11) {
+        console.log('state', typeof options.state, options.state);
         query.state = options.state;
+    }
     if (options.date && options.date.start && options.date.end)
         query.created = {
             '$gte': options.date.start,
             '$lt': options.date.end
         };
+    /*
+        uri: {
+            '$regex': new RegExp(options.formUri, 'i')
+        }
+    */
+    console.log('query', query);
     NewWebreq
         .find(query)
         .skip((page - 1) * 20)
         .limit(20)
-        .populate('fromForm', '-actions -comment -formId -name')
+        //.populate('fromForm', '-actions -comment -formId -name')
+        .populate({
+            path: 'fromForm',
+            select: '-actions -comment -formId -name'
+        })
         .populate('type')
         .sort({
             created: -1
         })
+        .lean()
         .exec(function(err, webreqs) {
             if (err) {
                 console.log(err);

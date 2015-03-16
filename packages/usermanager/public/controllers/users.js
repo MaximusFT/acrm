@@ -202,30 +202,28 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
                         users.splice(users.length, 0, $scope.departments[did].users[uid]._id);
                 });
             });
-            $http({
-                    url: '/api/assignRole',
-                    method: 'POST',
-                    data: {
-                        'users': users,
-                        'role': role
-                    }
-                })
-                .then(function(response) {
-                        var r = response.data.substring(0, 1).toUpperCase();
-                        angular.forEach($scope.departments, function(department) {
-                            angular.forEach(department.users, function(user) {
-                                if (user.Selected === true) {
-                                    user.roles = r;
-                                    user.Selected = false;
-                                }
-                            });
-                        });
-                        $scope.isUserSelected = [];
-                        $scope.isSomeSelected = true;
-                    },
-                    function(response) {
-                        $log.error('error');
+            $http.post('/api/assignRole', {
+                params: {
+                    users: users,
+                    role: role
+                }
+            }).success(function(response) {
+                $log.info(response);
+                var r = response.substring(0, 1).toUpperCase();
+                angular.forEach($scope.departments, function(department) {
+                    angular.forEach(department.users, function(user) {
+                        if (user.Selected === true) {
+                            user.roles = r;
+                            user.Selected = false;
+                        }
                     });
+                });
+                $scope.isUserSelected = [];
+                $scope.isSomeSelected = true;
+            }).error(function(err) {
+                $log.error(err, status);
+                $location.url('/errors/' + status);
+            });
         };
 
         $scope.bind2dep = function() {
@@ -276,28 +274,25 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
                         users.splice(users.length, 0, $scope.departments[did].users[uid]._id);
                 });
             });
-            $http({
-                    url: '/api/clearAccesses',
-                    method: 'POST',
-                    data: {
-                        'users': users
-                    }
-                })
-                .then(function(response) {
-                        //$log.info(response);
-                        angular.forEach($scope.departments, function(department) {
-                            angular.forEach(department.users, function(user) {
-                                if (user.Selected === true) {
-                                    user.Selected = false;
-                                }
-                            });
-                        });
-                        $scope.isUserSelected = [];
-                        $scope.isSomeSelected = true;
-                    },
-                    function(response) {
-                        $log.error('error');
+            $http.post('/api/clearAccesses', {
+                params: {
+                    users: users
+                }
+            }).success(function(response) {
+                //$log.info(response);
+                angular.forEach($scope.departments, function(department) {
+                    angular.forEach(department.users, function(user) {
+                        if (user.Selected === true) {
+                            user.Selected = false;
+                        }
                     });
+                });
+                $scope.isUserSelected = [];
+                $scope.isSomeSelected = true;
+            }).error(function(err, status) {
+                $log.error(err);
+                $location.url('/errors/' + status);
+            });
         };
 
         $scope.goTo = function(url) {

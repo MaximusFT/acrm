@@ -550,126 +550,123 @@ exports.revokeAccess = function(req, res) {
         });
 };
 
-exports.getPassesByUser = function (req, res) {
-    var userId = req.query.userId;
-    if (userId === '') {
-        res.status(400).send('Invalid URI');
+exports.getPassesByUser = function(req, res) {
+    var username = req.query.username;
+    if (username === '') {
+        res.status(500).send('Invalid URI');
         return;
     }
     User
-    .findOne({
-        username : userId
-    })
-    .exec(function (err, user) {
-        if (!user) {
-            res.status(500).send('Invalid User');
-            return;
-        }
-        User.findOne({
-            _id : req.user._id
-        }, {
-            '_id' : 0,
-            'roles' : 1,
-            'department' : 1
-        }).exec(
-            function (err, curuser) {
-            if (err) {
-                res.render('error', {
-                    status : 500
-                });
-            } else {
-                var roles = curuser.roles;
-                if (roles.indexOf('admin') !== -1) {
-                    if (JSON.stringify(curuser._id) === JSON.stringify(user._id)) {
-                        Pass
-                        .find()
-                        .sort({
-                            'group' : 1,
-                            'resourceName' : 1,
-                            'email' : 1
-                        })
-                        .exec(function (err, passes) {
-                            var result = groupBy(passes);
-                            res.jsonp(result);
-                        });
-                    } else {
-                        Pass
-                        .find({
-                            accessedFor : user._id
-                        })
-                        .sort({
-                            'group' : 1,
-                            'resourceName' : 1,
-                            'email' : 1
-                        })
-                        .exec(function (err, passes) {
-                            if (err) {
-                                res.render('error', {
-                                    status : 500
-                                });
-                            } else {
-                                var result = groupBy(passes);
-                                res.jsonp(result);
-                            }
-                        });
-                    }
-                }
-                else if (roles.indexOf('manager') !== -1) {
-                    if (JSON.stringify(user.department) === JSON.stringify(curuser.department)) {
-                        Pass
-                        .find({
-                            accessedFor : user._id
-                        })
-                        .sort({
-                            'group' : 1,
-                            'resourceName' : 1,
-                            'email' : 1
-                        })
-                        .exec(function (err, passes) {
-                            if (err) {
-                                //console.log(err);
-                                res.render('error', {
-                                    status : 500
-                                });
-                            } else {
-                                //console.log(passes);
-                                var result = groupBy(passes);
-                                return res.jsonp(result);
-                            }
-                        });
-                    } else {
-                        return res.jsonp([]);
-                    }
-                }
-                else if (roles.indexOf('employee') !== -1) {
-                    if (req.query.userId !== req.user.username) {
-                        //console.log('ne sovpalo');
-                        return res.jsonp([]);
-                    }
-                    Pass
-                    .find({
-                        accessedFor : user._id
-                    })
-                    .sort({
-                        'group' : 1,
-                        'resourceName' : 1,
-                        'email' : 1
-                    })
-                    .exec(function (err, passes) {
-                        if (err) {
-                            res.render('error', {
-                                status : 500
-                            });
-                        } else {
-                            var result = groupBy(passes);
-                            return res.jsonp(result);
-                        }
-                    });
-                }
-                else {
-                    return res.status(403).send('Forbidden');
-                }
+        .findOne({
+            username: username
+        })
+        .exec(function(err, user) {
+            if (!user) {
+                res.status(500).send('Invalid User');
+                return;
             }
+            User.findOne({
+                _id: req.user._id
+            }, {
+                '_id': 0,
+                'roles': 1,
+                'department': 1
+            }).exec(
+                function(err, curuser) {
+                    if (err) {
+                        res.render('error', {
+                            status: 500
+                        });
+                    } else {
+                        var roles = curuser.roles;
+                        if (roles.indexOf('admin') !== -1) {
+                            if (JSON.stringify(curuser._id) === JSON.stringify(user._id)) {
+                                Pass
+                                    .find()
+                                    .sort({
+                                        'group': 1,
+                                        'resourceName': 1,
+                                        'email': 1
+                                    })
+                                    .exec(function(err, passes) {
+                                        var result = groupBy(passes);
+                                        res.jsonp(result);
+                                    });
+                            } else {
+                                Pass
+                                    .find({
+                                        accessedFor: user._id
+                                    })
+                                    .sort({
+                                        'group': 1,
+                                        'resourceName': 1,
+                                        'email': 1
+                                    })
+                                    .exec(function(err, passes) {
+                                        if (err) {
+                                            res.render('error', {
+                                                status: 500
+                                            });
+                                        } else {
+                                            var result = groupBy(passes);
+                                            res.jsonp(result);
+                                        }
+                                    });
+                            }
+                        } else if (roles.indexOf('manager') !== -1) {
+                            if (JSON.stringify(user.department) === JSON.stringify(curuser.department)) {
+                                Pass
+                                    .find({
+                                        accessedFor: user._id
+                                    })
+                                    .sort({
+                                        'group': 1,
+                                        'resourceName': 1,
+                                        'email': 1
+                                    })
+                                    .exec(function(err, passes) {
+                                        if (err) {
+                                            //console.log(err);
+                                            res.render('error', {
+                                                status: 500
+                                            });
+                                        } else {
+                                            //console.log(passes);
+                                            var result = groupBy(passes);
+                                            return res.jsonp(result);
+                                        }
+                                    });
+                            } else {
+                                return res.jsonp([]);
+                            }
+                        } else if (roles.indexOf('employee') !== -1) {
+                            if (req.query.userId !== req.user.username) {
+                                //console.log('ne sovpalo');
+                                return res.jsonp([]);
+                            }
+                            Pass
+                                .find({
+                                    accessedFor: user._id
+                                })
+                                .sort({
+                                    'group': 1,
+                                    'resourceName': 1,
+                                    'email': 1
+                                })
+                                .exec(function(err, passes) {
+                                    if (err) {
+                                        res.render('error', {
+                                            status: 500
+                                        });
+                                    } else {
+                                        var result = groupBy(passes);
+                                        return res.jsonp(result);
+                                    }
+                                });
+                        } else {
+                            return res.status(403).send('Forbidden');
+                        }
+                    }
+                });
         });
-    });
 };

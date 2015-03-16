@@ -250,7 +250,7 @@ function createList(departments) {
                     if (spliceIndex)
                         list.splice(spliceIndex, 0, {
                             _id: department._id,
-                            title: new Array(department.level).join('- ') + department.title
+                            title: new Array(department.level + 1).join('- ') + department.title
                         });
                 });
             });

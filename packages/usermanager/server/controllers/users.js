@@ -183,7 +183,7 @@ exports.getUser = function(req, res) {
             if (curUser.roles.indexOf('admin') !== -1) {
                 User
                     .findOne({
-                        username: req.query.userId
+                        username: req.query.username
                     }, {
                         hashed_password: 0,
                         salt: 0,
@@ -206,7 +206,7 @@ exports.getUser = function(req, res) {
             } else if (curUser.roles.indexOf('manager') !== -1 || curUser.roles.indexOf('employee') !== -1) {
                 User
                     .findOne({
-                        username: req.query.userId,
+                        username: req.query.username,
                         department: curUser.department
                     })
                     .populate('department')
@@ -343,6 +343,7 @@ exports.searchUsers = function(req, res) {
 };
 
 exports.assignRole = function(req, res) {
+    console.log(req.body);
     if (!req.body.params || !req.body.params.users || !req.body.params.role)
         return res.status(500).send('Empty query');
     var users = req.body.params.users,
@@ -350,6 +351,8 @@ exports.assignRole = function(req, res) {
         role = req.body.params.role === 1 ? 'admin' : (req.body.params.role === 2 ? 'manager' : (req.body.params.role === 3 ? 'employee' : ''));
     if (role)
         roles.push(role);
+    else
+        return res.status(500).send('Unknown role');
     User
         .update({
             _id: {
@@ -367,7 +370,7 @@ exports.assignRole = function(req, res) {
                 console.log(err);
                 return res.status(500).send(err);
             } else
-                return res.jsonp(roles);
+                return res.jsonp(role);
         });
 };
 

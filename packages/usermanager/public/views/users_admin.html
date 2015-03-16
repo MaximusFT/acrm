@@ -76,7 +76,7 @@
                         </tr>
                         <tr data-ng-repeat="user in department.users | filter:search:strict">
                             <td>
-                                <a href="#!/manager/users/{{user['username']}}">{{$index+1}}</a>
+                                <a href="#!/users/{{user['username']}}">{{$index+1}}</a>
                             </td>
                             <td>
                                 <input type="checkbox" data-ng-model="user.Selected" data-ng-click="checkUser(sectionIndex, $index, user)"></td>
