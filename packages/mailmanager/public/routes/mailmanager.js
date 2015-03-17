@@ -8,6 +8,9 @@ angular.module('mean.mailmanager').config(['$stateProvider',
         }).state('mail autologin', {
             url: '/mailmanager/:email',
             templateUrl: 'mailmanager/views/emailAutologin.html'
+        }).state('mail', {
+        	url: '/mail/u',
+        	templateUrl: 'mailmanager/views/mail.html'
         });
     }
 ]);

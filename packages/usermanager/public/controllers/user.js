@@ -157,7 +157,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
                     username: $stateParams.username
                 }
             }).success(function(response) {
-                $log.info(response);
+                //$log.info(response);
                 if (response && response.department)
                     response.department = response.department.title;
                 $scope.user = response;
@@ -208,16 +208,6 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
                     }
                 });
             }
-        };
-
-        $scope.mails_init = function() {
-            $http.post('/api/getAccessibleMailsByName', {
-                user: $stateParams.username
-            }).success(function(response) {
-                $scope.mailboxes = response;
-            }).error(function(err) {
-                $log.error(err);
-            });
         };
 
         $scope.pp_add = function() {

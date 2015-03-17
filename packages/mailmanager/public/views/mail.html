@@ -1,0 +1,22 @@
+<section data-ng-controller="MailmanagerController">
+	<div data-ng-init="mails_init()" cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+		<alert type="info" data-ng-if='!domains || !domains.length'>You have not access for any corporate mailbox.</alert>
+		<alert type="danger" data-ng-if='domains.configError'>
+			Error in server configuration. Please contact to our support!
+		</alert>
+		<div data-ng-if="domains && domains.length">
+			<div class="panel panel-default">
+				<div class="panel-heading ui-draggable-handle">
+					<h3 class="panel-title">Your corporate mailboxes:</h3>
+				</div>
+				<div class="panel-body">
+					<div class="list-group border-bottom" data-ng-repeat="domain in domains">
+						<a href="#!/mailmanager/{{mailbox.mail}}" class="list-group-item" data-ng-repeat="mailbox in domain.data" title="Push to autologin in the mailbox account">
+							<h4>{{$index+1}}. {{mailbox.mail}} <i class="glyphicon glyphicon-log-in" style="float:right;"></i></h4>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

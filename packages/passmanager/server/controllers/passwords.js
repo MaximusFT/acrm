@@ -640,7 +640,7 @@ exports.getPassesByUser = function(req, res) {
                                 return res.jsonp([]);
                             }
                         } else if (roles.indexOf('employee') !== -1) {
-                            if (req.query.userId !== req.user.username) {
+                            if (username !== req.user.username) {
                                 //console.log('ne sovpalo');
                                 return res.jsonp([]);
                             }
@@ -649,9 +649,9 @@ exports.getPassesByUser = function(req, res) {
                                     accessedFor: user._id
                                 })
                                 .sort({
-                                    'group': 1,
-                                    'resourceName': 1,
-                                    'email': 1
+                                    group: 1,
+                                    resourceName: 1,
+                                    email: 1
                                 })
                                 .exec(function(err, passes) {
                                     if (err) {

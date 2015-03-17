@@ -3,7 +3,7 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
-var mailBoxSchema = new Schema({
+var MailBoxSchema = new Schema({
     title: String,
     domain: String,
     state: {
@@ -30,9 +30,9 @@ var mailBoxSchema = new Schema({
         ref: 'User'
     }],
 });
-mailBoxSchema.pre('save', function(next) {
+MailBoxSchema.pre('save', function(next) {
     if (!this.mail)
         this.mail = this.title + '@' + this.domain;
     next();
 });
-mongoose.model('mailBox', mailBoxSchema);
+mongoose.model('MailBox', MailBoxSchema);

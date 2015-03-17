@@ -27,6 +27,7 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
             $scope.isSomeSelected = checkSelections();
 
         };
+
         function checkSelections() {
             var ret = false;
             $scope.isMailSelected.forEach(function(group) {
@@ -37,6 +38,7 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
             });
             return !ret;
         }
+
         function unselectAll() {
             angular.forEach($scope.mailboxes, function(group) {
                 angular.forEach(group.data, function(mail) {
@@ -280,5 +282,20 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
                         }
                     });
         };
+
+        $scope.mails_init = function() {
+            $scope.getHttp1 = $http.post('/api/getAccessibleMailsByName', {
+                params: {
+                    user: $scope.global.user.username
+                }
+            }).success(function(response) {
+                $log.info(response);
+                $scope.domains = response;
+            }).error(function(err) {
+                $log.error(err);
+            });
+        };
+
+
     }
 ]);
