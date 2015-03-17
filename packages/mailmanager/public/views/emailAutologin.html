@@ -2,5 +2,5 @@
     <div data-ng-hide="autologinStatus">
         <alert type="danger" class="h3 text-center">{{autologinErrorText}}</alert>
     </div>
-    <img data-ng-show="autologinStatus" style="margin-top: 10%"  src="/mailmanager/assets/img/TeddyBearLoading.gif">
+    <img data-ng-show="autologinStatus" style="margin-top: 10%" data-ng-init="autologin()" src="/mailmanager/assets/img/TeddyBearLoading.gif">
 </div>
