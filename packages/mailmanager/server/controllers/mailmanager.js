@@ -18,7 +18,24 @@ function sortMailBoxes(arr) {
         .value();
     return result;
 }
-
+exports.searchMailboxes = function(req, res) {
+    var val = req.query.value;
+    mailBox.find({}, {})
+        .or([{
+            'mail': {
+                '$regex': new RegExp(val, 'i')
+            }
+        }])
+        .exec(function(err, resault) {
+            if (err) {
+                res.render('error', {
+                    status: 500
+                });
+            } else {
+                return res.jsonp(resault);
+            }
+        });
+};
 exports.getConfig = function(req, res) {
     PackConfig
         .findOne({
@@ -165,7 +182,7 @@ exports.synchronizeMailBoxes = function(req, res) {
             } else
             if (data) {
                 config = data.data;
-                request(config.mailHost + (config.isPfInDefFolder ? '/postfixadmin' : config.PfCustomFolder) + '/get_MailBoxes.php', function(error, response, body) {
+                request(config.mailHost + (config.isPfInDefFolder ? '/postfixadmin' : config.PfCustomFolder) + '/get_mailboxes.php', function(error, response, body) {
                     if (!error && response.statusCode === 200) {
                         var postfix = JSON.parse(body);
                         var onlyMailsFromPostfix = _.map(postfix, 'mail');
@@ -274,6 +291,8 @@ exports.synchronizeMailBoxes = function(req, res) {
                                 }
                             });
                     }
+                    else 
+                        return res.status(500).send('Cant get mailboxes');
                 });
             } else console.log('NO CONFIG TABLE');
         });
@@ -294,6 +313,20 @@ exports.getMailBoxes = function(req, res) {
 exports.getOneMailBox = function(req, res) {
     User
         .findOne({
+exports.getMailboxesNoSort = function(req, res) {
+    mailBox.find({
+        deleted: false
+    }, function(err, response) {
+        if (err) {
+            console.log(err);
+            return res.status(500).send(err);
+        } else {
+            return res.jsonp(response);
+        }
+    });
+};
+exports.getOneMailbox = function(req, res) {
+    User.findOne({
             _id: req.user._id,
         })
         .exec(function(err, user) {

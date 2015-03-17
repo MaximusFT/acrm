@@ -57,7 +57,6 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
                 clear = false;
             else
                 clear = true;
-
             for (var i = 0; i < $scope.mailboxes[sectionIndex].data.length; i += 1) {
                 $scope.mailboxes[sectionIndex].data[i].Selected = clear;
                 $scope.checkMail(sectionIndex, i, $scope.mailboxes[sectionIndex].data[i]);
@@ -251,7 +250,6 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
                 })
                 .then(function(response) {
                         if (response.status === 200 && response.data) {
-                            //$log.info('login');
                             $scope.logInToMail(response.data);
                         } else if (response.status === 204) {
                             $scope.autologinStatus = false;
