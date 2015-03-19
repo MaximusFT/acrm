@@ -328,7 +328,7 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$lo
             if(role === 'A')
                 return 'font-weight:bolder;color:blue;';
             if(role === 'M')
-                return 'font-weight:bolder;color:gray;'
+                return 'font-weight:bolder;color:gray;';
         };
 
     }

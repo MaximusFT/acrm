@@ -79,29 +79,33 @@ exports.getAccessibleMails = function(req, res) {
 };
 exports.getAccessibleMailsByName = function(req, res) {
     User.findOne({
-            username: req.body.user
+            username: req.body.params.user
         })
         .exec(function(err, user) {
             if (err) {
                 return res.status(500).send(err);
-            } else if (user) {
-                mailBox
-                    .find({
-                        accessedFor: user._id,
-                        state: 1,
-                        deleted: false
-                    }, {
-                        mail: 1,
-                        domain: 1,
+            } else {
+                if (user) {
+                    mailBox
+                        .find({
+                            accessedFor: user._id,
+                            state: 1,
+                            deleted: false
+                        }, {
+                            mail: 1,
+                            domain: 1,
 
-                    }, function(err, mails) {
-                        if (err) {
-                            console.log(err);
-                            return res.status(500).send(err);
+                        }, function(err, mails) {
+                            if (err) {
+                                console.log(err);
+                                return res.status(500).send(err);
 
-                        } else return res.jsonp(sortMailboxes(mails));
+                            } else return res.jsonp(sortMailboxes(mails));
 
-                    });
+                        });
+                } else {
+                    return res.status(401).send('Invalid user');
+                }
             }
         });
 };
@@ -177,7 +181,7 @@ exports.synchronizemailboxes = function(req, res) {
             if (data) {
                 config = data.data;
                 request(config.mailHost + (config.isPfInDefFolder ? '/postfixadmin' : config.PfCustomFolder) + '/get_mailboxes.php', function(error, response, body) {
-                     if (!error && response.statusCode === 200) {
+                    if (!error && response.statusCode === 200) {
                         var postfix = JSON.parse(body);
                         var onlyMailsFromPostfix = _.map(postfix, 'mail');
                         mailBox
@@ -284,8 +288,7 @@ exports.synchronizemailboxes = function(req, res) {
                                     }
                                 }
                             });
-                    }
-                    else 
+                    } else
                         return res.status(500).send('Cant get mailboxes');
                 });
             } else console.log('NO CONFIG TABLE');
