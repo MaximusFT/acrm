@@ -23,9 +23,9 @@
             <div class="col-md-3" data-ng-init="init()">
                 <br />
                 <div class="btn-group btn-group-justified">
-                    <a href="" class="btn btn-info col-sm-3" data-ng-click="add(null, null)"> <i class="glyphicon glyphicon-tree-deciduous"></i>
+                    <a href="" class="btn btn-info col-sm-3" data-ng-click="add(null, null)" title="Create element"> <i class="glyphicon glyphicon-tree-deciduous"></i>
                     </a>
-                    <a href="" class="btn btn-info col-sm-3" data-ng-click="switchDrag()"> <i class="glyphicon glyphicon-move" style="{{isDragEnabled ? 'color:black;' : ''}}"></i>
+                    <a href="" class="btn btn-info col-sm-3" data-ng-click="switchDrag()" title="Switch on/off drag&drop"> <i class="glyphicon glyphicon-move" style="{{isDragEnabled ? 'color:black;' : ''}}"></i>
                     </a>
                 </div>
                 <br />
@@ -68,9 +68,8 @@
                             <a href="/#!/manager/users/{{selectedDepartment.head.username}}">{{selectedDepartment.head.name}}</a>
                         </p>
                         <div data-ng-if="selectedDepartment.additionalInfo && selectedDepartment.additionalInfo.description">
-                            <p> <strong>Description:</strong>
-                            </p>
-                            <p>{{selectedDepartment.additionalInfo.description}}</p>
+                            <h4 style="text-decoration:underline;">Description</h4>
+                            <p style="font-style:italic;font-size:larger;padding:5px;">{{selectedDepartment.additionalInfo.description}}</p>
                         </div>
                         <div data-ng-include src="'depmanager/views/staff.html'" />
                     </div>
@@ -95,20 +94,14 @@
                                         <span class="caret"></span>
                                     </a>
                                     <ul class="dropdown-menu" data-ng-hide="isSomeSelected">
-                                        <li data-ng-click="assignRole(1)">
-                                            <a href="">Administrator</a>
-                                        </li>
-                                        <li data-ng-click="assignRole(2)">
-                                            <a href="">Manager</a>
-                                        </li>
-                                        <li data-ng-click="assignRole(3)">
-                                            <a href="">Employee</a>
+                                        <li data-ng-repeat="assRole in assignRoles" data-ng-click="assignRole(assRole.id)">
+                                            <a href="">{{assRole.title}}</a>
                                         </li>
                                     </ul>
                                 </div>
                                 <a class="btn btn-info" data-ng-disabled="isSomeSelected" data-ng-click="bind2dep()">Bind to the department</a>
                                 <a class="btn btn-primary" data-ng-disabled="isSomeSelected" data-ng-click="clearAccesses()">Clear accesses</a>
-                                <a class="btn btn-danger" data-ng-disabled="isSomeSelected" data-ng-click="remove()">Remove</a>
+                                <a class="btn btn-danger" data-ng-disabled="isSomeSelected" data-ng-click="removeUser()">Remove</a>
                             </div>
                         </div>
                     </div>

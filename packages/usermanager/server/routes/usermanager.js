@@ -13,7 +13,7 @@ module.exports = function(Usermanager, app, auth, database) {
     app.get('/api/getUser', auth.requiresLogin, users.getUser);
     app.get('/api/fromDepartment', auth.requiresLogin, users.department);
     app.get('/api/searchUsers', auth.requiresLogin, users.searchUsers);
-    app.post('/api/assignRole', auth.requiresAdmin, users.assignRole);
-    app.post('/api/clearAccesses', auth.requiresAdmin, users.clearAccesses);
-    app.get('/api/getForHead', auth.requiresAdmin, users.getForHead);
+    app.post('/api/assignRole', auth.requiresManager, users.assignRole);
+    app.post('/api/clearAccesses', auth.requiresManager, users.clearAccesses);
+    app.get('/api/getForHead', auth.requiresManager, users.getForHead);
 };

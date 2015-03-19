@@ -38,6 +38,19 @@ angular.module('mean.system').controller('HeaderController', ['$scope', '$rootSc
             };
         });
 
+        $scope.minimizeAside = function() {
+            $log.info('minimizeAside');
+            $scope.minimized = !$scope.minimized;
+        };
+
+        $scope.openMbSignout = function() {
+            angular.element('#mb-signout').addClass('open');
+        };
+
+        $scope.closeMbSignout = function() {
+            angular.element('#mb-signout').removeClass('open');
+        };
+
         $scope.checkFeatures = function() {
             $http.get('/api/isFeatures').success(function(data) {
                 $scope.isFeatures = data.isFeatures;

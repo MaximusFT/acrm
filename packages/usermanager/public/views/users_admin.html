@@ -36,14 +36,8 @@
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu" data-ng-hide="isSomeSelected">
-                        <li data-ng-click="assignRole(1)">
-                            <a href="">Administrator</a>
-                        </li>
-                        <li data-ng-click="assignRole(2)">
-                            <a href="">Manager</a>
-                        </li>
-                        <li data-ng-click="assignRole(3)">
-                            <a href="">Employee</a>
+                        <li data-ng-repeat="assRole in assignRoles" data-ng-click="assignRole(assRole.id)">
+                            <a href="">{{assRole.title}}</a>
                         </li>
                     </ul>
                 </div>
@@ -73,7 +67,7 @@
                             <th data-ng-repeat="field in userSchema" data-ng-if="field.inTable">{{field.title}}</th>
                             <th>Role</th>
                         </tr>
-                        <tr data-ng-repeat="user in department.users | filter:search:strict">
+                        <tr data-ng-repeat="user in department.users | filter:search:strict" style="{{getStyle(user.roles)}}">
                             <td>
                                 <a href="#!/users/{{user['username']}}">{{$index+1}}</a>
                             </td>

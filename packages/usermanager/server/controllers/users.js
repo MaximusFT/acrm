@@ -354,23 +354,41 @@ exports.assignRole = function(req, res) {
     else
         return res.status(500).send('Unknown role');
     User
-        .update({
-            _id: {
-                $in: users
-            }
+        .findOne({
+            _id: req.user._id
         }, {
-            $set: {
-                roles: roles
-            }
-        }, {
-            multi: true
-        })
-        .exec(function(err) {
+            roles: 1
+        }, function(err, user) {
             if (err) {
                 console.log(err);
                 return res.status(500).send(err);
-            } else
-                return res.jsonp(role);
+            } else {
+                if (user) {
+                    if (user.roles.indexOf('manager') !== -1 && role === 'admin')
+                        return res.status(403).send('Access denied');
+                    User
+                        .update({
+                            _id: {
+                                $in: users
+                            }
+                        }, {
+                            $set: {
+                                roles: roles
+                            }
+                        }, {
+                            multi: true
+                        })
+                        .exec(function(err) {
+                            if (err) {
+                                console.log(err);
+                                return res.status(500).send(err);
+                            } else
+                                return res.jsonp(role);
+                        });
+                } else {
+                    return res.status(401).send('Invalid user');
+                }
+            }
         });
 };
 

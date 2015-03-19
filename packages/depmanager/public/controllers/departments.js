@@ -3,7 +3,6 @@
 angular.module('mean.depmanager').controller('DepartmentsController', ['$scope', 'Global', '$rootScope', '$http', '$log', '$location', '$stateParams', '$modal', 'Passwords', 'Users', 'Departments', 'modalService',
     function($scope, Global, $rootScope, $http, $log, $location, $stateParams, $modal, Passwords, Users, Departments, modalService) {
         $scope.global = Global;
-        $scope.isDragEnabled = false;
         $scope.isSomeSelected = true;
         $scope.isUserSelected = [];
         $scope.user = {};
@@ -40,13 +39,31 @@ angular.module('mean.depmanager').controller('DepartmentsController', ['$scope',
             inTable: false
         }];
 
+        $scope.assignRoles = [{
+            id: 2,
+            title: 'Manager'
+        }, {
+            id: 3,
+            title: 'Employee'
+        }];
+
+        $http.get('/api/isAdmin').success(function(response) {
+            if (response.isAdmin === true) {
+                $scope.assignRoles.splice(0, 0, {
+                    id: 1,
+                    title: 'Administrator'
+                });
+            }
+        }).error(function(err, status) {
+            $log.error(err);
+            $location.url('/error/' + status);
+        });
+
         $scope.init = function() {
             $scope.departments = [];
             $scope.getHttp1 = $http.get('/api/departmentsTree').success(function(response) {
-                $log.info(response);
+                //$log.info(response);
                 $scope.departments = response.departments;
-                if (response.drag)
-                    $scope.dragEnabled = response.drag;
                 if ($stateParams.departmentId) {
                     $scope.select($stateParams.departmentId);
                 }
@@ -58,9 +75,11 @@ angular.module('mean.depmanager').controller('DepartmentsController', ['$scope',
 
         $scope.select = function(itemId) {
             $scope.getHttp2 = $http.get('/api/department/' + itemId).success(function(response) {
-                //$log.info(response);
                 $scope.selectedDepartment = response;
-                $location.path('/departments/' + response._id);
+                if (response && response._id)
+                    $location.path('/departments/' + response._id);
+                else
+                    $location.path('/error/' + 404);
             }).error(function(err, status) {
                 $log.error(err);
                 $location.url('/error/' + status);
@@ -78,6 +97,7 @@ angular.module('mean.depmanager').controller('DepartmentsController', ['$scope',
             };
 
             modalService.showModal({}, modalOptions).then(function(result) {
+                //$log.info('result', result);
                 $http.post('/api/addNewDepartmentBranch', {
                     params: {
                         department: result
@@ -92,11 +112,12 @@ angular.module('mean.depmanager').controller('DepartmentsController', ['$scope',
                             items: []
                         });
                     } else
-                        $scope.departments.push({
-                            id: response._id,
-                            title: response.title,
-                            items: []
-                        });
+                    /*$scope.departments.push({
+                        id: response._id,
+                        title: response.title,
+                        items: []
+                    });*/
+                        $scope.init();
                 }).error(function(err, status) {
                     $log.error(err);
                     $location.url('/error/' + status);
@@ -127,6 +148,7 @@ angular.module('mean.depmanager').controller('DepartmentsController', ['$scope',
                 }
             }).success(function(response) {
                 //$log.info(response);
+                window.location.reload();
             }).error(function(err, status) {
                 $log.error(err);
                 $location.url('/error/' + status);
@@ -135,11 +157,11 @@ angular.module('mean.depmanager').controller('DepartmentsController', ['$scope',
 
         $scope.options = {
             accept: function(sourceNode, destNodes, destIndex) {
-                $log.info('accept', sourceNode.prev(), destNodes.prev());
-                return ($scope.dragEnabled && $scope.isDragEnabled);
+                //$log.info('accept', sourceNode.prev(), destNodes.prev());
+                return $scope.isDragEnabled;
             },
             dropped: function(event) {
-                if ($scope.dragEnabled === true && $scope.isDragEnabled === true) {
+                if ($scope.isDragEnabled === true) {
                     var source = event.source.nodeScope.$modelValue;
                     var dest = event.dest.nodesScope.$parent.$modelValue;
                     //$log.info('dropped', source, dest);
@@ -147,11 +169,11 @@ angular.module('mean.depmanager').controller('DepartmentsController', ['$scope',
                 }
             },
             beforeDrop: function(event) {
-                if ($scope.dragEnabled === true && $scope.isDragEnabled === true) {
+                if ($scope.isDragEnabled === true) {
                     var elem = event.source.nodeScope.$modelValue;
                     //var source = event.source.nodesScope.$parent.$modelValue;
-                    //var dest = event.dest.nodesScope.$parent.$modelValue;
-                    if (!window.confirm('Are you sure you want change hierarchy for ' + elem.title + '?')) {
+                    var dest = event.dest.nodesScope.$parent.$modelValue;
+                    if (!window.confirm('Are you sure you want change parent for ' + elem.title + ' to ' + (dest ? dest.title : 'root') + '?')) {
                         event.source.nodeScope.$$apply = false;
                     }
                 }
@@ -178,7 +200,10 @@ angular.module('mean.depmanager').controller('DepartmentsController', ['$scope',
                         department: result
                     }
                 }).success(function(response) {
-                    $log.info('response', response);
+                    //$log.info('response', response);
+                    $scope.select(department._id);
+                    if (response.reloadTree === true)
+                        $scope.init();
                 }).error(function(err, status) {
                     $log.error(err);
                     $location.url('/error/' + status);
@@ -222,7 +247,7 @@ angular.module('mean.depmanager').controller('DepartmentsController', ['$scope',
         $scope.initUsers = function() {
             if ($scope.selectedDepartment) {
                 $scope.getHttp1 = $http.get('/api/department/users/' + $scope.selectedDepartment._id).success(function(response) {
-                    $log.info(response);
+                    //$log.info(response);
                     $scope.directUsers = response.directUsers;
                     $scope.subdeps = response.dependDeps;
                 }).error(function(err, status) {
@@ -358,6 +383,26 @@ angular.module('mean.depmanager').controller('DepartmentsController', ['$scope',
                 $log.error(err);
                 $location.url('/error/' + status);
             });
+        };
+
+        $scope.removeUser = function() {
+            var users = [];
+            angular.forEach($scope.isUserSelected, function(user, uid) {
+                if (user === true)
+                    users.push($scope.directUsers[uid]._id);
+            });
+            if (window.confirm('Are you shure?')) {
+                $http.post('/api/removeUsers', {
+                    params: {
+                        users: users
+                    }
+                }).success(function(response) {
+                    $scope.initUsers();
+                }).error(function(err, status) {
+                    $log.error(err);
+                    $location.url('error/' + status);
+                });
+            }
         };
 
         $scope.goTo = function(url) {

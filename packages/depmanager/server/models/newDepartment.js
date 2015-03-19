@@ -19,9 +19,10 @@ var DepartmentSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User'
     },
-    parents: {
-        type: Array
-    },
+    parents: [{
+        type: Schema.Types.ObjectId,
+        ref: 'NewDepartment'
+    }],
     level: {
         type: Number,
         required: true

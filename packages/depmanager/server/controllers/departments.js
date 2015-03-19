@@ -7,7 +7,8 @@ var mongoose = require('mongoose'),
     User = mongoose.model('User'),
     Department = mongoose.model('Department'),
     NewDepartment = mongoose.model('NewDepartment'),
-    _ = require('lodash');
+    _ = require('lodash'),
+    async = require('async');
 
 /**
  * Create department
@@ -66,7 +67,54 @@ exports.department = function(req, res) {
  * Update a department
  */
 exports.update = function(req, res) {
-    console.log('upd dep', req.params, req.body);
+    if (!req.params.departmentId || !req.body.params || !req.body.params.department)
+        return res.status(500).send('Empty query');
+    var editedDepartment = req.body.params.department;
+    NewDepartment
+        .findOne({
+            _id: mongoose.Types.ObjectId(req.params.departmentId)
+        })
+        .lean()
+        .exec(function(err, department) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                var query = {};
+                if (editedDepartment.title !== department.title)
+                    query.title = editedDepartment.title;
+                if (typeof editedDepartment.head === 'object' && JSON.stringify(editedDepartment.head._id) !== JSON.stringify(department.head))
+                    query.head = editedDepartment.head._id;
+                if (editedDepartment.additionalInfo && (department.additionalInfo && department.additionalInfo.description && editedDepartment.additionalInfo.description !== department.additionalInfo.description || editedDepartment.additionalInfo.description)) {
+                    query.additionalInfo = {};
+                    query.additionalInfo.description = editedDepartment.additionalInfo.description;
+                }
+                NewDepartment
+                    .update({
+                        _id: mongoose.Types.ObjectId(req.params.departmentId)
+                    }, {
+                        $set: query
+                    }, function(err, updated) {
+                        if (err) {
+                            console.log(err);
+                            return res.status(500).send(err);
+                        } else {
+                            if (editedDepartment.parent && JSON.stringify(editedDepartment.parent) !== JSON.stringify(department.parents[department.parents.length - 1])) {
+                                req.body = {
+                                    params: {
+                                        source: department._id,
+                                        dest: editedDepartment.parent
+                                    }
+                                };
+                                exports.changeParent(req, res);
+                            } else {
+                                console.log('updated', updated);
+                                return res.status(200).send();
+                            }
+                        }
+                    });
+            }
+        });
 };
 
 /**
@@ -187,6 +235,9 @@ function searchTree(tree, matchingId, cb) {
 
 function createTree(departments) {
     departments = _.sortBy(departments, 'level');
+    /*console.log(_.map(departments, function(d) {
+        return [d._id, d.title];
+    }));*/
     var tree = [];
     _.forEach(new Array(departments[departments.length - 1].level + 1), function(t, index) {
         var result = _.filter(departments, function(dep) {
@@ -236,7 +287,7 @@ function createList(departments) {
         var result = _.filter(departments, function(dep) {
             return dep.level === index;
         });
-        if (index === 0) {
+        if (index === departments[0].level) {
             _.forEach(result, function(department) {
                 list.push({
                     _id: department._id,
@@ -260,28 +311,173 @@ function createList(departments) {
 }
 
 exports.getNewDeps = function(req, res) {
-    NewDepartment
-        .find()
-        .lean()
-        .exec(function(err, deps) {
+    User
+        .findOne({
+            _id: req.user._id
+        }, {
+            roles: 1,
+            department: 1
+        })
+        .populate('department')
+        .exec(function(err, user) {
             if (err) {
-                return res.json(500, {
-                    error: err
-                });
+                console.log(err);
+                return res.status(500).send(err);
             } else {
-                if (deps && deps.length > 0) {
-                    var result = createList(deps);
-                    result.splice(0, 0, {
-                        _id: '-1',
-                        title: 'None'
-                    });
-                    return res.jsonp(result);
+                if (user) {
+                    if (req.query.d) {
+                        NewDepartment
+                            .find({
+                                parents: mongoose.Types.ObjectId(req.query.d)
+                            }, {
+                                _id: 1
+                            }, function(err, children) {
+                                if (err) {
+                                    console.log(err);
+                                    return res.status(500).send(err);
+                                } else {
+                                    if (user.roles.indexOf('admin') !== -1) {
+                                        NewDepartment
+                                            .find({
+                                                _id: {
+                                                    $nin: _.map(children, '_id').concat(mongoose.Types.ObjectId(req.query.d))
+                                                }
+                                            })
+                                            .lean()
+                                            .exec(function(err, deps) {
+                                                if (err) {
+                                                    console.log(err);
+                                                    return res.status(500).send(err);
+                                                } else {
+                                                    if (deps && deps.length > 0) {
+                                                        var result = createList(deps);
+                                                        result.splice(0, 0, {
+                                                            _id: '-1',
+                                                            title: 'None'
+                                                        });
+                                                        return res.jsonp(result);
+                                                    } else {
+                                                        deps.splice(0, 0, {
+                                                            _id: '-1',
+                                                            title: 'None'
+                                                        });
+                                                        return res.jsonp(deps);
+                                                    }
+                                                }
+                                            });
+                                    } else if (user.roles.indexOf('manager') !== -1) {
+                                        NewDepartment
+                                            .find({
+                                                $or: [{
+                                                    _id: user.department._id
+                                                }, {
+                                                    parents: user.department._id
+                                                }]
+                                            }, {
+                                                _id: 1
+                                            }, function(err, manDeps) {
+                                                if (err) {
+                                                    console.log(err);
+                                                    return res.status(500).send(err);
+                                                } else {
+                                                    NewDepartment
+                                                        .find({
+                                                            $and: [{
+                                                                _id: {
+                                                                    $nin: _.map(children, '_id').concat(mongoose.Types.ObjectId(req.query.d))
+                                                                }
+                                                            }, {
+                                                                _id: {
+                                                                    $in: _.map(manDeps, '_id')
+                                                                }
+                                                            }]
+                                                        })
+                                                        .lean()
+                                                        .exec(function(err, deps) {
+                                                            if (err) {
+                                                                console.log(err);
+                                                                return res.status(500).send(err);
+                                                            } else {
+                                                                if (deps && deps.length > 0) {
+                                                                    var result = createList(deps);
+                                                                    result.splice(0, 0, {
+                                                                        _id: '-1',
+                                                                        title: 'None'
+                                                                    });
+                                                                    return res.jsonp(result);
+                                                                } else {
+                                                                    deps.splice(0, 0, {
+                                                                        _id: '-1',
+                                                                        title: 'None'
+                                                                    });
+                                                                    return res.jsonp(deps);
+                                                                }
+                                                            }
+                                                        });
+                                                }
+                                            });
+                                    }
+                                }
+                            });
+                    } else {
+                        if (user.roles.indexOf('admin') !== -1) {
+                            NewDepartment
+                                .find()
+                                .lean()
+                                .exec(function(err, deps) {
+                                    if (err) {
+                                        console.log(err);
+                                        return res.status(500).send(err);
+                                    } else {
+                                        if (deps && deps.length > 0) {
+                                            var result = createList(deps);
+                                            result.splice(0, 0, {
+                                                _id: '-1',
+                                                title: 'None'
+                                            });
+                                            return res.jsonp(result);
+                                        } else {
+                                            deps.splice(0, 0, {
+                                                _id: '-1',
+                                                title: 'None'
+                                            });
+                                            return res.jsonp(deps);
+                                        }
+                                    }
+                                });
+                        } else if (user.roles.indexOf('manager') !== -1) {
+                            NewDepartment
+                                .find({
+                                    $or: [{
+                                        _id: user.department._id
+                                    }, {
+                                        parents: user.department._id
+                                    }]
+                                }, function(err, deps) {
+                                    if (err) {
+                                        console.log(err);
+                                        return res.status(500).send(err);
+                                    } else {
+                                        if (deps && deps.length > 0) {
+                                            var result = createList(deps);
+                                            result.splice(0, 0, {
+                                                _id: '-1',
+                                                title: 'None'
+                                            });
+                                            return res.jsonp(result);
+                                        } else {
+                                            deps.splice(0, 0, {
+                                                _id: '-1',
+                                                title: 'None'
+                                            });
+                                            return res.jsonp(deps);
+                                        }
+                                    }
+                                });
+                        }
+                    }
                 } else {
-                    deps.splice(0, 0, {
-                        _id: '-1',
-                        title: 'None'
-                    });
-                    return res.jsonp(deps);
+                    return res.status(401).send('Invalid user');
                 }
             }
         });
@@ -311,8 +507,7 @@ exports.departmentsTree = function(req, res) {
                                     } else {
                                         if (departments && departments.length > 0)
                                             return res.jsonp({
-                                                departments: createTree(departments),
-                                                drag: true
+                                                departments: createTree(departments)
                                             });
                                         else
                                             return res.jsonp(departments);
@@ -321,7 +516,7 @@ exports.departmentsTree = function(req, res) {
                     } else if (user.roles.indexOf('manager') !== -1 && user.department) {
                         NewDepartment
                             .find({
-                                parents: mongoose.Types.ObjectId(user.department)
+                                parents: user.department
                             })
                             .sort('title')
                             .exec(
@@ -354,12 +549,14 @@ exports.addNewDepartmentBranch = function(req, res) {
         return res.status(500).send('Empty query');
     User.findOne({
         _id: req.user._id
-    }, function(err, user) {
+    })
+    .populate('department')
+    .exec(function(err, user) {
         if (err) {
             console.log(err);
             return res.status(500).send(err);
         } else {
-            if (user && user.roles && user.roles.indexOf('admin') !== -1) {
+            if (user && user.roles && user.roles.indexOf('admin') !== -1 || user.roles.indexOf('manager') !== -1) {
                 var department = req.body.params.department;
                 //department.level = getLevelByParent(department.parent);
                 if (department.parent !== '-1') {
@@ -378,8 +575,14 @@ exports.addNewDepartmentBranch = function(req, res) {
                             }
                         });
                 } else {
-                    department.level = 0;
-                    saveNewDepartment(res, department);
+                    if (user.roles.indexOf('admin') !== -1) {
+                        department.level = 0;
+                        saveNewDepartment(res, department);
+                    } else if(user.roles.indexOf('manager') !== -1) {
+                        department.level = user.department.level + 1;
+                        department.parents = user.department.parents.concat([user.department._id]);
+                        saveNewDepartment(res, department);
+                    }
                 }
             } else {
                 return res.status(403).send('Access denied');
@@ -391,55 +594,195 @@ exports.addNewDepartmentBranch = function(req, res) {
 exports.changeParent = function(req, res) {
     if (!req.body || !req.body.params || !req.body.params.source)
         return res.status(500).send('Empty query');
-    if (req.body.params.dest) {
-        NewDepartment
-            .findOne({
-                _id: req.body.params.dest
-            }, {
-                'parents': 1,
-                'level': 1
-            }, function(err, parent) {
-                if (err) {
-                    console.log(err);
-                    return res.status(500).send(err);
-                } else {
-                    //console.log('parent', parent);
+    var toRoot = !req.body.params.dest || req.body.params.dest === -1 || req.body.params.dest === '-1';
+    User
+        .findOne({
+            _id: req.user._id
+        }, {
+            roles: 1,
+            department: 1
+        })
+        .populate('department')
+        .exec(function(err, user) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                if (user) {
                     NewDepartment
-                        .update({
+                        .findOne({
                             _id: req.body.params.source
                         }, {
-                            $set: {
-                                parents: parent.parents.concat(parent._id),
-                                level: parent.level + 1
-                            }
-                        }, function(err, updated) {
+                            parents: 1,
+                            level: 1
+                        }, function(err, department) {
                             if (err) {
                                 console.log(err);
                                 return res.status(500).send(err);
                             } else {
-                                //console.log('updated', updated);
-                                return res.status(200).send();
+                                if (department) {
+                                    NewDepartment
+                                        .find({
+                                            parents: department._id
+                                        }, {
+                                            title: 1,
+                                            parents: 1,
+                                            level: 1
+                                        })
+                                        .lean()
+                                        .exec(function(err, children) {
+                                            if (err) {
+                                                console.log(err);
+                                                return res.status(500).send(err);
+                                            } else {
+                                                if (!toRoot) {
+                                                    NewDepartment
+                                                        .findOne({
+                                                            _id: req.body.params.dest
+                                                        }, {
+                                                            parents: 1,
+                                                            level: 1
+                                                        }, function(err, newParent) {
+                                                            if (err) {
+                                                                console.log(err);
+                                                                return res.status(500).send(err);
+                                                            } else {
+                                                                if (newParent) {
+                                                                    if (children) {
+                                                                        var flows = [];
+                                                                        children = _.sortBy(children, 'level');
+                                                                        _.forEach(children, function(child) {
+                                                                            flows.push(function(callback) {
+                                                                                var newParents = newParent.parents.concat([newParent._id]).concat(child.parents.splice(child.parents.indexOf(department._id), child.parents.length - child.parents.indexOf(department._id)));
+                                                                                //callback(null, [child.title, newParents]);
+                                                                                NewDepartment
+                                                                                    .findOne({
+                                                                                        _id: newParents[newParents.length - 1]
+                                                                                    }, {
+                                                                                        level: 1
+                                                                                    }, function(err, lastP) {
+                                                                                        if (err) {
+                                                                                            console.log(err);
+                                                                                            return res.status(500).send(err);
+                                                                                        } else {
+                                                                                            if (lastP) {
+                                                                                                NewDepartment
+                                                                                                    .update({
+                                                                                                        _id: child._id
+                                                                                                    }, {
+                                                                                                        $set: {
+                                                                                                            parents: newParents,
+                                                                                                            level: lastP.level + 1
+                                                                                                        }
+                                                                                                    }, function(err, updated) {
+                                                                                                        if (err) {
+                                                                                                            console.log(err);
+                                                                                                            callback(err);
+                                                                                                        } else {
+                                                                                                            callback(null, [child.title, updated]);
+                                                                                                        }
+                                                                                                    });
+                                                                                            } else {
+                                                                                                callback('Error while finding last child parent');
+                                                                                            }
+                                                                                        }
+                                                                                    });
+                                                                            });
+                                                                        });
+                                                                        async.series(flows, function(err, results) {
+                                                                            if (err) {
+                                                                                console.log(err);
+                                                                                return res.status(500).send('Error while children parents update');
+                                                                            } else {
+                                                                                console.log('results', results);
+                                                                                NewDepartment
+                                                                                    .update({
+                                                                                        _id: department._id
+                                                                                    }, {
+                                                                                        $set: {
+                                                                                            parents: newParent.parents.concat(newParent._id),
+                                                                                            level: newParent.level + 1
+                                                                                        }
+                                                                                    }, function(err, updated) {
+                                                                                        if (err) {
+                                                                                            console.log(err);
+                                                                                            return res.status(500).send(err);
+                                                                                        } else {
+                                                                                            //console.log('updated', updated);
+                                                                                            return res.jsonp({
+                                                                                                reloadTree: true
+                                                                                            });
+                                                                                        }
+                                                                                    });
+                                                                            }
+                                                                        });
+                                                                    } else {
+                                                                        NewDepartment
+                                                                            .update({
+                                                                                _id: department._id
+                                                                            }, {
+                                                                                $set: {
+                                                                                    parents: newParent.parents.concat(newParent._id),
+                                                                                    level: newParent.level + 1
+                                                                                }
+                                                                            }, function(err, updated) {
+                                                                                if (err) {
+                                                                                    console.log(err);
+                                                                                    return res.status(500).send(err);
+                                                                                } else {
+                                                                                    //console.log('updated', updated);
+                                                                                    return res.jsonp({
+                                                                                        reloadTree: true
+                                                                                    });
+                                                                                }
+                                                                            });
+                                                                    }
+                                                                } else {
+                                                                    return res.status(500).send('Invalid new parent');
+                                                                }
+                                                            }
+                                                        });
+                                                } else {
+                                                    var setQuery = {};
+                                                    if (user.roles.indexOf('admin') !== -1) {
+                                                        setQuery.parents = [];
+                                                        setQuery.level = 0;
+                                                    }
+                                                    if (user.roles.indexOf('manager') !== -1 && user.department) {
+                                                        setQuery.parents = user.department.parents.concat([user.department._id]);
+                                                        setQuery.level = user.department.level + 1;
+                                                    }
+                                                    if (JSON.stringify(setQuery) !== '{}') {
+                                                        NewDepartment
+                                                            .update({
+                                                                _id: department._id
+                                                            }, {
+                                                                $set: setQuery
+                                                            }, function(err, updated) {
+                                                                if (err) {
+                                                                    console.log(err);
+                                                                    return res.status(500).send(err);
+                                                                } else {
+                                                                    //console.log('updated', updated);
+                                                                    return res.jsonp({
+                                                                        reloadTree: true
+                                                                    });
+                                                                }
+                                                            });
+                                                    } else {
+                                                        return res.status(500).send('Unknown set query while change parent');
+                                                    }
+                                                }
+                                            }
+                                        });
+                                } else {
+                                    return res.status(500).send('Invalid department');
+                                }
                             }
                         });
-                }
-            });
-    } else {
-        NewDepartment
-            .update({
-                _id: req.body.params.source
-            }, {
-                $set: {
-                    parents: [],
-                    level: 0
-                }
-            }, function(err, updated) {
-                if (err) {
-                    console.log(err);
-                    return res.status(500).send(err);
                 } else {
-                    //console.log('updated', updated);
-                    return res.status(200).send();
+                    return res.status(401).send('Invalid user');
                 }
-            });
-    }
+            }
+        });
 };

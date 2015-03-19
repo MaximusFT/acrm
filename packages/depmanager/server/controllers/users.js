@@ -125,55 +125,145 @@ exports.bindToDep = function(req, res) {
 
 exports.allUsersByDeps = function(req, res) {
     User
-        .find()
-        .populate('department')
-        .sort({
-            department: 1,
-            name: 1,
-            username: 1
-        })
-        .lean()
-        .exec(
-            function(err, users) {
-                if (err) {
-                    console.log(err);
-                    return res.status(500).send(err);
+        .findOne({
+            _id: req.user._id
+        }, {
+            roles: 1,
+            department: 1
+        }, function(err, user) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                if (user && user.roles.indexOf('admin') !== -1) {
+                    User
+                        .find()
+                        .populate('department')
+                        .sort({
+                            department: 1,
+                            name: 1,
+                            username: 1
+                        })
+                        .lean()
+                        .exec(
+                            function(err, users) {
+                                if (err) {
+                                    console.log(err);
+                                    return res.status(500).send(err);
+                                } else {
+                                    _.forEach(users, function(u) {
+                                        if (u.department) {
+                                            u.departmentTitle = u.department.title;
+                                            u.departmentLevel = u.department.level;
+                                        } else {
+                                            u.departmentTitle = 'None';
+                                            u.departmentLevel = 0;
+                                        }
+                                        if (u.roles && u.roles.length > 1)
+                                            u.roles = u.roles[1].substring(0, 1).toUpperCase();
+                                        else
+                                            u.roles = 'N/v';
+                                    });
+                                    var result = _.chain(users)
+                                        .groupBy(function(n) {
+                                            return new Array(n.departmentLevel + 1).join('- ') + n.departmentTitle /*+ ' (level ' + n.departmentLevel + ')'*/ ;
+                                        })
+                                        .pairs()
+                                        .map(function(currentItem) {
+                                            return _.object(_.zip(['department', 'users'], currentItem));
+                                        })
+                                        .value();
+                                    result = result.sort(function(a, b) {
+                                        if (a.department && a.department === 'None' && b.department && b.department !== 'None')
+                                            return -1;
+                                        if (a.department && a.department !== 'None' && b.department && b.department === 'None')
+                                            return 1;
+                                        if (a.department && (a.department.split('- ').length - 1) < (b.department.split('- ').length - 1))
+                                            return -1;
+                                        if (a.department && (a.department.split('- ').length - 1) > (b.department.split('- ').length - 1))
+                                            return 1;
+                                        if (a.department && (a.department.split('- ').length - 1) === (b.department.split('- ').length - 1))
+                                            return 0;
+                                    });
+                                    return res.jsonp(result);
+                                }
+                            });
+                } else if (user.roles.indexOf('manager') !== -1 && user.department) {
+                    NewDepartment
+                        .find({
+                            $or: [{
+                                parents: user.department
+                            }, {
+                                _id: user.department
+                            }]
+                        }, {
+                            _id: 1
+                        }, function(err, deps) {
+                            if (err) {
+                                console.log(err);
+                                return res.status(500).send(err);
+                            } else {
+                                User
+                                    .find({
+                                        department: {
+                                            $in: _.map(deps, '_id')
+                                        }
+                                    })
+                                    .populate('department')
+                                    .sort({
+                                        department: 1,
+                                        name: 1,
+                                        username: 1
+                                    })
+                                    .lean()
+                                    .exec(
+                                        function(err, users) {
+                                            if (err) {
+                                                console.log(err);
+                                                return res.status(500).send(err);
+                                            } else {
+                                                _.forEach(users, function(u) {
+                                                    if (u.department) {
+                                                        u.departmentTitle = u.department.title;
+                                                        u.departmentLevel = u.department.level;
+                                                    } else {
+                                                        u.departmentTitle = 'None';
+                                                        u.departmentLevel = 0;
+                                                    }
+                                                    if (u.roles && u.roles.length > 1)
+                                                        u.roles = u.roles[1].substring(0, 1).toUpperCase();
+                                                    else
+                                                        u.roles = 'N/v';
+                                                });
+                                                var result = _.chain(users)
+                                                    .groupBy(function(n) {
+                                                        return new Array(n.departmentLevel + 1).join('- ') + n.departmentTitle /*+ ' (level ' + n.departmentLevel + ')'*/ ;
+                                                    })
+                                                    .pairs()
+                                                    .map(function(currentItem) {
+                                                        return _.object(_.zip(['department', 'users'], currentItem));
+                                                    })
+                                                    .value();
+                                                result = result.sort(function(a, b) {
+                                                    if (a.department && a.department === 'None' && b.department && b.department !== 'None')
+                                                        return -1;
+                                                    if (a.department && a.department !== 'None' && b.department && b.department === 'None')
+                                                        return 1;
+                                                    if (a.department && (a.department.split('- ').length - 1) < (b.department.split('- ').length - 1))
+                                                        return -1;
+                                                    if (a.department && (a.department.split('- ').length - 1) > (b.department.split('- ').length - 1))
+                                                        return 1;
+                                                    if (a.department && (a.department.split('- ').length - 1) === (b.department.split('- ').length - 1))
+                                                        return 0;
+                                                });
+                                                return res.jsonp(result);
+                                            }
+                                        });
+                            }
+                        });
                 } else {
-                    _.forEach(users, function(u) {
-                        if (u.department) {
-                            u.departmentTitle = u.department.title;
-                            u.departmentLevel = u.department.level;
-                        } else {
-                            u.departmentTitle = 'None';
-                            u.departmentLevel = 0;
-                        }
-                        if (u.roles && u.roles.length > 1)
-                            u.roles = u.roles[1].substring(0, 1).toUpperCase();
-                        else
-                            u.roles = 'N/v';
-                    });
-                    var result = _.chain(users)
-                        .groupBy(function(n) {
-                            return new Array(n.departmentLevel+1).join('- ') + n.departmentTitle /*+ ' (level ' + n.departmentLevel + ')'*/;
-                        })
-                        .pairs()
-                        .map(function(currentItem) {
-                            return _.object(_.zip(['department', 'users'], currentItem));
-                        })
-                        .value();
-                    result = result.sort(function(a, b) {
-                        if(a.department && a.department === 'None' && b.department && b.department !== 'None')
-                            return -1;
-                        if(a.department && a.department !== 'None' && b.department && b.department === 'None')
-                            return 1;
-                        if(a.department && (a.department.split('- ').length - 1) < (b.department.split('- ').length - 1))
-                            return -1;
-                        if(a.department && (a.department.split('- ').length - 1) > (b.department.split('- ').length - 1))
-                            return 1;
-                        if(a.department && (a.department.split('- ').length - 1) === (b.department.split('- ').length - 1))
-                            return 0;
-                    });
-                    return res.jsonp(result);
+                    return res.status(500).send('Error while finding current user department');
                 }
-            });
+            }
+        });
 };

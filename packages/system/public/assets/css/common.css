@@ -14,3 +14,8 @@
         top: initial;
     }
 }
+
+.angular-ui-tree-placeholder {
+  background: #f0f9ff !important;
+  border: 2px dashed #bed2db !important;
+}

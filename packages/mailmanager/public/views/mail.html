@@ -11,7 +11,7 @@
 				</div>
 				<div class="panel-body">
 					<div class="list-group border-bottom" data-ng-repeat="domain in domains">
-						<a href="#!/mailmanager/{{mailbox.mail}}" class="list-group-item" data-ng-repeat="mailbox in domain.data" title="Push to autologin in the mailbox account">
+						<a href="#!/mailmanager/{{mailbox.mail}}" target="_blank" class="list-group-item" data-ng-repeat="mailbox in domain.data" title="Push to autologin in the mailbox account">
 							<h4>{{$index+1}}. {{mailbox.mail}} <i class="glyphicon glyphicon-log-in" style="float:right;"></i></h4>
 						</a>
 					</div>

@@ -1,15 +1,21 @@
 'use strict';
 
-angular.module('mean.usermanager').controller('UsersController', ['$scope', '$cookies', '$location', '$rootScope', '$http', '$log', 'Users', 'modalService', 'Global', 'Menus',
-    function($scope, $cookies, $location, $rootScope, $http, $log, Users, modalService, Global, Menus) {
+angular.module('mean.usermanager').controller('UsersController', ['$scope', '$location', '$rootScope', '$http', '$log', 'Users', 'modalService', 'Global', 'Menus',
+    function($scope, $location, $rootScope, $http, $log, Users, modalService, Global, Menus) {
         $scope.global = Global;
-        $scope.package = {
-            name: 'usermanager'
-        };
-        $scope.mode = $cookies.mode;
         $scope.isSomeSelected = true;
         $scope.isUserSelected = [];
-        $scope.getHttp1 = null;
+        $scope.user = {};
+
+        $http.get('/api/mode').success(function(response) {
+            if (response)
+                $scope.mode = response;
+            else
+                $location.href('/error/' + 403);
+        }).error(function(err, status) {
+            $log.error(err);
+            $location.url('/error/' + status);
+        });
 
         $scope.userSchema = [{
             title: 'Email',
@@ -42,11 +48,30 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
             type: 'password',
             inTable: false
         }];
-        $scope.user = {};
+
+        $scope.assignRoles = [{
+            id: 2,
+            title: 'Manager'
+        }, {
+            id: 3,
+            title: 'Employee'
+        }];
+
+        $http.get('/api/isAdmin').success(function(response) {
+            if (response.isAdmin === true) {
+                $scope.assignRoles.splice(0, 0, {
+                    id: 1,
+                    title: 'Administrator'
+                });
+            }
+        }).error(function(err, status) {
+            $log.error(err);
+            $location.url('/error/' + status);
+        });
 
         $scope.init = function() {
             $scope.getHttp1 = $http.get('api/allUsersByDeps').success(function(response) {
-                $log.info(response);
+                //$log.info(response);
                 $scope.departments = response;
             }).error(function(err, status) {
                 $log.error(err);
@@ -111,9 +136,7 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
             }).success(function(response) {
                 angular.forEach($scope.departments, function(department, did) {
                     angular.forEach(department.users, function(user, uid) {
-                        $log.info(user);
                         if (users.indexOf(user._id) !== -1) {
-                            $log.info('yes');
                             $scope.departments[did].users.splice(uid, 1);
                         }
                     });
@@ -208,7 +231,7 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
                     role: role
                 }
             }).success(function(response) {
-                $log.info(response);
+                //$log.info(response);
                 var r = response.substring(0, 1).toUpperCase();
                 angular.forEach($scope.departments, function(department) {
                     angular.forEach(department.users, function(user) {
@@ -297,6 +320,15 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$co
 
         $scope.goTo = function(url) {
             $location.url(url);
+        };
+
+        $scope.getStyle = function(role) {
+            if(role === 'N/v')
+                return 'color:red;';
+            if(role === 'A')
+                return 'font-weight:bolder;color:blue;';
+            if(role === 'M')
+                return 'font-weight:bolder;color:gray;'
         };
 
     }
