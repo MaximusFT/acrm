@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('mean.system').controller('HeaderController', ['$scope', '$rootScope', '$cookies', '$http', '$log', 'Global', 'Menus',
-    function($scope, $rootScope, $cookies, $http, $log, Global, Menus) {
+angular.module('mean.system').controller('HeaderController', ['$scope', '$rootScope', '$cookies', '$timeout', '$document', '$window', '$http', '$log', 'Global', 'Menus',
+    function($scope, $rootScope, $cookies, $timeout, $document, $window, $http, $log, Global, Menus) {
         $scope.global = Global;
         $scope.menus = {};
 
@@ -70,5 +70,73 @@ angular.module('mean.system').controller('HeaderController', ['$scope', '$rootSc
             });
         };
 
+        function page_content_onresize() {
+            angular.element('.page-content,.content-frame-body,.content-frame-right,.content-frame-left').css('width', '').css('height', '');
+
+            var content_minus = 0;
+            content_minus = (angular.element('.page-container-boxed').length > 0) ? 40 : content_minus;
+            content_minus += (angular.element('.page-navigation-top-fixed').length > 0) ? 50 : 0;
+
+            var content = angular.element('.page-content');
+            var sidebar = angular.element('.page-sidebar');
+
+            if (content.height() < $document.height() - content_minus) {
+                content.height($document.height() - content_minus);
+            }
+
+            if (sidebar.height() > content.height()) {
+                content.height(sidebar.height());
+            }
+
+            if ($window.innerHeight > 1024) {
+                var doc_height;
+                if (angular.element('.page-sidebar').hasClass('scroll')) {
+                    if (angular.element('body').hasClass('page-container-boxed')) {
+                        doc_height = $document.height() - 40;
+                    } else {
+                        doc_height = $window.innerHeight;
+                    }
+                    angular.element('.page-sidebar').height(doc_height);
+
+                }
+
+                if (angular.element('.content-frame-body').height() < $document.height() - 162) {
+                    angular.element('.content-frame-body,.content-frame-right,.content-frame-left').height($document.height() - 162);
+                } else {
+                    angular.element('.content-frame-right,.content-frame-left').height(angular.element('.content-frame-body').height());
+                }
+
+                angular.element('.content-frame-left').show();
+                angular.element('.content-frame-right').show();
+            } else {
+                angular.element('.content-frame-body').height(angular.element('.content-frame').height() - 80);
+
+                if (angular.element('.page-sidebar').hasClass('scroll'))
+                    angular.element('.page-sidebar').css('height', '');
+            }
+
+            if ($window.innerHeight < 1200) {
+                if (angular.element('body').hasClass('page-container-boxed')) {
+                    angular.element('body').removeClass('page-container-boxed').data('boxed', '1');
+                }
+            } else {
+                if (angular.element('body').data('boxed') === '1') {
+                    angular.element('body').addClass('page-container-boxed').data('boxed', '');
+                }
+            }
+        }
+
+        function onresize(timeout) {
+            timeout = timeout ? timeout : 200;
+
+            $timeout(function() {
+                page_content_onresize();
+            }, timeout);
+        }
+
+        $scope.openXControl = function() {
+            angular.element('.x-navigation-control').parents('.x-navigation').toggleClass('x-navigation-open');
+            onresize();
+        };
     }
 ]);

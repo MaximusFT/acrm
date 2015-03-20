@@ -386,8 +386,8 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
         };
 
         $scope.cloneSettings = function(action) {
+            var ac;
             if (action.name === 'Save in ACRM') {
-                var ac;
                 angular.forEach($scope.actions, function(act) {
                     if (act.name === 'Send to Inside')
                         ac = act;
@@ -411,7 +411,6 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
                 }
             }
             if (action.name === 'Send to Inside') {
-                var ac;
                 angular.forEach($scope.actions, function(act) {
                     if (act.name === 'Save in ACRM')
                         ac = act;
