@@ -90,5 +90,9 @@ angular.module('mean.chatmanager').controller('ChatmanagerController', ['$scope'
                 $location.url('/error/' + status);
             });
         };
+
+        $scope.goTo = function(url) {
+            $location.url(url);
+        };
     }
 ]);

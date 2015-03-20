@@ -17,29 +17,47 @@
                 <div class="profile-data-title">{{global.mode}}</div>
             </div>
             <div class="profile-controls">
-                <a href='#!/users/{{global.user.username}}' class="profile-control-left"><span class="fa fa-info"></span> </a>
-                <a href="#!/mail/u" class="profile-control-right"><span class="fa fa-envelope"></span> </a>
+                <a href='#!/users/{{global.user.username}}' class="profile-control-left">
+                    <span class="fa fa-info"></span>
+                </a>
+                <a href="#!/mail/u" class="profile-control-right">
+                    <span class="fa fa-envelope"></span>
+                </a>
             </div>
         </div>
     </li>
-    
-    <li class="xn-openable active">
-        <a href="#"><span class="fa fa-file-text-o"></span> <span class="xn-text">Main Menu</span> </a>
+
+    <li class="xn-openable {{isActive[0] ? 'active' : ''}}" data-ng-click="toogleOpenable(0)">
+        <a href="#">
+            <span class="fa fa-folder"></span>
+            <span class="xn-text">Main Menu</span>
+        </a>
         <ul>
             <li data-ng-repeat="item in menus.main" ui-route="/#!/{{item.link}}" ng-class="{active: $uiRoute}">
-                <a ui-sref='{{item.link}}'><span class="xn-text">{{item.title}}</span> </a>
+                <a ui-sref='{{item.link}}'>
+                    <span>{{item.title}}</span>
+                </a>
             </li>
         </ul>
     </li>
-    
-    <li data-ng-if="isFeatures"><a href="#!/my-features"><span class="xn-text">Features</span> </a> </li>
-    
-    <li data-ng-if="isAdmin" class="xn-openable active" data-ng-include="'/mean-admin/views/index.html'"> </li>
 
-    <!--<li class="xn-title">Navigation</li>-->
-    <li class="active">
-        <a href="/#!/"><span class="fa fa-desktop"></span> <span class="xn-text">Dashboard</span> </a>
+    <li data-ng-if="isFeatures">
+        <a href="#!/my-features">
+            <span class="fa fa-facebook"></span>
+            <span class="xn-text">Features</span>
+        </a>
     </li>
+
+    <li data-ng-if="isAdmin" class="xn-openable {{isActive[1] ? 'active' : ''}}" data-ng-click="toogleOpenable(1)" data-ng-include="'/mean-admin/views/index.html'"></li>
+
+    <!--<li class="xn-title">Navigation</li>
+-->
+<li class="active">
+    <a href="/#!/">
+        <span class="fa fa-desktop"></span>
+        <span class="xn-text">Dashboard</span>
+    </a>
+</li>
 
 </ul>
 <!-- END X-NAVIGATION -->

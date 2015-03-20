@@ -39,8 +39,21 @@ angular.module('mean.system').controller('HeaderController', ['$scope', '$rootSc
         });
 
         $scope.minimizeAside = function() {
-            $log.info('minimizeAside');
             $scope.minimized = !$scope.minimized;
+            if (!$scope.minimized) {
+                //$log.info('close');
+                angular.element('.page-container').removeClass('page-container-wide');
+                angular.element('.page-sidebar .x-navigation').removeClass('x-navigation-minimized');
+                angular.element('.x-navigation-minimize').find('.fa').removeClass('fa-indent').addClass('fa-dedent');
+                //angular.element('.page-sidebar.scroll').mCustomScrollbar('update');
+            } else {
+                //$log.info('open');
+                angular.element('.x-navigation li.active').removeClass('active');
+                angular.element('.page-container').addClass('page-container-wide');
+                angular.element('.page-sidebar .x-navigation').addClass('x-navigation-minimized');
+                angular.element('.x-navigation-minimize').find('.fa').removeClass('fa-dedent').addClass('fa-indent');
+                //angular.element('.page-sidebar.scroll').mCustomScrollbar('disable',true);
+            }
         };
 
         $scope.openMbSignout = function() {

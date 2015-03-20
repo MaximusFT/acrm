@@ -4,6 +4,7 @@ angular.module('mean.system').controller('AsideController', ['$scope', '$rootSco
     function($scope, $rootScope, $cookies, $http, $log, Global, Menus) {
         $scope.global = Global;
         $scope.menus = {};
+        $scope.isActive = [];
 
         if (!$scope.global.mode)
             $scope.global.mode = $cookies.mode;
@@ -25,8 +26,6 @@ angular.module('mean.system').controller('AsideController', ['$scope', '$rootSco
         // Query server for menus and check permissions
         queryMenu('main', defaultMainMenu);
 
-        $scope.isCollapsed = false;
-
         $rootScope.$on('loggedin', function() {
 
             queryMenu('main', defaultMainMenu);
@@ -46,5 +45,9 @@ angular.module('mean.system').controller('AsideController', ['$scope', '$rootSco
             $scope.isAdmin = response.isAdmin;
         });
 
+        $scope.toogleOpenable = function(index) {
+            $scope.isActive[index === 1 ? 0 : 1] = false;
+            $scope.isActive[index] = !$scope.isActive[index];
+        };
     }
 ]);

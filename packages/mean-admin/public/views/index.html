@@ -1,4 +1,9 @@
-<a href="#"><span class="fa fa-file-text-o"></span> <span class="xn-text">Admin Menu</span> </a>
+<a href="#">
+	<span class="fa fa-gears"></span>
+	<span class="xn-text">Admin Menu</span>
+</a>
 <ul data-ng-controller="AdminController">
-    <li data-ng-repeat="item in menus.admin" ui-route="/#!/{{item.link}}" ng-class="{active: $uiRoute}" ui-sref='{{item.link}}'><a href="#">{{item.title}}</a></li>
+	<li data-ng-repeat="item in menus.admin" ui-route="/#!/{{item.link}}" ng-class="{active: $uiRoute}" ui-sref='{{item.link}}'>
+		<a href="#">{{item.title}}</a>
+	</li>
 </ul>

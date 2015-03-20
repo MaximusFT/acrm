@@ -9,6 +9,8 @@ var mongoose = require('mongoose'),
     FeaturesActivation = mongoose.model('FeaturesActivation'),
     OnlineChatUser = mongoose.model('OnlineChatUser'),
     ChatOption = mongoose.model('ChatOption'),
+    Message = mongoose.model('Message'),
+    Channel = mongoose.model('Channel'),
     _ = require('lodash');
 
 exports.getChatStats = function(req, res) {
@@ -300,4 +302,117 @@ exports.getGuestMode = function(req, res) {
             }
         }
     });
+};
+
+exports.getChatUsers = function(req, res) {
+    Feature
+        .findOne({
+            name: 'chatFeature'
+        }, function(err, feature) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                if (feature) {
+                    FeaturesActivation
+                        .find({
+                            activated: {
+                                $elemMatch: {
+                                    feature: mongoose.Types.ObjectId(feature._id)
+                                }
+                            }
+                        })
+                        .populate('user')
+                        .populate('client')
+                        .lean()
+                        .exec(function(err, featuresactivations) {
+                            if (err) {
+                                console.log(err);
+                                return res.status(500).send(err);
+                            } else {
+                                if (featuresactivations) {
+                                    //logger.debug('SEARCH RESULTS: ', featuresactivations.length);
+                                    var analysts = [];
+                                    var admins = [];
+                                    _.forEach(featuresactivations, function(fa) {
+                                        var result = _.filter(fa.activated, function(f) {
+                                            return JSON.stringify(f.feature) === JSON.stringify(feature._id);
+                                        });
+                                        if (result && result.length > 0) {
+                                            if (fa.user && result[0].options && result[0].options.role === 'analyst_chat') {
+                                                analysts.push(fa.user);
+                                            }
+                                            if (fa.user && result[0].options && result[0].options.role === 'admin_chat') {
+                                                admins.push(fa.user);
+                                            }
+                                        }
+                                    });
+                                    var clients = [];
+                                    _.forEach(featuresactivations, function(fa) {
+                                        var result = _.filter(fa.activated, function(faa) {
+                                            return JSON.stringify(faa.feature) === JSON.stringify(feature._id) && !!fa.client && !fa.user;
+                                        });
+                                        if (result && result.length > 0) {
+                                            fa.client.analyst = result[0].options.analyst;
+                                            if (result[0].options && result[0].options.role && result[0].options.role !== 'guest')
+                                                clients.push(fa.client);
+                                        }
+                                    });
+                                    return res.jsonp({
+                                        analysts: analysts,
+                                        clients: clients,
+                                        admins: admins
+                                    });
+                                } else {
+                                    //logger.debug('EMPTY RESULTS WERE SENT FOR ' + myRole + ' USER');
+                                    return res.jsonp({});
+                                }
+                            }
+                        });
+                } else {
+                    return res.status(500).send('Chat feature was not found');
+                }
+            }
+        });
+};
+
+exports.getHistory = function(req, res) {
+    if (!req.body.params || !req.body.params.first || !req.body.params.second)
+        return res.status(500).send('Empty request');
+    var between = [req.body.params.first, req.body.params.second];
+    if (between[1] < between[0])
+        between.reverse();
+    Channel.findOne({
+            between: {
+                $all: between
+            }
+        }, {
+            _id: 1
+        })
+        .exec(function(err, channel) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                if (channel === null) {
+                    return res.jsonp([]);
+                } else {
+                    Message
+                        .find({
+                            channel: channel._id
+                        })
+                        .sort('time')
+                        .populate('user', 'name username')
+                        .populate('client', 'name username')
+                        .exec(function(err, messages) {
+                            if (err) {
+                                console.log(err);
+                                return res.status(500).send(err);
+                            } else {
+                                return res.jsonp(messages);
+                            }
+                        });
+                }
+            }
+        });
 };

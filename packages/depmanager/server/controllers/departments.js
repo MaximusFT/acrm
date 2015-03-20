@@ -445,7 +445,7 @@ exports.getNewDeps = function(req, res) {
                                         }
                                     }
                                 });
-                        } else if (user.roles.indexOf('manager') !== -1) {
+                        } else if (user.roles.indexOf('manager') !== -1 && user.department) {
                             NewDepartment
                                 .find({
                                     $or: [{
@@ -474,6 +474,8 @@ exports.getNewDeps = function(req, res) {
                                         }
                                     }
                                 });
+                        } else {
+                            return res.status(403).send('Not binded to department');
                         }
                     }
                 } else {

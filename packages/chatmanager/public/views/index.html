@@ -1,6 +1,19 @@
-<div class="" data-ng-controller="ChatmanagerController">
+<div class="content-frame" data-ng-controller="ChatmanagerController">
+    <div class="content-frame-top">
+        <div class="page-title">
+            <h2>
+                <span class="fa fa-smile-o"></span>
+                FinChat Manager
+            </h2>
+        </div>
+        <div class="pull-right">
+            <h2 data-ng-click="goTo('/manager/chat/history')" style="cursor:pointer;">
+                <span class="fa fa-comments"></span>
+                Private history
+            </h2>
+        </div>
+    </div>
     <div class="statContainer">
-        <h1 style="text-align:center;font-family:'segoe ui light', arial;color:#b30000;">FinChat Manager</h1>
         <span data-ng-repeat="option in options" data-ng-if="isAccess">
             <a class="nounderline" data-ng-click="selectMenuItem($index)">
                 <div class="statBubbleContainer">
