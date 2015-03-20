@@ -7,8 +7,8 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
         $scope.isVisibleRemoveButton = [];
         $scope.isError = [];
         $scope.saveEnabled = false;
-        $scope.appointments = ['name', 'email', 'phone'];
-        $scope.appointments2 = ['name', 'email', 'phone', 'city'];
+        $scope.appointments = ['name', 'surname', 'email', 'phone'];
+        $scope.appointments2 = ['name', 'surname', 'email', 'phone', 'city'];
         $scope.appointments3 = ['name', 'phone'];
         $scope.checkboxes = [];
         $scope.actions = [{
@@ -383,6 +383,57 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
             if (!$scope.isPassShown)
                 $scope.isPassShown = [];
             $scope.isPassShown[index] = !$scope.isPassShown[index];
+        };
+
+        $scope.cloneSettings = function(action) {
+            if (action.name === 'Save in ACRM') {
+                var ac;
+                angular.forEach($scope.actions, function(act) {
+                    if (act.name === 'Send to Inside')
+                        ac = act;
+                });
+                if (ac) {
+                    ac.isEnabled = action.isEnabled;
+                    if (action.isCheckboxes) {
+                        ac.isCheckboxes = action.isCheckboxes;
+                        ac.config.checkboxes = action.config.checkboxes;
+                    }
+                    if (action.config.name)
+                        ac.config.name = action.config.name;
+                    if (action.config.surname)
+                        ac.config.surname = action.config.surname;
+                    if (action.config.email)
+                        ac.config.email = action.config.email;
+                    if (action.config.phone)
+                        ac.config.phone = action.config.phone;
+                    if (action.config.comment)
+                        ac.config.comment = action.config.comment;
+                }
+            }
+            if (action.name === 'Send to Inside') {
+                var ac;
+                angular.forEach($scope.actions, function(act) {
+                    if (act.name === 'Save in ACRM')
+                        ac = act;
+                });
+                if (ac) {
+                    ac.isEnabled = action.isEnabled;
+                    if (action.isCheckboxes) {
+                        ac.isCheckboxes = action.isCheckboxes;
+                        ac.config.checkboxes = action.config.checkboxes;
+                    }
+                    if (action.config.name)
+                        ac.config.name = action.config.name;
+                    if (action.config.surname)
+                        ac.config.surname = action.config.surname;
+                    if (action.config.email)
+                        ac.config.email = action.config.email;
+                    if (action.config.phone)
+                        ac.config.phone = action.config.phone;
+                    if (action.config.comment)
+                        ac.config.comment = action.config.comment;
+                }
+            }
         };
     }
 ]);

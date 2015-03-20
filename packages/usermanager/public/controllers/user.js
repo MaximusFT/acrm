@@ -12,7 +12,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
         $scope.pass = {};
         $scope.prpass = {};
 
-        if(!$stateParams.username || $cookies.mode === 'Not verified')
+        if (!$stateParams.username || $cookies.mode === 'Not verified')
             $location.url('/');
 
         $scope.alerts = [{
@@ -106,49 +106,48 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
         }];
 
         $scope.passSchema1 = [{
-                title: 'Group',
-                schemaKey: 'group',
-                type: 'text',
-                inTable: false,
-                popover: 'Used for subsequent passwords grouping'
-            }, {
-                title: 'Resource Title',
-                schemaKey: 'resourceName',
-                type: 'text',
-                inTable: true,
-                popover: 'For example, \'Inside\''
-            }, {
-                title: 'Resource URL',
-                schemaKey: 'resourceUrl',
-                type: 'text',
-                inTable: true,
-                popover: 'Access link: http://...'
-            }, {
-                title: 'Email',
-                schemaKey: 'email',
-                type: 'text',
-                inTable: true,
-                popover: 'Email for accessing if necessary'
-            }, {
-                title: 'Login',
-                schemaKey: 'login',
-                type: 'text',
-                inTable: true,
-                popover: 'Username for accessing'
-            }, {
-                title: 'Password',
-                schemaKey: 'hashed_password',
-                type: 'password',
-                inTable: true,
-                popover: 'Service password'
-            }, {
-                title: 'Comment',
-                schemaKey: 'comment',
-                type: 'text',
-                inTable: true,
-                popover: 'You can specify a comment if required.'
-            }
-        ];
+            title: 'Group',
+            schemaKey: 'group',
+            type: 'text',
+            inTable: false,
+            popover: 'Used for subsequent passwords grouping'
+        }, {
+            title: 'Resource Title',
+            schemaKey: 'resourceName',
+            type: 'text',
+            inTable: true,
+            popover: 'For example, \'Inside\''
+        }, {
+            title: 'Resource URL',
+            schemaKey: 'resourceUrl',
+            type: 'text',
+            inTable: true,
+            popover: 'Access link: http://...'
+        }, {
+            title: 'Email',
+            schemaKey: 'email',
+            type: 'text',
+            inTable: true,
+            popover: 'Email for accessing if necessary'
+        }, {
+            title: 'Login',
+            schemaKey: 'login',
+            type: 'text',
+            inTable: true,
+            popover: 'Username for accessing'
+        }, {
+            title: 'Password',
+            schemaKey: 'hashed_password',
+            type: 'password',
+            inTable: true,
+            popover: 'Service password'
+        }, {
+            title: 'Comment',
+            schemaKey: 'comment',
+            type: 'text',
+            inTable: true,
+            popover: 'You can specify a comment if required.'
+        }];
 
         $scope.init = function() {
             $scope.users = [];
@@ -348,6 +347,18 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
             request.$save(function(response) {
                 if (response)
                     $scope.isSent = true;
+            });
+        };
+
+        $scope.mails_init = function() {
+            $http.post('/api/getAccessibleMailsByName', {
+                params: {
+                    user: $stateParams.username
+                }
+            }).success(function(response) {
+                $scope.mailboxes = response;
+            }).error(function(err) {
+                $log.error(err);
             });
         };
     }

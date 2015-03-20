@@ -49,6 +49,13 @@ function saveRequestInAcrm(actions, data, analyticsData, formId, callback) {
     });
     if (tmpN.length > 0)
         requestData.name = tmpN[0].value;
+    if (options.surname) {
+        var tmpSN = _.filter(data, function(d) {
+            return d.htmlId === options.surname;
+        });
+        if (tmpSN.length > 0)
+            requestData.surname = tmpSN[0].value;
+    }
     var tmpP = _.filter(data, function(d) {
         return d.htmlId === options.phone;
     });
@@ -147,6 +154,13 @@ function sendToInside(actions, data, analyticsData, callback) {
     });
     if (tmpN.length > 0)
         postData.name = tmpN[0].value;
+    if (options.surname) {
+        var tmpSN = _.filter(data, function(d) {
+            return d.htmlId === options.surname;
+        });
+        if (tmpSN.length > 0)
+            postData.name = tmpSN[0].value;
+    }
     var tmpP = _.filter(data, function(d) {
         return d.htmlId === options.phone;
     });

@@ -7,6 +7,9 @@ var NewWebreqSchema = new Schema({
 	name: {
 		type: String
 	},
+	surname: {
+		type: String
+	},
 	email: {
 		type: String
 	},

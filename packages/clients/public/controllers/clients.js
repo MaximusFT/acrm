@@ -58,6 +58,10 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
             schemaKey: 'name',
             type: 'text'
         }, {
+            title: 'Surname',
+            schemaKey: 'surname',
+            type: 'text'
+        }, {
             title: 'Email',
             schemaKey: 'email',
             type: 'text'
