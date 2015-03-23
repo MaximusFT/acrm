@@ -94,17 +94,17 @@
                                             <a href="#!/manager/passwords/{{pass['_id']}}">{{$index+1}}</a>
                                         </td>
                                         <td>
-                                            <input type="checkbox" data-ng-model="pass.Selected" data-ng-click="checkPass(sectionIndex, implementIndex, $index, pass)"></td>
+                                            <input type="checkbox" data-ng-model="pass.Selected" data-ng-click="checkPass()"></td>
                                         <td class="table-editable-cell" data-ng-repeat="field in passSchema" data-ng-if="field.inTable">
                                             <span data-ng-if="(field['type'] == 'text' && field['type'] !== 'password')" class="editable-span" data-ng-editable="update(pass, field['schemaKey'])" data-ng-editable-model="pass[field['schemaKey']]"></span>
                                             <div class="input-group input-group-sm" data-ng-if="field['type'] === 'password'">
-                                                <input type="password" class="form-control" data-ng-if="!isPassShown[sectionIndex][implementIndex][pid]" value="********" readonly />
-                                                <input type="text" class="form-control" data-ng-if="isPassShown[sectionIndex][implementIndex][pid]" value="{{pass[field['schemaKey']]}}" readonly />
+                                                <input type="password" class="form-control" data-ng-if="!pass.Shown" value="********" readonly />
+                                                <input type="text" class="form-control" data-ng-if="pass.Shown" value="{{pass[field['schemaKey']]}}" readonly />
                                                 <span class="input-group-addon" clip-copy="getPass(pass[field['schemaKey']])">
                                                     <i class="glyphicon glyphicon-export"></i>
                                                 </span>
-                                                <span style="cursor:pointer" class="input-group-addon" data-ng-click="showPass(sectionIndex,implementIndex,pid)">
-                                                    <i data-ng-class="isPassShown[sectionIndex][implementIndex][pid] === true ? 'glyphicon glyphicon-eye-open' : 'glyphicon glyphicon-eye-close'"></i>
+                                                <span style="cursor:pointer" class="input-group-addon" data-ng-click="showPass(pass)">
+                                                    <i data-ng-class="pass.Shown === true ? 'glyphicon glyphicon-eye-open' : 'glyphicon glyphicon-eye-close'"></i>
                                                 </span>
                                             </div>
                                         </td>

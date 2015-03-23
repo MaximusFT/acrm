@@ -4,10 +4,9 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$lo
     function($scope, $location, $rootScope, $http, $log, Users, modalService, Global, Menus) {
         $scope.global = Global;
         $scope.isSomeSelected = true;
-        $scope.isUserSelected = [];
         $scope.user = {};
 
-        $http.get('/api/mode').success(function(response) {
+        $http.post('/api/mode').success(function(response) {
             if (response)
                 $scope.mode = response;
             else
@@ -57,7 +56,7 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$lo
             title: 'Employee'
         }];
 
-        $http.get('/api/isAdmin').success(function(response) {
+        $http.post('/api/isAdmin').success(function(response) {
             if (response.isAdmin === true) {
                 $scope.assignRoles.splice(0, 0, {
                     id: 1,
@@ -68,6 +67,17 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$lo
             $log.error(err);
             $location.url('/error/' + status);
         });
+
+        function getSelectedUsers() {
+            var users = [];
+            angular.forEach($scope.departments, function(department) {
+                angular.forEach(department.users, function(user) {
+                    if (user.Selected === true)
+                        users.push(user._id);
+                });
+            });
+            return users;
+        }
 
         $scope.init = function() {
             $scope.getHttp1 = $http.get('api/allUsersByDeps').success(function(response) {
@@ -121,14 +131,7 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$lo
         };
 
         $scope.remove = function() {
-            var users = [];
-            angular.forEach($scope.isUserSelected, function(department, did) {
-                angular.forEach(department, function(user, uid) {
-                    if (user === true) {
-                        users.push($scope.departments[did].users[uid]._id);
-                    }
-                });
-            });
+            var users = getSelectedUsers();
             $http.post('/api/removeUsers', {
                 params: {
                     users: users
@@ -146,7 +149,6 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$lo
                         delete user.Selected;
                     });
                 });
-                $scope.isUserSelected = [];
             }).error(function(err, status) {
                 $log.error(err);
                 $location.url('/error/' + status);
@@ -175,56 +177,53 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$lo
                 user.tmpRoles = ['authenticated']; //user.roles;
         };
 
-        $scope.selectAll = function(sectionIndex) {
-            if (!$scope.isUserSelected[sectionIndex]) {
-                $scope.isUserSelected[sectionIndex] = [];
-            }
-            var ret = false;
-            // checking is already the selection in section
-            angular.forEach($scope.isUserSelected, function(department) {
-                angular.forEach(department, function(user) {
-                    if (user === true)
-                        ret = true;
+        $scope.onTypeSearch = function() {
+            angular.forEach($scope.departments, function(department) {
+                angular.forEach(department.users, function(user) {
+                    if (user.Selected === true)
+                        user.Selected = false;
                 });
-            });
-            // if selection exists - remove it, doesn't exist – select all
-            angular.forEach($scope.departments[sectionIndex].users, function(user, uid) {
-                $scope.isUserSelected[sectionIndex][uid] = !ret;
-                user.Selected = !ret;
             });
             $scope.isSomeSelected = checkSelections();
         };
 
+        $scope.selectAll = function(sectionIndex, isSearch) {
+            if (!isSearch) {
+                var ret = false;
+                // checking is already the selection in section
+                angular.forEach($scope.departments, function(department) {
+                    angular.forEach(department.users, function(user) {
+                        if (user.Selected === true)
+                            ret = true;
+                    });
+                });
+                // if selection exists - remove it, doesn't exist – select all
+                angular.forEach($scope.departments[sectionIndex].users, function(user, uid) {
+                    user.Selected = !ret;
+                });
+                $scope.isSomeSelected = checkSelections();
+            } else {
+                alert('You cannot select all when search filter is on');
+            }
+        };
+
         function checkSelections() {
             var ret = false;
-            angular.forEach($scope.isUserSelected, function(department) {
-                angular.forEach(department, function(user) {
-                    if (user === true)
+            angular.forEach($scope.departments, function(department) {
+                angular.forEach(department.users, function(user) {
+                    if (user.Selected === true)
                         ret = true;
                 });
             });
             return !ret;
         }
 
-        $scope.checkUser = function(sectionIndex, index, user) {
-            if (!$scope.isUserSelected[sectionIndex])
-                $scope.isUserSelected[sectionIndex] = [];
-            if (user.Selected === false)
-                $scope.isUserSelected[sectionIndex][index] = false;
-            if (user.Selected === true)
-                $scope.isUserSelected[sectionIndex][index] = true;
+        $scope.checkUser = function() {
             $scope.isSomeSelected = checkSelections();
         };
 
         $scope.assignRole = function(role) {
-            $scope.ttt = false;
-            var users = [];
-            angular.forEach($scope.isUserSelected, function(department, did) {
-                angular.forEach(department, function(user, uid) {
-                    if (user === true)
-                        users.splice(users.length, 0, $scope.departments[did].users[uid]._id);
-                });
-            });
+            var users = getSelectedUsers();
             $http.post('/api/assignRole', {
                 params: {
                     users: users,
@@ -241,8 +240,7 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$lo
                         }
                     });
                 });
-                $scope.isUserSelected = [];
-                $scope.isSomeSelected = true;
+                $scope.isSomeSelected = checkSelections();
             }).error(function(err) {
                 $log.error(err, status);
                 $location.url('/errors/' + status);
@@ -260,13 +258,7 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$lo
 
             modalService.showModal({}, modalOptions).then(function(result) {
                 //$log.info('from modal', result);
-                var users = [];
-                angular.forEach($scope.isUserSelected, function(department, did) {
-                    angular.forEach(department, function(user, uid) {
-                        if (user === true)
-                            users.splice(users.length, 0, $scope.departments[did].users[uid]._id);
-                    });
-                });
+                var users = getSelectedUsers();
                 $http.post('/api/bindToDep', {
                     params: {
                         users: users,
@@ -280,8 +272,7 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$lo
                         });
                     });
                     $scope.init();
-                    $scope.isUserSelected = [];
-                    $scope.isSomeSelected = true;
+                    $scope.isSomeSelected = checkSelections();
                 }).error(function(err, status) {
                     $log.error(err);
                     $location.url('/error/' + status);
@@ -290,13 +281,7 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$lo
         };
 
         $scope.clearAccesses = function() {
-            var users = [];
-            angular.forEach($scope.isUserSelected, function(department, did) {
-                angular.forEach(department, function(user, uid) {
-                    if (user === true)
-                        users.splice(users.length, 0, $scope.departments[did].users[uid]._id);
-                });
-            });
+            var users = getSelectedUsers();
             $http.post('/api/clearAccesses', {
                 params: {
                     users: users
@@ -310,8 +295,7 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$lo
                         }
                     });
                 });
-                $scope.isUserSelected = [];
-                $scope.isSomeSelected = true;
+                $scope.isSomeSelected = checkSelections();
             }).error(function(err, status) {
                 $log.error(err);
                 $location.url('/errors/' + status);
@@ -323,11 +307,11 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$lo
         };
 
         $scope.getStyle = function(role) {
-            if(role === 'N/v')
+            if (role === 'N/v')
                 return 'color:red;';
-            if(role === 'A')
+            if (role === 'A')
                 return 'font-weight:bolder;color:blue;';
-            if(role === 'M')
+            if (role === 'M')
                 return 'font-weight:bolder;color:gray;';
         };
 

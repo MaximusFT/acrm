@@ -23,7 +23,8 @@
                 "bower_components/zeroclipboard/dist/ZeroClipboard.min.js",
                 "bower_components/angular-ui-tree/dist/angular-ui-tree.js",
                 "bower_components/angular-ui-select/dist/select.min.js",
-                "bower_components/ng-tags-input/ng-tags-input.min.js"
+                "bower_components/ng-tags-input/ng-tags-input.min.js",
+                "bower_components/angular-audio/app/angular.audio.js"
             ]
         }
     }

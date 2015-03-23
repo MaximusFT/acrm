@@ -27,7 +27,7 @@
         <div class="panel-heading">Control panel</div>
         <div class="panel-body">
             <div class="form-group">
-                <input class="form-control" type="text" placeholder="Search" ng-model="search"></div>
+                <input class="form-control" type="text" placeholder="Search" data-ng-model="search" data-ng-change="onTypeSearch()"></div>
             <hr>
             <div class="btn-group-vertical btn-block" role="group">
                 <div class="btn-group dropup" role="group">
@@ -69,10 +69,10 @@
                         </tr>
                         <tr data-ng-repeat="user in department.users | filter:search:strict" style="{{getStyle(user.roles)}}">
                             <td>
-                                <a href="#!/manager/users/{{user['username']}}">{{$index+1}}</a>
+                                <a href="#!/users/{{user['username']}}">{{$index+1}}</a>
                             </td>
                             <td>
-                                <input type="checkbox" data-ng-model="user.Selected" data-ng-click="checkUser(sectionIndex, $index, user)"></td>
+                                <input type="checkbox" data-ng-model="user.Selected" data-ng-click="checkUser()"></td>
                             <td class="table-editable-cell" data-ng-repeat="field in userSchema" data-ng-if="field.inTable">
                                 <span data-ng-click="beforeSelect(field['schemaKey'], user)" data-ng-if="(field['type'] == 'text') && field['schemaKey'] !== 'email' && field['schemaKey'] !== 'username'" class="editable-span" data-ng-editable="update(user, field['schemaKey'])" data-ng-editable-model="user[field['schemaKey']]"></span>
                                 <span data-ng-click="beforeSelect(field['schemaKey'], user)" data-ng-if="(field['type'] == 'select' && field['schemaKey'] === 'roles')" class="editable-span" data-ng-editable-select="update(user, field['schemaKey'])" data-ng-editable-select-model="user[field['schemaKey']]" data-ng-editable-select-options="field['options']"></span>

@@ -47,7 +47,7 @@ angular.module('mean.depmanager').controller('DepartmentsController', ['$scope',
             title: 'Employee'
         }];
 
-        $http.get('/api/isAdmin').success(function(response) {
+        $http.post('/api/isAdmin').success(function(response) {
             if (response.isAdmin === true) {
                 $scope.assignRoles.splice(0, 0, {
                     id: 1,

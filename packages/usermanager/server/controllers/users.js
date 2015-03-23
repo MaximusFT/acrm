@@ -176,9 +176,8 @@ exports.getUser = function(req, res) {
         department: 1
     }, function(err, curUser) {
         if (err) {
-            res.render('error', {
-                status: 500
-            });
+            console.log(err);
+            res.status(500).send(err);
         } else {
             if (curUser.roles.indexOf('admin') !== -1) {
                 User
@@ -204,19 +203,40 @@ exports.getUser = function(req, res) {
                         }
                     });
             } else if (curUser.roles.indexOf('manager') !== -1 || curUser.roles.indexOf('employee') !== -1) {
-                User
-                    .findOne({
-                        username: req.query.username,
-                        department: curUser.department
-                    })
-                    .populate('department')
-                    .exec(function(err, user) {
+                NewDepartment
+                    .find({
+                        $or: [{
+                            parents: curUser.department
+                        }, {
+                            _id: curUser.department
+                        }]
+                    }, function(err, deps) {
                         if (err) {
-                            return res.render('error', {
-                                status: 500
-                            });
+                            console.log(err);
+                            return res.status(500).send(err);
                         } else {
-                            return res.jsonp(user);
+                            if (deps) {
+                                //console.log(_.map(deps, '_id'));
+                                User
+                                    .findOne({
+                                        username: req.query.username,
+                                        department: {
+                                            $in: _.map(deps, '_id')
+                                        }
+                                    })
+                                    .populate('department')
+                                    .exec(function(err, user) {
+                                        if (err) {
+                                            console.log(err);
+                                            return res.status(500).send(err);
+                                        } else {
+                                            //console.log(user);
+                                            return res.jsonp(user);
+                                        }
+                                    });
+                            } else {
+                                return res.jsonp([]);
+                            }
                         }
                     });
             } else {
@@ -343,7 +363,7 @@ exports.searchUsers = function(req, res) {
 };
 
 exports.assignRole = function(req, res) {
-    console.log(req.body);
+    //console.log(req.body);
     if (!req.body.params || !req.body.params.users || !req.body.params.role)
         return res.status(500).send('Empty query');
     var users = req.body.params.users,
@@ -378,12 +398,14 @@ exports.assignRole = function(req, res) {
                         }, {
                             multi: true
                         })
-                        .exec(function(err) {
+                        .exec(function(err, updated) {
                             if (err) {
                                 console.log(err);
                                 return res.status(500).send(err);
-                            } else
+                            } else {
+                                console.log('updated', updated);
                                 return res.jsonp(role);
+                            }
                         });
                 } else {
                     return res.status(401).send('Invalid user');

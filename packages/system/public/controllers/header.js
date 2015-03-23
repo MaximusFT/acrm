@@ -1,9 +1,10 @@
 'use strict';
 
-angular.module('mean.system').controller('HeaderController', ['$scope', '$rootScope', '$cookies', '$timeout', '$document', '$window', '$http', '$log', 'Global', 'Menus',
-    function($scope, $rootScope, $cookies, $timeout, $document, $window, $http, $log, Global, Menus) {
+angular.module('mean.system').controller('HeaderController', ['$scope', '$rootScope', '$cookies', '$timeout', '$document', '$window', '$http', '$log', 'Global', 'Menus',  'ngAudio',
+    function($scope, $rootScope, $cookies, $timeout, $document, $window, $http, $log, Global, Menus, ngAudio) {
         $scope.global = Global;
         $scope.menus = {};
+        $scope.alert = ngAudio.load('//mapqo.com/atlant/audio/alert.mp3');
 
         if (!$scope.global.mode)
             $scope.global.mode = $cookies.mode;
@@ -58,6 +59,7 @@ angular.module('mean.system').controller('HeaderController', ['$scope', '$rootSc
 
         $scope.openMbSignout = function() {
             angular.element('#mb-signout').addClass('open');
+            $scope.alert.play();
         };
 
         $scope.closeMbSignout = function() {

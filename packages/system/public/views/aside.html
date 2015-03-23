@@ -9,12 +9,17 @@
             <img src="//mapqo.com/addon/img/avatar.jpg" alt="{{global.user.name}}" />
         </a>
         <div class="profile">
-            <div class="profile-image">
+            <div class="profile-image" data-ng-mouseover="showAvContr()" data-ng-mouseleave="hideAvContr()">
                 <img src="//mapqo.com/addon/img/avatar.jpg" alt="{{global.user.name}}" />
             </div>
+            <!--<div id="owner_photo_bubble_wrap" data-ng-mouseover="showAvContr()" data-ng-mouseleave="hideAvContr()">
+                <div class="owner_photo_bubble_action owner_photo_bubble_action_update">
+                    <span class="owner_photo_bubble_action_in">Change</span>
+                </div>
+            </div>-->
             <div class="profile-data">
                 <div class="profile-data-name">{{global.user.name}}</div>
-                <div class="profile-data-title">{{global.mode}}</div>
+                <div class="profile-data-title">{{role}}</div>
             </div>
             <div class="profile-controls">
                 <a href='#!/users/{{global.user.username}}' class="profile-control-left">
@@ -26,7 +31,6 @@
             </div>
         </div>
     </li>
-
     <li class="xn-openable {{isActive[0] ? 'active' : ''}}" data-ng-click="toogleOpenable(0)">
         <a href="#">
             <span class="fa fa-folder"></span>
@@ -40,16 +44,13 @@
             </li>
         </ul>
     </li>
-
     <li data-ng-if="isFeatures">
         <a href="#!/my-features">
             <span class="fa fa-facebook"></span>
             <span class="xn-text">Features</span>
         </a>
     </li>
-
     <li data-ng-if="isAdmin" class="xn-openable {{isActive[1] ? 'active' : ''}}" data-ng-click="toogleOpenable(1)" data-ng-include="'/mean-admin/views/index.html'"></li>
-
     <!--<li class="xn-title">Navigation</li>
 -->
 <li class="active">
@@ -58,6 +59,5 @@
         <span class="xn-text">Dashboard</span>
     </a>
 </li>
-
 </ul>
 <!-- END X-NAVIGATION -->

@@ -6,7 +6,7 @@
 var mongoose = require('mongoose'),
     Pass = mongoose.model('Pass'),
     User = mongoose.model('User'),
-    //Department = mongoose.model('Department'),
+    NewDepartment = mongoose.model('NewDepartment'),
     _ = require('lodash');
 
 /**
@@ -450,9 +450,12 @@ exports.getPass = function(req, res) {
 };
 
 exports.provideAccess = function(req, res) {
-    var users = req.body.users;
-    var deps = req.body.deps;
-    var passes = req.body.passes;
+    if (!req.body.params || !req.body.params.passes || (!req.body.params.users && !req.body.params.deps))
+        return res.status(500).send('Empty request');
+    console.log(req.body);
+    var users = req.body.params.users,
+        deps = req.body.params.deps,
+        passes = req.body.params.passes;
     if (users) {
         Pass
             .update({
@@ -461,7 +464,7 @@ exports.provideAccess = function(req, res) {
                 }
             }, {
                 $addToSet: {
-                    'accessedFor': {
+                    accessedFor: {
                         $each: users
                     }
                 }
@@ -470,16 +473,14 @@ exports.provideAccess = function(req, res) {
             })
             .exec(function(err) {
                 if (err) {
-                    return res.json(500, {
-                        error: err
-                    });
+                    console.log(err);
+                    return res.status(500).send();
                 } else {
-                    return res.jsonp('ok');
+                    return res.status(200).send();
                 }
             });
     }
     if (deps) {
-        deps = _.map(deps, '_id');
         User
             .find({
                 department: {
@@ -487,46 +488,43 @@ exports.provideAccess = function(req, res) {
                 }
             }, {
                 _id: 1
-            })
-            .exec(function(err, users) {
+            }, function(err, users) {
                 if (err) {
                     console.log(err);
-                    res.render('error', {
-                        status: 500
-                    });
-                }
-                var uids = _.map(users, '_id');
-                Pass
-                    .update({
-                        _id: {
-                            $in: passes
-                        }
-                    }, {
-                        $addToSet: {
-                            'accessedFor': {
-                                $each: uids
+                    res.status(500).send(err);
+                } else {
+                    var uids = _.map(users, '_id');
+                    Pass
+                        .update({
+                            _id: {
+                                $in: passes
                             }
-                        }
-                    }, {
-                        multi: true
-                    })
-                    .exec(function(err) {
-                        if (err) {
-                            console.log(err);
-                            return res.json(500, {
-                                error: err
-                            });
-                        } else {
-                            return res.jsonp('ok');
-                        }
-                    });
+                        }, {
+                            $addToSet: {
+                                accessedFor: {
+                                    $each: uids
+                                }
+                            }
+                        }, {
+                            multi: true
+                        }, function(err) {
+                            if (err) {
+                                console.log(err);
+                                return res.status(500).send(err);
+                            } else {
+                                return res.status(200).send();
+                            }
+                        });
+                }
             });
     }
 };
 
 exports.revokeAccess = function(req, res) {
-    var users = req.body.users;
-    var passes = req.body.passes;
+    if (!req.body.params || !req.body.params.passes || !req.body.params.users)
+        return res.status(500).send('Empty request');
+    var users = req.body.params.users,
+        passes = req.body.params.passes;
     Pass
         .update({
             _id: {
@@ -534,18 +532,17 @@ exports.revokeAccess = function(req, res) {
             }
         }, {
             $pullAll: {
-                'accessedFor': users
+                accessedFor: users
             }
         }, {
             multi: true
         })
         .exec(function(err) {
             if (err) {
-                return res.json(500, {
-                    error: err
-                });
+                console.log(err);
+                return res.status(500).send(err);
             } else {
-                return res.jsonp('ok');
+                return res.status(200).send();
             }
         });
 };
@@ -614,31 +611,50 @@ exports.getPassesByUser = function(req, res) {
                                     });
                             }
                         } else if (roles.indexOf('manager') !== -1) {
-                            if (JSON.stringify(user.department) === JSON.stringify(curuser.department)) {
-                                Pass
-                                    .find({
-                                        accessedFor: user._id
-                                    })
-                                    .sort({
-                                        'group': 1,
-                                        'resourceName': 1,
-                                        'email': 1
-                                    })
-                                    .exec(function(err, passes) {
-                                        if (err) {
-                                            //console.log(err);
-                                            res.render('error', {
-                                                status: 500
-                                            });
+                            NewDepartment
+                                .find({
+                                    $or: [{
+                                        _id: curuser.department
+                                    }, {
+                                        parents: curuser.department
+                                    }]
+                                }, {
+                                    _id: 1
+                                }, function(err, deps) {
+                                    if (err) {
+                                        console.log(err);
+                                        return res.status(500).send(err);
+                                    } else {
+                                        var ret = false;
+                                        _.forEach(deps, function(dep) {
+                                            if(JSON.stringify(dep._id) === JSON.stringify(user.department))
+                                                ret = true;
+                                        });
+                                        if (ret === true) {
+                                            Pass
+                                                .find({
+                                                    accessedFor: user._id
+                                                })
+                                                .sort({
+                                                    'group': 1,
+                                                    'resourceName': 1,
+                                                    'email': 1
+                                                })
+                                                .exec(function(err, passes) {
+                                                    if (err) {
+                                                        console.log(err);
+                                                        res.status(500).send(err);
+                                                    } else {
+                                                        //console.log(passes);
+                                                        var result = groupBy(passes);
+                                                        return res.jsonp(result);
+                                                    }
+                                                });
                                         } else {
-                                            //console.log(passes);
-                                            var result = groupBy(passes);
-                                            return res.jsonp(result);
+                                            return res.jsonp([]);
                                         }
-                                    });
-                            } else {
-                                return res.jsonp([]);
-                            }
+                                    }
+                                });
                         } else if (roles.indexOf('employee') !== -1) {
                             if (username !== req.user.username) {
                                 //console.log('ne sovpalo');

@@ -51,7 +51,7 @@
                                     <button class="glyphicon glyphicon-trash" data-ng-click="remove(user)" value="del"><i class="icon-trash icon-white"></i></button>
                                 </td>
                                 <td>
-                                    <a href="#!/manager/users/{{user['username']}}">#</a>
+                                    <a href="#!/users/{{user['username']}}">#</a>
                                 </td>
                                 <td class="table-editable-cell" data-ng-repeat="field in userSchema" data-ng-if="field.inTable">
                                     <span>{{user[field['schemaKey']]}}</span>

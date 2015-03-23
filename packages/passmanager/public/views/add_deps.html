@@ -1,8 +1,8 @@
 <div>
 	<form id="modalForm" name="addDepsForm" data-ng-submit="verifyAndSendForm(!!temp.selectedDepartments.length, temp.selectedDepartments)">
 		<ui-select multiple data-ng-init="initDeps()" data-ng-model="temp.selectedDepartments" required>
-			<ui-select-match placeholder="Select departments...">{{$item.name}}</ui-select-match>
-			<ui-select-choices repeat="department._id as department in departments | filter:$select.search">{{department.name}}</ui-select-choices>
+			<ui-select-match placeholder="Select departments...">{{$item.title}}</ui-select-match>
+			<ui-select-choices repeat="department._id as department in departments | filter:$select.search">{{department.title}}</ui-select-choices>
 		</ui-select>
 		<span class="error" data-ng-show="addDepsForm.$submitted && (!selectedDepartments || selectedDepartments.length === 0)">Required</span>
 	</form>

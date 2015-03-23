@@ -1,13 +1,24 @@
 'use strict';
 
-angular.module('mean.passmanager').controller('PassController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$cookies', '$stateParams', '$location', 'Passwords', 'Users',
-    function($scope, Global, Menus, $rootScope, $http, $log, $cookies, $stateParams, $location, Passwords, Users) {
+angular.module('mean.passmanager').controller('PassController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$log', '$stateParams', '$location', 'Passwords', 'Users',
+    function($scope, Global, Menus, $rootScope, $http, $log, $stateParams, $location, Passwords, Users) {
         $scope.global = Global;
         $scope.passId = $stateParams.passId;
-        $scope.mode = $cookies.mode;
 
-        if ($scope.mode !== 'Administrator')
-            $location.path('/');
+        $http.post('/api/isAdmin').success(function(response) {
+            if (response.isAdmin !== true)
+                $location.url('/error/' + 403);
+        }).error(function(err, status) {
+            $location.url('/error/' + status);
+        });
+
+        $http.post('/api/mode').success(function(response) {
+            $scope.mode = response;
+        }).error(function(err, status) {
+            $log.error(err);
+            $location.url('/error/' + status);
+        });
+
         $scope.isPasses = false;
 
         Users.query({}, function(users) {

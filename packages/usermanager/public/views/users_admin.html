@@ -27,7 +27,7 @@
         <div class="panel-heading">Control panel</div>
         <div class="panel-body">
             <div class="form-group">
-                <input class="form-control" type="text" placeholder="Search" ng-model="search"></div>
+                <input class="form-control" type="text" placeholder="Search" data-ng-model="search" data-ng-change="onTypeSearch()"></div>
             <hr>
             <div class="btn-group-vertical btn-block" role="group">
                 <div class="btn-group dropup" role="group">
@@ -62,7 +62,7 @@
                         <tr>
                             <th> <i class="glyphicon glyphicon-sort-by-order"></i>
                             </th>
-                            <th> <i class="glyphicon glyphicon-ok" data-ng-click="selectAll(sectionIndex)"></i>
+                            <th> <i class="glyphicon glyphicon-ok" data-ng-click="selectAll(sectionIndex, !!search)"></i>
                             </th>
                             <th data-ng-repeat="field in userSchema" data-ng-if="field.inTable">{{field.title}}</th>
                             <th>Role</th>
@@ -72,7 +72,7 @@
                                 <a href="#!/users/{{user['username']}}">{{$index+1}}</a>
                             </td>
                             <td>
-                                <input type="checkbox" data-ng-model="user.Selected" data-ng-click="checkUser(sectionIndex, $index, user)"></td>
+                                <input type="checkbox" data-ng-model="user.Selected" data-ng-click="checkUser()"></td>
                             <td class="table-editable-cell" data-ng-repeat="field in userSchema" data-ng-if="field.inTable">
                                 <span data-ng-click="beforeSelect(field['schemaKey'], user)" class="editable-span" data-ng-editable="update(user, field['schemaKey'])" data-ng-editable-model="user[field['schemaKey']]"></span>
                             </td>

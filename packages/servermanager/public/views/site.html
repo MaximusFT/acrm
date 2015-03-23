@@ -1,347 +1,359 @@
 <section data-ng-controller="SiteController">
-	<div data-ng-init="init()" cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}">
-		<h1>Site Overview - {{site.title}}</h1>
-		<br />
-		<div class="breadcrumb flat" data-ng-if="crumbs && crumbs.length">
-			<a data-ng-repeat="crumb in crumbs" href="#!/{{crumb.href}}" class="{{crumb.active ? 'active' : ''}}">{{crumb.title}}</a>
+	<div class="content-frame">
+		<div class="content-frame-top">
+			<div class="page-title">
+				<h2>
+					<span class="fa fa-arrow-circle-o-left"></span>
+					Site Overview
+				</h2>
+			</div>
 		</div>
-		<hr />
-		<table class="table table-striped table-bordered table-hover editable-table">
-			<tr>
-				<th>Title</th>
-				<th>URI</th>
-				<th>Go</th>
-				<th>IP</th>
-				<th>Comment</th>
-			</tr>
-			<tr>
-				<td class="table-editable-cell">
-					<span class="editable-span" data-ng-editable="updateSite(site, 'title')" data-ng-editable-model="site.title"></span>
-				</td>
-				<td class="table-editable-cell">
-					<span class="editable-span" data-ng-editable="updateSite(site, 'uri')" data-ng-editable-model="site.uri"></span>
-				</td>
-				<td>
-					<a href="{{site.uri}}" target="_blank">link</a>
-				</td>
-				<td class="table-editable-cell">
-					<span class="editable-span" data-ng-editable="updateSite(site, 'ip')" data-ng-editable-model="site.ip"></span>
-				</td>
-				<td class="table-editable-cell">
-					<span class="editable-span" data-ng-editable="updateSite(site, 'comment')" data-ng-editable-model="site.comment"></span>
-				</td>
-			</tr>
-		</table>
 		<div>
-			<legend>Referenced passwords</legend>
-			<alert type="info" data-ng-if="!referencedPasswords.length">No referenced passwords</alert>
-			<br />
-			<div data-ng-if="referencedPasswords.length">
+			<div data-ng-init="init()" cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}">
+				<div style="text-align:center;font-size:x-large;font-weight:bold;font-family:serif;text-decoration: underline;">~ {{site.title}} ~</div>
+				<br />
+				<div class="breadcrumb flat" data-ng-if="crumbs && crumbs.length">
+					<a data-ng-repeat="crumb in crumbs" href="#!/{{crumb.href}}" class="{{crumb.active ? 'active' : ''}}">{{crumb.title}}</a>
+				</div>
+				<hr />
 				<table class="table table-striped table-bordered table-hover editable-table">
 					<tr>
-						<th> <i class="glyphicon glyphicon-sort-by-order-alt"></i>
-						</th>
-						<th>Resource</th>
+						<th>Title</th>
 						<th>URI</th>
-						<th>Email</th>
-						<th>Login</th>
-						<th>Password</th>
+						<th>Go</th>
+						<th>IP</th>
+						<th>Comment</th>
 					</tr>
-					<tr data-ng-repeat="pass in referencedPasswords">
-						<td>
-							<a href="/#!/manager/passwords/{{pass._id}}">{{$index+1}}.</a>
+					<tr>
+						<td class="table-editable-cell">
+							<span class="editable-span" data-ng-editable="updateSite(site, 'title')" data-ng-editable-model="site.title"></span>
+						</td>
+						<td class="table-editable-cell">
+							<span class="editable-span" data-ng-editable="updateSite(site, 'uri')" data-ng-editable-model="site.uri"></span>
 						</td>
 						<td>
-							<span>{{pass.resourceName}}</span>
+							<a href="{{site.uri}}" target="_blank">link</a>
 						</td>
-						<td>
-							<span>{{pass.resourceUrl}}</span>
+						<td class="table-editable-cell">
+							<span class="editable-span" data-ng-editable="updateSite(site, 'ip')" data-ng-editable-model="site.ip"></span>
 						</td>
-						<td>
-							<span>{{pass.email}}</span>
-						</td>
-						<td>
-							<span>{{pass.login}}</span>
-						</td>
-						<td>
-							<div class="input-group input-group-sm">
-								<input type="password" class="form-control" data-ng-if="!isPassShown[$index]" value="********" readonly />
-								<input type="text" class="form-control" data-ng-if="isPassShown[$index]" value="{{pass.hashed_password}}" readonly />
-								<span class="input-group-addon" clip-copy="getPass(pass.hashed_password)"> <i class="glyphicon glyphicon-export"></i>
-								</span>
-								<span style="cursor:pointer" class="input-group-addon" data-ng-click="showPass($index)">
-									<i data-ng-class="isPassShown[$index] === true ? 'glyphicon glyphicon-eye-open' : 'glyphicon glyphicon-eye-close'"></i>
-								</span>
-							</div>
+						<td class="table-editable-cell">
+							<span class="editable-span" data-ng-editable="updateSite(site, 'comment')" data-ng-editable-model="site.comment"></span>
 						</td>
 					</tr>
 				</table>
+				<div>
+					<legend>Referenced passwords</legend>
+					<alert type="info" data-ng-if="!referencedPasswords.length">No referenced passwords</alert>
+					<br />
+					<div data-ng-if="referencedPasswords.length">
+						<table class="table table-striped table-bordered table-hover editable-table">
+							<tr>
+								<th> <i class="glyphicon glyphicon-sort-by-order-alt"></i>
+								</th>
+								<th>Resource</th>
+								<th>URI</th>
+								<th>Email</th>
+								<th>Login</th>
+								<th>Password</th>
+							</tr>
+							<tr data-ng-repeat="pass in referencedPasswords">
+								<td>
+									<a href="/#!/manager/passwords/{{pass._id}}">{{$index+1}}.</a>
+								</td>
+								<td>
+									<span>{{pass.resourceName}}</span>
+								</td>
+								<td>
+									<span>{{pass.resourceUrl}}</span>
+								</td>
+								<td>
+									<span>{{pass.email}}</span>
+								</td>
+								<td>
+									<span>{{pass.login}}</span>
+								</td>
+								<td>
+									<div class="input-group input-group-sm">
+										<input type="password" class="form-control" data-ng-if="!isPassShown[$index]" value="********" readonly />
+										<input type="text" class="form-control" data-ng-if="isPassShown[$index]" value="{{pass.hashed_password}}" readonly />
+										<span class="input-group-addon" clip-copy="getPass(pass.hashed_password)"> <i class="glyphicon glyphicon-export"></i>
+										</span>
+										<span style="cursor:pointer" class="input-group-addon" data-ng-click="showPass($index)">
+											<i data-ng-class="isPassShown[$index] === true ? 'glyphicon glyphicon-eye-open' : 'glyphicon glyphicon-eye-close'"></i>
+										</span>
+									</div>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
 			</div>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-3" data-ng-init="initForms()" cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}">
-			<legend>Forms</legend>
-			<div class="input-group">
-				<span type="button" class="input-group-addon" style="cursor:pointer;" data-ng-click="addForm()" popover="Add new form" popover-trigger="mouseenter">
-					<i class="glyphicon glyphicon-plus"></i>
-				</span>
-				<input type="text" class="form-control" data-ng-model="search" placeholder="Search" />
-			</div>
-			<br />
-			<ul class="nav nav-pills nav-stacked" data-ng-if="forms.length">
-				<li role="presentation" data-ng-repeat="form in forms | filter:search">
-					<ul class="list-inline">
-						<li style="font-family:monospace;white-space:nowrap;overflow: hidden;text-overflow:ellipsis;width:85%;">
-							<a href="" data-ng-click="selectForm(form, $index)">
-								<span>
-									<i class="glyphicon glyphicon-list-alt"></i>
-									&nbsp;{{form.name}} ({{form.formId}})
-								</span>
-							</a>
-						</li>
-						<li>
-							<button type="button" class="btn btn-xs btn-danger" style="float:right;" data-ng-click="removeForm(form, $index)" data-ng-show="isVisibleRemoveButton[$index] === true">
-								<i class="glyphicon glyphicon-remove"></i>
-							</button>
+			<div class="row">
+				<div class="col-md-3" data-ng-init="initForms()" cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}">
+					<legend>Forms</legend>
+					<div class="input-group">
+						<span type="button" class="input-group-addon" style="cursor:pointer;" data-ng-click="addForm()" popover="Add new form" popover-trigger="mouseenter">
+							<i class="glyphicon glyphicon-plus"></i>
+						</span>
+						<input type="text" class="form-control" data-ng-model="search" placeholder="Search" />
+					</div>
+					<br />
+					<ul class="nav nav-pills nav-stacked" data-ng-if="forms.length">
+						<li role="presentation" data-ng-repeat="form in forms | filter:search">
+							<ul class="list-inline">
+								<li style="font-family:monospace;white-space:nowrap;overflow: hidden;text-overflow:ellipsis;width:85%;">
+									<a href="" data-ng-click="selectForm(form, $index)">
+										<span>
+											<i class="glyphicon glyphicon-list-alt"></i>
+											&nbsp;{{form.name}} ({{form.formId}})
+										</span>
+									</a>
+								</li>
+								<li>
+									<button type="button" class="btn btn-xs btn-danger" style="float:right;" data-ng-click="removeForm(form, $index)" data-ng-show="isVisibleRemoveButton[$index] === true">
+										<i class="glyphicon glyphicon-remove"></i>
+									</button>
+								</li>
+							</ul>
 						</li>
 					</ul>
-				</li>
-			</ul>
-			<alert type="info" data-ng-if="!forms || !forms.length">No forms</alert>
-		</div>
-		<div class="col-md-9">
-			<legend>Information</legend>
-			<div data-ng-if="!selectedForm">
-				<p>Choose form.</p>
-			</div>
-			<div cg-busy="{promise:getHttp3,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}" data-ng-if="selectedForm">
-				<div style="float:right;">
-					<input type="button" class="btn btn-warning btn-sm" value="Edit" data-ng-click="editForm(selectedForm)" />
+					<alert type="info" data-ng-if="!forms || !forms.length">No forms</alert>
 				</div>
-				<h3 style="text-align:center;">Form "{{selectedForm.name}}"</h3>
-				<p> <strong>ID (in html):</strong>
-					{{selectedForm.formId}}
-				</p>
-				<p> <strong>URI:</strong>
-					<a href="{{selectedForm.uri}}" target="_blank">{{selectedForm.uri}}</a>
-				</p>
-				<p>
-					<strong>Comment:</strong>
-					{{selectedForm.comment}}
-				</p>
-				<br />
-				<legend>
-					Binded data
-					<i class="glyphicon glyphicon-plus" style="float:right;cursor:pointer;" data-ng-click="addFormData()"></i>
-				</legend>
-				<alert type="info" data-ng-if="!bindedData.length">No data yet</alert>
-				<div data-ng-if="bindedData.length">
-					<alert type="info">Specify the data you want to pull out the form.</alert>
-					<div style="float:right;">
-						<label for="irm1">Remove mode</label>
-						<input id="irm1" type="checkbox" class="btn" data-ng-model="removeMode" />
+				<div class="col-md-9">
+					<legend>Information</legend>
+					<div data-ng-if="!selectedForm">
+						<p>Choose form.</p>
 					</div>
-					<table class="table table-striped table-bordered table-hover editable-table">
-						<tr>
-							<th>
-								<i class="glyphicon glyphicon-sort-by-order-alt"></i>
-							</th>
-							<th>ID (or Name) in HTML</th>
-							<th>Comment</th>
-							<th data-ng-show="removeMode">
-								<i class="glyphicon glyphicon-trash"></i>
-							</th>
-						</tr>
-						<tr data-ng-repeat="data in bindedData">
-							<td>{{$index+1}}.</td>
-							<td class="table-editable-cell {{isError[$index] === true ? 'td-error' : ''}}">
-								<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="data.htmlId"></span>
-							</td>
-							<td class="table-editable-cell">
-								<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="data.comment"></span>
-							</td>
-							<td data-ng-show="removeMode" style="text-align:center;">
-								<input class="btn btn-danger btn-xs" type="button" value="Remove" data-ng-click="removeBindedData(data, $index)" />
-							</td>
-						</tr>
-					</table>
-
-					<legend>Actions</legend>
-					<alert type="danger" data-ng-if="errors.length">
-						Invalid data. Try to fill fields correctly again:
-						<ul>
-							<li data-ng-repeat="error in errors">{{error}}</li>
-						</ul>
-					</alert>
-					<div data-ng-repeat="action in actions" data-ng-init="actionIndex = $index">
-						<span style="font-weight:bolder;">{{$index+1}}.</span>
-						<label for="checkbox_{{action.name}}" style="font-size:17px;padding:15px;">{{action.name}}</label>
-						<input id="checkbox_{{action.name}}" type="checkbox" data-ng-model="action.isEnabled" />
-						<span data-ng-if="action.name === 'Send to Inside' || action.name === 'Save in ACRM'" class="fa fa-mail-forward" style="float:right;display:block;font-size:20px;margin-top:8px;" title="Clone settings to '{{action.name === 'Send to Inside' ? 'Send to Inside' : 'Save in ACRM'}}'" data-ng-click="cloneSettings(action)"></span>
-						<div data-ng-if="action.isEnabled">
-							<table class="table table-striped table-bordered table-hover editable-table">
-								<tr>
-									<th data-ng-repeat="thead in action.thead" style="text-transform:capitalize;">{{thead}}</th>
-								</tr>
-								<tr>
-									<td data-ng-repeat="tbody in action.tbody" class="table-editable-cell">
-										<span data-ng-if="tbody !== 'reqType' && tbody !== 'type' && tbody !== 'department' && tbody !== 'version' && tbody !== 'thanksBlock'" class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="action.config[tbody]"></span>
-										<ui-select data-ng-if="tbody === 'reqType'" cg-busy="{promise:getHttp4,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}" data-ng-init="initTypes()" class="col-md-6" style="width:100%;" data-ng-model="action.config[tbody]" data-ng-change="updateBindedData()">
-											<ui-select-match placeholder="Select type...">{{$select.selected.title}}</ui-select-match>
-											<ui-select-choices repeat="type.id as type in requestTypes | filter:$select.search">{{type.title}} ({{type.id}})</ui-select-choices>
-										</ui-select>
-										<ui-select data-ng-if="tbody === 'type'" cg-busy="{promise:getHttp5,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}" data-ng-init="initAcrmTypes()" class="col-md-6" style="width:100%;" data-ng-model="action.config[tbody]" data-ng-change="updateBindedData()">
-											<ui-select-match placeholder="Select type...">{{$select.selected.title}}</ui-select-match>
-											<ui-select-choices repeat="type._id as type in acrmRequestTypes | filter:$select.search">{{type.title}}</ui-select-choices>
-										</ui-select>
-										<ui-select data-ng-if="tbody === 'department'" cg-busy="{promise:getHttp6,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}" data-ng-init="initDeps()" class="col-md-6" style="width:100%;" data-ng-model="action.config[tbody]" data-ng-change="updateBindedData()">
-											<ui-select-match placeholder="Select department...">{{$select.selected.title}}</ui-select-match>
-											<ui-select-choices repeat="department._id as department in departments | filter:$select.search">{{department.title}}</ui-select-choices>
-										</ui-select>
-										<ui-select data-ng-if="tbody === 'version'" class="col-md-6" style="width:100%;" data-ng-model="action.config[tbody]" data-ng-change="updateBindedData()">
-											<ui-select-match placeholder="Select version...">{{$select.selected.title}}</ui-select-match>
-											<ui-select-choices repeat="version.id as version in gaVersions | filter:$select.search">{{version.title}}</ui-select-choices>
-										</ui-select>
-										<textarea data-ng-if="tbody === 'thanksBlock'" class="form-control" data-ng-model="action.config[tbody]" data-ng-change="updateBindedData()" />
-									</td>
-								</tr>
-							</table>
-							<table class="table table-striped table-bordered table-hover editable-table">
-								<tr>
-									<th data-ng-if="action.name === 'Send to Inside' || action.name === 'Save in ACRM'" data-ng-repeat="appointment in appointments" style="text-transform:capitalize;">{{appointment}}</th>
-									<th data-ng-if="action.name === 'Subscribe in JustClick'" data-ng-repeat="appointment in appointments2" style="text-transform:capitalize;">{{appointment}}</th>
-									<th data-ng-if="action.name === 'Send SMS'" data-ng-repeat="appointment in appointments3" style="text-transform:capitalize;">{{appointment}}</th>
-								</tr>
-								<tr>
-									<td data-ng-if="action.name === 'Send to Inside' || action.name === 'Save in ACRM'" data-ng-repeat="appointment in appointments">
-										<ui-select class="col-md-6" style="width:100%;" data-ng-model="action.config[appointment]" data-ng-change="updateBindedData()">
-											<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
-											<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}} ({{data.comment ? data.comment : '?'}})</ui-select-choices>
-										</ui-select>
-									</td>
-									<td data-ng-if="action.name === 'Subscribe in JustClick'" data-ng-repeat="appointment in appointments2">
-										<ui-select class="col-md-6" style="width:100%;" data-ng-model="action.config[appointment]" data-ng-change="updateBindedData()">
-											<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
-											<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}} ({{data.comment ? data.comment : '?'}})</ui-select-choices>
-										</ui-select>
-									</td>
-									<td data-ng-if="action.name === 'Send SMS'" data-ng-repeat="appointment in appointments3">
-										<ui-select class="col-md-6" style="width:100%;" data-ng-model="action.config[appointment]" data-ng-change="updateBindedData()">
-											<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
-											<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}} ({{data.comment ? data.comment : '?'}})</ui-select-choices>
-										</ui-select>
-									</td>
-								</tr>
-							</table>
-							<div data-ng-if="action.name === 'Send to Inside'">
-								<div>
-									<label for="dynOfficeId{{action.name}}">Need to configure office ID by field?</label>
-									<input id="dynOfficeId{{action.name}}" type="checkbox" data-ng-model="action.config.isOfficeIdField" />
-									<i data-ng-show="action.isCheckboxes" class="glyphicon glyphicon-plus" data-ng-click="addOfficeIdField(action.config)" style="float:right;cursor:pointer;"></i>
-								</div>
-								<div data-ng-if="action.config.isOfficeIdField && action.config.officeIdFieldVals.length">
-									<div style="float:right;">
-										<label for="irm3">Remove mode</label>
-										<input id="irm3" type="checkbox" class="btn" data-ng-model="removeMode3" />
-									</div>
-									<table class="table table-striped table-bordered table-hover editable-table">
-										<tr>
-											<th>Field</th>
-											<th>Value</th>
-											<th>Office ID</th>
-											<th data-ng-show="removeMode3">
-												<i class="glyphicon glyphicon-trash"></i>
-											</th>
-										</tr>
-										<tr data-ng-repeat="checkbox in action.config.checkboxes">
-											<td class="table-editable-cell">
-												<ui-select class="col-md-6" style="width:100%;" data-ng-model="checkbox.field" data-ng-change="updateBindedData()">
-													<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
-													<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}} ({{data.comment ? data.comment : '?'}})</ui-select-choices>
-												</ui-select>
-											</td>
-											<td class="table-editable-cell">
-												<span class="editable-span" style="display:block;" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifTrue1"></span>
-												<ui-select class="col-md-6" style="width:100%;display:block;" data-ng-model="checkbox.ifTrue2" data-ng-change="updateBindedData()">
-													<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
-													<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}} ({{data.comment ? data.comment : '?'}})</ui-select-choices>
-												</ui-select>
-												<span class="editable-span" style="display:block;" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifTrue3"></span>
-											</td>
-											<td class="table-editable-cell">
-												<span class="editable-span" style="display:block;" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifFalse1"></span>
-												<ui-select class="col-md-6" style="width:100%;display:block;" data-ng-model="checkbox.ifFalse2" data-ng-change="updateBindedData()">
-													<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
-													<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}} ({{data.comment ? data.comment : '?'}})</ui-select-choices>
-												</ui-select>
-												<span class="editable-span" style="display:block;" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifFalse3"></span>
-											</td>
-											<td data-ng-show="removeMode2" style="text-align:center;">
-												<input class="btn btn-danger btn-xs" type="button" value="Remove" data-ng-click="removeCheckboxData(actionIndex, $index)" />
-											</td>
-										</tr>
-									</table>
-								</div>
-								<div>
-									<label for="destOfficeToComment{{action.name}}">Need to specify office destination in request comment?</label>
-									<input id="destOfficeToComment{{action.name}}" type="checkbox" data-ng-model="action.config.concatOfficeDest" />
-								</div>
-							</div>
-							<div data-ng-if="action.name === 'Send to Inside' || action.name === 'Save in ACRM'">
-								<div>
-									<label for="checkbox_{{action.name}}chks">Need to append something to request comment?</label>
-									<input id="checkbox_{{action.name}}chks" type="checkbox" data-ng-model="action.isCheckboxes" />
-									<i data-ng-show="action.isCheckboxes" class="glyphicon glyphicon-plus" data-ng-click="addCheckboxInfo(action.config)" style="float:right;cursor:pointer;"></i>
-								</div>
-								<div data-ng-if="action.isCheckboxes && action.config.checkboxes.length">
-									<div style="float:right;">
-										<label for="irm1">Remove mode</label>
-										<input id="irm1" type="checkbox" class="btn" data-ng-model="removeMode2" />
-									</div>
-									<table class="table table-striped table-bordered table-hover editable-table">
-										<tr>
-											<th>Field</th>
-											<th>Text if true (exists)</th>
-											<th>Text if false (doesn't exist)</th>
-											<th data-ng-show="removeMode2">
-												<i class="glyphicon glyphicon-trash"></i>
-											</th>
-										</tr>
-										<tr data-ng-repeat="checkbox in action.config.checkboxes">
-											<td class="table-editable-cell">
-												<ui-select class="col-md-6" style="width:100%;" data-ng-model="checkbox.field" data-ng-change="updateBindedData()">
-													<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
-													<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}} ({{data.comment ? data.comment : '?'}})</ui-select-choices>
-												</ui-select>
-											</td>
-											<td class="table-editable-cell">
-												<span class="editable-span" style="display:block;" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifTrue1"></span>
-												<ui-select class="col-md-6" style="width:100%;display:block;" data-ng-model="checkbox.ifTrue2" data-ng-change="updateBindedData()">
-													<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
-													<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}} ({{data.comment ? data.comment : '?'}})</ui-select-choices>
-												</ui-select>
-												<span class="editable-span" style="display:block;" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifTrue3"></span>
-											</td>
-											<td class="table-editable-cell">
-												<span class="editable-span" style="display:block;" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifFalse1"></span>
-												<ui-select class="col-md-6" style="width:100%;display:block;" data-ng-model="checkbox.ifFalse2" data-ng-change="updateBindedData()">
-													<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
-													<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}} ({{data.comment ? data.comment : '?'}})</ui-select-choices>
-												</ui-select>
-												<span class="editable-span" style="display:block;" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifFalse3"></span>
-											</td>
-											<td data-ng-show="removeMode2" style="text-align:center;">
-												<input class="btn btn-danger btn-xs" type="button" value="Remove" data-ng-click="removeCheckboxData(actionIndex, $index)" />
-											</td>
-										</tr>
-									</table>
-								</div>
-							</div>
+					<div cg-busy="{promise:getHttp3,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}" data-ng-if="selectedForm">
+						<div style="float:right;">
+							<input type="button" class="btn btn-warning btn-sm" value="Edit" data-ng-click="editForm(selectedForm)" />
 						</div>
-						<hr />
+						<h3 style="text-align:center;">Form "{{selectedForm.name}}"</h3>
+						<p> <strong>ID (in html):</strong>
+							{{selectedForm.formId}}
+						</p>
+						<p> <strong>URI:</strong>
+							<a href="{{selectedForm.uri}}" target="_blank">{{selectedForm.uri}}</a>
+						</p>
+						<p>
+							<strong>Comment:</strong>
+							{{selectedForm.comment}}
+						</p>
+						<br />
+						<legend>
+							Binded data
+							<i class="glyphicon glyphicon-plus" style="float:right;cursor:pointer;" data-ng-click="addFormData()"></i>
+						</legend>
+						<alert type="info" data-ng-if="!bindedData.length">No data yet</alert>
+						<div data-ng-if="bindedData.length">
+							<alert type="info">Specify the data you want to pull out the form.</alert>
+							<div style="float:right;">
+								<label for="irm1">Remove mode</label>
+								<input id="irm1" type="checkbox" class="btn" data-ng-model="removeMode" />
+							</div>
+							<table class="table table-striped table-bordered table-hover editable-table">
+								<tr>
+									<th>
+										<i class="glyphicon glyphicon-sort-by-order-alt"></i>
+									</th>
+									<th>ID (or Name) in HTML</th>
+									<th>Comment</th>
+									<th data-ng-show="removeMode">
+										<i class="glyphicon glyphicon-trash"></i>
+									</th>
+								</tr>
+								<tr data-ng-repeat="data in bindedData">
+									<td>{{$index+1}}.</td>
+									<td class="table-editable-cell {{isError[$index] === true ? 'td-error' : ''}}">
+										<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="data.htmlId"></span>
+									</td>
+									<td class="table-editable-cell">
+										<span class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="data.comment"></span>
+									</td>
+									<td data-ng-show="removeMode" style="text-align:center;">
+										<input class="btn btn-danger btn-xs" type="button" value="Remove" data-ng-click="removeBindedData(data, $index)" />
+									</td>
+								</tr>
+							</table>
+
+							<legend>Actions</legend>
+							<alert type="danger" data-ng-if="errors.length">
+								Invalid data. Try to fill fields correctly again:
+								<ul>
+									<li data-ng-repeat="error in errors">{{error}}</li>
+								</ul>
+							</alert>
+							<div data-ng-repeat="action in actions" data-ng-init="actionIndex = $index">
+								<span style="font-weight:bolder;">{{$index+1}}.</span>
+								<label for="checkbox_{{action.name}}" style="font-size:17px;padding:15px;">{{action.name}}</label>
+								<input id="checkbox_{{action.name}}" type="checkbox" data-ng-model="action.isEnabled" />
+								<span data-ng-if="action.name === 'Send to Inside' || action.name === 'Save in ACRM'" class="fa fa-mail-forward" style="float:right;display:block;font-size:20px;margin-top:8px;" title="Clone settings to '{{action.name === 'Send to Inside' ? 'Save in ACRM' : 'Send to Inside'}}'" data-ng-click="cloneSettings(action)"></span>
+								<div data-ng-if="action.isEnabled">
+									<table class="table table-striped table-bordered table-hover editable-table">
+										<tr>
+											<th data-ng-repeat="thead in action.thead" style="text-transform:capitalize;">{{thead}}</th>
+										</tr>
+										<tr>
+											<td data-ng-repeat="tbody in action.tbody" class="table-editable-cell">
+												<span data-ng-if="tbody !== 'reqType' && tbody !== 'type' && tbody !== 'department' && tbody !== 'version' && tbody !== 'thanksBlock'" class="editable-span" data-ng-editable="updateBindedData()" data-ng-editable-model="action.config[tbody]"></span>
+												<ui-select data-ng-if="tbody === 'reqType'" cg-busy="{promise:getHttp4,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}" data-ng-init="initTypes()" class="col-md-6" style="width:100%;" data-ng-model="action.config[tbody]" data-ng-change="updateBindedData()">
+													<ui-select-match placeholder="Select type...">{{$select.selected.title}}</ui-select-match>
+													<ui-select-choices repeat="type.id as type in requestTypes | filter:$select.search">{{type.title}} ({{type.id}})</ui-select-choices>
+												</ui-select>
+												<ui-select data-ng-if="tbody === 'type'" cg-busy="{promise:getHttp5,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}" data-ng-init="initAcrmTypes()" class="col-md-6" style="width:100%;" data-ng-model="action.config[tbody]" data-ng-change="updateBindedData()">
+													<ui-select-match placeholder="Select type...">{{$select.selected.title}}</ui-select-match>
+													<ui-select-choices repeat="type._id as type in acrmRequestTypes | filter:$select.search">{{type.title}}</ui-select-choices>
+												</ui-select>
+												<ui-select data-ng-if="tbody === 'department'" cg-busy="{promise:getHttp6,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:100}" data-ng-init="initDeps()" class="col-md-6" style="width:100%;" data-ng-model="action.config[tbody]" data-ng-change="updateBindedData()">
+													<ui-select-match placeholder="Select department...">{{$select.selected.title}}</ui-select-match>
+													<ui-select-choices repeat="department._id as department in departments | filter:$select.search">{{department.title}}</ui-select-choices>
+												</ui-select>
+												<ui-select data-ng-if="tbody === 'version'" class="col-md-6" style="width:100%;" data-ng-model="action.config[tbody]" data-ng-change="updateBindedData()">
+													<ui-select-match placeholder="Select version...">{{$select.selected.title}}</ui-select-match>
+													<ui-select-choices repeat="version.id as version in gaVersions | filter:$select.search">{{version.title}}</ui-select-choices>
+												</ui-select>
+												<textarea data-ng-if="tbody === 'thanksBlock'" class="form-control" data-ng-model="action.config[tbody]" data-ng-change="updateBindedData()" />
+											</td>
+										</tr>
+									</table>
+									<table class="table table-striped table-bordered table-hover editable-table">
+										<tr>
+											<th data-ng-if="action.name === 'Send to Inside' || action.name === 'Save in ACRM'" data-ng-repeat="appointment in appointments" style="text-transform:capitalize;">{{appointment}}</th>
+											<th data-ng-if="action.name === 'Subscribe in JustClick'" data-ng-repeat="appointment in appointments2" style="text-transform:capitalize;">{{appointment}}</th>
+											<th data-ng-if="action.name === 'Send SMS'" data-ng-repeat="appointment in appointments3" style="text-transform:capitalize;">{{appointment}}</th>
+										</tr>
+										<tr>
+											<td data-ng-if="action.name === 'Send to Inside' || action.name === 'Save in ACRM'" data-ng-repeat="appointment in appointments">
+												<ui-select class="col-md-6" style="width:100%;" data-ng-model="action.config[appointment]" data-ng-change="updateBindedData()">
+													<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
+													<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}} ({{data.comment ? data.comment : '?'}})</ui-select-choices>
+												</ui-select>
+											</td>
+											<td data-ng-if="action.name === 'Subscribe in JustClick'" data-ng-repeat="appointment in appointments2">
+												<ui-select class="col-md-6" style="width:100%;" data-ng-model="action.config[appointment]" data-ng-change="updateBindedData()">
+													<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
+													<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}} ({{data.comment ? data.comment : '?'}})</ui-select-choices>
+												</ui-select>
+											</td>
+											<td data-ng-if="action.name === 'Send SMS'" data-ng-repeat="appointment in appointments3">
+												<ui-select class="col-md-6" style="width:100%;" data-ng-model="action.config[appointment]" data-ng-change="updateBindedData()">
+													<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
+													<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}} ({{data.comment ? data.comment : '?'}})</ui-select-choices>
+												</ui-select>
+											</td>
+										</tr>
+									</table>
+									<div data-ng-if="action.name === 'Send to Inside'">
+										<div>
+											<label for="dynOfficeId{{action.name}}">Need to configure office ID by field?</label>
+											<input id="dynOfficeId{{action.name}}" type="checkbox" data-ng-model="action.config.isOfficeIdField" />
+											<i data-ng-show="action.isCheckboxes" class="glyphicon glyphicon-plus" data-ng-click="addOfficeIdField(action.config)" style="float:right;cursor:pointer;"></i>
+										</div>
+										<div data-ng-if="action.config.isOfficeIdField && action.config.officeIdFieldVals.length">
+											<div style="float:right;">
+												<label for="irm3">Remove mode</label>
+												<input id="irm3" type="checkbox" class="btn" data-ng-model="removeMode3" />
+											</div>
+											<table class="table table-striped table-bordered table-hover editable-table">
+												<tr>
+													<th>Field</th>
+													<th>Value</th>
+													<th>Office ID</th>
+													<th data-ng-show="removeMode3">
+														<i class="glyphicon glyphicon-trash"></i>
+													</th>
+												</tr>
+												<tr data-ng-repeat="checkbox in action.config.checkboxes">
+													<td class="table-editable-cell">
+														<ui-select class="col-md-6" style="width:100%;" data-ng-model="checkbox.field" data-ng-change="updateBindedData()">
+															<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
+															<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}} ({{data.comment ? data.comment : '?'}})</ui-select-choices>
+														</ui-select>
+													</td>
+													<td class="table-editable-cell">
+														<span class="editable-span" style="display:block;" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifTrue1"></span>
+														<ui-select class="col-md-6" style="width:100%;display:block;" data-ng-model="checkbox.ifTrue2" data-ng-change="updateBindedData()">
+															<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
+															<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}} ({{data.comment ? data.comment : '?'}})</ui-select-choices>
+														</ui-select>
+														<span class="editable-span" style="display:block;" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifTrue3"></span>
+													</td>
+													<td class="table-editable-cell">
+														<span class="editable-span" style="display:block;" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifFalse1"></span>
+														<ui-select class="col-md-6" style="width:100%;display:block;" data-ng-model="checkbox.ifFalse2" data-ng-change="updateBindedData()">
+															<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
+															<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}} ({{data.comment ? data.comment : '?'}})</ui-select-choices>
+														</ui-select>
+														<span class="editable-span" style="display:block;" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifFalse3"></span>
+													</td>
+													<td data-ng-show="removeMode2" style="text-align:center;">
+														<input class="btn btn-danger btn-xs" type="button" value="Remove" data-ng-click="removeCheckboxData(actionIndex, $index)" />
+													</td>
+												</tr>
+											</table>
+										</div>
+										<div>
+											<label for="destOfficeToComment{{action.name}}">Need to specify office destination in request comment?</label>
+											<input id="destOfficeToComment{{action.name}}" type="checkbox" data-ng-model="action.config.concatOfficeDest" />
+										</div>
+									</div>
+									<div data-ng-if="action.name === 'Send to Inside' || action.name === 'Save in ACRM'">
+										<div>
+											<label for="checkbox_{{action.name}}chks">Need to append something to request comment?</label>
+											<input id="checkbox_{{action.name}}chks" type="checkbox" data-ng-model="action.isCheckboxes" />
+											<i data-ng-show="action.isCheckboxes" class="glyphicon glyphicon-plus" data-ng-click="addCheckboxInfo(action.config)" style="float:right;cursor:pointer;"></i>
+										</div>
+										<div data-ng-if="action.isCheckboxes && action.config.checkboxes.length">
+											<div style="float:right;">
+												<label for="irm1">Remove mode</label>
+												<input id="irm1" type="checkbox" class="btn" data-ng-model="removeMode2" />
+											</div>
+											<table class="table table-striped table-bordered table-hover editable-table">
+												<tr>
+													<th>Field</th>
+													<th>Text if true (exists)</th>
+													<th>Text if false (doesn't exist)</th>
+													<th data-ng-show="removeMode2">
+														<i class="glyphicon glyphicon-trash"></i>
+													</th>
+												</tr>
+												<tr data-ng-repeat="checkbox in action.config.checkboxes">
+													<td class="table-editable-cell">
+														<ui-select class="col-md-6" style="width:100%;" data-ng-model="checkbox.field" data-ng-change="updateBindedData()">
+															<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
+															<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}} ({{data.comment ? data.comment : '?'}})</ui-select-choices>
+														</ui-select>
+													</td>
+													<td class="table-editable-cell">
+														<span class="editable-span" style="display:block;" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifTrue1"></span>
+														<ui-select class="col-md-6" style="width:100%;display:block;" data-ng-model="checkbox.ifTrue2" data-ng-change="updateBindedData()">
+															<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
+															<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}} ({{data.comment ? data.comment : '?'}})</ui-select-choices>
+														</ui-select>
+														<span class="editable-span" style="display:block;" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifTrue3"></span>
+													</td>
+													<td class="table-editable-cell">
+														<span class="editable-span" style="display:block;" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifFalse1"></span>
+														<ui-select class="col-md-6" style="width:100%;display:block;" data-ng-model="checkbox.ifFalse2" data-ng-change="updateBindedData()">
+															<ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
+															<ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}} ({{data.comment ? data.comment : '?'}})</ui-select-choices>
+														</ui-select>
+														<span class="editable-span" style="display:block;" data-ng-editable="updateBindedData()" data-ng-editable-model="checkbox.ifFalse3"></span>
+													</td>
+													<td data-ng-show="removeMode2" style="text-align:center;">
+														<input class="btn btn-danger btn-xs" type="button" value="Remove" data-ng-click="removeCheckboxData(actionIndex, $index)" />
+													</td>
+												</tr>
+											</table>
+										</div>
+									</div>
+								</div>
+								<hr />
+							</div>
+							<input type="button" class="btn btn-danger" style="float:right;" value="Save changes" data-ng-click="saveBindedData(bindedData, actions)" data-ng-disabled="!saveEnabled" />
+						</div>
 					</div>
-					<input type="button" class="btn btn-danger" style="float:right;" value="Save changes" data-ng-click="saveBindedData(bindedData, actions)" data-ng-disabled="!saveEnabled" />
 				</div>
 			</div>
 		</div>

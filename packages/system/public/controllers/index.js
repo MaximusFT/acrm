@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('mean.system').controller('IndexController', ['$scope', '$rootScope', '$http', '$location', '$cookies', '$log', 'Global',
-		function ($scope, $rootScope, $http, $location, $cookies, $log, Global) {
+angular.module('mean.system').controller('IndexController', ['$scope', '$rootScope', '$http', '$location', '$log', 'Global',
+		function ($scope, $rootScope, $http, $location, $log, Global) {
 			$scope.global = Global;
 			
 			$scope.myInterval = 5000;
@@ -47,7 +47,6 @@ angular.module('mean.system').controller('IndexController', ['$scope', '$rootSco
 					// authentication OK
 					$scope.loginError = 0;
 					$rootScope.user = response.user;
-					$cookies.mode = response.user.roles.indexOf('admin') > -1 ? 'Administrator' : (response.user.roles.indexOf('manager') > -1 ? 'Manager' : (response.user.roles.indexOf('employee') > -1 ? 'Employee' : (response.user.roles.indexOf('authenticated') > -1 ? 'Not verified' : '?')));
 					$rootScope.$emit('loggedin');
 					window.location.reload();
 				})

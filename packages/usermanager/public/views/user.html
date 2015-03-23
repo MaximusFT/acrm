@@ -23,16 +23,16 @@
                                 <tr data-ng-repeat="field in userSchema" data-ng-if="field.inTable">
                                     <td><strong style="text-transform:capitalize;">{{field['schemaKey']}}</strong></td>
                                     <td>
-                                        <div data-ng-if="mode === 'Administrator'">
+                                        <div data-ng-if="mode === 777">
                                             <span data-ng-if="(field['schemaKey'] !== 'department')" class="editable-span" data-ng-editable="update(user, field['schemaKey'])" data-ng-editable-model="user[field['schemaKey']]"></span>
                                             <span data-ng-if="field['schemaKey'] === 'department'">{{user[field['schemaKey']] ? user[field['schemaKey']] : '---'}}</span>
                                         </div>
-                                        <div data-ng-if="mode === 'Manager'">
+                                        <div data-ng-if="mode === 770">
                                             <span data-ng-if="(field['type'] == 'text' && field['schemaKey'] !== 'email' && field['schemaKey'] !== 'username')" class="editable-span" data-ng-editable="update(user, field['schemaKey'])" data-ng-editable-model="user[field['schemaKey']]"></span>
                                             <span data-ng-if="(field['type'] == 'select' && field['schemaKey'] === 'roles')" class="editable-span" data-ng-editable-select="update(user, field['schemaKey'])" data-ng-editable-select-model="user[field['schemaKey']]" data-ng-editable-select-options="field['options']"></span>
                                             <span data-ng-if="(field['type'] == 'select' && field['schemaKey'] === 'department') || field['schemaKey'] === 'email' || field['schemaKey'] === 'username'">{{user[field['schemaKey']] ? user[field['schemaKey']] : '---'}}</span>
                                         </div>
-                                        <div data-ng-if="mode === 'Employee'">
+                                        <div data-ng-if="mode === 700">
                                             <span>{{user[field['schemaKey']]}}</span>
                                         </div>
                                     </td>

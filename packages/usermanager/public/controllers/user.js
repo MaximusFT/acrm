@@ -1,19 +1,23 @@
 'use strict';
 
-angular.module('mean.usermanager').controller('UserController', ['$scope', '$window', 'Global', 'Menus', '$rootScope', '$http', '$log', '$stateParams', '$cookies', '$location', 'Users', 'crypter', 'PrPasswords', 'modalService', 'Requests',
-    function($scope, $window, Global, Menus, $rootScope, $http, $log, $stateParams, $cookies, $location, Users, crypter, PrPasswords, modalService, Requests) {
+angular.module('mean.usermanager').controller('UserController', ['$scope', '$window', 'Global', 'Menus', '$rootScope', '$http', '$log', '$stateParams', '$location', 'Users', 'crypter', 'PrPasswords', 'modalService', 'Requests',
+    function($scope, $window, Global, Menus, $rootScope, $http, $log, $stateParams, $location, Users, crypter, PrPasswords, modalService, Requests) {
         $scope.global = Global;
-        $scope.mode = $cookies.mode;
-        $scope.isPassShown = [];
-        $scope.isPassShown1 = [];
         $scope.status = [true];
         $scope.isGroupOpened = [];
         $scope.user = {};
         $scope.pass = {};
         $scope.prpass = {};
+        $scope.groups = [];
 
-        if (!$stateParams.username || $cookies.mode === 'Not verified')
-            $location.url('/');
+        $http.post('/api/mode').success(function(response) {
+            $scope.mode = response;
+             if (!$stateParams.username || [777, 770, 700].indexOf($scope.mode) === -1)
+            $location.url('/error/' + 403);
+        }).error(function(err, status) {
+            $log.error(err);
+            $location.url('/error/' + status);
+        });
 
         $scope.alerts = [{
             type: 'info',
@@ -167,8 +171,6 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
         };
 
         $scope.p_init = function() {
-            $scope.groups = [];
-            $scope.isPassShown1 = [];
             if ($scope.global.mode === 'Employee' && $scope.global.user.username !== $stateParams.username) {
                 $scope.permsg = 'You have not access for this view.';
             } else {
@@ -177,6 +179,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
                         username: $stateParams.username
                     }
                 }).success(function(response) {
+                    //$log.info(response);
                     $scope.groups = response;
                 }).error(function(data, status) {
                     if (status === 500) {
@@ -269,30 +272,8 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
             $scope.isSent = false;
         };
 
-        $scope.showPass = function(group, index) {
-            if (!$scope.isPassShown[group])
-                $scope.isPassShown[group] = [];
-            if (!$scope.isPassShown[group][index]) {
-                $scope.pr_groups[group].passes[index].hashed_password = crypter.decrypt($scope.pr_groups[group].passes[index].hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id));
-                $scope.isPassShown[group][index] = true;
-            } else {
-                $scope.pr_groups[group].passes[index].hashed_password = crypter.encrypt($scope.pr_groups[group].passes[index].hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id));
-                $scope.isPassShown[group][index] = false;
-            }
-        };
-
-        $scope.showPass1 = function(group, implement, index) {
-            if (!$scope.isPassShown[group])
-                $scope.isPassShown[group] = [];
-            if (!$scope.isPassShown[group][implement])
-                $scope.isPassShown[group][implement] = [];
-            if (!$scope.isPassShown[group][implement][index]) {
-                /*$scope.pr_groups[group].passes[index].hashed_password = crypter.decrypt($scope.pr_groups[group].passes[index].hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id));*/
-                $scope.isPassShown[group][implement][index] = true;
-            } else {
-                /*$scope.pr_groups[group].passes[index].hashed_password = crypter.encrypt($scope.pr_groups[group].passes[index].hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id));*/
-                $scope.isPassShown[group][implement][index] = false;
-            }
+        $scope.showPass = function(pass) {
+            pass.Shown = !pass.Shown;
         };
 
         $scope.edit = function(gind, pind) {
@@ -328,11 +309,11 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
             $scope.pr_groups[gind].passes.splice($scope.pr_groups[gind].passes.indexOf($scope.pr_groups[gind].passes[pind]), 1);
         };
 
-        $scope.getPass = function(pass) {
+        $scope.getPrPass = function(pass) {
             return crypter.decrypt(pass, crypter.hash($scope.global.user.username + $scope.global.user._id));
         };
 
-        $scope.getPass1 = function(pass) {
+        $scope.getPass = function(pass) {
             return pass;
         };
 

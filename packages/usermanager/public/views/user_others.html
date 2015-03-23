@@ -28,7 +28,7 @@
 					</accordion-group>
 				</div>
 			</accordion>
-			<alert type="warning" data-ng-if="!groups || !groups.length">User has not access for any password account.</alert>
+			<alert type="warning" data-ng-if="!groups || groups && groups.length === 0">User has not access for any password account.</alert>
 		</div>
 	</tab>
 	<tab select="mails_init()">

@@ -6,8 +6,8 @@ module.exports = function(Admin, app, auth, database) {
         //settings = require('../controllers/settings'),
         features = require('../controllers/features');
 
-    app.get('/api/isAdmin', auth.requiresLogin, users.isAdmin);
-    app.get('/api/mode', auth.requiresLogin, users.getMode);
+    app.post('/api/isAdmin', auth.requiresLogin, users.isAdmin);
+    app.post('/api/mode', auth.requiresLogin, users.getMode);
 
     /*app.get('/admin/settings', auth.requiresAdmin, settings.get);
     app.put('/admin/settings', auth.requiresAdmin, settings.save);*/

@@ -159,7 +159,7 @@ function sendToInside(actions, data, analyticsData, callback) {
             return d.htmlId === options.surname;
         });
         if (tmpSN.length > 0)
-            postData.name = tmpSN[0].value;
+            postData.surname = tmpSN[0].value;
     }
     var tmpP = _.filter(data, function(d) {
         return d.htmlId === options.phone;

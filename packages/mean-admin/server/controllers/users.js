@@ -37,6 +37,7 @@ exports.getMode = function(req, res) {
                 return res.status(500).send(err);
             } else {
                 if (user) {
+                    //console.log(user);
                     var mode;
                     if (user.roles.indexOf('admin') !== -1)
                         mode = 777;

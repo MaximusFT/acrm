@@ -1,9 +1,8 @@
 'use strict';
 
-angular.module('mean.support').controller('TicketsController', ['$scope', 'Global', '$http', '$location', '$cookies', '$log', 'modalService', 'Tickets',
-    function($scope, Global, $http, $location, $cookies, $log, modalService, Tickets) {
+angular.module('mean.support').controller('TicketsController', ['$scope', 'Global', '$http', '$location', '$log', 'modalService', 'Tickets',
+    function($scope, Global, $http, $location, $log, modalService, Tickets) {
         $scope.global = Global;
-        $scope.mode = $cookies.mode;
         $scope.tabs = [{
             type: 0,
             title: 'Requests for access',
@@ -17,6 +16,13 @@ angular.module('mean.support').controller('TicketsController', ['$scope', 'Globa
         $scope.isTicketOpen = [];
         $scope.onlyOpened = true;
         $scope.onlyMyOpened = true;
+
+        $http.post('/api/mode').success(function(response) {
+            $scope.mode = response;
+        }).error(function(err, status) {
+            $log.error(err);
+            $location.url('/error/' + status);
+        });
 
         $scope.init = function(t) {
             $scope.getHttp1 = null;
@@ -105,7 +111,7 @@ angular.module('mean.support').controller('TicketsController', ['$scope', 'Globa
             if (temp.trim() === '')
                 return;
             var msg = {
-                role: $scope.mode === 'Administrator' ? 'a' : 'u',
+                role: $scope.mode === 777 ? 'a' : 'u',
                 text: answer,
                 when: new Date().getTime() / 1000
             };
@@ -129,7 +135,6 @@ angular.module('mean.support').controller('TicketsController', ['$scope', 'Globa
         $scope.refreshTicket = function(ticketIndex) {
             if ($scope.tickets[ticketIndex].status !== 1) {
                 $scope.tickets[ticketIndex].isRefreshing = true;
-                $scope.getHttp2 = null;
                 $scope.getHttp2 = $http.get('api/refreshTicket', {
                     params: {
                         ticketId: $scope.tickets[ticketIndex]._id,

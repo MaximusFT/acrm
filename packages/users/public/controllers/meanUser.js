@@ -22,8 +22,8 @@ angular.module('mean.users')
                 });
         }
     ])
-    .controller('LoginCtrl', ['$scope', '$rootScope', '$http', '$location', '$cookies', 'Global',
-        function($scope, $rootScope, $http, $location, $cookies, Global) {
+    .controller('LoginCtrl', ['$scope', '$rootScope', '$http', '$log', '$location', 'Global',
+        function($scope, $rootScope, $http, $log, $location, Global) {
             // This object will be filled by the form
             $scope.user = {};
             $scope.global = Global;
@@ -53,7 +53,6 @@ angular.module('mean.users')
                         // authentication OK
                         $scope.loginError = 0;
                         $rootScope.user = response.user;
-                        $cookies.mode = response.user.roles.indexOf('admin') !== -1 ? 'Administrator' : (response.user.roles.indexOf('manager') !== -1 ? 'Manager' : (response.user.roles.indexOf('employee') !== -1 ? 'Employee' : (response.user.roles.indexOf('authenticated') !== -1 ? 'Not verified' : '?')));
                         $rootScope.$emit('loggedin');
                         if (response.redirect) {
                             if (window.location.href === response.redirect) {
@@ -70,6 +69,14 @@ angular.module('mean.users')
                     .error(function() {
                         $scope.loginerror = 'Authentication failed.';
                     });
+            };
+
+            $scope.hoverForgotPasswordLink = function() {
+                $log.info('fover');
+            };
+
+            $scope.leaveForgotPasswordLink = function() {
+                $log.info('leave');
             };
         }
     ])

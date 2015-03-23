@@ -1,21 +1,16 @@
 'use strict';
 
-angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$location', '$log', '$cookies', '$q', 'modalService', 'Passwords', 'Users', 'Requests', 'crypter',
-    function($scope, Global, Menus, $rootScope, $http, $location, $log, $cookies, $q, modalService, Passwords, Users, Requests, crypter) {
-        $scope.mode = $cookies.mode;
+angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 'Global', 'Menus', '$rootScope', '$http', '$location', '$log', '$q', 'modalService', 'Passwords', 'Users', 'Requests', 'crypter',
+    function($scope, Global, Menus, $rootScope, $http, $location, $log, $q, modalService, Passwords, Users, Requests, crypter) {
         $scope.global = Global;
         $scope.isSomeSelected = true;
         $scope.isPassSelected = [];
         $scope.isRequests = false;
         $scope.isPasses = false;
-        $scope.isPassShown = [];
-        $scope.getHttp1 = null;
-        $scope.getHttp2 = null;
         $scope.radioModel = 'Left';
         $scope.dataModel = 0;
         $scope.isGroupOpened = [];
         $scope.isSentIdea = $scope.isSentRequest = false;
-        $scope.newPassType = null;
         $scope.alerts = [{
             type: 'danger',
             msg: 'Attention! Now, being authorized as a department manager, you have access to the passwords, which are assigned to at least one of your employee. If you take away access to the employee and it was the only employee of the department who had access to the password, the password will disappear from this list.'
@@ -41,11 +36,24 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
             id: -1,
             title: 'Other'
         }];
-        if ($scope.mode === 'Administrator') {
-            $scope.btn_class = [];
-        } else {
-            $scope.btn_class = new Array([]);
-        }
+
+        $http.post('/api/mode').success(function(response) {
+            $scope.mode = response;
+        }).error(function(err, status) {
+            $log.error(err);
+            $location.url('/error/' + status);
+        });
+
+        $http.post('/api/isAdmin').success(function(response) {
+            if (response.isAdmin === true) {
+                $scope.btn_class = [];
+            } else {
+                $scope.btn_class = new Array([]);
+            }
+        }).error(function(err, status) {
+            $location.url('/error/' + status);
+        });
+
         Users.query({}, function(users) {
             var lols = [];
             users.forEach(function(item) {
@@ -97,7 +105,6 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
         });
 
         $scope.init = function() {
-            $scope.getHttp1 = null;
             $scope.groups = [];
             $scope.getHttp1 = $http.get('api/getGroups').success(function(data) {
                 $scope.groups = data;
@@ -109,7 +116,6 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
         };
 
         $scope.init_ = function() {
-            $scope.getHttp2 = null;
             $scope.groups = [];
             $scope.getHttp2 = $http.get('api/getAcsGroups').success(function(data) {
                 $scope.groups = data;
@@ -123,7 +129,6 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
         };
 
         $scope.init__ = function(t) {
-            $scope.getHttp2 = null;
             $scope.requests = [];
             $scope.getHttp2 = $http.get('api/requests', {
                 params: {
@@ -184,6 +189,19 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
                     });
         };
 
+        function getSelected() {
+            var passes = [];
+            angular.forEach($scope.groups, function(group) {
+                angular.forEach(group.implement, function(implement) {
+                    angular.forEach(implement.passes, function(pass) {
+                        if (pass.Selected === true)
+                            passes.push(pass._id);
+                    });
+                });
+            });
+            return passes;
+        }
+
         $scope.assignToPerson = function() {
             var modalOptions = {
                 closeButtonText: 'Cancel',
@@ -194,29 +212,18 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
             };
 
             modalService.showModal({}, modalOptions).then(function(result) {
-                var passes = [];
-                angular.forEach($scope.isPassSelected, function(group, gind) {
-                    angular.forEach(group, function(implement, impind) {
-                        angular.forEach(implement, function(pass, pind) {
-                            if (pass === true)
-                                passes.splice(passes.length, 0, $scope.groups[gind].implement[impind].passes[pind]._id);
-                        });
-                    });
+                var passes = getSelected();
+                $http.post('/api/provideAccess', {
+                    params: {
+                        users: result,
+                        passes: passes
+                    }
+                }).success(function(response) {
+                    unselectAll();
+                }).error(function(err, status) {
+                    $log.error(err);
+                    $location.url('/error/' + status);
                 });
-                $http({
-                        url: '/api/provideAccess',
-                        method: 'POST',
-                        data: {
-                            'users': result,
-                            'passes': passes
-                        }
-                    })
-                    .then(function(response) {
-                            unselectAll();
-                        },
-                        function(response) {
-                            $log.error('error');
-                        });
             });
         };
 
@@ -230,29 +237,18 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
             };
 
             modalService.showModal({}, modalOptions).then(function(result) {
-                var passes = [];
-                angular.forEach($scope.isPassSelected, function(group, gind) {
-                    angular.forEach(group, function(implement, impind) {
-                        angular.forEach(implement, function(pass, pind) {
-                            if (pass === true)
-                                passes.splice(passes.length, 0, $scope.groups[gind].implement[impind].passes[pind]._id);
-                        });
-                    });
+                var passes = getSelected();
+                $http.post('/api/provideAccess', {
+                    params: {
+                        deps: result,
+                        passes: passes
+                    }
+                }).success(function(response) {
+                    unselectAll();
+                }).error(function(err, status) {
+                    $log.error(err);
+                    $location.url('/error/' + status);
                 });
-                $http({
-                        url: '/api/provideAccess',
-                        method: 'POST',
-                        data: {
-                            'deps': result,
-                            'passes': passes
-                        }
-                    })
-                    .then(function(response) {
-                            unselectAll();
-                        },
-                        function(response) {
-                            $log.error('error');
-                        });
             });
         };
 
@@ -266,30 +262,18 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
             };
 
             modalService.showModal({}, modalOptions).then(function(result) {
-                var passes = [];
-                angular.forEach($scope.isPassSelected, function(group, gind) {
-                    angular.forEach(group, function(implement, impind) {
-                        angular.forEach(implement, function(pass, pind) {
-                            if (pass === true)
-                                passes.splice(passes.length, 0, $scope.groups[gind].implement[impind].passes[pind]._id);
-                        });
-                    });
+                var passes = getSelected();
+                $http.post('/api/revokeAccess', {
+                    params: {
+                        users: result,
+                        passes: passes
+                    }
+                }).success(function(response) {
+                    unselectAll();
+                }).error(function(err, status) {
+                    $log.error(err);
+                    $location.url('/error/' + status);
                 });
-                $http({
-                        url: '/api/revokeAccess',
-                        method: 'POST',
-                        data: {
-                            'users': result,
-                            'passes': passes
-                        }
-                    })
-                    .success(function(response) {
-                        //$log.info('success');
-                        unselectAll();
-                    }).error(function(err, status) {
-                        $log.error(err);
-                        $location.url('/error/' + status);
-                    });
             });
         };
 
@@ -319,10 +303,10 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
 
         function checkSelections() {
             var ret = false;
-            angular.forEach($scope.isPassSelected, function(group) {
-                angular.forEach(group, function(impl) {
-                    angular.forEach(impl, function(pass) {
-                        if (pass === true)
+            angular.forEach($scope.groups, function(group) {
+                angular.forEach(group.implement, function(implement) {
+                    angular.forEach(implement.passes, function(pass) {
+                        if (pass.Selected === true)
                             ret = true;
                     });
                 });
@@ -340,19 +324,10 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
                     });
                 });
             });
-            $scope.isPassSelected = [];
-            $scope.isSomeSelected = true;
+            $scope.isSomeSelected = checkSelections();
         }
 
-        $scope.checkPass = function(sectionIndex, implementIndex, index, pass) {
-            if (!$scope.isPassSelected[sectionIndex])
-                $scope.isPassSelected[sectionIndex] = [];
-            if (!$scope.isPassSelected[sectionIndex][implementIndex])
-                $scope.isPassSelected[sectionIndex][implementIndex] = [];
-            if (pass.Selected === false)
-                $scope.isPassSelected[sectionIndex][implementIndex][index] = false;
-            if (pass.Selected === true)
-                $scope.isPassSelected[sectionIndex][implementIndex][index] = true;
+        $scope.checkPass = function() {
             $scope.isSomeSelected = checkSelections();
         };
 
@@ -434,40 +409,19 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
         };
 
         $scope.remove = function() {
-            var deleted = [];
-            angular.forEach($scope.isPassSelected, function(group, gid) {
-                angular.forEach(group, function(implement, impid) {
-                    angular.forEach(implement, function(pass, pid) {
-                        if (pass === true) {
+            angular.forEach($scope.groups, function(group, gid) {
+                angular.forEach(group.implement, function(implement, impid) {
+                    angular.forEach(implement.passes, function(pass, pid) {
+                        if (pass.Selected === true) {
                             Passwords.remove({
-                                passId: $scope.groups[gid].implement[impid].passes[pid]._id
+                                passId: pass._id
                             });
-                            if (!deleted[gid])
-                                deleted[gid] = [];
-                            if (!deleted[gid][impid])
-                                deleted[gid][impid] = [];
-                            deleted[gid][impid][pid] = true;
-                        }
-                    });
-                });
-            });
-            angular.forEach(deleted, function(group, gid) {
-                angular.forEach(group, function(implement, impid) {
-                    angular.forEach(implement, function(pass, pid) {
-                        if (pass === true) {
+                            pass.Selected = true;
                             $scope.groups[gid].implement[impid].passes.splice($scope.groups[gid].implement[impid].passes.indexOf($scope.groups[gid].implement[impid].passes[pid]), 1);
                         }
                     });
                 });
             });
-            angular.forEach($scope.groups, function(group) {
-                angular.forEach(group.implement, function(impl) {
-                    angular.forEach(impl.passes, function(pass) {
-                        pass.Selected = false;
-                    });
-                });
-            });
-            $scope.isPassSelected = [];
             $scope.isSomeSelected = checkSelections();
         };
 
@@ -499,18 +453,8 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
             //return crypter.decrypt(pass, crypter.hash($scope.global.user.username + $scope.global.user._id));
         };
 
-        $scope.showPass = function(group, implement, index) {
-            if (!$scope.isPassShown[group])
-                $scope.isPassShown[group] = [];
-            if (!$scope.isPassShown[group][implement])
-                $scope.isPassShown[group][implement] = [];
-            if (!$scope.isPassShown[group][implement][index]) {
-                /*$scope.pr_groups[group].passes[index].hashed_password = crypter.decrypt($scope.pr_groups[group].passes[index].hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id));*/
-                $scope.isPassShown[group][implement][index] = true;
-            } else {
-                /*$scope.pr_groups[group].passes[index].hashed_password = crypter.encrypt($scope.pr_groups[group].passes[index].hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id));*/
-                $scope.isPassShown[group][implement][index] = false;
-            }
+        $scope.showPass = function(pass) {
+            pass.Shown = !pass.Shown;
         };
 
         $scope.sendEditRequest = function(group, implement, index) {
