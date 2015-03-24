@@ -661,7 +661,7 @@ exports.provideAccess = function(req, res) {
                                                     }
                                                 });
                                         } else {
-                                            return res.status(403).send('You cannot provite access to passwords for non-subordinated departments!')
+                                            return res.status(403).send('You cannot provite access to passwords for non-subordinated departments!');
                                         }
                                     }
                                 });

@@ -1,0 +1,15 @@
+.password-marker:after {
+    content: '';
+    /*position: absolute;
+  right: 60px;
+  top: 8px;*/
+    margin-top: -38px;
+    float: right;
+    width: 32px;
+    height: 32px;
+    background: url('http://i38.tinypic.com/33c4s9c.png') no-repeat;
+}
+
+.password-error:after {
+    background-position: 0 -79px;
+}

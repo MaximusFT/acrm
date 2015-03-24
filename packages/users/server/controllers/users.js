@@ -43,6 +43,45 @@ exports.session = function(req, res) {
     res.redirect('/');
 };
 
+function passwordStrength(pass) {
+    var score = 0;
+    if (!pass)
+        return score;
+
+    // award every unique letter until 5 repetitions
+    var letters = {};
+    for (var i = 0; i < pass.length; i += 1) {
+        letters[pass[i]] = (letters[pass[i]] || 0) + 1;
+        score += 5.0 / letters[pass[i]];
+    }
+
+    // bonus points for mixing it up
+    var variations = {
+        digits: /\d/.test(pass),
+        lower: /[a-z]/.test(pass),
+        upper: /[A-Z]/.test(pass),
+        nonWords: /\W/.test(pass),
+    };
+
+    var variationCount = 0;
+    for (var check in variations) {
+        variationCount += (variations[check] === true) ? 1 : 0;
+    }
+    score += (variationCount - 1) * 10;
+    console.log('password strength', score);
+    return parseInt(score);
+}
+
+function isNonLatinInUsername(username) {
+    console.log('isNonLatinInUsername');
+    var containNotLatin = false;
+    for (var i = 0; i < username.length; i = i + 1) {
+        containNotLatin = containNotLatin || (username.charCodeAt(i) > 127); // basic latin end at 0x7F (127) 
+    }
+    console.log('result', containNotLatin);
+    return containNotLatin;
+}
+
 /**
  * Create user
  */
@@ -52,13 +91,39 @@ exports.create = function(req, res, next) {
     user.provider = 'local';
 
     // because we set our user.provider to local our models/user.js validation will always be true
-    req.assert('name', 'You must enter a name').notEmpty();
+    req.assert('name', 'You must enter your a name').notEmpty();
     req.assert('email', 'You must enter a valid email address').isEmail();
     req.assert('password', 'Password must be between 8-20 characters long').len(8, 20);
     req.assert('username', 'Username cannot be more than 20 characters').len(1, 20);
     req.assert('confirmPassword', 'Passwords do not match').equals(req.body.password);
     var errors = req.validationErrors();
-    if (errors) {
+    if(!errors)
+        errors = [];
+    // VALIDATE NAME (at least 2 words)
+    if (user.name.split(' ').length < 2)
+        errors.push({
+            params: 'name',
+            msg: 'You must enter your FULL name (name and surname)',
+            value: user.name
+        });
+    // VALIDATE USERNAME (only transliterated)
+    if (isNonLatinInUsername(user.username)) {
+        errors.push({
+            params: 'username',
+            msg: 'The username cannot contain non-latin characters',
+            value: user.username
+        });
+    }
+    // VALIDATE PASSWORD
+    if (passwordStrength(user.password) < 60) {
+        errors.push({
+            params: 'password',
+            msg: 'The password must be more difficult',
+            value: user.password
+        });
+    }
+
+    if (errors && errors.length > 0) {
         return res.status(400).send(errors);
     }
 
@@ -173,16 +238,17 @@ exports.resetpassword = function(req, res, next) {
 /**
  * Send reset password email
  */
-function sendMail(mailOptions) {
-    console.log(config.mailer);
+function sendMail(mailOptions, cb) {
+    //console.log(config.mailer);
     var transport = nodemailer.createTransport(config.mailer);
     transport.sendMail(mailOptions, function(err, response) {
         if (err) {
             console.log(err);
-            return err;
+            return cb(err);
+        } else {
+            //console.log(response);
+            return cb(null, response);
         }
-        console.log(response);
-        return response;
     });
 }
 
@@ -191,7 +257,6 @@ function sendMail(mailOptions) {
  */
 exports.forgotpassword = function(req, res, next) {
     async.waterfall([
-
             function(done) {
                 crypto.randomBytes(20, function(err, buf) {
                     var token = buf.toString('hex');
@@ -206,8 +271,14 @@ exports.forgotpassword = function(req, res, next) {
                         username: req.body.text
                     }]
                 }, function(err, user) {
-                    if (err || !user) return done(true);
-                    done(err, user, token);
+                    if (err) {
+                        done(err);
+                    } else {
+                        if (user)
+                            done(err, user, token);
+                        else
+                            done('Such user does not exist');
+                    }
                 });
             },
             function(user, token, done) {
@@ -220,23 +291,25 @@ exports.forgotpassword = function(req, res, next) {
             function(token, user, done) {
                 var mailOptions = {
                     to: user.email,
-                    from: config.emailFrom
+                    from: 'ACRM Support Service <support@mapqo.com>'
                 };
                 mailOptions = templates.forgot_password_email(user, req, token, mailOptions);
-                sendMail(mailOptions);
-                done(null, true);
+                sendMail(mailOptions, function(err, response) {
+                    done(err, response);
+                });
             }
         ],
         function(err, status) {
-            var response = {
-                message: 'Mail successfully sent',
-                status: 'success'
-            };
+            //console.log('err', err, 'status', status);
+            var response = {};
             if (err) {
-                response.message = 'User does not exist';
+                response.message = err;
                 response.status = 'danger';
+            } else {
+                response.message = 'Mail was successfully sent';
+                response.status = 'success';
             }
-            res.json(response);
+            return res.jsonp(response);
         }
     );
 };
