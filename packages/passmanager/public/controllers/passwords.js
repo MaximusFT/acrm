@@ -409,20 +409,22 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
         };
 
         $scope.remove = function() {
-            angular.forEach($scope.groups, function(group, gid) {
-                angular.forEach(group.implement, function(implement, impid) {
-                    angular.forEach(implement.passes, function(pass, pid) {
-                        if (pass.Selected === true) {
-                            Passwords.remove({
-                                passId: pass._id
-                            });
-                            pass.Selected = true;
-                            $scope.groups[gid].implement[impid].passes.splice($scope.groups[gid].implement[impid].passes.indexOf($scope.groups[gid].implement[impid].passes[pid]), 1);
-                        }
+            if (window.confirm('Are you shure?')) {
+                angular.forEach($scope.groups, function(group, gid) {
+                    angular.forEach(group.implement, function(implement, impid) {
+                        angular.forEach(implement.passes, function(pass, pid) {
+                            if (pass.Selected === true) {
+                                Passwords.remove({
+                                    passId: pass._id
+                                });
+                                pass.Selected = true;
+                                $scope.groups[gid].implement[impid].passes.splice($scope.groups[gid].implement[impid].passes.indexOf($scope.groups[gid].implement[impid].passes[pid]), 1);
+                            }
+                        });
                     });
                 });
-            });
-            $scope.isSomeSelected = checkSelections();
+                $scope.isSomeSelected = checkSelections();
+            }
         };
 
         $scope.update = function(pass, passField) {

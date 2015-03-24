@@ -131,28 +131,30 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$lo
         };
 
         $scope.remove = function() {
-            var users = getSelectedUsers();
-            $http.post('/api/removeUsers', {
-                params: {
-                    users: users
-                }
-            }).success(function(response) {
-                angular.forEach($scope.departments, function(department, did) {
-                    angular.forEach(department.users, function(user, uid) {
-                        if (users.indexOf(user._id) !== -1) {
-                            $scope.departments[did].users.splice(uid, 1);
-                        }
+            if (window.confirm('Are you shure?')) {
+                var users = getSelectedUsers();
+                $http.post('/api/removeUsers', {
+                    params: {
+                        users: users
+                    }
+                }).success(function(response) {
+                    angular.forEach($scope.departments, function(department, did) {
+                        angular.forEach(department.users, function(user, uid) {
+                            if (users.indexOf(user._id) !== -1) {
+                                $scope.departments[did].users.splice(uid, 1);
+                            }
+                        });
                     });
-                });
-                angular.forEach($scope.departments, function(department) {
-                    angular.forEach(department.users, function(user) {
-                        delete user.Selected;
+                    angular.forEach($scope.departments, function(department) {
+                        angular.forEach(department.users, function(user) {
+                            delete user.Selected;
+                        });
                     });
+                }).error(function(err, status) {
+                    $log.error(err);
+                    $location.url('/error/' + status);
                 });
-            }).error(function(err, status) {
-                $log.error(err);
-                $location.url('/error/' + status);
-            });
+            }
         };
 
         $scope.update = function(user, userField) {

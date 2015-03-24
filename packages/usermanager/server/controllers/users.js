@@ -263,41 +263,41 @@ exports.department = function(req, res) {
 };
 
 exports.searchUsers = function(req, res) {
+    if (!req.query.value)
+        return res.status(500).send('Empty query');
     var val = req.query.value;
-
-    User.findOne({
-        _id: req.user._id
-    }, {
-        '_id': 0,
-        'department': 1,
-        'roles': 1
-    }).exec(
-        function(err, user) {
+    User
+        .findOne({
+            _id: req.user._id
+        }, {
+            _id: 0,
+            department: 1,
+            roles: 1
+        }, function(err, user) {
             if (err) {
-                res.render('error', {
-                    status: 500
-                });
+                console.log(err);
+                return res.status(500).send(err);
             } else {
                 var roles = user.roles;
                 if (roles.indexOf('admin') !== -1) {
-
-                    User.find({}, {
-                            'name': 1,
-                            'email': 1,
-                            'username': 1,
-                            'department': 1
+                    User
+                        .find({}, {
+                            name: 1,
+                            email: 1,
+                            username: 1,
+                            department: 1
                         })
                         .or([{
-                            'name': {
-                                '$regex': new RegExp(val, 'i')
+                            name: {
+                                $regex: new RegExp(val, 'i')
                             }
                         }, {
-                            'email': {
-                                '$regex': new RegExp(val, 'i')
+                            email: {
+                                $regex: new RegExp(val, 'i')
                             }
                         }, {
-                            'username': {
-                                '$regex': new RegExp(val, 'i')
+                            username: {
+                                $regex: new RegExp(val, 'i')
                             }
                         }])
                         .lean()
@@ -318,45 +318,63 @@ exports.searchUsers = function(req, res) {
                         });
                 }
                 if (roles.indexOf('manager') !== -1) {
-                    User.find({
-                            department: user.department
+                    NewDepartment
+                        .find({
+                            $or: [{
+                                _id: user.department
+                            }, {
+                                parents: user.department
+                            }]
                         }, {
-                            'name': 1,
-                            'email': 1,
-                            'username': 1,
-                            'department': 1
-                        })
-                        .or([{
-                            'name': {
-                                '$regex': val
-                            }
-                        }, {
-                            'email': {
-                                '$regex': val
-                            }
-                        }, {
-                            'username': {
-                                '$regex': val
-                            }
-                        }])
-                        .lean()
-                        .populate('department')
-                        .exec(function(err, users) {
+                            _id: 1
+                        }, function(err, departments) {
                             if (err) {
-                                res.render('error', {
-                                    status: 500
-                                });
+                                console.log(err);
+                                return res.status(500).send(err);
                             } else {
-                                _(users).forEach(function(u, uid) {
-                                    u.department = u.department.name;
-                                    if (uid === users.length - 1)
-                                        return res.jsonp(users);
-                                });
+                                User
+                                    .find({
+                                        department: {
+                                            $in: _.map(departments, '_id')
+                                        }
+                                    }, {
+                                        name: 1,
+                                        email: 1,
+                                        username: 1,
+                                        department: 1
+                                    })
+                                    .or([{
+                                        name: {
+                                            $regex: val
+                                        }
+                                    }, {
+                                        email: {
+                                            $regex: val
+                                        }
+                                    }, {
+                                        username: {
+                                            $regex: val
+                                        }
+                                    }])
+                                    .lean()
+                                    .populate('department')
+                                    .exec(function(err, users) {
+                                        if (err) {
+                                            console.log(err);
+                                            return res.status(500).send(err);
+                                        } else {
+                                            _(users).forEach(function(u, uid) {
+                                                u.department = u.department.name;
+                                                if (uid === users.length - 1)
+                                                    return res.jsonp(users);
+                                            });
+                                        }
+                                    });
                             }
                         });
                 }
                 if (roles.indexOf('employee') !== -1) {
-                    return res.jsonp('permission denied');
+                    return res.status(403).send('Access denied');
                 }
             }
         });

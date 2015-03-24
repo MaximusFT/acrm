@@ -452,72 +452,226 @@ exports.getPass = function(req, res) {
 exports.provideAccess = function(req, res) {
     if (!req.body.params || !req.body.params.passes || (!req.body.params.users && !req.body.params.deps))
         return res.status(500).send('Empty request');
-    console.log(req.body);
+    //console.log(req.body);
     var users = req.body.params.users,
         deps = req.body.params.deps,
         passes = req.body.params.passes;
-    if (users) {
-        Pass
-            .update({
-                _id: {
-                    $in: passes
-                }
-            }, {
-                $addToSet: {
-                    accessedFor: {
-                        $each: users
+    User
+        .findOne({
+            _id: req.user._id
+        }, {
+            roles: 1,
+            department: 1
+        }, function(err, curUser) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                if (curUser) {
+                    if (curUser.roles.indexOf('admin') !== -1) {
+                        if (users) {
+                            Pass
+                                .update({
+                                    _id: {
+                                        $in: passes
+                                    }
+                                }, {
+                                    $addToSet: {
+                                        accessedFor: {
+                                            $each: users
+                                        }
+                                    }
+                                }, {
+                                    multi: true
+                                })
+                                .exec(function(err) {
+                                    if (err) {
+                                        console.log(err);
+                                        return res.status(500).send();
+                                    } else {
+                                        return res.status(200).send();
+                                    }
+                                });
+                        }
+                        if (deps) {
+                            User
+                                .find({
+                                    department: {
+                                        $in: deps
+                                    }
+                                }, {
+                                    _id: 1
+                                }, function(err, users) {
+                                    if (err) {
+                                        console.log(err);
+                                        res.status(500).send(err);
+                                    } else {
+                                        var uids = _.map(users, '_id');
+                                        Pass
+                                            .update({
+                                                _id: {
+                                                    $in: passes
+                                                }
+                                            }, {
+                                                $addToSet: {
+                                                    accessedFor: {
+                                                        $each: uids
+                                                    }
+                                                }
+                                            }, {
+                                                multi: true
+                                            }, function(err) {
+                                                if (err) {
+                                                    console.log(err);
+                                                    return res.status(500).send(err);
+                                                } else {
+                                                    return res.status(200).send();
+                                                }
+                                            });
+                                    }
+                                });
+                        }
+                    } else if (curUser.roles.indexOf('manager') !== -1) {
+                        if (users) {
+                            NewDepartment
+                                .find({
+                                    $or: [{
+                                        _id: curUser.department
+                                    }, {
+                                        parents: curUser.department
+                                    }]
+                                }, {
+                                    _id: 1
+                                }, function(err, departments) {
+                                    if (err) {
+                                        console.log(err);
+                                        return res.status(500).send(err);
+                                    } else {
+                                        if (departments && departments.length > 0) {
+                                            User
+                                                .find({
+                                                    $and: [{
+                                                        _id: {
+                                                            $in: users
+                                                        }
+                                                    }, {
+                                                        department: {
+                                                            $in: _.map(departments, '_id')
+                                                        }
+                                                    }]
+                                                }, {
+                                                    _id: 1
+                                                }, function(err, verUsers) {
+                                                    if (err) {
+                                                        console.log(err);
+                                                        return res.status(500).send(err);
+                                                    } else {
+                                                        console.log(verUsers);
+                                                        console.log(users);
+                                                        if (verUsers.length === users.length) {
+                                                            Pass
+                                                                .update({
+                                                                    _id: {
+                                                                        $in: passes
+                                                                    }
+                                                                }, {
+                                                                    $addToSet: {
+                                                                        accessedFor: {
+                                                                            $each: users
+                                                                        }
+                                                                    }
+                                                                }, {
+                                                                    multi: true
+                                                                })
+                                                                .exec(function(err) {
+                                                                    if (err) {
+                                                                        console.log(err);
+                                                                        return res.status(500).send();
+                                                                    } else {
+                                                                        return res.status(200).send();
+                                                                    }
+                                                                });
+                                                        } else {
+                                                            return res.status(403).send('You cannot provide access to passwords for non-subordinated persons!');
+                                                        }
+                                                    }
+                                                });
+                                        } else {
+                                            return res.status(200).send();
+                                        }
+                                    }
+                                });
+                        }
+                        if (deps) {
+                            NewDepartment
+                                .find({
+                                    $and: [{
+                                        _id: {
+                                            $in: deps
+                                        }
+                                    }, {
+                                        $or: [{
+                                            _id: curUser.department
+                                        }, {
+                                            parents: curUser.department
+                                        }]
+                                    }]
+                                }, {
+                                    _id: 1
+                                }, function(err, departments) {
+                                    if (err) {
+                                        console.log(err);
+                                        return res.status(500).send(err);
+                                    } else {
+                                        if (deps.length === departments.length) {
+                                            User
+                                                .find({
+                                                    department: {
+                                                        $in: deps
+                                                    }
+                                                }, {
+                                                    _id: 1
+                                                }, function(err, users) {
+                                                    if (err) {
+                                                        console.log(err);
+                                                        res.status(500).send(err);
+                                                    } else {
+                                                        var uids = _.map(users, '_id');
+                                                        Pass
+                                                            .update({
+                                                                _id: {
+                                                                    $in: passes
+                                                                }
+                                                            }, {
+                                                                $addToSet: {
+                                                                    accessedFor: {
+                                                                        $each: uids
+                                                                    }
+                                                                }
+                                                            }, {
+                                                                multi: true
+                                                            }, function(err) {
+                                                                if (err) {
+                                                                    console.log(err);
+                                                                    return res.status(500).send(err);
+                                                                } else {
+                                                                    return res.status(200).send();
+                                                                }
+                                                            });
+                                                    }
+                                                });
+                                        } else {
+                                            return res.status(403).send('You cannot provite access to passwords for non-subordinated departments!')
+                                        }
+                                    }
+                                });
+                        }
                     }
-                }
-            }, {
-                multi: true
-            })
-            .exec(function(err) {
-                if (err) {
-                    console.log(err);
-                    return res.status(500).send();
                 } else {
-                    return res.status(200).send();
+                    return res.status(401).send('Invalid user');
                 }
-            });
-    }
-    if (deps) {
-        User
-            .find({
-                department: {
-                    $in: deps
-                }
-            }, {
-                _id: 1
-            }, function(err, users) {
-                if (err) {
-                    console.log(err);
-                    res.status(500).send(err);
-                } else {
-                    var uids = _.map(users, '_id');
-                    Pass
-                        .update({
-                            _id: {
-                                $in: passes
-                            }
-                        }, {
-                            $addToSet: {
-                                accessedFor: {
-                                    $each: uids
-                                }
-                            }
-                        }, {
-                            multi: true
-                        }, function(err) {
-                            if (err) {
-                                console.log(err);
-                                return res.status(500).send(err);
-                            } else {
-                                return res.status(200).send();
-                            }
-                        });
-                }
-            });
-    }
+            }
+        });
 };
 
 exports.revokeAccess = function(req, res) {
@@ -627,7 +781,7 @@ exports.getPassesByUser = function(req, res) {
                                     } else {
                                         var ret = false;
                                         _.forEach(deps, function(dep) {
-                                            if(JSON.stringify(dep._id) === JSON.stringify(user.department))
+                                            if (JSON.stringify(dep._id) === JSON.stringify(user.department))
                                                 ret = true;
                                         });
                                         if (ret === true) {

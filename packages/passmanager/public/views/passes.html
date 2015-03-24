@@ -1,6 +1,49 @@
 <!-- START CONTENT FRAME -->
 <section data-ng-controller="PasswordsController">
-	<div data-ng-if="mode === 777" ng-include src="'passmanager/views/passes_admin.html'"/>
-	<div data-ng-if="mode === 770" ng-include src="'passmanager/views/passes_manager.html'" />
+	<div class="content-frame">
+		<div class="content-frame-top">
+			<div class="page-title">
+				<h2>
+					<span class="fa fa-arrow-circle-o-left"></span>
+					Password Manager
+				</h2>
+			</div>
+			<div class="pull-right">
+				<button class="btn btn-default content-frame-left-toggle">
+					<span class="fa fa-bars"></span>
+				</button>
+			</div>
+		</div>
+		<div class="content-frame-left content-frame-fixed">
+			<div class="panel panel-default">
+				<div class="panel-heading">Control panel</div>
+				<div class="panel-body" >
+					<div class="form-group">
+						<input class="form-control" type="text" placeholder="Search" data-ng-model="search" data-ng-change="onTypeSearch()"></div>
+					<hr>
+					<div class="btn-group-vertical btn-block" role="group">
+						<div class="btn-group dropup" role="group">
+							<a class="btn btn-warning btn-block dropdown-toggle" data-toggle="dropdown" data-ng-disabled="isSomeSelected">
+								Assign selected to
+								<span class="caret"></span>
+							</a>
+							<ul class="dropdown-menu" data-ng-hide="isSomeSelected">
+								<li data-ng-click="assignToPerson()">
+									<a href="">Person(s)</a>
+								</li>
+								<li data-ng-click="assignToDepartment()">
+									<a href="">Department</a>
+								</li>
+							</ul>
+						</div>
+						<a class="btn btn-primary" data-ng-disabled="isSomeSelected" data-ng-click="revoke()">Revoke selected</a>
+						<a class="btn btn-danger" data-ng-disabled="isSomeSelected" data-ng-click="remove()">Remove selected</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="content-frame-body" data-ng-if="mode === 777" ng-include src="'passmanager/views/passes_admin.html'"></div>
+		<div class="content-frame-body" data-ng-if="mode === 770" ng-include src="'passmanager/views/passes_manager.html'"></div>
+	</div>
 </section>
 <!-- END CONTENT FRAME -->

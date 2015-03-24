@@ -13,8 +13,8 @@ module.exports = function(Passmanager, app, auth, database) {
     app.get('/api/getAcsGroups', auth.requiresLogin, passwords.acsgroups);
     app.get('/api/getPassesByGroup', auth.requiresLogin, passwords.passesByGroup);
     app.delete('/api/deletePass', auth.requiresLogin, passwords.delPass);
-    app.post('/api/provideAccess', auth.requiresAdmin, passwords.provideAccess);
-    app.post('/api/revokeAccess', auth.requiresAdmin, passwords.revokeAccess);
+    app.post('/api/provideAccess', auth.requiresManager, passwords.provideAccess);
+    app.post('/api/revokeAccess', auth.requiresManager, passwords.revokeAccess);
     app.get('/api/getPassesByUser', auth.requiresLogin, passwords.getPassesByUser);
 	
     var requests = require('../controllers/requests');
