@@ -157,7 +157,7 @@ angular.module('mean.depmanager').controller('DepartmentsController', ['$scope',
 
         $scope.options = {
             accept: function(sourceNode, destNodes, destIndex) {
-                //$log.info('accept', sourceNode.prev(), destNodes.prev());
+                //$log.info('accept', $scope.isDragEnabled);
                 return $scope.isDragEnabled;
             },
             dropped: function(event) {

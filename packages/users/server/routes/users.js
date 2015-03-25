@@ -1,8 +1,7 @@
 'use strict';
 
 // User routes use users controller
-var users = require('../controllers/users'),
-    config = require('meanio').loadConfig();
+var users = require('../controllers/users');
 
 module.exports = function(MeanUser, app, auth, database, passport) {
 
@@ -39,12 +38,6 @@ module.exports = function(MeanUser, app, auth, database, passport) {
                 user: req.user,
                 redirect: (req.user.roles.indexOf('admin') !== -1) ? req.get('referer') : false
             });
-        });
-
-    // AngularJS route to get config of social buttons
-    app.route('/get-config')
-        .get(function(req, res) {
-            res.send(config);
         });
 
     // Setting the facebook oauth routes

@@ -66,6 +66,7 @@
                             </th>
                             <th data-ng-repeat="field in userSchema" data-ng-if="field.inTable">{{field.title}}</th>
                             <th>Role</th>
+                            <th data-ng-if="department.department === 'None'">C</th>
                         </tr>
                         <tr data-ng-repeat="user in department.users | filter:search:strict" style="{{getStyle(user.roles)}}">
                             <td>
@@ -77,6 +78,10 @@
                                 <span data-ng-click="beforeSelect(field['schemaKey'], user)" class="editable-span" data-ng-editable="update(user, field['schemaKey'])" data-ng-editable-model="user[field['schemaKey']]"></span>
                             </td>
                             <td style="text-align:center;font-weight:bold;">{{user.roles}}</td>
+                            <td data-ng-if="department.department === 'None'">
+                                <a href="" data-ng-if="user.whatDepartment || user.registrationDate" tooltip-html-unsafe="From: {{user.whatDepartment ? user.whatDepartment : '---'}}. Registration date: {{user.registrationDate ? formateDate(user.registrationDate) : '---'}}">From where?</a>
+                                <span data-ng-if="!user.whatDepartment && !user.registrationDate">---</span>
+                            </td>
                         </tr>
                     </table>
                 </div>
@@ -84,23 +89,29 @@
         </tab>
         <tab>
             <tab-heading>Add new users</tab-heading>
+            <div data-ng-repeat="error in registerError">
+                <alert type="danger">{{error.msg}}</alert>
+            </div>
+            <alert type="success" data-ng-if="addedSuccessfully">User was successfully added</alert>
             <form id="pass-add-form" class="" name="addUserForm" data-ng-submit="add()">
                 <div class="form-group" data-ng-repeat="field in userSchema">
                     <input class="form-control"
                             type="{{field['type']}}" 
-                            data-ng-if="(field['type'] == 'text' || field['type'] == 'password')" 
+                            data-ng-if="field['schemaKey'] !== 'password'" 
                             data-ng-model="user[field['schemaKey']]"
                             placeholder="{{field['title']}}"
                             id="user-add-title" />
-                    <select class="form-control"
-                            data-ng-if="field['type'] == 'select'"
-                            data-ng-model="user[field['schemaKey']]"
-                            ng-multiple="true"
-                            ng-options="option for option in field['options']"
-                            multiple >
-                        <option value="">-- Choose Role --</option>
-                    </select>
+                    <div data-ng-if="field['schemaKey'] === 'password'">
+                        <div class="input-group">
+                            <input type="{{field['type']}}" class="form-control" placeholder="{{field['title']}}" data-ng-model="user[field['schemaKey']]" />
+                            <span data-ng-if="field['schemaKey'] === 'password'" class="input-group-addon" style="cursor:pointer;" id="basic-addon1" data-ng-click="genPass(user)">Generate</span>
+                        </div>
+                    </div>
                 </div>
+                <ui-select class="form-group" data-ng-init="initDeps()" data-ng-model="user.department" title="Choose a department">
+                    <ui-select-match placeholder="Select departments...">{{$select.selected.title}}</ui-select-match>
+                    <ui-select-choices repeat="department._id as department in deps | filter: $select.search">{{department.title}}</ui-select-choices>
+                </ui-select>
                 <input type="submit" class="btn btn-success btn-block" value="Add" />
             </form>
         </tab>

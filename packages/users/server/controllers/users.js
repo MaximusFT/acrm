@@ -89,15 +89,14 @@ exports.create = function(req, res, next) {
     var user = new User(req.body);
 
     user.provider = 'local';
-
     // because we set our user.provider to local our models/user.js validation will always be true
-    req.assert('name', 'You must enter your a name').notEmpty();
+    req.assert('name', 'You must enter your name').notEmpty();
     req.assert('email', 'You must enter a valid email address').isEmail();
     req.assert('password', 'Password must be between 8-20 characters long').len(8, 20);
     req.assert('username', 'Username cannot be more than 20 characters').len(1, 20);
     req.assert('confirmPassword', 'Passwords do not match').equals(req.body.password);
     var errors = req.validationErrors();
-    if(!errors)
+    if (!errors)
         errors = [];
     // VALIDATE NAME (at least 2 words)
     if (user.name.split(' ').length < 2)
@@ -115,7 +114,7 @@ exports.create = function(req, res, next) {
         });
     }
     // VALIDATE PASSWORD
-    if (passwordStrength(user.password) < 60) {
+    if (passwordStrength(user.password) < 50) {
         errors.push({
             params: 'password',
             msg: 'The password must be more difficult',
@@ -127,49 +126,142 @@ exports.create = function(req, res, next) {
         return res.status(400).send(errors);
     }
 
-    // Hard coded for now. Will address this with the user permissions system in v0.3.5
     user.roles = ['authenticated'];
-    user.save(function(err) {
-        if (err) {
-            //console.log(err);
-            switch (err.code) {
-                case 11000:
-                    res.status(400).send([{
-                        msg: 'Username already taken',
-                        param: 'username'
-                    }]);
-                    break;
-                    /*case 11001:
-                      res.status(400).send([{
-                        msg: 'Username already taken',
-                        param: 'username'
-                      }]);
-                      break;*/
-                default:
-                    var modelErrors = [];
-
-                    if (err.errors) {
-
-                        for (var x in err.errors) {
-                            modelErrors.push({
-                                param: x,
-                                msg: err.errors[x].message,
-                                value: err.errors[x].value
-                            });
+    if (req.body.task === 10001) {
+        user.save(function(err) {
+            if (err) {
+                //console.log(err);
+                switch (err.code) {
+                    case 11000:
+                        res.status(400).send([{
+                            msg: 'Username already taken',
+                            param: 'username'
+                        }]);
+                        break;
+                    case 11001:
+                        res.status(400).send([{
+                            msg: 'Username already taken',
+                            param: 'username'
+                        }]);
+                        break;
+                    default:
+                        var modelErrors = [];
+                        if (err.errors) {
+                            for (var x in err.errors) {
+                                modelErrors.push({
+                                    param: x,
+                                    msg: err.errors[x].message,
+                                    value: err.errors[x].value
+                                });
+                            }
+                            res.status(400).send(modelErrors);
                         }
-
-                        res.status(400).send(modelErrors);
-                    }
+                }
+                return res.status(400);
             }
-
-            return res.status(400);
-        }
-        req.logIn(user, function(err) {
-            if (err) return next(err);
-            return res.redirect('/');
+            req.logIn(user, function(err) {
+                if (err) return next(err);
+                return res.redirect('/');
+            });
+            res.status(200);
         });
-        res.status(200);
-    });
+    } else {
+        User
+            .findOne({
+                _id: req.user._id
+            }, {
+                roles: 1,
+                department: 1
+            }, function(err, curUser) {
+                if (err) {
+                    console.log(err);
+                    return res.status(500).send([{
+                        msg: err
+                    }]);
+                } else {
+                    if (curUser) {
+                        if (curUser.roles.indexOf('admin') !== -1) {
+                            user.save(function(err) {
+                                if (err) {
+                                    console.log(err);
+                                    switch (err.code) {
+                                        case 11000:
+                                            res.status(400).send([{
+                                                msg: 'Username already taken',
+                                                param: 'username'
+                                            }]);
+                                            break;
+                                        case 11001:
+                                            res.status(400).send([{
+                                                msg: 'Username already taken',
+                                                param: 'username'
+                                            }]);
+                                            break;
+                                        default:
+                                            var modelErrors = [];
+                                            if (err.errors) {
+                                                for (var x in err.errors) {
+                                                    modelErrors.push({
+                                                        param: x,
+                                                        msg: err.errors[x].message,
+                                                        value: err.errors[x].value
+                                                    });
+                                                }
+                                                res.status(400).send(modelErrors);
+                                            }
+                                    }
+                                    return res.status(400);
+                                } else
+                                    return res.status(200).send();
+                            });
+                        } else if (curUser.roles.indexOf('manager') !== -1) {
+                            user.department = curUser.department;
+                            user.save(function(err) {
+                                if (err) {
+                                    console.log(err);
+                                    switch (err.code) {
+                                        case 11000:
+                                            res.status(400).send([{
+                                                msg: 'Username already taken',
+                                                param: 'username'
+                                            }]);
+                                            break;
+                                        case 11001:
+                                            res.status(400).send([{
+                                                msg: 'Username already taken',
+                                                param: 'username'
+                                            }]);
+                                            break;
+                                        default:
+                                            var modelErrors = [];
+                                            if (err.errors) {
+                                                for (var x in err.errors) {
+                                                    modelErrors.push({
+                                                        param: x,
+                                                        msg: err.errors[x].message,
+                                                        value: err.errors[x].value
+                                                    });
+                                                }
+                                                res.status(400).send(modelErrors);
+                                            }
+                                    }
+                                    return res.status(400);
+                                } else
+                                    return res.status(200).send();
+                            });
+                        } else {
+                            return res.status(403).send([{
+                                msg: 'Access denied'
+                            }]);
+                        }
+                    } else {
+                        return res.status(403).send([{
+                            msg: 'Authorization is required'
+                        }]);
+                    }
+                }
+            });
+    }
 };
 /**
  * Send User
@@ -218,6 +310,16 @@ exports.resetpassword = function(req, res, next) {
         req.assert('password', 'Password must be between 8-20 characters long').len(8, 20);
         req.assert('confirmPassword', 'Passwords do not match').equals(req.body.password);
         var errors = req.validationErrors();
+        if (!errors)
+            errors = [];
+        if (passwordStrength(user.password) < 50) {
+            errors.push({
+                params: 'password',
+                msg: 'The password must be more difficult',
+                value: user.password
+            });
+        }
+
         if (errors) {
             return res.status(400).send(errors);
         }
@@ -266,7 +368,9 @@ exports.forgotpassword = function(req, res, next) {
             function(token, done) {
                 User.findOne({
                     $or: [{
-                        email: req.body.text
+                        email: {
+                            $regex: new RegExp(req.body.text, 'i')
+                        }
                     }, {
                         username: req.body.text
                     }]

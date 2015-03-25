@@ -549,48 +549,49 @@ exports.departmentsTree = function(req, res) {
 exports.addNewDepartmentBranch = function(req, res) {
     if (!req.body || !req.body.params || !req.body.params.department)
         return res.status(500).send('Empty query');
-    User.findOne({
-        _id: req.user._id
-    })
-    .populate('department')
-    .exec(function(err, user) {
-        if (err) {
-            console.log(err);
-            return res.status(500).send(err);
-        } else {
-            if (user && user.roles && user.roles.indexOf('admin') !== -1 || user.roles.indexOf('manager') !== -1) {
-                var department = req.body.params.department;
-                //department.level = getLevelByParent(department.parent);
-                if (department.parent !== '-1') {
-                    NewDepartment
-                        .findOne({
-                            _id: department.parent
-                        }, function(err, parent) {
-                            if (err) {
-                                console.log(err);
-                                return res.status(500).send(err);
-                            } else {
-                                department.level = parent.level + 1;
-                                department.parents = parent.parents;
-                                department.parents.push(parent._id);
-                                saveNewDepartment(res, department);
-                            }
-                        });
-                } else {
-                    if (user.roles.indexOf('admin') !== -1) {
-                        department.level = 0;
-                        saveNewDepartment(res, department);
-                    } else if(user.roles.indexOf('manager') !== -1) {
-                        department.level = user.department.level + 1;
-                        department.parents = user.department.parents.concat([user.department._id]);
-                        saveNewDepartment(res, department);
-                    }
-                }
+    User
+        .findOne({
+            _id: req.user._id
+        })
+        .populate('department')
+        .exec(function(err, user) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
             } else {
-                return res.status(403).send('Access denied');
+                if (user && user.roles && user.roles.indexOf('admin') !== -1 || user.roles.indexOf('manager') !== -1) {
+                    var department = req.body.params.department;
+                    //department.level = getLevelByParent(department.parent);
+                    if (department.parent !== '-1') {
+                        NewDepartment
+                            .findOne({
+                                _id: department.parent
+                            }, function(err, parent) {
+                                if (err) {
+                                    console.log(err);
+                                    return res.status(500).send(err);
+                                } else {
+                                    department.level = parent.level + 1;
+                                    department.parents = parent.parents;
+                                    department.parents.push(parent._id);
+                                    saveNewDepartment(res, department);
+                                }
+                            });
+                    } else {
+                        if (user.roles.indexOf('admin') !== -1) {
+                            department.level = 0;
+                            saveNewDepartment(res, department);
+                        } else if (user.roles.indexOf('manager') !== -1) {
+                            department.level = user.department.level + 1;
+                            department.parents = user.department.parents.concat([user.department._id]);
+                            saveNewDepartment(res, department);
+                        }
+                    }
+                } else {
+                    return res.status(403).send('Access denied');
+                }
             }
-        }
-    });
+        });
 };
 
 exports.changeParent = function(req, res) {
@@ -650,95 +651,99 @@ exports.changeParent = function(req, res) {
                                                                 return res.status(500).send(err);
                                                             } else {
                                                                 if (newParent) {
-                                                                    if (children) {
-                                                                        var flows = [];
-                                                                        children = _.sortBy(children, 'level');
-                                                                        _.forEach(children, function(child) {
-                                                                            flows.push(function(callback) {
-                                                                                var newParents = newParent.parents.concat([newParent._id]).concat(child.parents.splice(child.parents.indexOf(department._id), child.parents.length - child.parents.indexOf(department._id)));
-                                                                                //callback(null, [child.title, newParents]);
-                                                                                NewDepartment
-                                                                                    .findOne({
-                                                                                        _id: newParents[newParents.length - 1]
-                                                                                    }, {
-                                                                                        level: 1
-                                                                                    }, function(err, lastP) {
-                                                                                        if (err) {
-                                                                                            console.log(err);
-                                                                                            return res.status(500).send(err);
-                                                                                        } else {
-                                                                                            if (lastP) {
-                                                                                                NewDepartment
-                                                                                                    .update({
-                                                                                                        _id: child._id
-                                                                                                    }, {
-                                                                                                        $set: {
-                                                                                                            parents: newParents,
-                                                                                                            level: lastP.level + 1
-                                                                                                        }
-                                                                                                    }, function(err, updated) {
-                                                                                                        if (err) {
-                                                                                                            console.log(err);
-                                                                                                            callback(err);
-                                                                                                        } else {
-                                                                                                            callback(null, [child.title, updated]);
-                                                                                                        }
-                                                                                                    });
-                                                                                            } else {
-                                                                                                callback('Error while finding last child parent');
-                                                                                            }
-                                                                                        }
-                                                                                    });
-                                                                            });
-                                                                        });
-                                                                        async.series(flows, function(err, results) {
+                                                                    NewDepartment
+                                                                        .update({
+                                                                            _id: department._id
+                                                                        }, {
+                                                                            $set: {
+                                                                                parents: newParent.parents.concat(newParent._id),
+                                                                                level: newParent.level + 1
+                                                                            }
+                                                                        }, function(err, updated) {
                                                                             if (err) {
                                                                                 console.log(err);
-                                                                                return res.status(500).send('Error while children parents update');
+                                                                                return res.status(500).send(err);
                                                                             } else {
-                                                                                console.log('results', results);
-                                                                                NewDepartment
-                                                                                    .update({
-                                                                                        _id: department._id
-                                                                                    }, {
-                                                                                        $set: {
-                                                                                            parents: newParent.parents.concat(newParent._id),
-                                                                                            level: newParent.level + 1
-                                                                                        }
-                                                                                    }, function(err, updated) {
+                                                                                if (children) {
+                                                                                    var flows = [];
+                                                                                    children = _.sortBy(children, 'level');
+                                                                                    //console.log('all children', _.map(children, 'title'));
+                                                                                    _.forEach(children, function(child) {
+                                                                                        flows.push(function(callback) {
+                                                                                            //console.log('child', child);
+                                                                                            var newParents = newParent.parents.concat([newParent._id]).concat(child.parents.splice(child.parents.indexOf(department._id), child.parents.length - child.parents.indexOf(department._id)));
+                                                                                            //callback(null, [child.title, newParents]);
+                                                                                            //console.log('new parents', newParents);
+                                                                                            NewDepartment
+                                                                                                .findOne({
+                                                                                                    _id: newParents[newParents.length - 1]
+                                                                                                }, {
+                                                                                                    level: 1
+                                                                                                }, function(err, lastP) {
+                                                                                                    if (err) {
+                                                                                                        console.log(err);
+                                                                                                        return res.status(500).send(err);
+                                                                                                    } else {
+                                                                                                        if (lastP) {
+                                                                                                            //console.log('new level', lastP.level + 1);
+                                                                                                            NewDepartment
+                                                                                                                .update({
+                                                                                                                    _id: child._id
+                                                                                                                }, {
+                                                                                                                    $set: {
+                                                                                                                        parents: newParents,
+                                                                                                                        level: lastP.level + 1
+                                                                                                                    }
+                                                                                                                }, function(err, updated) {
+                                                                                                                    if (err) {
+                                                                                                                        console.log(err);
+                                                                                                                        callback(err);
+                                                                                                                    } else {
+                                                                                                                        callback(null, [child.title, updated]);
+                                                                                                                    }
+                                                                                                                });
+                                                                                                        } else {
+                                                                                                            callback('Error while finding last child parent');
+                                                                                                        }
+                                                                                                    }
+                                                                                                });
+                                                                                        });
+                                                                                    });
+                                                                                    async.series(flows, function(err, results) {
                                                                                         if (err) {
                                                                                             console.log(err);
-                                                                                            return res.status(500).send(err);
+                                                                                            return res.status(500).send('Error while children parents update');
                                                                                         } else {
-                                                                                            //console.log('updated', updated);
-                                                                                            return res.jsonp({
-                                                                                                reloadTree: true
-                                                                                            });
+                                                                                            console.log('results', results);
+                                                                                            NewDepartment
+                                                                                                .update({
+                                                                                                    _id: department._id
+                                                                                                }, {
+                                                                                                    $set: {
+                                                                                                        parents: newParent.parents.concat(newParent._id),
+                                                                                                        level: newParent.level + 1
+                                                                                                    }
+                                                                                                }, function(err, updated) {
+                                                                                                    if (err) {
+                                                                                                        console.log(err);
+                                                                                                        return res.status(500).send(err);
+                                                                                                    } else {
+                                                                                                        //console.log('updated', updated);
+                                                                                                        return res.jsonp({
+                                                                                                            reloadTree: true
+                                                                                                        });
+                                                                                                    }
+                                                                                                });
                                                                                         }
                                                                                     });
-                                                                            }
-                                                                        });
-                                                                    } else {
-                                                                        NewDepartment
-                                                                            .update({
-                                                                                _id: department._id
-                                                                            }, {
-                                                                                $set: {
-                                                                                    parents: newParent.parents.concat(newParent._id),
-                                                                                    level: newParent.level + 1
-                                                                                }
-                                                                            }, function(err, updated) {
-                                                                                if (err) {
-                                                                                    console.log(err);
-                                                                                    return res.status(500).send(err);
                                                                                 } else {
                                                                                     //console.log('updated', updated);
                                                                                     return res.jsonp({
                                                                                         reloadTree: true
                                                                                     });
                                                                                 }
-                                                                            });
-                                                                    }
+                                                                            }
+                                                                        });
                                                                 } else {
                                                                     return res.status(500).send('Invalid new parent');
                                                                 }

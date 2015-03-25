@@ -10,7 +10,7 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$lo
             if (response)
                 $scope.mode = response;
             else
-                $location.href('/error/' + 403);
+                $location.url('/error/' + 403);
         }).error(function(err, status) {
             $log.error(err);
             $location.url('/error/' + status);
@@ -39,12 +39,12 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$lo
         }, {
             title: 'Password',
             schemaKey: 'password',
-            type: 'password',
+            type: 'text',
             inTable: false
         }, {
             title: 'Repeat password',
             schemaKey: 'confirmPassword',
-            type: 'password',
+            type: 'text',
             inTable: false
         }];
 
@@ -89,45 +89,37 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$lo
             });
         };
 
+        $scope.initDeps = function() {
+            $http.get('/api/getNewDeps').success(function(data) {
+                //$log.info(data);
+                $scope.deps = data;
+            }).error(function(err, status) {
+                $log.error(err);
+                $location.url('/error/' + status);
+            });
+        };
+
+
         $scope.add = function() {
             if (!$scope.passwords)
                 $scope.passwords = [];
-
-            var user = new Users({
-                email: $scope.user.email,
-                name: $scope.user.name,
-                username: $scope.user.username,
-                department: $scope.user.department,
-                phone: $scope.user.phone,
-                password: $scope.user.password,
-                confirmPassword: $scope.user.confirmPassword,
-                roles: ['authenticated']
-            });
-
-            user.$save(function(response) {
-                var ret = false;
-                //$log.info('search the same departments');
-                angular.forEach($scope.departments, function(department) {
-                    if (department.department === response.department.name) {
-                        //$log.info('found such implement. added to it');
-                        ret = true;
-                        department.users.splice(department.users.length, 0, response);
-                    }
+            $scope.registerError = null;
+            $http.post('/register', {
+                    email: $scope.user.email,
+                    password: $scope.user.password,
+                    confirmPassword: $scope.user.confirmPassword,
+                    username: $scope.user.username,
+                    name: $scope.user.name,
+                    department: $scope.user.department ? $scope.user.department : null
+                })
+                .success(function() {
+                    $scope.user = {};
+                    $scope.addedSuccessfully = true;
+                })
+                .error(function(error) {
+                    $log.error(error);
+                    $scope.registerError = error;
                 });
-
-                if (!ret) {
-                    //$log.info('not found anything. added new group');
-                    var o = {
-                        'department': response.department.name,
-                        'users': [response]
-                    };
-                    $scope.departments.splice($scope.departments.length, 0, o);
-                    $scope.departments.sort(function(a, b) {
-                        return a.department > b.department;
-                    });
-                }
-                $scope.init();
-            });
         };
 
         $scope.remove = function() {
@@ -315,6 +307,21 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$lo
                 return 'font-weight:bolder;color:blue;';
             if (role === 'M')
                 return 'font-weight:bolder;color:gray;';
+        };
+
+        $scope.formateDate = function(date) {
+            return new Date(date).toLocaleString();
+        };
+
+        $scope.genPass = function(user) {
+            var chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890',
+                pass = '',
+                length = 10;
+            for (var x = 0; x < length; x = x + 1) {
+                var i = Math.floor(Math.random() * 62);
+                pass += chars.charAt(i);
+            }
+            user.password = user.confirmPassword = pass;
         };
 
     }

@@ -84,6 +84,34 @@
                 </div>
             </div>
         </tab>
+        <tab>
+            <tab-heading>Add new users (to your department)</tab-heading>
+            <div data-ng-repeat="error in registerError">
+                <alert type="danger">{{error.msg}}</alert>
+            </div>
+            <alert type="success" data-ng-if="addedSuccessfully">User was successfully added</alert>
+            <form id="pass-add-form" class="" name="addUserForm" data-ng-submit="add()">
+                <div class="form-group" data-ng-repeat="field in userSchema">
+                    <input class="form-control"
+                            type="{{field['type']}}" 
+                            data-ng-if="field['schemaKey'] !== 'password'" 
+                            data-ng-model="user[field['schemaKey']]"
+                            placeholder="{{field['title']}}"
+                            id="user-add-title" />
+                    <div data-ng-if="field['schemaKey'] === 'password'">
+                        <div class="input-group">
+                            <input type="{{field['type']}}" class="form-control" placeholder="{{field['title']}}" data-ng-model="user[field['schemaKey']]" />
+                            <span data-ng-if="field['schemaKey'] === 'password'" class="input-group-addon" style="cursor:pointer;" id="basic-addon1" data-ng-click="genPass(user)">Generate</span>
+                        </div>
+                    </div>
+                </div>
+                <ui-select class="form-group" data-ng-init="initDeps()" data-ng-model="user.department" title="Choose a department">
+                    <ui-select-match placeholder="Select departments...">{{$select.selected.title}}</ui-select-match>
+                    <ui-select-choices repeat="department._id as department in deps | filter: $select.search">{{department.title}}</ui-select-choices>
+                </ui-select>
+                <input type="submit" class="btn btn-success btn-block" value="Add" />
+            </form>
+        </tab>
     </tabset>
 </div>
 <!-- END CONTENT FRAME BODY -->

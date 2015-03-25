@@ -19,7 +19,9 @@ var validateUniqueEmail = function(value, callback) {
     var User = mongoose.model('User');
     User.find({
         $and: [{
-            email: value
+            email: {
+                $regex: new RegExp(value, 'i')
+            }
         }, {
             _id: {
                 $ne: this._id
@@ -54,6 +56,13 @@ var UserSchema = new Schema({
     department: {
         type: Schema.Types.ObjectId,
         ref: 'NewDepartment'
+    },
+    whatDepartment: {
+        type: String
+    },
+    registrationDate: {
+        type: Date,
+        default: Date.now
     },
     phone: {
         type: String,
