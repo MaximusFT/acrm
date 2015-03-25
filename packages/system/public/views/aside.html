@@ -31,8 +31,8 @@
             </div>
         </div>
     </li>
-    <li class="xn-openable {{isActive[0] ? 'active' : ''}}" data-ng-click="toogleOpenable(0)">
-        <a href="#">
+    <li class="xn-openable">
+        <a id="main-menu-aside" href="" data-ng-click="toggleOpenable($event)">
             <span class="fa fa-folder"></span>
             <span class="xn-text">Main Menu</span>
         </a>
@@ -50,7 +50,7 @@
             <span class="xn-text">Features</span>
         </a>
     </li>
-    <li data-ng-if="isAdmin" class="xn-openable {{isActive[1] ? 'active' : ''}}" data-ng-click="toogleOpenable(1)" data-ng-include="'/mean-admin/views/index.html'"></li>
+    <li data-ng-if="isAdmin" class="xn-openable" data-ng-include="'/mean-admin/views/index.html'"></li>
     <!--<li class="xn-title">Navigation</li>
 -->
 <li class="active">

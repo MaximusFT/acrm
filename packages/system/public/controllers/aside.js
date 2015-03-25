@@ -4,7 +4,6 @@ angular.module('mean.system').controller('AsideController', ['$scope', '$rootSco
     function($scope, $rootScope, $cookies, $http, $log, $location, Global, Menus) {
         $scope.global = Global;
         $scope.menus = {};
-        $scope.isActive = [];
 
         $http.post('/api/mode').success(function(response) {
             //$log.info(response);
@@ -52,9 +51,8 @@ angular.module('mean.system').controller('AsideController', ['$scope', '$rootSco
             $scope.isAdmin = response.isAdmin;
         });
 
-        $scope.toogleOpenable = function(index) {
-            $scope.isActive[index === 1 ? 0 : 1] = false;
-            $scope.isActive[index] = !$scope.isActive[index];
+        $scope.toggleOpenable = function(event) {
+            angular.element('#' + event.currentTarget.id).parents('.xn-openable').toggleClass('active');
         };
 
         /*$scope.showAvContr = function() {
