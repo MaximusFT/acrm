@@ -298,11 +298,13 @@ exports.resetpassword = function(req, res, next) {
         }
     }, function(err, user) {
         if (err) {
+            console.log(err);
             return res.status(400).json({
                 msg: err
             });
         }
         if (!user) {
+            console.log('Token invalid or expired');
             return res.status(400).json({
                 msg: 'Token invalid or expired'
             });
@@ -312,15 +314,16 @@ exports.resetpassword = function(req, res, next) {
         var errors = req.validationErrors();
         if (!errors)
             errors = [];
-        if (passwordStrength(user.password) < 50) {
+        if (passwordStrength(req.body.password) < 50) {
             errors.push({
                 params: 'password',
                 msg: 'The password must be more difficult',
-                value: user.password
+                value: user.hashed_password
             });
         }
 
-        if (errors) {
+        if (errors && errors.length > 0) {
+            console.log(errors);
             return res.status(400).send(errors);
         }
         user.password = req.body.password;

@@ -40,10 +40,7 @@ angular.module('mean.users')
                             } else {
                                 window.location = response.redirect;
                             }
-                        } /*else {
-                            //window.location.reload();
-                            //$location.url('/');
-                        }*/
+                        }
                     })
                     .error(function() {
                         $scope.loginerror = 'Authentication failed.';
@@ -72,7 +69,7 @@ angular.module('mean.users')
 
                 // award every unique letter until 5 repetitions
                 var letters = {};
-                for (var i = 0; i < pass.length; i+=1) {
+                for (var i = 0; i < pass.length; i += 1) {
                     letters[pass[i]] = (letters[pass[i]] || 0) + 1;
                     score += 5.0 / letters[pass[i]];
                 }
@@ -90,10 +87,10 @@ angular.module('mean.users')
                     variationCount += (variations[check] === true) ? 1 : 0;
                 }
                 score += (variationCount - 1) * 10;
-
+                //$log.info(score);
                 $scope.passScore = parseInt(score);
 
-                if($scope.passScore < 50 || !pass)
+                if ($scope.passScore < 50 || !pass)
                     angular.element('.password-marker').addClass('password-error');
                 else
                     angular.element('.password-marker').removeClass('password-error');
