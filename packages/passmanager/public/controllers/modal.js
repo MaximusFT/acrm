@@ -144,7 +144,7 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
                     })
                     .error(function(err, status) {
                         $log.error(err);
-                        $location.url('/error/' + status);
+                        $scope.SynchError = true;
                     });
             }
         }).error(function(err, status) {

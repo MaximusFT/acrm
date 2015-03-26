@@ -16,7 +16,10 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
         $scope.domainAddState = false;
         $scope.autologinStatus = true;
         $scope.autologinErrorText = '';
-
+        $scope.status = {
+            isFirstOpen: true,
+            isFirstDisabled: false
+        };
         $scope.checkMail = function(sectionIndex, index, mail) {
             if (!$scope.isMailSelected[sectionIndex])
                 $scope.isMailSelected[sectionIndex] = [];
@@ -225,21 +228,13 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
                 });
             });
         };
-        $scope.synchronizemailboxes = function() {
-            $http.get('/api/synchronizemailboxes').success(function(response, status) {
-                $log.info('synchronized');
-            });
-        };
         $scope.updateConfig = function() {
             $http.post('/api/updateConfig', {
                 params: $scope.config
             });
 
         };
-        $scope.status = {
-            isFirstOpen: true,
-            isFirstDisabled: false
-        };
+
         $scope.autologin = function() {
             $http({
                     url: '/api/getOneMailbox',
@@ -282,12 +277,7 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
         };
 
         $scope.mails_init = function() {
-            $scope.getHttp1 = $http.post('/api/getAccessibleMailsByName', {
-                params: {
-                    user: $scope.global.user.username
-                }
-            }).success(function(response) {
-                $log.info(response);
+            $scope.getHttp1 = $http.get('/api/getAccessibleMails').success(function(response) {
                 $scope.domains = response;
             }).error(function(err) {
                 $log.error(err);

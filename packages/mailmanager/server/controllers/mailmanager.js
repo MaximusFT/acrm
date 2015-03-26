@@ -180,7 +180,12 @@ exports.synchronizemailboxes = function(req, res) {
             } else
             if (data) {
                 config = data.data;
-                request(config.mailHost + (config.isPfInDefFolder ? '/postfixadmin' : config.PfCustomFolder) + '/get_mailboxes.php', function(error, response, body) {
+                request({  
+                    uri: config.mailHost + (config.isPfInDefFolder ? '/postfixadmin' : config.PfCustomFolder) + '/' + config.filename,
+                      method: 'GET',
+                      timeout: 10000,
+                      followRedirect: false
+                }, function(error, response, body) {
                     if (!error && response.statusCode === 200) {
                         var postfix = JSON.parse(body);
                         var onlyMailsFromPostfix = _.map(postfix, 'mail');
@@ -195,6 +200,7 @@ exports.synchronizemailboxes = function(req, res) {
                                 created: 0,
                                 title: 0,
                                 domain: 0,
+                                accessedFor: 0,
                                 __v: 0
                             }, function(err, mails) {
                                 if (err) {
@@ -206,27 +212,31 @@ exports.synchronizemailboxes = function(req, res) {
                                         var notInBase = _.difference(onlyMailsFromPostfix, onlyMailsFromMongo);
                                         var notInPostfix = _.difference(onlyMailsFromMongo, onlyMailsFromPostfix);
                                         if (notInPostfix) {
-                                            _.forEach(notInPostfix, function(mail, index) {
-                                                mailBox.update({
-                                                    mail: mail
+                                            mailBox
+                                                .update({
+                                                    mail: {
+                                                        $in: notInPostfix
+                                                    },
+                                                    deleted: false
                                                 }, {
                                                     $set: {
                                                         deleted: true
                                                     }
+                                                }, {
+                                                    multi: true
                                                 }, function(err, numAffected) {
                                                     if (err) {
                                                         console.log(err);
                                                         return res.status(500).send(err);
                                                     } else {
-                                                        console.log('Mail', mail, 'set to DELETED');
+                                                        console.log('Set to deleted ' + numAffected + ' fields');
+                                                        //return res.status(200);
                                                     }
                                                 });
-                                            });
                                         }
                                         var newMails = [];
                                         if (notInBase && notInBase.length > 0) {
                                             //insert this mails
-
                                             _.forEach(postfix, function(p) {
                                                 if (notInBase.indexOf(p.mail) !== -1)
                                                     newMails.push(p);
@@ -251,7 +261,7 @@ exports.synchronizemailboxes = function(req, res) {
                                                     return m.mail === mail;
                                                 });
                                                 if (result2.length > 0) {
-                                                    if ((result[0].state !== result2[0].state + '') || (result[0].messages + '' !== result2[0].messages + '') || (result[0].quota + '' !== result2[0].quota + '')) {
+                                                    if ((parseInt(result[0].state) !== parseInt(result2[0].state)) || (result[0].messages + '' !== result2[0].messages + '') || (parseInt(result[0].quota) !== parseInt(result2[0].quota))) {
                                                         // update element
                                                         mailBox
                                                             .update({
@@ -268,7 +278,7 @@ exports.synchronizemailboxes = function(req, res) {
                                                                     console.log(err);
                                                                     return res.status(500).send(err);
                                                                 } else {
-                                                                    console.log('updated', numAffected);
+                                                                    console.log('Fiedld ' + result[0].mail + ' updated');
                                                                 }
                                                             });
                                                     }
@@ -376,7 +386,6 @@ exports.updateConfig = function(req, res) {
                             packageName: 'mailmanager'
                         }, {
                             $set: {
-                                // password: result[0].password,
                                 data: req.body.params.data
                             }
                         }, function(err) {
