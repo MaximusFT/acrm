@@ -4,26 +4,26 @@
 module.exports = function(Passmanager, app, auth, database) {
 
     var passwords = require('../controllers/passwords');
-    app.get('/api/passes', auth.requiresLogin, passwords.all);
-    app.get('/api/getPass', auth.requiresLogin, passwords.getPass);
-    app.post('/api/passes', auth.requiresLogin, passwords.create);
-    app.put('/api/passes/:passId', auth.requiresLogin, passwords.update);
-    app.delete('/api/passes/:passId', auth.requiresLogin, passwords.destroy);
-    app.get('/api/getGroups', auth.requiresLogin, passwords.groups);
-    app.get('/api/getAcsGroups', auth.requiresLogin, passwords.acsgroups);
-    app.get('/api/getPassesByGroup', auth.requiresLogin, passwords.passesByGroup);
-    app.delete('/api/deletePass', auth.requiresLogin, passwords.delPass);
+    app.get('/api/passes', auth.requiresAdmin, passwords.all);
+    app.get('/api/getPass', auth.requiresAdmin, passwords.getPass);
+    app.post('/api/passes', auth.requiresManager, passwords.create);
+    app.put('/api/passes/:passId', auth.requiresManager, passwords.update);
+    app.delete('/api/passes/:passId', auth.requiresAdmin, passwords.destroy);
+    app.get('/api/getGroups', auth.requiresManager, passwords.groups);
+    app.get('/api/getAcsGroups', auth.requiresManager, passwords.acsgroups);
+    app.get('/api/getPassesByGroup', auth.requiresManager, passwords.passesByGroup);
+    app.delete('/api/deletePass', auth.requiresAdmin, passwords.delPass);
     app.post('/api/provideAccess', auth.requiresManager, passwords.provideAccess);
     app.post('/api/revokeAccess', auth.requiresManager, passwords.revokeAccess);
     app.get('/api/getPassesByUser', auth.requiresLogin, passwords.getPassesByUser);
     app.post('/api/usersWithAccess', auth.requiresAdmin, passwords.usersWithAccess);
     app.post('/api/denyUserAccessToPass', auth.requiresAdmin, passwords.denyUserAccessToPass);
 	
-    var requests = require('../controllers/requests');
+    /*var requests = require('../controllers/requests');
     app.post('/api/requests', auth.requiresLogin, requests.create);
     app.get('/api/requests', auth.requiresAdmin, requests.getReqs);
     app.post('/api/confirmReq', auth.requiresAdmin, requests.confirmRequest);
-    app.post('/api/rejectReq', auth.requiresAdmin, requests.rejectRequest);
+    app.post('/api/rejectReq', auth.requiresAdmin, requests.rejectRequest);*/
 
     var prpasswords = require('../controllers/prpasswords');
     app.post('/api/prpasses', auth.requiresLogin, prpasswords.create);

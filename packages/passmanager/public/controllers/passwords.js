@@ -26,6 +26,7 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
             title: 'Other'
         }];
         $scope.pass = {};
+        $scope.formAdd = false;
 
         $http.post('/api/mode').success(function(response) {
             $scope.mode = response;
@@ -319,35 +320,10 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
             $scope.dataModel = mod;
         };
 
-        $scope.add = function() {
-            if (!$scope.passwords)
-                $scope.passwords = [];
-            if ($scope.dataModel === 1) {
-                $scope.pass.group = 'Корпоративная почта';
-                $scope.pass.implement = $scope.pass.corp_email.replace(/.*@/, '');
-                $scope.pass.resourceName = $scope.pass.corp_email.replace(/.*@/, '');
-                $scope.pass.resourceUrl = $scope.pass.corp_email.replace(/.*@/, '');
-                $scope.pass.email = $scope.pass.corp_email;
-                $scope.pass.login = $scope.pass.corp_email;
-                $scope.pass.hashed_password = $scope.pass.corp_hashed_password;
-                $scope.pass.comment = '---';
-            }
-            var temp = {
-                group: $scope.pass.group,
-                implement: $scope.pass.implement,
-                resourceName: $scope.pass.resourceName,
-                resourceUrl: $scope.pass.resourceUrl,
-                email: $scope.pass.email,
-                login: $scope.pass.login,
-                password: $scope.pass.hashed_password,
-                comment: $scope.pass.comment
-            };
-            if ($scope.pass.forServer)
-                temp.forServer = $scope.pass.forServer;
-            if ($scope.pass.forSite)
-                temp.forSite = $scope.pass.forSite;
-            var pass = new Passwords(temp);
-            pass.$save(function(response) {
+        $scope.addPass = function(pass) {
+            var newPass = new Passwords(pass);
+            newPass.$save(function(response) {
+                $log.info(response);
                 var ret = false;
                 //$log.info('search the same implements');
                 angular.forEach($scope.groups, function(group) {
@@ -355,7 +331,7 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
                         if (implement.implement === response.implement && group.group === response.group) {
                             //$log.info('found such implement. added to it');
                             ret = true;
-                            implement.passes.splice(implement.passes.length, 0, response);
+                            implement.passes.push(response);
                         }
                     });
                 });
@@ -366,29 +342,29 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
                             //$log.info('found such group');
                             ret = true;
                             var o = {
-                                'implement': response.implement,
-                                'passes': [response]
+                                implement: response.implement,
+                                passes: [response]
                             };
-                            group.implement.splice(group.implement.length, 0, o);
+                            group.implement.push(o);
                         }
                     });
                     if (!ret) {
                         //$log.info('not found anything. added new group');
                         var o = {
-                            'group': response.group,
-                            'implement': [{
-                                'implement': response.implement,
-                                'passes': [response]
+                            group: response.group,
+                            implement: [{
+                                implement: response.implement,
+                                passes: [response]
                             }]
                         };
-                        $scope.groups.splice($scope.groups.length, 0, o);
+                        $scope.groups.push(o);
                         $scope.groups.sort(function(a, b) {
                             return a.group > b.group;
                         });
                     }
                 }
-
                 $scope.pass = {};
+                $scope.formAdd = false;
             });
         };
 
@@ -505,6 +481,10 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
                 delete pass.forSite;
             if ((pass.type === 1 || pass.type === -1) && pass.forServer)
                 delete pass.forServer;
+        };
+
+        $scope.showAddForm = function() {
+            $scope.formAdd = true;
         };
     }
 ]);

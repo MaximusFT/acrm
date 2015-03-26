@@ -40,10 +40,10 @@ angular.module('mean.users')
                             } else {
                                 window.location = response.redirect;
                             }
-                        } else {
-                            window.location.reload();
+                        } /*else {
+                            //window.location.reload();
                             //$location.url('/');
-                        }
+                        }*/
                     })
                     .error(function() {
                         $scope.loginerror = 'Authentication failed.';

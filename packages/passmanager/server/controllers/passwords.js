@@ -15,20 +15,19 @@ var mongoose = require('mongoose'),
 exports.create = function(req, res, next) {
     var pass = new Pass(req.body);
     var errors = req.validationErrors();
-    console.log(errors);
+    //console.log(errors);
     if (errors) {
         return res.status(400).send(errors);
     }
     pass.save(function(err) {
-        console.log(err);
         if (err) {
+            console.log(err);
             switch (err.code) {
                 default: res.status(400).send('Please fill all the required fields');
             }
-
-            return res.status(400);
-        }
-        return res.jsonp(pass);
+            return res.status(500).send(err);
+        } else
+            return res.jsonp(pass);
     });
 };
 
@@ -880,7 +879,7 @@ exports.usersWithAccess = function(req, res) {
 };
 
 exports.denyUserAccessToPass = function(req, res) {
-    if(!req.body.params || !req.body.params.user || !req.body.params.pass)
+    if (!req.body.params || !req.body.params.user || !req.body.params.pass)
         return res.status(400).send('Empty request');
     var user = req.body.params.user,
         pass = req.body.params.pass;
@@ -892,7 +891,7 @@ exports.denyUserAccessToPass = function(req, res) {
                 accessedFor: user
             }
         }, function(err, updated) {
-            if(err) {
+            if (err) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
