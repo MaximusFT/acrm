@@ -27,7 +27,7 @@
                             <span style="line-height:3;">
                                 <a href="" data-ng-click="selectServer(server, $index)">
                                     <span style="font-family:monospace;"> <i class="glyphicon glyphicon-hdd"></i>
-                                        &nbsp;{{server.ip}}
+                                        &nbsp;{{server.ip}} {{server.convName ? ('(' + server.convName + ')') : ''}}
                                     </span>
                                 </a>
                                 <button type="button" class="btn btn-xs btn-danger" style="float:right;margin-top:9px;" data-ng-click="removeServer(server, $index)" data-ng-show="isVisibleRemoveButton[$index] === true">
@@ -54,7 +54,11 @@
                                 <a href="#" class="tag">{{ip}}</a>
                             </span>
                         </p>
-                        <p> <strong>Location:</strong>
+                        <p data-ng-if="selectedServer.convName"> <strong>Name:</strong>
+                            {{selectedServer.convName}}
+                        </p>
+                        <p>
+                            <strong>Location:</strong>
                             {{selectedServer.location}}
                         </p>
                         <p>

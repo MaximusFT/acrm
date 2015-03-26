@@ -36,7 +36,7 @@ angular.module('mean.servermanager').controller('ServermanagerController', ['$sc
             };
 
             modalService.showModal({}, modalOptions).then(function(result) {
-                $log.info('result', result);
+                //$log.info('result', result);
                 $http.post('/api/server', {
                     params: {
                         server: result
@@ -91,7 +91,7 @@ angular.module('mean.servermanager').controller('ServermanagerController', ['$sc
                 /* jshint ignore:start */
                 var difs = [],
                     ips = [];
-                for (var property in server) {
+                for (var property in result) {
                     if (server[property] !== result[property]) {
                         if (property !== 'ips') {
                             var t = {};

@@ -12,6 +12,9 @@ var ServerSchema = new Schema({
     ips: {
         type: Array
     },
+    convName: {
+        type: String
+    },
     location: {
         type: String,
         required: true
