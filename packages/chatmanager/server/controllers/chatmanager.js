@@ -378,7 +378,7 @@ exports.getChatUsers = function(req, res) {
 
 exports.getHistory = function(req, res) {
     if (!req.body.params || !req.body.params.first || !req.body.params.second)
-        return res.status(500).send('Empty request');
+        return res.status(400).send('Empty request');
     var between = [req.body.params.first, req.body.params.second];
     if (between[1] < between[0])
         between.reverse();

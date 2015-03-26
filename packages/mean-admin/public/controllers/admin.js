@@ -7,7 +7,7 @@ angular.module('mean.mean-admin').controller('AdminController', ['$scope', 'Glob
         $scope.overIcon = false;
 
         var icons = 'mean-admin/assets/img/icons/';
-        
+
         // Default hard coded menu items for main menu
         var defaultAdminMenu = [{
             'roles': ['admin'],
@@ -57,9 +57,14 @@ angular.module('mean.mean-admin').controller('AdminController', ['$scope', 'Glob
             queryMenu('admin', defaultAdminMenu);
 
             $scope.global = {
-                authenticated: !! $rootScope.user,
+                authenticated: !!$rootScope.user,
                 user: $rootScope.user
             };
         });
+
+        $scope.onSubmenuClick = function() {
+            if (angular.element('.page-sidebar .x-navigation').hasClass('x-navigation-minimized'))
+                angular.element('.xn-openable').removeClass('active');
+        };
     }
 ]);

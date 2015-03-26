@@ -451,7 +451,7 @@ exports.getPass = function(req, res) {
 
 exports.provideAccess = function(req, res) {
     if (!req.body.params || !req.body.params.passes || (!req.body.params.users && !req.body.params.deps))
-        return res.status(500).send('Empty request');
+        return res.status(400).send('Empty request');
     //console.log(req.body);
     var users = req.body.params.users,
         deps = req.body.params.deps,
@@ -676,7 +676,7 @@ exports.provideAccess = function(req, res) {
 
 exports.revokeAccess = function(req, res) {
     if (!req.body.params || !req.body.params.passes || !req.body.params.users)
-        return res.status(500).send('Empty request');
+        return res.status(400).send('Empty request');
     var users = req.body.params.users,
         passes = req.body.params.passes;
     Pass
@@ -838,5 +838,66 @@ exports.getPassesByUser = function(req, res) {
                         }
                     }
                 });
+        });
+};
+
+exports.usersWithAccess = function(req, res) {
+    if (!req.body.params || !req.body.params.pass)
+        return res.status(400).send('Empty query');
+    Pass
+        .findOne({
+            _id: mongoose.Types.ObjectId(req.body.params.pass)
+        }, {
+            accessedFor: 1
+        }, function(err, pass) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                if (pass) {
+                    User
+                        .find({
+                            _id: {
+                                $in: pass.accessedFor
+                            }
+                        }, {
+                            _id: 1,
+                            name: 1,
+                            username: 1
+                        }, function(err, users) {
+                            if (err) {
+                                console.log(err);
+                                return res.status(500).send(err);
+                            } else {
+                                return res.jsonp(users);
+                            }
+                        });
+                } else {
+                    return res.status(404).send('Pass was not found');
+                }
+            }
+        });
+};
+
+exports.denyUserAccessToPass = function(req, res) {
+    if(!req.body.params || !req.body.params.user || !req.body.params.pass)
+        return res.status(400).send('Empty request');
+    var user = req.body.params.user,
+        pass = req.body.params.pass;
+    Pass
+        .update({
+            _id: mongoose.Types.ObjectId(pass)
+        }, {
+            $pull: {
+                accessedFor: user
+            }
+        }, function(err, updated) {
+            if(err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                console.log('updated', updated);
+                return res.status(200).send();
+            }
         });
 };

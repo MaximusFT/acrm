@@ -11,11 +11,6 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
     $scope.temp.selectedDepartments = [];
     $scope.isResShown = [];
     $scope.temp.tempPass = '';
-    $scope.ok = function() {
-        $log.info('ok');
-        //$modalInstance.close($scope.selected.item);
-    };
-    $scope.editprp = $scope.modalOptions.editprp;
     $scope.newDepartment = $scope.server = $scope.site = {};
     $scope.newDepartment.additionalInfo = {};
     $scope.parent = null;
@@ -27,13 +22,16 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
         name: 'VPS/VDS',
         val: 1
     }];
+    
+    if ($scope.modalOptions.editprp)
+        $scope.editprp = JSON.parse(JSON.stringify($scope.modalOptions.editprp));
     if ($scope.modalOptions.server)
         $scope.server = JSON.parse(JSON.stringify($scope.modalOptions.server));
     if ($scope.modalOptions.form)
         $scope.form = JSON.parse(JSON.stringify($scope.modalOptions.form));
     if ($scope.modalOptions.department) {
         $scope.newDepartment = JSON.parse(JSON.stringify($scope.modalOptions.department));
-        if(!$scope.newDepartment.additionalInfo)
+        if (!$scope.newDepartment.additionalInfo)
             $scope.newDepartment.additionalInfo = {};
     }
     if ($scope.modalOptions.webreq) {
@@ -47,10 +45,6 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
     if ($scope.modalOptions.report)
         $scope.report = JSON.parse(JSON.stringify($scope.modalOptions.report));
 
-    $scope.cancel = function() {
-        $log.info('cancel');
-        //$modalInstance.dismiss('cancel');
-    };
     $scope.getUsers = function(val) {
         var defer = $q.defer();
         $http.get('/api/searchUsers', {

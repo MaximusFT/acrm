@@ -4,6 +4,7 @@ angular.module('mean.passmanager').controller('PassController', ['$scope', 'Glob
     function($scope, Global, Menus, $rootScope, $http, $log, $stateParams, $location, Passwords, Users) {
         $scope.global = Global;
         $scope.passId = $stateParams.passId;
+        $scope.isPasses = false;
 
         $http.post('/api/isAdmin').success(function(response) {
             if (response.isAdmin !== true)
@@ -12,64 +13,47 @@ angular.module('mean.passmanager').controller('PassController', ['$scope', 'Glob
             $location.url('/error/' + status);
         });
 
-        $http.post('/api/mode').success(function(response) {
-            $scope.mode = response;
-        }).error(function(err, status) {
-            $log.error(err);
-            $location.url('/error/' + status);
-        });
-
-        $scope.isPasses = false;
-
-        Users.query({}, function(users) {
-            var lols = [];
-            users.forEach(function(item) {
-                //$log.info(item);
-                lols.push(item.username);
-            });
-            $scope.passSchema = [{
-                title: 'Group',
-                schemaKey: 'group',
-                type: 'text',
-                inTable: true
-            }, {
-                title: 'Appointment',
-                schemaKey: 'implement',
-                type: 'text',
-                inTable: true
-            }, {
-                title: 'Resource Title',
-                schemaKey: 'resourceName',
-                type: 'text',
-                inTable: true
-            }, {
-                title: 'Resource URL',
-                schemaKey: 'resourceUrl',
-                type: 'text',
-                inTable: true
-            }, {
-                title: 'Email',
-                schemaKey: 'email',
-                type: 'text',
-                inTable: true
-            }, {
-                title: 'Login',
-                schemaKey: 'login',
-                type: 'text',
-                inTable: true
-            }, {
-                title: 'Password',
-                schemaKey: 'hashed_password',
-                type: 'text',
-                inTable: true
-            }, {
-                title: 'Comment',
-                schemaKey: 'comment',
-                type: 'text',
-                inTable: true
-            }];
-            $scope.pass = {};
-        });
+        $scope.passSchema = [{
+            title: 'Group',
+            schemaKey: 'group',
+            type: 'text',
+            inTable: true
+        }, {
+            title: 'Appointment',
+            schemaKey: 'implement',
+            type: 'text',
+            inTable: true
+        }, {
+            title: 'Resource Title',
+            schemaKey: 'resourceName',
+            type: 'text',
+            inTable: true
+        }, {
+            title: 'Resource URL',
+            schemaKey: 'resourceUrl',
+            type: 'text',
+            inTable: true
+        }, {
+            title: 'Email',
+            schemaKey: 'email',
+            type: 'text',
+            inTable: true
+        }, {
+            title: 'Login',
+            schemaKey: 'login',
+            type: 'text',
+            inTable: true
+        }, {
+            title: 'Password',
+            schemaKey: 'hashed_password',
+            type: 'text',
+            inTable: true
+        }, {
+            title: 'Comment',
+            schemaKey: 'comment',
+            type: 'text',
+            inTable: true
+        }];
 
         $scope.passTypes = [{
             id: 0,
@@ -83,12 +67,12 @@ angular.module('mean.passmanager').controller('PassController', ['$scope', 'Glob
         }];
 
         $scope.init = function() {
-            $scope.passwords = [];
-            $http.get('api/getPass', {
+            $scope.getHttp2 = $http.get('api/getPass', {
                 params: {
                     passId: $scope.passId
                 }
             }).success(function(data) {
+                //$log.info(data);
                 $scope.passwords = data;
                 angular.forEach($scope.passwords, function(pass) {
                     pass.type = pass.forServer ? 0 : (pass.forSite ? 1 : -1);
@@ -139,6 +123,33 @@ angular.module('mean.passmanager').controller('PassController', ['$scope', 'Glob
                 $scope.update(pass, 'forServer');
             if (pass.forSite)
                 $scope.update(pass, 'forSite');
+        };
+
+        $scope.initUsers = function() {
+            $scope.getHttp5 = $http.post('/api/usersWithAccess', {
+                params: {
+                    pass: $stateParams.passId
+                }
+            }).success(function(response) {
+                $scope.users = response;
+            }).error(function(err, status) {
+                $log.error(err);
+                $location.url('/error/' + status);
+            });
+        };
+
+        $scope.denyAccess = function(user) {
+            $http.post('/api/denyUserAccessToPass', {
+                params: {
+                    user: user._id,
+                    pass: $stateParams.passId
+                }
+            }).success(function(response) {
+                $scope.initUsers();
+            }).error(function(err, status) {
+                $log.error(err);
+                $location.url('/error/' + status);
+            });
         };
     }
 ]);

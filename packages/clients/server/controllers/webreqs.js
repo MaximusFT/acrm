@@ -147,7 +147,7 @@ exports.web_request_form_add = function(req, res, next) {
 
 exports.webreqs = function(req, res) {
     if (!req.query || !req.query.curPage)
-        return res.status(500).send('Empty request');
+        return res.status(400).send('Empty request');
     var page = req.query.curPage,
         query = {};
     if (req.query.options) {
@@ -248,7 +248,7 @@ exports.webreqs = function(req, res) {
 
 exports.oldWebreqs = function(req, res) {
     if (!req.query || !req.query.curPage)
-        return res.status(500).send('Empty request');
+        return res.status(400).send('Empty request');
     var page = req.query.curPage;
     Webreq
         .find()
@@ -500,7 +500,7 @@ exports.changeWebreqState = function(req, res) {
 
 exports.reports = function(req, res) {
     if (!req.query || !req.query.curPage)
-        return res.status(500).send('Empty request');
+        return res.status(400).send('Empty request');
     var page = req.query.curPage;
     FormProcessingReport
         .find()
@@ -536,7 +536,7 @@ exports.reports = function(req, res) {
 
 exports.webreq = function(req, res) {
     if (!req.params.webreqId)
-        return res.status(500).send('Empty request');
+        return res.status(400).send('Empty request');
     NewWebreq
         .findOne({
             _id: req.params.webreqId
@@ -558,7 +558,7 @@ exports.webreq = function(req, res) {
 };
 exports.reportForWebreq = function(req, res) {
     if (!req.params.webreqId)
-        return res.status(500).send('Empty request');
+        return res.status(400).send('Empty request');
     FormProcessingReport
         .findOne({
             actionsPerformed: {
@@ -602,7 +602,7 @@ exports.logRequest = function(req, res) {
 
 exports.logsRequest = function(req, res) {
     if (!req.query || !req.query.curPage)
-        return res.status(500).send('Empty request');
+        return res.status(400).send('Empty request');
     var page = req.query.curPage;
     LogWebRequest
         .find()

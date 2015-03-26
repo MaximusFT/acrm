@@ -12,12 +12,12 @@
 								</th>
 							</tr>
 							<tr>
-								<th>#</th>
+								<th><i class="glyphicon glyphicon-sort-by-order"></th>
 								<th data-ng-repeat="field in passSchema" data-ng-if="field.inTable">{{field.title}}</th>
 							</tr>
 							<tr data-ng-repeat="pass in implement.passes | filter:search:strict">
 								<td>
-									<a href="#!/manager/passwords/{{pass['_id']}}">#</a>
+									<a href="#!/manager/passwords/{{pass['_id']}}">{{$index+1}}.</a>
 								</td>
 								<td data-ng-repeat="field in passSchema" data-ng-if="field.inTable">
 									<span data-ng-if="pass[field['schemaKey']] == ''">---</span>

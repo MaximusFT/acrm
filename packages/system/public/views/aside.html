@@ -37,7 +37,7 @@
             <span class="xn-text">Main Menu</span>
         </a>
         <ul>
-            <li data-ng-repeat="item in menus.main" ui-route="/#!/{{item.link}}" ng-class="{active: $uiRoute}">
+            <li data-ng-repeat="item in menus.main" ui-route="/#!/{{item.link}}" ng-class="{active: $uiRoute}" data-ng-click="onSubmenuClick()">
                 <a ui-sref='{{item.link}}'>
                     <span>{{item.title}}</span>
                 </a>

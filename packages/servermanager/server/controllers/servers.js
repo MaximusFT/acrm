@@ -42,7 +42,7 @@ exports.servers = function(req, res) {
 
 exports.server = function(req, res) {
     if (!req.query || !req.query.server)
-        return res.status(500).send('Empty request');
+        return res.status(400).send('Empty request');
     Server
         .findOne({
             _id: req.query.server

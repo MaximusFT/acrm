@@ -15,17 +15,6 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
             type: 'danger',
             msg: 'Attention! Now, being authorized as a department manager, you have access to the passwords, which are assigned to at least one of your employee. If you take away access to the employee and it was the only employee of the department who had access to the password, the password will disappear from this list.'
         }];
-        $scope.tabs = [{
-            type: 1,
-            title: 'Request for adding',
-            icon: 'glyphicon glyphicon-plus',
-            btn: ['Add', 'Remove']
-        }, {
-            type: 2,
-            title: 'Request for editing',
-            icon: 'glyphicon glyphicon-pencil',
-            btn: ['Confirm', 'Reject']
-        }];
         $scope.passTypes = [{
             id: 0,
             title: 'For server'
@@ -36,9 +25,12 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
             id: -1,
             title: 'Other'
         }];
+        $scope.pass = {};
 
         $http.post('/api/mode').success(function(response) {
             $scope.mode = response;
+            if ($scope.mode !== 770 && $scope.mode !== 777)
+                $location.url('/error/' + 403);
         }).error(function(err, status) {
             $log.error(err);
             $location.url('/error/' + status);
@@ -54,55 +46,47 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
             $location.url('/error/' + status);
         });
 
-        Users.query({}, function(users) {
-            var lols = [];
-            users.forEach(function(item) {
-                //$log.info(item);
-                lols.push(item.username);
-            });
-            $scope.passSchema = [{
-                title: 'Group',
-                schemaKey: 'group',
-                type: 'text',
-                inTable: false
-            }, {
-                title: 'Appointment',
-                schemaKey: 'implement',
-                type: 'text',
-                inTable: false
-            }, {
-                title: 'Resource Title',
-                schemaKey: 'resourceName',
-                type: 'text',
-                inTable: true
-            }, {
-                title: 'Resource URL',
-                schemaKey: 'resourceUrl',
-                type: 'text',
-                inTable: true
-            }, {
-                title: 'Email',
-                schemaKey: 'email',
-                type: 'text',
-                inTable: true
-            }, {
-                title: 'Username',
-                schemaKey: 'login',
-                type: 'text',
-                inTable: true
-            }, {
-                title: 'Password',
-                schemaKey: 'hashed_password',
-                type: 'password',
-                inTable: true
-            }, {
-                title: 'Comment',
-                schemaKey: 'comment',
-                type: 'text',
-                inTable: false
-            }];
-            $scope.pass = {};
-        });
+        $scope.passSchema = [{
+            title: 'Group',
+            schemaKey: 'group',
+            type: 'text',
+            inTable: false
+        }, {
+            title: 'Appointment',
+            schemaKey: 'implement',
+            type: 'text',
+            inTable: false
+        }, {
+            title: 'Resource Title',
+            schemaKey: 'resourceName',
+            type: 'text',
+            inTable: true
+        }, {
+            title: 'Resource URL',
+            schemaKey: 'resourceUrl',
+            type: 'text',
+            inTable: true
+        }, {
+            title: 'Email',
+            schemaKey: 'email',
+            type: 'text',
+            inTable: true
+        }, {
+            title: 'Username',
+            schemaKey: 'login',
+            type: 'text',
+            inTable: true
+        }, {
+            title: 'Password',
+            schemaKey: 'hashed_password',
+            type: 'password',
+            inTable: true
+        }, {
+            title: 'Comment',
+            schemaKey: 'comment',
+            type: 'text',
+            inTable: false
+        }];
 
         $scope.init = function() {
             $scope.groups = [];

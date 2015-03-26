@@ -4,7 +4,6 @@
 module.exports = function(Usermanager, app, auth, database) {
 
     var users = require('../controllers/users');
-    app.get('/api/users', auth.requiresLogin, users.all);
     app.post('/api/users', auth.requiresManager, users.create);
     app.put('/api/users/:userId', auth.requiresLogin, users.update);
     app.delete('/api/users/:userId', auth.requiresManager, users.destroy);

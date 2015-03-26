@@ -16,6 +16,8 @@ module.exports = function(Passmanager, app, auth, database) {
     app.post('/api/provideAccess', auth.requiresManager, passwords.provideAccess);
     app.post('/api/revokeAccess', auth.requiresManager, passwords.revokeAccess);
     app.get('/api/getPassesByUser', auth.requiresLogin, passwords.getPassesByUser);
+    app.post('/api/usersWithAccess', auth.requiresAdmin, passwords.usersWithAccess);
+    app.post('/api/denyUserAccessToPass', auth.requiresAdmin, passwords.denyUserAccessToPass);
 	
     var requests = require('../controllers/requests');
     app.post('/api/requests', auth.requiresLogin, requests.create);

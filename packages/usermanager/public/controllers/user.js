@@ -276,6 +276,14 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
             pass.Shown = !pass.Shown;
         };
 
+        $scope.showPass1 = function(pass) {
+            pass.Shown = !pass.Shown;
+            if(pass.Shown)
+                pass.hashed_password = crypter.decrypt(pass.hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id));
+            else
+                pass.hashed_password = crypter.encrypt(pass.hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id));
+        };
+
         $scope.edit = function(gind, pind) {
             if (!$scope.isPassShown[gind])
                 $scope.isPassShown[gind] = [];

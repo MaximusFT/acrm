@@ -1,34 +1,76 @@
 <section data-ng-controller="PassController">
-    <div data-ng-if="mode === 777">
-        <h1>Password account</h1>
-        <div class="loader" data-ng-init="init()" data-ng-hide="passwords.length"></div>
-        <table class="table table-striped table-bordered table-hover editable-table" data-ng-show="passwords.length">
-            <tr>
-                <th data-ng-repeat="field in passSchema" data-ng-if="field.inTable">{{field.title}}</th>
-                <th>Referencing</th>
-            </tr>
-            <tr data-ng-repeat="pass in passwords">
-                <td class="table-editable-cell" data-ng-repeat="field in passSchema" data-ng-if="field.inTable">
-                    <span data-ng-if="(field['type'] == 'text')" class="editable-span" data-ng-editable="update(pass, field['schemaKey'])" data-ng-editable-model="pass[field['schemaKey']]"></span>
-                </td>
-                <td>
-                    <ui-select data-ng-model="pass.type" data-ng-change="checkPassType(pass)">
-                        <ui-select-match placeholder="Select type...">{{$select.selected.title}}</ui-select-match>
-                        <ui-select-choices repeat="type.id as type in passTypes | filter:$select.search">{{type.title}}</ui-select-choices>
-                    </ui-select>
-                    <ui-select data-ng-if="pass.type === 0" data-ng-init="initServers()" data-ng-model="pass.forServer" data-ng-change="checkPassType(pass)" cg-busy="{promise:getHttp3,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
-                        <ui-select-match placeholder="Select server...">{{$select.selected.ip}}</ui-select-match>
-                        <ui-select-choices repeat="server._id as server in servers | filter:$select.search">{{server.ip}} ({{server.location}})</ui-select-choices>
-                    </ui-select>
-                    <ui-select data-ng-if="pass.type === 1" data-ng-init="initSites()" data-ng-model="pass.forSite" data-ng-change="checkPassType(pass)" cg-busy="{promise:getHttp4,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
-                        <ui-select-match placeholder="Select site...">{{$select.selected.title}}</ui-select-match>
-                        <ui-select-choices repeat="site._id as site in sites | filter:$select.search">{{site.title}} ({{site.uri}})</ui-select-choices>
-                    </ui-select>
-                </td>
-            </tr>
-        </table>
-        <div data-ng-if="!isPasses">
-            <p class='bg-danger'>You have not permission for this pass.</p>
+    <div class="content-frame">
+        <div class="content-frame-top">
+            <div class="page-title">
+                <h2>
+                    <span class="fa fa-arrow-circle-o-left"></span>
+                    Password Overview
+                </h2>
+            </div>
+            <div class="pull-right">
+                <button class="btn btn-default content-frame-left-toggle">
+                    <span class="fa fa-bars"></span>
+                </button>
+            </div>
+        </div>
+        <div style="padding:7px;" data-ng-init="init()" cg-busy="{promise:getHttp2,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+            <table class="table table-striped table-bordered table-hover editable-table" data-ng-if="passwords && passwords.length">
+                <tr>
+                    <th data-ng-repeat="field in passSchema" data-ng-if="field.inTable">{{field.title}}</th>
+                    <th>Referencing</th>
+                </tr>
+                <tr data-ng-repeat="pass in passwords">
+                    <td class="table-editable-cell" data-ng-repeat="field in passSchema" data-ng-if="field.inTable">
+                        <span data-ng-if="(field['type'] == 'text')" class="editable-span" data-ng-editable="update(pass, field['schemaKey'])" data-ng-editable-model="pass[field['schemaKey']]"></span>
+                    </td>
+                    <td>
+                        <ui-select data-ng-model="pass.type" data-ng-change="checkPassType(pass)">
+                            <ui-select-match placeholder="Select type...">{{$select.selected.title}}</ui-select-match>
+                            <ui-select-choices repeat="type.id as type in passTypes | filter:$select.search">{{type.title}}</ui-select-choices>
+                        </ui-select>
+                        <ui-select data-ng-if="pass.type === 0" data-ng-init="initServers()" data-ng-model="pass.forServer" data-ng-change="checkPassType(pass)" cg-busy="{promise:getHttp3,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+                            <ui-select-match placeholder="Select server...">{{$select.selected.ip}}</ui-select-match>
+                            <ui-select-choices repeat="server._id as server in servers | filter:$select.search">{{server.ip}} ({{server.location}})</ui-select-choices>
+                        </ui-select>
+                        <ui-select data-ng-if="pass.type === 1" data-ng-init="initSites()" data-ng-model="pass.forSite" data-ng-change="checkPassType(pass)" cg-busy="{promise:getHttp4,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+                            <ui-select-match placeholder="Select site...">{{$select.selected.title}}</ui-select-match>
+                            <ui-select-choices repeat="site._id as site in sites | filter:$select.search">{{site.title}} ({{site.uri}})</ui-select-choices>
+                        </ui-select>
+                    </td>
+                </tr>
+            </table>
+            <div data-ng-init="initUsers()" cg-busy="{promise:getHttp5,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
+                <alert type="info" data-ng-if='!users || !users.length'>Nobody has the access to this password.</alert>
+                <div data-ng-if="users && users.length">
+                    <div class="panel panel-default">
+                        <div class="panel-heading ui-draggable-handle">
+                            <h3 class="panel-title" style="text-decoration:underline;">Users with access to this password:</h3>
+                        </div>
+                        <div class="panel-body">
+                            <ul class="list-group border-bottom list-inline" data-ng-repeat="user in users">
+                                <li style="width:94%">
+                                    <a href="#!/users/{{user.username}}" target="_blank" class="list-group-item" title="Push to autologin in the mailbox account">
+                                        <h4>{{$index+1}}. {{user.name}} ({{user.username}})</h4>
+                                    </a>
+                                </li>
+                                <li style="width:4%;">
+                                    <div class="btn-group" dropdown is-open="status.isopen">
+                                        <button type="button" class="btn btn-default dropdown-toggle" dropdown-toggle>
+                                            <i class="glyphicon glyphicon-flash"></i>
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li>
+                                                <a href="" data-ng-click="denyAccess(user)">Deny access</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </li>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>

@@ -434,7 +434,7 @@ exports.assignRole = function(req, res) {
 
 exports.clearAccesses = function(req, res) {
     if (!req.body.params || !req.body.params.users)
-        return res.status(500).send('empty request');
+        return res.status(400).send('Empty request');
     var users = req.body.params.users;
     Pass
         .update({

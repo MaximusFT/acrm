@@ -62,7 +62,7 @@ function createTree(departments) {
 
 exports.usersByDepartment = function(req, res) {
     if (!req.params.department)
-        return res.status(500).send('Empty request');
+        return res.status(400).send('Empty request');
     User
         .find({
             department: req.params.department
@@ -94,7 +94,7 @@ exports.usersByDepartment = function(req, res) {
 
 exports.bindToDep = function(req, res) {
     if (!req.body.params || !req.body.params.users || !req.body.params.users.length || !req.body.params.department)
-        return res.status(500).send('Empty request');
+        return res.status(400).send('Empty request');
     var users = req.body.params.users,
         department = req.body.params.department,
         query = {};

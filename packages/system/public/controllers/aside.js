@@ -55,6 +55,11 @@ angular.module('mean.system').controller('AsideController', ['$scope', '$rootSco
             angular.element('#' + event.currentTarget.id).parents('.xn-openable').toggleClass('active');
         };
 
+        $scope.onSubmenuClick = function() {
+            if (angular.element('.page-sidebar .x-navigation').hasClass('x-navigation-minimized'))
+                angular.element('.xn-openable').removeClass('active');
+        };
+
         /*$scope.showAvContr = function() {
             $log.info('show');
             angular.element('.owner_photo_bubble_action').css('opacity', '1');

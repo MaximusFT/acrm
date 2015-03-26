@@ -94,7 +94,7 @@ exports.destroy = function (req, res) {
 exports.all = function (req, res) {
 	console.log(req.query);
 	if (!req.query.type) {
-		return res.status(500).send('Empty request');
+		return res.status(400).send('Empty request');
 	}
 	var query = {};
 	query.type = req.query.type;
@@ -118,7 +118,7 @@ exports.reply = function (req, res) {
 	var ticketId = req.body.ticketId;
 	var answer = req.body.answer;
 	if (!ticketId || !answer) {
-		return res.status(500).send('Empty request');
+		return res.status(400).send('Empty request');
 	}
 	Ticket
 	.update({
