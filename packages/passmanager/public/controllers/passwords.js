@@ -9,7 +9,6 @@ angular.module('mean.passmanager').controller('PasswordsController', ['$scope', 
         $scope.isPasses = false;
         $scope.radioModel = 'Left';
         $scope.dataModel = 0;
-        $scope.isGroupOpened = [];
         $scope.isSentIdea = $scope.isSentRequest = false;
         $scope.alerts = [{
             type: 'danger',
