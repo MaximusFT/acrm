@@ -365,12 +365,6 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
             config.checkboxes.push({});
         };
 
-        $scope.addOfficeIdField = function(config) {
-            if (!config.officeIdFieldVals)
-                config.officeIdFieldVals = [];
-            config.officeIdFieldVals.push({});
-        };
-
         $scope.removeCheckboxData = function(index1, index2) {
             $scope.actions[index1].config.checkboxes.splice(index2, 1);
         };
@@ -433,6 +427,26 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
                         ac.config.comment = action.config.comment;
                 }
             }
+        };
+
+        $scope.activateDynOfficeId = function(config) {
+            if (config.isOfficeIdField && !config.officeIdFieldOptions) {
+                config.officeIdFieldOptions = {
+                    values: ['---'],
+                    officeIds: ['---']
+                };
+            }
+        };
+
+        $scope.addOfficeIdOptions = function(config) {
+            config.officeIdFieldOptions.values.push('');
+            config.officeIdFieldOptions.officeIds.push('');
+        };
+
+        $scope.removeOfficeIdOptions = function(config, index) {
+            $log.info(index);
+            config.officeIdFieldOptions.values.splice(index, 1);
+            config.officeIdFieldOptions.officeIds.splice(index, 1);
         };
     }
 ]);

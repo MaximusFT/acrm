@@ -131,13 +131,20 @@ function sendToInside(actions, data, analyticsData, callback) {
         postData.office_id = options.officeId;
     } else {
         var tmpOf = _.filter(data, function(d) {
-            return d.htmlId === options.officeIdField;
+            return d.htmlId === options.officeIdFieldOptions.field;
         });
         if (tmpOf.length === 0) {
             response.error = 'Empty office ID field value';
             return callback(response);
         }
-        postData.office_id = tmpOf[0].value;
+        _.forEach(options.officeIdFieldOptions.officeIds, function(officeId, index){
+            if(tmpOf[0].value === options.officeIdFieldOptions.values[index])
+                postData.office_id = options.officeIdFieldOptions.officeIds[index];
+        });
+        if (!postData.office_id) {
+            response.error = 'Empty office ID field value';
+            return callback(response);
+        }
     }
     postData.type_id = options.reqType;
     postData.comments = options.comment;
@@ -204,9 +211,6 @@ function sendToInside(actions, data, analyticsData, callback) {
             }
         }
     });
-    /*if (options.concatOfficeDest) {
-
-    }*/
 
     var transData = {
         comments: postData.comments
