@@ -166,7 +166,7 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
             return !!action.error;
         }
         if (action.action === 'Inside') {
-            return action.res.indexOf('formCallback') !== -1 && action.res.indexOf('error') !== -1;
+            return action.res && action.res.indexOf('formCallback') !== -1 && action.res.indexOf('error') !== -1 || action.error;
         }
         if (action.action === 'Justclick') {
             return action.res.error_code !== 0;

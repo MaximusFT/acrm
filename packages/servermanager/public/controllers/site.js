@@ -32,6 +32,15 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
             tbody: ['userId', 'userKey', 'targetGroup', 'doneUrl'],
             config: {}
         }, {
+            name: 'Send email',
+            thead: ['Email', 'Pass', 'From', 'Subject', 'Recipient(s)', 'Self', 'Is our mailserver'],
+            tbody: ['email', 'pass', 'from', 'subject', 'recipients', 'self', 'isOurMailserver'],
+            config: {
+                titleText: [],
+                bodyText: [],
+                footerText: []
+            }
+        }, {
             name: 'Send SMS',
             thead: ['Username', 'Password', 'From', 'Text for SMS', 'Appeal'],
             tbody: ['username', 'password', 'from', 'textSms', 'appeal'],
@@ -58,7 +67,7 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
 
         $scope.init = function() {
             $scope.getHttp1 = $http.get('/api/site/' + $scope.siteId).success(function(response) {
-                $log.info(response);
+                //$log.info(response);
                 $scope.site = response.site;
                 $scope.referencedPasswords = response.passwords;
                 $scope.crumbs = [{
@@ -432,8 +441,8 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
         $scope.activateDynOfficeId = function(config) {
             if (config.isOfficeIdField && !config.officeIdFieldOptions) {
                 config.officeIdFieldOptions = {
-                    values: ['---'],
-                    officeIds: ['---']
+                    values: [''],
+                    officeIds: ['']
                 };
             }
         };
@@ -447,6 +456,10 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
             $log.info(index);
             config.officeIdFieldOptions.values.splice(index, 1);
             config.officeIdFieldOptions.officeIds.splice(index, 1);
+        };
+
+        $scope.addRow = function(row) {
+            row.push([]);
         };
     }
 ]);

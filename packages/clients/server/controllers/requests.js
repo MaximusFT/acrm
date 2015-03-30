@@ -15,7 +15,8 @@ var mongoose = require('mongoose'),
     safeParse = require('safe-json-parse/callback'),
     url = require('url'),
     Buffer = require('buffer').Buffer,
-    Iconv = require('iconv').Iconv;
+    Iconv = require('iconv').Iconv,
+    nodemailer = require('nodemailer');
 
 function saveRequestInAcrm(actions, data, analyticsData, formId, callback) {
     var response = {
@@ -131,17 +132,30 @@ function sendToInside(actions, data, analyticsData, callback) {
         postData.office_id = options.officeId;
     } else {
         var tmpOf = _.filter(data, function(d) {
+            //console.log(d.htmlId, options.officeIdFieldOptions.field, typeof d.htmlId, typeof options.officeIdFieldOptions.field);
             return d.htmlId === options.officeIdFieldOptions.field;
         });
         if (tmpOf.length === 0) {
+            //console.log('nope1');
             response.error = 'Empty office ID field value';
             return callback(response);
         }
-        _.forEach(options.officeIdFieldOptions.officeIds, function(officeId, index){
-            if(tmpOf[0].value === options.officeIdFieldOptions.values[index])
-                postData.office_id = options.officeIdFieldOptions.officeIds[index];
+        //console.log(tmpOf);
+        _.forEach(options.officeIdFieldOptions.officeIds, function(officeId, index) {
+            //console.log(options.officeIdFieldOptions.officeIds[index], typeof options.officeIdFieldOptions.officeIds[index]);
+            if (tmpOf[0].value === options.officeIdFieldOptions.values[index]) {
+                var parsed = parseInt(options.officeIdFieldOptions.officeIds[index]);
+                //console.log('parsed', parsed);
+                if(!isNaN(parsed)) {
+                    postData.office_id = parsed;
+                } else {
+                    response.error = 'Office ID is NaN (' + tmpOf[0].value + ')';
+                    return callback(response);
+                }
+            }
         });
         if (!postData.office_id) {
+            //console.log('nope2');
             response.error = 'Empty office ID field value';
             return callback(response);
         }
@@ -247,13 +261,126 @@ function sendToInside(actions, data, analyticsData, callback) {
                             response.res = body;
                         else
                             response.res = body.split(':')[1].split('}])')[0].trim();
+                        if (options.isOfficeIdField)
+                            response.res += ' (Dynamic office ID: ' + postData.office_id + ')';
                         return callback(response);
                     } else {
                         response.error = error + ';' + body;
+                        if (options.isOfficeIdField)
+                            response.error += ' (Dynamic office ID: ' + postData.office_id + ')';
                         return callback(response);
                     }
                 });
             }
+        }
+    });
+}
+
+function sendEmail(actions, data, callback) {
+    var response = {
+        action: 'Send email'
+    };
+    var temp = _.filter(actions, function(fa) {
+        return fa.name === 'Send email';
+    });
+    if (temp.length === 0 || temp.length > 0 && !temp[0].isEnabled) {
+        return callback(response);
+    }
+    var options = temp[0].config;
+
+    if (!options.email || !options.pass) {
+        response.error = 'Empty email authentication config';
+        return callback(response);
+    }
+
+    var htmlText = [],
+        mailConfig = {
+            service: 'SMTP',
+            auth: {
+                user: options.email,
+                pass: options.pass
+            }
+        };
+
+    if (options.isOurMailserver === 'yes') {
+        mailConfig.host = 'mail.mailgroup.pro';
+        mailConfig.port = 587;
+        mailConfig.secure = false;
+        mailConfig.requireTLS = true;
+        mailConfig.tls = {
+            rejectUnauthorized: false
+        };
+    }
+
+    _.forEach(options.titleText, function(titleText) {
+        var temp = titleText[0] ? titleText[0] : '';
+        if (titleText[1]) {
+            var tmp = _.filter(data, function(d) {
+                return d.htmlId === titleText[1];
+            });
+            if (tmp.length > 0)
+                temp += tmp[0] ? (' ' + tmp[0].value) : '';
+        }
+        temp += titleText[2] ? (' ' + titleText[2]) : '';
+        htmlText.push('<p>' + temp + '</p>');
+    });
+    _.forEach(options.bodyText, function(bodyText) {
+        var temp = bodyText[0] ? bodyText[0] : '';
+        if (bodyText[1]) {
+            var tmp = _.filter(data, function(d) {
+                return d.htmlId === bodyText[1];
+            });
+            if (tmp.length > 0)
+                temp += tmp[0] ? (' ' + tmp[0].value) : '';
+        }
+        temp += bodyText[2] ? (' ' + bodyText[2]) : '';
+        htmlText.push('<p>' + temp + '</p>');
+    });
+    _.forEach(options.footerText, function(footerText) {
+        var temp = footerText[0] ? footerText[0] : '';
+        if (footerText[1]) {
+            var tmp = _.filter(data, function(d) {
+                return d.htmlId === footerText[1];
+            });
+            if (tmp.length > 0)
+                temp += tmp[0] ? (' ' + tmp[0].value) : '';
+        }
+        temp += footerText[2] ? (' ' + footerText[2]) : '';
+        htmlText.push('<p>' + temp + '</p>');
+    });
+
+    var mailOptions = {
+        from: options.from + ' <' + options.email + '>',
+        subject: options.subject,
+        html: htmlText.join('\n\n')
+    };
+
+    if (options.recipients === 'self') {
+        if (!options.self) {
+            response.error = 'Empty recipients';
+            return callback(response);
+        }
+        var tmp = _.filter(data, function(d) {
+            return d.htmlId === options.self;
+        });
+        if (tmp.length > 0)
+            mailOptions.to = tmp[0].value;
+    } else {
+        mailOptions.to = options.recipients;
+    }
+    console.log(options);
+    console.log(mailOptions);
+
+    var transport = nodemailer.createTransport(mailConfig);
+    transport.sendMail(mailOptions, function(err, res) {
+        if (err) {
+            console.log(err);
+            response.error = err;
+            callback(response);
+        } else {
+            //console.log(response);
+            response.res = res;
+            return callback(response);
         }
     });
 }
@@ -555,6 +682,11 @@ exports.processUserRequest = function(req, res) {
                                         },
                                         function(callback) {
                                             sendToInside(form.actions, bindedData, analyticsData, function(response) {
+                                                callback(null, response);
+                                            });
+                                        },
+                                        function(callback) {
+                                            sendEmail(form.actions, bindedData, function(response) {
                                                 callback(null, response);
                                             });
                                         },

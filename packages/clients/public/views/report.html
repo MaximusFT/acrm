@@ -42,7 +42,7 @@
                 <li>
                     {{action.action}} <i class="{{hasError(action) ? 'glyphicon glyphicon-remove' : 'glyphicon glyphicon-ok'}}" style="{{hasError(action) ? 'colod:red;' : 'color:green;'}}cursor:pointer;" data-ng-click="showRes($index)"></i>
                     <div collapse="!isResShown[$index]">
-                        <pre>{{action.res | json}}</pre>
+                        <pre>{{action.res | json}}{{action.error | json}}</pre>
                     </div>
                 </li>
             </ul>
