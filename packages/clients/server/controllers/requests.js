@@ -16,6 +16,7 @@ var mongoose = require('mongoose'),
     url = require('url'),
     Buffer = require('buffer').Buffer,
     Iconv = require('iconv').Iconv,
+    config = require('meanio').loadConfig(),
     nodemailer = require('nodemailer');
 
 function saveRequestInAcrm(actions, data, analyticsData, formId, callback) {
@@ -146,7 +147,7 @@ function sendToInside(actions, data, analyticsData, callback) {
             if (tmpOf[0].value === options.officeIdFieldOptions.values[index]) {
                 var parsed = parseInt(options.officeIdFieldOptions.officeIds[index]);
                 //console.log('parsed', parsed);
-                if(!isNaN(parsed)) {
+                if (!isNaN(parsed)) {
                     postData.office_id = parsed;
                 } else {
                     response.error = 'Office ID is NaN (' + tmpOf[0].value + ')';
@@ -286,30 +287,30 @@ function sendEmail(actions, data, callback) {
     if (temp.length === 0 || temp.length > 0 && !temp[0].isEnabled) {
         return callback(response);
     }
-    var options = temp[0].config;
-
-    if (!options.email || !options.pass) {
-        response.error = 'Empty email authentication config';
-        return callback(response);
-    }
-
-    var htmlText = [],
-        mailConfig = {
-            service: 'SMTP',
-            auth: {
-                user: options.email,
-                pass: options.pass
-            }
+    var options = temp[0].config,
+        htmlText = [],
+        mailConfig = {},
+        mailOptions = {
+            subject: options.subject
         };
 
     if (options.isOurMailserver === 'yes') {
-        mailConfig.host = 'mail.mailgroup.pro';
-        mailConfig.port = 587;
-        mailConfig.secure = false;
-        mailConfig.requireTLS = true;
-        mailConfig.tls = {
-            rejectUnauthorized: false
-        };
+        mailConfig = config.mailer;
+        mailOptions.from = (options.from ? options.from : 'ACRM Support Service') + '<' + (options.email && options.pass ? options.email : config.mailer.auth.user) + '>';
+    } else {
+        if (!options.email || !options.pass) {
+            response.error = 'Empty email authentication config';
+            return callback(response);
+        } else {
+            mailConfig = {
+                service: 'SMTP',
+                auth: {
+                    user: options.email,
+                    pass: options.pass
+                }
+            };
+            mailOptions.from = options.from + ' <' + options.email + '>';
+        }
     }
 
     _.forEach(options.titleText, function(titleText) {
@@ -349,11 +350,7 @@ function sendEmail(actions, data, callback) {
         htmlText.push('<p>' + temp + '</p>');
     });
 
-    var mailOptions = {
-        from: options.from + ' <' + options.email + '>',
-        subject: options.subject,
-        html: htmlText.join('\n\n')
-    };
+    mailOptions.html = htmlText.join('\n\n');
 
     if (options.recipients === 'self') {
         if (!options.self) {
@@ -368,8 +365,6 @@ function sendEmail(actions, data, callback) {
     } else {
         mailOptions.to = options.recipients;
     }
-    console.log(options);
-    console.log(mailOptions);
 
     var transport = nodemailer.createTransport(mailConfig);
     transport.sendMail(mailOptions, function(err, res) {
