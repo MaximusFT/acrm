@@ -385,9 +385,12 @@ exports.assignRole = function(req, res) {
     if (!req.body.params || !req.body.params.users || !req.body.params.role)
         return res.status(500).send('Empty query');
     var users = req.body.params.users,
-        roles = ['authenticated'],
-        role = req.body.params.role === 1 ? 'admin' : (req.body.params.role === 2 ? 'manager' : (req.body.params.role === 3 ? 'employee' : ''));
-    if (role)
+        roles = [],
+        role = req.body.params.role === 1 ? 'admin' : (req.body.params.role === 2 ? 'manager' : (req.body.params.role === 3 ? 'employee' : (req.body.params.role === 4 ? 'fired' : '')));
+    if (role && role !== 'fired') {
+        roles.push('authenticated');
+        role.push(role);
+    } else if(role === 'fired')
         roles.push(role);
     else
         return res.status(500).send('Unknown role');

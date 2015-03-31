@@ -54,6 +54,9 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$lo
         }, {
             id: 3,
             title: 'Employee'
+        }, {
+            id: 4,
+            title: 'Fired'
         }];
 
         $http.post('/api/isAdmin').success(function(response) {
@@ -225,7 +228,7 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$lo
                 }
             }).success(function(response) {
                 //$log.info(response);
-                var r = response.substring(0, 1).toUpperCase();
+                var r = response !== '' ? response.substring(0, 1).toUpperCase() : 'N/a';
                 angular.forEach($scope.departments, function(department) {
                     angular.forEach(department.users, function(user) {
                         if (user.Selected === true) {
@@ -307,6 +310,8 @@ angular.module('mean.usermanager').controller('UsersController', ['$scope', '$lo
                 return 'font-weight:bolder;color:blue;';
             if (role === 'M')
                 return 'font-weight:bolder;color:gray;';
+            if (role === 'F')
+                return 'opacity:0.25;';
         };
 
         $scope.formateDate = function(date) {

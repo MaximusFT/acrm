@@ -161,6 +161,8 @@ exports.allUsersByDeps = function(req, res) {
                                         }
                                         if (u.roles && u.roles.length > 1)
                                             u.roles = u.roles[1].substring(0, 1).toUpperCase();
+                                        else if (u.roles && u.roles.length === 1 && u.roles.indexOf('fired') !== -1)
+                                            u.roles = 'F';
                                         else
                                             u.roles = 'N/v';
                                     });
@@ -232,6 +234,8 @@ exports.allUsersByDeps = function(req, res) {
                                                     }
                                                     if (u.roles && u.roles.length > 1)
                                                         u.roles = u.roles[1].substring(0, 1).toUpperCase();
+                                                    else if (u.roles && u.roles.length === 1 && u.roles.indexOf('fired') !== -1)
+                                                        u.roles = 'F';
                                                     else
                                                         u.roles = 'N/v';
                                                 });
