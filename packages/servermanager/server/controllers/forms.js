@@ -30,6 +30,14 @@ exports.create = function(req, res) {
             console.log(err);
             return res.status(500).send(err);
         } else {
+            req.sEvent = {
+                category: 0,
+                level: 'info',
+                targetGroup: ['infrastructureAdmins', 'clientRequestAdmins'],
+                title: 'New form was added for clients requests processing.',
+                link: '/',
+                initPerson: req.user._id
+            };
             return res.jsonp(newForm);
         }
     });
@@ -87,6 +95,15 @@ exports.update = function(req, res) {
                 return res.status(500).send(err);
             } else {
                 //console.log('updated', updated);
+                req.sEvent = {
+                    category: 0,
+                    level: 'warning',
+                    targetGroup: ['infrastructureAdmins', 'clientRequestAdmins'],
+                    title: 'Form information was modified.',
+                    link: '/#!/servers',
+                    initPerson: req.user._id,
+                    extraInfo: req.body.params.difs
+                };
                 return res.jsonp(updated);
             }
         });
@@ -96,14 +113,37 @@ exports.delete = function(req, res) {
     if (!req.params || !req.params.form)
         return res.status(500).send('Empty query');
     Form
-        .remove({
+        .findOne({
             _id: req.params.form
-        }, function(err) {
+        }, function(err, form) {
             if (err) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
-                res.status(200).send();
+                if (form) {
+                    Form
+                        .remove({
+                            _id: req.params.form
+                        }, function(err) {
+                            if (err) {
+                                console.log(err);
+                                return res.status(500).send(err);
+                            } else {
+                                req.sEvent = {
+                                    category: 0,
+                                    level: 'danger',
+                                    targetGroup: ['infrastructureAdmins', 'clientRequestAdmins'],
+                                    title: 'Form was removed.',
+                                    link: '/#!/servers',
+                                    initPerson: req.user._id,
+                                    extraInfo: form
+                                };
+                                res.status(200).send();
+                            }
+                        });
+                } else {
+                    return res.status(404).send('Form was not found');
+                }
             }
         });
 };

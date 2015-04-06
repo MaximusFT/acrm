@@ -6,18 +6,18 @@ module.exports = function(Passmanager, app, auth, database) {
     var passwords = require('../controllers/passwords');
     app.get('/api/passes', auth.requiresAdmin, passwords.all);
     app.get('/api/getPass', auth.requiresAdmin, passwords.getPass);
-    app.post('/api/passes', auth.requiresManager, passwords.create);
-    app.put('/api/passes/:passId', auth.requiresManager, passwords.update);
-    app.delete('/api/passes/:passId', auth.requiresAdmin, passwords.destroy);
+    app.post('/api/passes', auth.requiresManager, passwords.create, auth.eventHandler);
+    app.put('/api/passes/:passId', auth.requiresManager, passwords.update, auth.eventHandler);
+    app.delete('/api/passes/:passId', auth.requiresAdmin, passwords.destroy, auth.eventHandler);
     app.get('/api/getGroups', auth.requiresManager, passwords.groups);
     app.get('/api/getAcsGroups', auth.requiresManager, passwords.acsgroups);
     app.get('/api/getPassesByGroup', auth.requiresManager, passwords.passesByGroup);
-    app.delete('/api/deletePass', auth.requiresAdmin, passwords.delPass);
-    app.post('/api/provideAccess', auth.requiresManager, passwords.provideAccess);
-    app.post('/api/revokeAccess', auth.requiresManager, passwords.revokeAccess);
+    app.delete('/api/deletePass', auth.requiresAdmin, passwords.delPass, auth.eventHandler);
+    app.post('/api/provideAccess', auth.requiresManager, passwords.provideAccess, auth.eventHandler);
+    app.post('/api/revokeAccess', auth.requiresManager, passwords.revokeAccess, auth.eventHandler);
     app.get('/api/getPassesByUser', auth.requiresLogin, passwords.getPassesByUser);
     app.post('/api/usersWithAccess', auth.requiresAdmin, passwords.usersWithAccess);
-    app.post('/api/denyUserAccessToPass', auth.requiresAdmin, passwords.denyUserAccessToPass);
+    app.post('/api/denyUserAccessToPass', auth.requiresAdmin, passwords.denyUserAccessToPass, auth.eventHandler);
 	
     /*var requests = require('../controllers/requests');
     app.post('/api/requests', auth.requiresLogin, requests.create);

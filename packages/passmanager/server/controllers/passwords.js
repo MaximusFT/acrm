@@ -362,11 +362,19 @@ exports.delPass = function(req, res) {
         _.extend(pass, req.body);
         pass.remove(function(err) {
             if (err) {
-                return res.render('error', {
-                    status: 500
-                });
+                console.log(err);
+                return res.status(500).send(err);
             } else {
-                return res.jsonp(pass);
+                req.sEvent = {
+                    category: 0,
+                    level: 'danger',
+                    targetGroup: ['passAdmins'],
+                    title: 'Password was removed from system.',
+                    link: '/#!/manager/passwords',
+                    initPerson: req.user._id,
+                    extraInfo: pass
+                };
+                return res.status(200).send();
             }
         });
     });
@@ -506,6 +514,22 @@ exports.provideAccess = function(req, res) {
                                         console.log(err);
                                         return res.status(500).send();
                                     } else {
+                                        req.sEvents = [{
+                                            category: 0,
+                                            level: 'info',
+                                            targetPersons: users,
+                                            title: 'You have been assigned access to password' + (passes.length > 1 ? 's.' : '.'),
+                                            link: '/',
+                                            initPerson: req.user._id
+                                        }, {
+                                            category: 0,
+                                            level: 'warning',
+                                            targetGroup: ['passAdmins'],
+                                            title: 'Users have been assigned access to password' + (passes.length > 1 ? 's.' : '.'),
+                                            link: '/#!/manager/passwords',
+                                            initPerson: req.user._id,
+                                            extraInfo: users
+                                        }];
                                         return res.status(200).send();
                                     }
                                 });
@@ -542,6 +566,22 @@ exports.provideAccess = function(req, res) {
                                                     console.log(err);
                                                     return res.status(500).send(err);
                                                 } else {
+                                                    req.sEvents = [{
+                                                        category: 0,
+                                                        level: 'info',
+                                                        targetPersons: uids,
+                                                        title: 'You have been assigned access to password' + (passes.length > 1 ? 's.' : '.'),
+                                                        link: '/',
+                                                        initPerson: req.user._id
+                                                    }, {
+                                                        category: 0,
+                                                        level: 'warning',
+                                                        targetGroup: ['passAdmins'],
+                                                        title: 'Users have been assigned access to password' + (passes.length > 1 ? 's.' : '.'),
+                                                        link: '/#!/manager/passwords',
+                                                        initPerson: req.user._id,
+                                                        extraInfo: uids
+                                                    }];
                                                     return res.status(200).send();
                                                 }
                                             });
@@ -605,6 +645,22 @@ exports.provideAccess = function(req, res) {
                                                                         console.log(err);
                                                                         return res.status(500).send();
                                                                     } else {
+                                                                        req.sEvents = [{
+                                                                            category: 0,
+                                                                            level: 'info',
+                                                                            targetPersons: users,
+                                                                            title: 'You have been assigned access to password' + (passes.length > 1 ? 's.' : '.'),
+                                                                            link: '/',
+                                                                            initPerson: req.user._id
+                                                                        }, {
+                                                                            category: 0,
+                                                                            level: 'warning',
+                                                                            targetGroup: ['passAdmins'],
+                                                                            title: 'Users have been assigned access to password' + (passes.length > 1 ? 's.' : '.'),
+                                                                            link: '/#!/manager/passwords',
+                                                                            initPerson: req.user._id,
+                                                                            extraInfo: users
+                                                                        }];
                                                                         return res.status(200).send();
                                                                     }
                                                                 });
@@ -672,6 +728,22 @@ exports.provideAccess = function(req, res) {
                                                                     console.log(err);
                                                                     return res.status(500).send(err);
                                                                 } else {
+                                                                    req.sEvents = [{
+                                                                        category: 0,
+                                                                        level: 'info',
+                                                                        targetPersons: uids,
+                                                                        title: 'You have been assigned access to password' + (passes.length > 1 ? 's' : '') + ' by your manager',
+                                                                        link: '/',
+                                                                        initPerson: req.user._id
+                                                                    }, {
+                                                                        category: 0,
+                                                                        level: 'warning',
+                                                                        targetGroup: ['passAdmins'],
+                                                                        title: 'Users have been assigned access to password' + (passes.length > 1 ? 's' : '') + ' by manager.',
+                                                                        link: '/#!/manager/passwords',
+                                                                        initPerson: req.user._id,
+                                                                        extraInfo: uids
+                                                                    }];
                                                                     return res.status(200).send();
                                                                 }
                                                             });
@@ -713,6 +785,25 @@ exports.revokeAccess = function(req, res) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
+                req.sEvents = [{
+                    category: 0,
+                    level: 'warning',
+                    targetPersons: users,
+                    title: 'You have been revoked access to password' + (passes.length > 1 ? 's.' : '.'),
+                    link: '/',
+                    initPerson: req.user._id
+                }, {
+                    category: 0,
+                    level: 'info',
+                    targetGroup: ['passAdmins'],
+                    title: 'User' + (users.length > 1 ? 's have' : 'has') + ' been revoked access to password' + (passes.length > 1 ? 's.' : '.'),
+                    link: '/#!/manager/passwords',
+                    initPerson: req.user._id,
+                    extraInfo: {
+                        users: users,
+                        passes: passes
+                    }
+                }];
                 return res.status(200).send();
             }
         });

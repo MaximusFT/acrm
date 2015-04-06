@@ -5,7 +5,8 @@
                 "bower_components/angular-busy/dist/angular-busy.min.css",
                 "bower_components/angular-ui-tree/dist/angular-ui-tree.min.css",
                 "bower_components/angular-ui-select/dist/select.min.css",
-                "bower_components/ng-tags-input/ng-tags-input.min.css"
+                "bower_components/ng-tags-input/ng-tags-input.min.css",
+                "bower_components/perfect-scrollbar/min/perfect-scrollbar.min.css"
             ]
         },
         "js": {
@@ -24,7 +25,10 @@
                 "bower_components/angular-ui-tree/dist/angular-ui-tree.js",
                 "bower_components/angular-ui-select/dist/select.min.js",
                 "bower_components/ng-tags-input/ng-tags-input.min.js",
-                "bower_components/angular-audio/app/angular.audio.js"
+                "bower_components/angular-audio/app/angular.audio.js",
+                "bower_components/perfect-scrollbar/min/perfect-scrollbar.min.js",
+                "bower_components/perfect-scrollbar/min/perfect-scrollbar.with-mousewheel.min.js",
+                "bower_components/angular-perfect-scrollbar/src/angular-perfect-scrollbar.js"
             ]
         }
     }

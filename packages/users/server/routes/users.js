@@ -15,7 +15,7 @@ module.exports = function(MeanUser, app, auth, database, passport) {
         .post(users.create, auth.eventHandler);
 
     app.route('/forgot-password')
-        .post(users.forgotpassword);
+        .post(users.forgotpassword, auth.eventHandler);
 
     app.route('/reset/:token')
         .post(users.resetpassword);

@@ -424,6 +424,14 @@ exports.forgotpassword = function(req, res, next) {
                 response.message = 'Mail was successfully sent';
                 response.status = 'success';
             }
+            req.sEvent = {
+                category: 0,
+                level: 'info',
+                targetGroup: ['userManagerAdmins'],
+                title: 'User has been used the service password recovery.',
+                link: '/#!/users',
+                initPerson: req.user._id
+            };
             return res.jsonp(response);
         }
     );

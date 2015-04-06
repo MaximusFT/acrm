@@ -1,0 +1,7 @@
+.scroller {
+    /* white-space: pre-line; */
+    height: 200px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    position: relative;
+}

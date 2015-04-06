@@ -59,8 +59,17 @@ exports.create = function(req, res, next) {
             }
             console.log(err);
             return res.status(400);
+        } else {
+            req.sEvent = {
+                category: 0,
+                level: 'info',
+                targetGroup: ['userManagerAdmins'],
+                title: 'New user was added manually by ACRM user.',
+                link: '/#!/users/' + user.username,
+                initPerson: req.user._id
+            };
+            res.jsonp(user);
         }
-        res.jsonp(user);
     });
 };
 
@@ -107,7 +116,15 @@ exports.update = function(req, res) {
                         error: err
                     });
                 } else {
-                    return res.jsonp('ok');
+                    req.sEvent = {
+                        category: 0,
+                        level: 'warning',
+                        targetGroup: ['userManagerAdmins'],
+                        title: 'User information was modified',
+                        link: '/#!/users',
+                        initPerson: req.user._id
+                    };
+                    return res.status(200).send();
                 }
             });
     }
@@ -120,15 +137,34 @@ exports.destroy = function(req, res) {
     if (!req.params.userId)
         return res.status(500).send('Empty query');
     User
-        .remove({
+        .findOne({
             _id: req.params.userId
-        }, function(err, deleted) {
+        }, function(err, user) {
             if (err) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
-                console.log(deleted);
-                return res.status(200).send();
+                User
+                    .remove({
+                        _id: req.params.userId
+                    }, function(err, deleted) {
+                        if (err) {
+                            console.log(err);
+                            return res.status(500).send(err);
+                        } else {
+                            console.log(deleted);
+                            req.sEvent = {
+                                category: 0,
+                                level: 'danger',
+                                targetGroup: ['userManagerAdmins'],
+                                title: 'User was removed',
+                                link: '/#!/users',
+                                initPerson: req.user._id,
+                                extraInfo: user
+                            };
+                            return res.status(200).send();
+                        }
+                    });
             }
         });
 };
@@ -138,17 +174,38 @@ exports.removeUsers = function(req, res) {
         return res.status(500).send('Empty query');
     var users = req.body.params.users;
     User
-        .remove({
+        .find({
             _id: {
                 $in: users
             }
-        }, function(err, deleted) {
+        }, function(err, busers) {
             if (err) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
-                console.log('deleted', deleted);
-                return res.status(200).send();
+                User
+                    .remove({
+                        _id: {
+                            $in: users
+                        }
+                    }, function(err, deleted) {
+                        if (err) {
+                            console.log(err);
+                            return res.status(500).send(err);
+                        } else {
+                            console.log('deleted', deleted);
+                            req.sEvent = {
+                                category: 0,
+                                level: 'danger',
+                                targetGroup: ['userManagerAdmins'],
+                                title: 'Users were removed.',
+                                link: '/#!/users',
+                                initPerson: req.user._id,
+                                extraInfo: busers
+                            };
+                            return res.status(200).send();
+                        }
+                    });
             }
         });
 };
@@ -390,7 +447,7 @@ exports.assignRole = function(req, res) {
     if (role && role !== 'fired') {
         roles.push('authenticated');
         roles.push(role);
-    } else if(role === 'fired')
+    } else if (role === 'fired')
         roles.push(role);
     else
         return res.status(500).send('Unknown role');
@@ -408,24 +465,58 @@ exports.assignRole = function(req, res) {
                     if (user.roles.indexOf('manager') !== -1 && role === 'admin')
                         return res.status(403).send('Access denied');
                     User
-                        .update({
+                        .findOne({
                             _id: {
                                 $in: users
                             }
                         }, {
-                            $set: {
-                                roles: roles
-                            }
-                        }, {
-                            multi: true
-                        })
-                        .exec(function(err, updated) {
+                            roles: 1
+                        }, function(err, busers) {
                             if (err) {
                                 console.log(err);
                                 return res.status(500).send(err);
                             } else {
-                                console.log('updated', updated);
-                                return res.jsonp(role);
+                                User
+                                    .update({
+                                        _id: {
+                                            $in: users
+                                        }
+                                    }, {
+                                        $set: {
+                                            roles: roles
+                                        }
+                                    }, {
+                                        multi: true
+                                    })
+                                    .exec(function(err, updated) {
+                                        if (err) {
+                                            console.log(err);
+                                            return res.status(500).send(err);
+                                        } else {
+                                            console.log('updated', updated);
+                                            req.sEvents = [{
+                                                category: 0,
+                                                level: 'warning',
+                                                targetGroup: ['userManagerAdmins'],
+                                                title: 'User role was modified.',
+                                                link: '/#!/users',
+                                                initPerson: req.user._id,
+                                                extraInfo: {
+                                                    was: _.map(busers, 'role'),
+                                                    is: roles
+                                                }
+                                            }, {
+                                                category: 0,
+                                                level: 'warning',
+                                                targetPersons: users,
+                                                title: 'Your role was changed.',
+                                                link: '/#!/users',
+                                                initPerson: req.user._id,
+                                                extraInfo: req.body.params.role
+                                            }];
+                                            return res.jsonp(role);
+                                        }
+                                    });
                             }
                         });
                 } else {
@@ -440,23 +531,48 @@ exports.clearAccesses = function(req, res) {
         return res.status(400).send('Empty request');
     var users = req.body.params.users;
     Pass
-        .update({
+        .find({
             accessedFor: {
                 $in: users
             }
         }, {
-            $pullAll: {
-                accessedFor: users
-            }
-        }, {
-            multi: true
-        })
-        .exec(function(err) {
+            _id: 1,
+            accessedFor: 1
+        }, function(err, passes) {
             if (err) {
                 console.log(err);
                 return res.status(500).send(err);
-            } else
-                return res.status(200).send();
+            } else {
+                Pass
+                    .update({
+                        accessedFor: {
+                            $in: users
+                        }
+                    }, {
+                        $pullAll: {
+                            accessedFor: users
+                        }
+                    }, {
+                        multi: true
+                    })
+                    .exec(function(err) {
+                        if (err) {
+                            console.log(err);
+                            return res.status(500).send(err);
+                        } else {
+                            req.sEvent = {
+                                category: 0,
+                                level: 'warning',
+                                targetGroup: ['userManagerAdmins'],
+                                title: 'The user has been stripped of all accesses.',
+                                link: '/#!/users',
+                                initPerson: req.user._id,
+                                extraInfo: passes
+                            };
+                            return res.status(200).send();
+                        }
+                    });
+            }
         });
 };
 

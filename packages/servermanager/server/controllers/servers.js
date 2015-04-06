@@ -18,6 +18,14 @@ exports.create = function(req, res) {
             console.log(err);
             return res.status(500).send(err);
         } else {
+            req.sEvent = {
+                category: 0,
+                level: 'info',
+                targetGroup: ['infrastructureAdmins'],
+                title: 'One more server was added (' + newServer.ip + ').',
+                link: '/#!/servers',
+                initPerson: req.user._id
+            };
             return res.jsonp(newServer);
         }
     });
@@ -95,14 +103,37 @@ exports.deleteServer = function(req, res) {
     if (!req.query.server)
         return res.status(500).send('Empty query');
     Server
-        .remove({
+        .findOne({
             _id: req.query.server
-        }, function(err) {
+        }, function(err, server) {
             if (err) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
-                return res.status(200).send();
+                if (server) {
+                    Server
+                        .remove({
+                            _id: req.query.server
+                        }, function(err) {
+                            if (err) {
+                                console.log(err);
+                                return res.status(500).send(err);
+                            } else {
+                                req.sEvent = {
+                                    category: 0,
+                                    level: 'danger',
+                                    targetGroup: 'infrastructureAdmins',
+                                    title: 'Server was removed.',
+                                    link: '/#!/servers',
+                                    initPerson: req.user._id,
+                                    extraInfo: server
+                                };
+                                return res.status(200).send();
+                            }
+                        });
+                } else {
+                    return res.status(404).send('Server was not found');
+                }
             }
         });
 };
@@ -128,6 +159,15 @@ exports.updateServer = function(req, res) {
                 return res.status(500).send(err);
             } else {
                 //console.log('updated', updated);
+                req.sEvent = {
+                    category: 0,
+                    level: 'warning',
+                    targetGroup: ['infrastructureAdmins'],
+                    title: 'Server information was updated',
+                    link: '/#!/servers/' + req.params.server,
+                    initPerson: req.user._id,
+                    extraInfo: req.body.params.difs
+                };
                 return res.jsonp(updated);
             }
         });

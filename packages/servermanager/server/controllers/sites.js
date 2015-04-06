@@ -14,6 +14,14 @@ exports.create = function(req, res) {
             console.log(err);
             return res.status(500).send(err);
         } else {
+            req.sEvent = {
+                category: 0,
+                level: 'info',
+                targetGroup: 'infrastructureAdmins',
+                title: 'New site was added.',
+                link: '/#!/servers/site/' + newSite._id,
+                initPerson: req.user._id
+            };
             return res.jsonp(newSite);
         }
     });
@@ -23,14 +31,37 @@ exports.deleteSite = function(req, res) {
     if (!req.params.site)
         return res.status(500).send('Empty query');
     Site
-        .remove({
+        .findOne({
             _id: req.params.site
-        }, function(err) {
+        }, function(err, site) {
             if (err) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
-                return res.status(200).send();
+                if (site) {
+                    Site
+                        .remove({
+                            _id: req.params.site
+                        }, function(err) {
+                            if (err) {
+                                console.log(err);
+                                return res.status(500).send(err);
+                            } else {
+                                req.sEvent = {
+                                    category: 0,
+                                    level: 'danger',
+                                    targetGroup: ['infrastructureAdmins'],
+                                    title: 'Site was removed.',
+                                    link: '/#!/servers',
+                                    initPerson: req.user._id,
+                                    extraInfo: site
+                                };
+                                return res.status(200).send();
+                            }
+                        });
+                } else {
+                    return res.status(404).send('Site was not found');
+                }
             }
         });
 };
