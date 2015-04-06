@@ -6,7 +6,7 @@ var mongoose = require('mongoose'),
     WebreqType = mongoose.model('WebreqType'),
     FormProcessingReport = mongoose.model('FormProcessingReport'),
     LogWebRequest = mongoose.model('LogWebRequest');
-    //_ = require('lodash');
+//_ = require('lodash');
 
 exports.web_request_form_add = function(req, res, next) {
     //console.log(req.body);
@@ -137,11 +137,19 @@ exports.web_request_form_add = function(req, res, next) {
     webreq.save(function(err) {
         if (err) {
             console.log(err);
-            return res.status(500).json({
-                error: 'Cannot set the webreq'
-            });
+            return res.status(500).send(err);
+        } else {
+            req.sEvent = {
+                category: 0,
+                level: 'info',
+                targetGroup: ['clientRequestManagers', 'clientRequestAdmins'],
+                title: 'New client request from internet (old scheme).',
+                link: '/#!/requests',
+                initGroup: 'clients package',
+                extraInfo: webreq.office_destination
+            };
+            return res.jsonp(webreq);
         }
-        return res.jsonp(webreq);
     });
 };
 

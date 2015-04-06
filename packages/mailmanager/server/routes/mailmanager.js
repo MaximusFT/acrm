@@ -4,7 +4,7 @@ module.exports = function(Mailmanager, app, auth, database) {
 
     var mailmanager = require('../controllers/mailmanager.js');
 
-    app.get('/api/synchronizemailboxes', auth.requiresAdmin, mailmanager.synchronizemailboxes);
+    app.get('/api/synchronizemailboxes', auth.requiresAdmin, mailmanager.synchronizemailboxes, auth.eventHandler);
     app.get('/api/getAllMailboxes', auth.requiresAdmin, mailmanager.getmailboxes);
     app.get('/api/getAllMailboxesNoSort', auth.requiresAdmin, mailmanager.getMailboxesNoSort);
     app.get('/api/getConfig', auth.requiresAdmin, mailmanager.getConfig);

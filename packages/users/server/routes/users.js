@@ -12,7 +12,7 @@ module.exports = function(MeanUser, app, auth, database, passport) {
 
     // Setting up the users api
     app.route('/register')
-        .post(users.create);
+        .post(users.create, auth.eventHandler);
 
     app.route('/forgot-password')
         .post(users.forgotpassword);

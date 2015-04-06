@@ -722,6 +722,21 @@ exports.processUserRequest = function(req, res) {
                                                 if (tempRF.length > 0 && tempRF[0].isEnabled) {
                                                     options.rf = tempRF[0].config;
                                                 }
+                                                //EVENT GENERATING
+                                                var temp = _.filter(formProcessingReport.actionsPerformed, function(ap) {
+                                                    return (ap.action === 'ACRM' && !ap.error) || (ap.action === 'Inside' && ap.res && ap.res.indexOf('formCallback') === -1 && ap.res.indexOf('error') === -1 && !ap.error);
+                                                });
+                                                if (temp.length > 0)
+                                                    req.sEvent = {
+                                                        category: 0,
+                                                        level: 'info',
+                                                        targetGroup: ['clientRequestManagers', 'clientRequestAdmins'],
+                                                        title: 'New client request from internet.',
+                                                        link: '/#!/requests',
+                                                        initGroup: 'clients package',
+                                                        extraInfo: temp
+                                                    };
+                                                //END EVENT GENERATING
                                                 return res.jsonp(options);
                                             }
                                         });

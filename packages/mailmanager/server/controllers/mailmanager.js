@@ -5,8 +5,8 @@ var mongoose = require('mongoose'),
     PackConfig = mongoose.model('PackConfig'),
     User = mongoose.model('User'),
     request = require('request'),
-    _ = require('lodash');
-var config = '';
+    _ = require('lodash'),
+    async = require('async');
 
 function sortMailboxes(arr) {
     var result = _.chain(arr)
@@ -179,7 +179,7 @@ exports.synchronizemailboxes = function(req, res) {
                 console.log(err);
             } else
             if (data) {
-                config = data.data;
+                var config = data.data;
                 request({  
                     uri: config.mailHost + (config.isPfInDefFolder ? '/postfixadmin' : config.PfCustomFolder) + '/' + config.filename,
                       method: 'GET',
@@ -211,6 +211,7 @@ exports.synchronizemailboxes = function(req, res) {
                                         var onlyMailsFromMongo = _.map(mails, 'mail');
                                         var notInBase = _.difference(onlyMailsFromPostfix, onlyMailsFromMongo);
                                         var notInPostfix = _.difference(onlyMailsFromMongo, onlyMailsFromPostfix);
+                                        var temp = {};
                                         if (notInPostfix) {
                                             mailBox
                                                 .update({
@@ -230,6 +231,7 @@ exports.synchronizemailboxes = function(req, res) {
                                                         return res.status(500).send(err);
                                                     } else {
                                                         console.log('Set to deleted ' + numAffected + ' fields');
+                                                        temp.deleted = numAffected;
                                                         //return res.status(200);
                                                     }
                                                 });
@@ -247,51 +249,80 @@ exports.synchronizemailboxes = function(req, res) {
                                                     return res.status(500).send(err);
 
                                                 } else {
-                                                    return res.status(200).send();
+                                                    console.log(newMails.length + ' new mailboxes were added to database');
+                                                    temp.created = newMails.length;
                                                 }
                                             });
                                         }
                                         var tryToCheckForModifies = _.difference(onlyMailsFromPostfix, newMails);
+                                        var flows = [];
                                         _.forEach(tryToCheckForModifies, function(mail) {
-                                            var result = _.filter(postfix, function(p) {
-                                                return p.mail === mail;
-                                            });
-                                            if (result.length > 0) {
-                                                var result2 = _.filter(mails, function(m) {
-                                                    return m.mail === mail;
+                                            flows.push(function(callback) {
+                                                var result = _.filter(postfix, function(p) {
+                                                    return p.mail === mail;
                                                 });
-                                                if (result2.length > 0) {
-                                                    if ((parseInt(result[0].state) !== parseInt(result2[0].state)) || (result[0].messages + '' !== result2[0].messages + '') || (parseInt(result[0].quota) !== parseInt(result2[0].quota))) {
-                                                        // update element
-                                                        mailBox
-                                                            .update({
-                                                                mail: result[0].mail
-                                                            }, {
-                                                                $set: {
-                                                                    state: result[0].state,
-                                                                    quota: result[0].quota,
-                                                                    messages: result[0].messages,
-                                                                    deleted: false
-                                                                }
-                                                            }, function(err, numAffected) {
-                                                                if (err) {
-                                                                    console.log(err);
-                                                                    return res.status(500).send(err);
-                                                                } else {
-                                                                    console.log('Fiedld ' + result[0].mail + ' updated');
-                                                                }
-                                                            });
+                                                if (result.length > 0) {
+                                                    var result2 = _.filter(mails, function(m) {
+                                                        return m.mail === mail;
+                                                    });
+                                                    if (result2.length > 0) {
+                                                        if ((parseInt(result[0].state) !== parseInt(result2[0].state)) || (result[0].messages + '' !== result2[0].messages + '') || (parseInt(result[0].quota) !== parseInt(result2[0].quota))) {
+                                                            // update element
+                                                            mailBox
+                                                                .update({
+                                                                    mail: result[0].mail
+                                                                }, {
+                                                                    $set: {
+                                                                        state: result[0].state,
+                                                                        quota: result[0].quota,
+                                                                        messages: result[0].messages,
+                                                                        deleted: false
+                                                                    }
+                                                                }, function(err, numAffected) {
+                                                                    if (err) {
+                                                                        console.log(err);
+                                                                        callback(err);
+                                                                    } else {
+                                                                        callback(null, result[0].mail);
+                                                                        temp.updated = (temp.updated ? temp.updated : 0) + 1;
+                                                                    }
+                                                                });
+                                                        }
                                                     }
                                                 }
+                                            });
+                                        });
+                                        async.series(flows, function(err, results) {
+                                            if (err) {
+                                                console.log(err);
+                                                return res.status(500).send('Error while trying to check modifies in mailboxes');
+                                            } else {
+                                                console.log('results', results);
+                                                req.sEvent = {
+                                                    category: 0,
+                                                    level: 'warning',
+                                                    targetGroup: ['mailAdmins'],
+                                                    title: 'The synchronization of mailboxes was finished. ' + temp.created + ' items were created, ' + temp.updated + ' – updated, ' + temp.deleted + ' marked as removed.',
+                                                    link: '/#!/mailmanager',
+                                                    initPerson: req.user._id
+                                                };
+                                                return res.status(200).send();
                                             }
                                         });
-                                        return res.status(200).send();
                                     } else {
                                         mailBox.create(postfix, function(err) {
                                             if (err) {
                                                 console.log(err);
                                                 return res.status(500).send(err);
                                             } else {
+                                                req.sEvent = {
+                                                    category: 0,
+                                                    level: 'warning',
+                                                    targetGroup: ['mailAdmins'],
+                                                    title: 'The synchronization of mailboxes was finished. ' + postfix.length + ' items were created.',
+                                                    link: '/#!/mailmanager',
+                                                    initPerson: req.user._id
+                                                };
                                                 return res.status(200).send();
                                             }
                                         });

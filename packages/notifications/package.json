@@ -1,7 +1,7 @@
 {
-  "name": "support",
+  "name": "notifications",
   "version": "0.0.1",
-  "description": "Some description of support",
+  "description": "Some description of notifications",
   "author": {
     "name": "mean scaffold"
   },

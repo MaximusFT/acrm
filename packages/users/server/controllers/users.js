@@ -161,7 +161,16 @@ exports.create = function(req, res, next) {
             }
             req.logIn(user, function(err) {
                 if (err) return next(err);
-                return res.redirect('/');
+                res.redirect('/');
+                req.sEvent = {
+                    category: 0,
+                    level: 'info',
+                    targetGroup: ['admins'],
+                    title: 'User has signed up in system (' + user._id + ')',
+                    link: '/#!/users/' + user.username,
+                    initGroup: 'users package'
+                };
+                next();
             });
             res.status(200);
         });

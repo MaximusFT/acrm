@@ -22,12 +22,18 @@ exports.create = function(req, res, next) {
     pass.save(function(err) {
         if (err) {
             console.log(err);
-            switch (err.code) {
-                default: res.status(400).send('Please fill all the required fields');
-            }
             return res.status(500).send(err);
-        } else
+        } else {
+            req.sEvent = {
+                category: 0,
+                level: 'info',
+                targetGroup: ['passAdmins'],
+                title: 'New password for ' + pass.resourceName + ' was created.',
+                link: '/#!/manager/passwords/' + pass._id,
+                initPerson: req.user._id
+            };
             return res.jsonp(pass);
+        }
     });
 };
 
@@ -90,11 +96,17 @@ exports.update = function(req, res) {
             })
             .exec(function(err) {
                 if (err) {
-                    return res.json(500, {
-                        error: err
-                    });
+                    return res.status(500).send(err);
                 } else {
-                    return res.jsonp('ok');
+                    req.sEvent = {
+                        category: 0,
+                        level: 'warning',
+                        targetGroup: ['passAdmins'],
+                        title: 'Password was modified.',
+                        link: '/#!/manager/passwords/' + passId,
+                        initPerson: req.user._id
+                    };
+                    return res.status(200).send();
                 }
             });
     }
@@ -110,21 +122,27 @@ exports.destroy = function(req, res) {
     Pass.findById(req.params.passId, function(err, pass) {
         if (err) {
             console.log(err);
-            res.render('error', {
-                status: 500
-            });
+            return res.status(500).send(err);
         }
         if (!pass) {
-            return res.send(404);
+            return res.status(400).send('Bad request');
         }
         _.extend(pass, req.body);
         pass.remove(function(err) {
             if (err) {
-                return res.render('error', {
-                    status: 500
-                });
+                console.log(err);
+                return res.status(500).send(err);
             } else {
-                return res.jsonp(pass);
+                req.sEvent = {
+                    category: 0,
+                    level: 'danger',
+                    targetGroup: ['passAdmins'],
+                    title: 'Password was removed from system.',
+                    link: '/#!/manager/passwords',
+                    initPerson: req.user._id,
+                    extraInfo: pass
+                };
+                return res.status(200).send();
             }
         });
     });

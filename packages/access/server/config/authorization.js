@@ -72,3 +72,12 @@ exports.requiresManager = function(req, res, next) {
             }
         });
 };
+
+exports.eventHandler = function(req, res, next) {
+    //console.log('eventHandler', req.sEvent);
+    if (req.sEvent) {
+        var EventProcessor = require('meanio').events;
+        EventProcessor.emit('notification', req.sEvent);
+    }
+    next();
+};

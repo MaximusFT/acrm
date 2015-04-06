@@ -212,7 +212,15 @@ exports.changeGuestMode = function(req, res) {
                                                                         return res.status(500).send(err);
                                                                     } else {
                                                                         console.log('updated', updated);
-                                                                        return res.jsonp('ok');
+                                                                        req.sEvent = {
+                                                                            category: 0,
+                                                                            level: 'warning',
+                                                                            targetGroup: ['finchatAdmins'],
+                                                                            title: 'Guest mode in FinChat was ' + (req.body.params.isGuestModeEnabled === true ? 'enabled' : 'disabled') + '.',
+                                                                            link: '/#!/manager/chat',
+                                                                            initPerson: req.user._id
+                                                                        };
+                                                                        return res.status(200).send();
                                                                     }
                                                                 });
                                                         } else {
@@ -224,7 +232,7 @@ exports.changeGuestMode = function(req, res) {
                                                                     console.log(err);
                                                                     return res.status(500).send(err);
                                                                 } else {
-                                                                    return res.jsonp('ok');
+                                                                    return res.status(200).send();
                                                                 }
                                                             });
                                                         }

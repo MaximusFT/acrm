@@ -1,10 +1,12 @@
 'use strict';
 
-angular.module('mean.system').controller('HeaderController', ['$scope', '$rootScope', '$cookies', '$timeout', '$document', '$window', '$http', '$log', 'Global', 'Menus',  'ngAudio',
+angular.module('mean.system').controller('HeaderController', ['$scope', '$rootScope', '$cookies', '$timeout', '$document', '$window', '$http', '$log', 'Global', 'Menus', 'ngAudio',
     function($scope, $rootScope, $cookies, $timeout, $document, $window, $http, $log, Global, Menus, ngAudio) {
         $scope.global = Global;
         $scope.menus = {};
         $scope.alert = ngAudio.load('//mapqo.com/atlant/audio/alert.mp3');
+        $scope.html_click_avail = false;
+        $scope.counter = 0;
 
         if (!$scope.global.mode)
             $scope.global.mode = $cookies.mode;
@@ -140,5 +142,21 @@ angular.module('mean.system').controller('HeaderController', ['$scope', '$rootSc
             angular.element('.x-navigation-control').parents('.x-navigation').toggleClass('x-navigation-open');
             onresize();
         };
+
+        $scope.openNotificationsBar = function(event) {
+            var isActive = angular.element('#' + event.currentTarget.id).hasClass('active');
+            angular.element('.xn-icon-button').removeClass('active');
+            if (!isActive) {
+                angular.element('#' + event.currentTarget.id).addClass('active');
+                $scope.html_click_avail = true;
+            }
+        };
+
+        angular.element('html').on('click', function(event) {
+            $scope.counter += 1;
+            if(!$scope.html_click_avail && $scope.counter === 2)
+                angular.element('.x-navigation-horizontal li,.x-navigation-minimized li').removeClass('active');
+            $scope.counter = $scope.counter === 2 ? 0 : $scope.counter;
+        });
     }
 ]);

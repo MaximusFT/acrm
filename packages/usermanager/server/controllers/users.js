@@ -389,7 +389,7 @@ exports.assignRole = function(req, res) {
         role = req.body.params.role === 1 ? 'admin' : (req.body.params.role === 2 ? 'manager' : (req.body.params.role === 3 ? 'employee' : (req.body.params.role === 4 ? 'fired' : '')));
     if (role && role !== 'fired') {
         roles.push('authenticated');
-        role.push(role);
+        roles.push(role);
     } else if(role === 'fired')
         roles.push(role);
     else

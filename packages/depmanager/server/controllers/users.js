@@ -119,7 +119,31 @@ exports.bindToDep = function(req, res) {
                 console.log(err);
                 return res.status(500).send(err);
             } else
-                return res.status(200).send();
+                User
+                .find({
+                    _id: {
+                        $nin: users
+                    },
+                    department: department
+                }, {
+                    _id: 1,
+                    name: 1
+                }, function(err, nusers) {
+                    if (err) {
+                        console.log(err);
+                        return res.status(500).send(err);
+                    } else {
+                        req.sEvent = {
+                            category: 0,
+                            level: 'info',
+                            targetPersons: _.map(nusers, '_id'),
+                            title: 'New employee' + (users.length > 0 ? 's' : '') + ' in the department: ' + _.map(users, 'name').join(', '),
+                            link: '/#!/users',
+                            initPerson: req.user._id
+                        };
+                        return res.status(200).send();
+                    }
+                });
         });
 };
 

@@ -6,7 +6,7 @@ module.exports = function(Clients, app, auth, database) {
     var webreqs = require('../controllers/webreqs.js'),
         requests = require('../controllers/requests.js');
 
-    app.post('/webform/crm/web_request_form_add', webreqs.web_request_form_add);
+    app.post('/webform/crm/web_request_form_add', webreqs.web_request_form_add, auth.eventHandler);
     app.get('/api/webreqs', auth.requiresAdmin, webreqs.webreqs);
     app.get('/api/oldWebreqs', auth.requiresAdmin, webreqs.oldWebreqs);
     app.get('/api/phonesForWebinars', auth.requiresAdmin, webreqs.phonesForWebinars);
@@ -18,7 +18,7 @@ module.exports = function(Clients, app, auth, database) {
     app.get('/api/reportForWebreq/:webreqId', auth.requiresAdmin, webreqs.reportForWebreq);
 
     app.get('/api/getDocumentFields', requests.getDocumentFields);
-    app.post('/api/sendUserRequest', requests.processUserRequest);
+    app.post('/api/sendUserRequest', requests.processUserRequest, auth.eventHandler);
     app.get('/api/requestTypes', auth.requiresAdmin, requests.requestTypes);
 
     app.post('/api/logRequest', webreqs.logRequest);
