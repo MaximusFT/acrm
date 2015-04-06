@@ -298,7 +298,6 @@ exports.user = function(req, res, next, id) {
 /**
  * Resets the password
  */
-
 exports.resetpassword = function(req, res, next) {
     User.findOne({
         resetPasswordToken: req.params.token,
