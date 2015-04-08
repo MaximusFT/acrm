@@ -15,4 +15,12 @@ module.exports = function(Usermanager, app, auth, database) {
     app.post('/api/assignRole', auth.requiresManager, users.assignRole, auth.eventHandler);
     app.post('/api/clearAccesses', auth.requiresManager, users.clearAccesses, auth.eventHandler);
     app.get('/api/getForHead', auth.requiresManager, users.getForHead);
+
+    var notificationGroups = require('../controllers/notificationGroups');
+    app.post('/api/notificationGroup', auth.requiresAdmin, notificationGroups.create);
+    app.delete('/api/notificationGroup/:nGroupId', auth.requiresAdmin, notificationGroups.delete);
+    app.put('/api/notificationGroup/:nGroupId', auth.requiresAdmin, notificationGroups.update);
+    app.get('/api/notificationGroups', auth.requiresAdmin, notificationGroups.notificationGroups);
+    app.get('/api/notificationGroup/:nGroupId', auth.requiresAdmin, notificationGroups.usersInNotificationGroup);
+    app.post('/api/notificationGroup/:nGroupId', auth.requiresAdmin, notificationGroups.assignNotificationGroup);
 };

@@ -10,8 +10,11 @@ module.exports = function(Notifications, io) {
     EventProcessor.on('notification', function(event) {
         console.log('event catched', event);
         notifications.saveEvent(event, function(err, sEvent) {
-            if(!err) {
-                notifications.emitEvent(io, sEvent);
+            if (!err) {
+                notifications.notify(sEvent, function(err) {
+                    if(!err)
+                        notifications.emitEvent(io, sEvent);
+                });
             }
         });
     });

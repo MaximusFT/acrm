@@ -170,50 +170,49 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
             });
         };
         $scope.logInToMail = function(data) {
-            if (data.state === 1) {
-                $http.get('/api/getMailConfig').success(function(response) {
-                    if (response === 'needNewConfig') {
-                        $scope.configModal();
-                        return;
-                    } else {
-                        if (response.packageName === 'mailmanager') {
-                            var config = response.data;
-                            var request = {
-                                method: 'POST',
-                                url: config.mailHost + (config.isRcInDefFolder ? '/roundcube' : config.RcCustomFolder) + '/?_task=login',
-                                transformRequest: function(obj) {
-                                    var str = [];
-                                    for (var p in obj)
-                                        str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
-                                    return str.join('&');
-                                },
-                                data: {
-                                    _task: 'login',
-                                    _action: 'login',
-                                    _timezone: 'America/Chicago',
-                                    _url: '',
-                                    _user: data.mail,
-                                    _crypt: 'yes',
-                                    _pass: crypter.hash(data.mail + 'kingston')
-                                },
-                                withCredentials: true,
-                                headers: {
-                                    'Content-Type': 'application/x-www-form-urlencoded'
-                                }
-                            };
-                            $scope.wait = $http(request).success(function(data, status) {
-                                if (status === 200)
-                                    $window.location = config.mailHost + (config.isRcInDefFolder ? '/roundcube' : config.RcCustomFolder) + '/?_task=mail';
-
-                            }).error(function(err, status) {
-                                $log.error(err);
-                                $location.url('/error/' + status);
-                            });
-                        } else
-                            $log.error('Error in getting settings');
-                    }
-                });
-            }
+            $http.get('/api/getMailConfig').success(function(response) {
+                //$log.info('getMailConfig', response);
+                if (response === 'needNewConfig') {
+                    $scope.configModal();
+                    return;
+                } else {
+                    if (response.packageName === 'mailmanager') {
+                        var config = response.data;
+                        var request = {
+                            method: 'POST',
+                            url: config.mailHost + (config.isRcInDefFolder ? '/roundcube' : config.RcCustomFolder) + '/?_task=login',
+                            transformRequest: function(obj) {
+                                var str = [];
+                                for (var p in obj)
+                                    str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
+                                return str.join('&');
+                            },
+                            data: {
+                                _task: 'login',
+                                _action: 'login',
+                                _timezone: 'America/Chicago',
+                                _url: '',
+                                _user: data.mail,
+                                _crypt: 'yes',
+                                _pass: crypter.hash(data.mail + 'kingston')
+                            },
+                            withCredentials: true,
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            }
+                        };
+                        $scope.wait = $http(request).success(function(data, status) {
+                            //$log.info('roundcube/_task=login', data, status);
+                            if (status === 200)
+                                $window.location = config.mailHost + (config.isRcInDefFolder ? '/roundcube' : config.RcCustomFolder) + '/?_task=mail';
+                        }).error(function(err, status) {
+                            $log.error(err);
+                            $location.url('/error/' + status);
+                        });
+                    } else
+                        $log.error('Error in getting settings');
+                }
+            });
         };
         $scope.getMailboxes = function() {
             $http.get('/api/getAllMailboxes').success(function(response) {
@@ -236,44 +235,15 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
         };
 
         $scope.autologin = function() {
-            $http({
-                    url: '/api/getOneMailbox',
-                    method: 'POST',
-                    data: {
-                        'mail': $stateParams.email,
-                    }
-                })
-                .then(function(response) {
-                        if (response.status === 200 && response.data) {
-                            $scope.logInToMail(response.data);
-                        } else if (response.status === 204) {
-                            $scope.autologinStatus = false;
-                            $scope.autologinErrorText = 'No such mailBox or its deleted!';
-                        }
-                    },
-                    function(response) {
-                        switch (response.status) {
-                            case 403:
-                                $scope.autologinStatus = false;
-                                $scope.autologinErrorText = 'You have no access for this mail!';
-                                $log.error('No Access');
-                                break;
-                            case 401:
-                                $scope.autologinStatus = false;
-                                $log.error('Need to authorize');
-                                $scope.autologinErrorText = 'User error, need authorization!';
-                                break;
-                            case 500:
-                                $scope.autologinStatus = false;
-                                $log.error(response);
-                                $scope.autologinErrorText = 'Server Error!';
-                                break;
-                            default:
-                                $scope.autologinStatus = false;
-                                $log.error('Cant get response from server');
-                                break;
-                        }
-                    });
+            $http.post('/api/getOneMailbox', {
+                mail: $stateParams.email,
+            }).success(function(response) {
+                //$log.info('response111', response);
+                $scope.logInToMail(response);
+            }).error(function(err, status) {
+                $log.error(err);
+                $location.url('/errors/' + status);
+            });
         };
 
         $scope.mails_init = function() {

@@ -10,9 +10,9 @@
 					<h3 class="panel-title">Your corporate mailboxes:</h3>
 				</div>
 				<div class="panel-body">
-					<div class="list-group border-bottom" data-ng-repeat="domain in domains">
+					<div class="list-group border-bottom" data-ng-repeat="domain in domains" data-ng-init="dIndex = $index">
 						<a href="#!/mailmanager/{{mailbox.mail}}" target="_blank" class="list-group-item" data-ng-repeat="mailbox in domain.data" title="Push to autologin in the mailbox account">
-							<h4>{{$index+1}}. {{mailbox.mail}} <i class="glyphicon glyphicon-log-in" style="float:right;"></i></h4>
+							<h4>{{(dIndex !== 0 ? domains[dIndex].length : 0) + $index+1}}. {{mailbox.mail}} <i class="glyphicon glyphicon-log-in" style="float:right;"></i></h4>
 						</a>
 					</div>
 				</div>

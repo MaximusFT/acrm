@@ -12,8 +12,8 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
 
         $http.post('/api/mode').success(function(response) {
             $scope.mode = response;
-             if (!$stateParams.username || [777, 770, 700].indexOf($scope.mode) === -1)
-            $location.url('/error/' + 403);
+            if (!$stateParams.username || [777, 770, 700].indexOf($scope.mode) === -1)
+                $location.url('/error/' + 403);
         }).error(function(err, status) {
             $log.error(err);
             $location.url('/error/' + status);
@@ -196,7 +196,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
             if ($scope.global.user.username !== $stateParams.username) {
                 $scope.permsg = 'You have not access for this view.';
             } else {
-                $scope.getHttp2 = $http.get('api/getPrPassesByUser', {
+                $scope.getHttp3 = $http.get('api/getPrPassesByUser', {
                     crypt: true
                 }).success(function(data) {
                     //$log.info(data);
@@ -278,7 +278,7 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
 
         $scope.showPass1 = function(pass) {
             pass.Shown = !pass.Shown;
-            if(pass.Shown)
+            if (pass.Shown)
                 pass.hashed_password = crypter.decrypt(pass.hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id));
             else
                 pass.hashed_password = crypter.encrypt(pass.hashed_password, crypter.hash($scope.global.user.username + $scope.global.user._id));
@@ -349,6 +349,10 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
             }).error(function(err) {
                 $log.error(err);
             });
+        };
+
+        $scope.goTo = function(path) {
+            $location.url('/users/' + $scope.user.username + path);
         };
     }
 ]);

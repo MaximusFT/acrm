@@ -26,13 +26,12 @@ exports.searchMailboxes = function(req, res) {
                 '$regex': new RegExp(val, 'i')
             }
         }])
-        .exec(function(err, resault) {
+        .exec(function(err, result) {
             if (err) {
-                res.render('error', {
-                    status: 500
-                });
+                console.log(err);
+                return res.status(500).send(err);
             } else {
-                return res.jsonp(resault);
+                return res.jsonp(result);
             }
         });
 };
@@ -55,7 +54,6 @@ exports.getConfig = function(req, res) {
                 else
                     return res.jsonp(config);
             }
-
         });
 };
 exports.getAccessibleMails = function(req, res) {
@@ -73,8 +71,8 @@ exports.getAccessibleMails = function(req, res) {
                 console.log(err);
                 return res.status(500).send(err);
 
-            } else return res.jsonp(sortMailboxes(mails));
-
+            } else
+                return res.jsonp(sortMailboxes(mails));
         });
 };
 exports.getAccessibleMailsByName = function(req, res) {
@@ -121,7 +119,7 @@ exports.provideAccessForMailbox = function(req, res) {
                 }
             }, {
                 $addToSet: {
-                    'accessedFor': {
+                    accessedFor: {
                         $each: users
                     }
                 }
@@ -157,9 +155,8 @@ exports.revokeAccessForMailbox = function(req, res) {
         })
         .exec(function(err) {
             if (err) {
-                return res.json(500, {
-                    error: err
-                });
+                console.log(err);
+                return res.status(500).send(err);
             } else {
                 return res.jsonp('ok');
             }
@@ -362,7 +359,7 @@ exports.getMailboxesNoSort = function(req, res) {
 exports.getOneMailbox = function(req, res) {
     User.findOne({
             _id: req.user._id,
-        }, {})
+        })
         .exec(function(err, user) {
             if (err) {
                 console.log(err);
@@ -374,23 +371,23 @@ exports.getOneMailbox = function(req, res) {
                             mail: req.body.mail,
                             deleted: false,
                         }, {})
-                        .exec(function(err, resault) {
+                        .exec(function(err, result) {
                             if (err) {
                                 console.log(err);
                                 return res.status(500).send(err);
                             } else {
-                                if (resault) {
+                                if (result) {
                                     if (user.roles.indexOf('admin') !== -1) {
-                                        return res.jsonp(resault);
+                                        return res.jsonp(result);
                                     } else {
-                                        if (resault.accessedFor.indexOf(user._id) !== -1) {
-                                            return res.jsonp(resault);
+                                        if (result.accessedFor.indexOf(user._id) !== -1) {
+                                            return res.jsonp(result);
                                         } else {
                                             return res.status(403).send(err);
                                         }
                                     }
                                 } else {
-                                    return res.status(204).send(err);
+                                    return res.status(404).send(err);
                                 }
                             }
 
@@ -434,7 +431,8 @@ exports.updateConfig = function(req, res) {
                         if (err) {
                             console.log(err);
                             return res.status(500).send(err);
-                        } else return res.status(200).send();
+                        } else
+                            return res.status(200).send();
                     });
                 }
 
