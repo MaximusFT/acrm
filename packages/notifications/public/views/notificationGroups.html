@@ -40,7 +40,7 @@
                 <td class="table-editable-cell">
                     <span class="editable-span" data-ng-editable="updateNotificationGroup(notificationGroup, 'comment')" data-ng-editable-model="notificationGroup.comment"></span>
                 </td>
-                <td>
+                <td data-ng-init="initNSettings(notificationGroup)">
                     <div style="float:right;">
                         <label for="irm2">Remove mode</label>
                         <input id="irm2" type="checkbox" class="btn" data-ng-model="removeMode2" />
@@ -53,10 +53,10 @@
                         </tr>
                         <tr data-ng-repeat="setting in notificationGroup.settings">
                             <td>
-                                <span class="editable-span" data-ng-editable="updateNotificationGroup(notificationGroup, 'settings')" data-ng-editable-model="setting.name"></span>
+                                <span class="editable-span" data-ng-editable="updateNotificationGroup(notificationGroup, 'settings', $index, 'name')" data-ng-editable-model="setting.name"></span>
                             </td>
                             <td>
-                                <span class="editable-span" data-ng-editable="updateNotificationGroup(notificationGroup, 'settings')" data-ng-editable-model="setting.code"></span>
+                                <span class="editable-span" data-ng-editable="updateNotificationGroup(notificationGroup, 'settings', $index, 'code')" data-ng-editable-model="setting.code"></span>
                             </td>
                             <td data-ng-if="removeMode2">
                                 <button class="btn btn-default btn-xs" data-ng-click="removeNSetting(notificationGroup, $index)">
@@ -81,8 +81,7 @@
             <div class="panel panel-default">
                 <div class="panel-heading ui-draggable-handle">
                     <h3 class="panel-title" style="text-decoration:underline;">
-                        Users in notification group /
-                        <{{selectedNGroup.name}}/>
+                        Users in notification group <strong>{{selectedNGroup.name}}</strong>
                         :
                     </h3>
                 </div>
@@ -105,9 +104,11 @@
                                 </ul>
                             </div>
                         </li>
-                    </div>
+                    </ul>
                 </div>
             </div>
         </div>
+        <alert type="info" data-ng-if="selectedNGroup && !notificationGroupUsers.length">No users in the selected group.</alert>
+        <div id="usersInGroupAncor"></div>
     </div>
 </section>

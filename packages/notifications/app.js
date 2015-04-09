@@ -10,6 +10,7 @@ Notifications.register(function(app, auth, database, http) {
     Notifications.routes(io);
 
     Notifications.aggregateAsset('css', 'notifications.css');
+    //Notifications.angularDependencies([]);
 
     return Notifications;
 });

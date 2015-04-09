@@ -14,10 +14,6 @@ var NotificationGroupSchema = new Schema({
     }],
     comment: {
         type: String
-    },
-    settings: {
-        type: Schema.Types.Mixed,
-        default: []
     }
 });
 

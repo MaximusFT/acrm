@@ -1,0 +1,21 @@
+<section data-ng-controller="NotificationsController">
+	<div class="panel panel-default" style="padding:10px;" data-ng-init="initUserSettings()">
+		<div class="panel-heading">Notifications Settings</div>
+		<div class="panel-body" style="position:relative;border-style:outset;">
+			<alert type="info">Check the box those notifications that you would like to receive.</alert>
+			<p>&nbsp;</p>
+			<div data-ng-repeat="nSetting in nSettings">
+				<h4><span class="fa fa-group"></span>&nbsp;&mdash;&nbsp;{{nSetting.group}}</h4>
+				<div data-ng-repeat="setting in nSetting.settings">
+					<div class="checkbox">
+						<label>
+							<input type="checkbox" data-ng-model="setting.value" data-ng-change="onSettingChanged(setting)">
+							{{setting.name}}
+						</label>
+					</div>
+				</div>
+				<p>&nbsp;</p>
+			</div>
+		</div>
+	</div>
+</section>
