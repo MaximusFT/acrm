@@ -1,62 +1,66 @@
 <i class="glyphicon glyphicon-lock" style="float:right;top: -25px;color:{{disabled ? '#0000FF' : '#000000'}}" data-ng-click="disabled = !disabled"></i>
 <div data-ng-init="initMailConfig()">
-	<form class="form-horizontal" id="modalForm" name="mailConfigForm" data-ng-submit="verifyAndSendForm(true, mailConfig)" >
-		<div class="form-group">
-			<label for="mailhost" class="col-sm-2 control-label">Mail Host</label>
-			<div class="col-sm-10">
-				<input popover="For example: https://example.org"  popover-trigger="focus" type="text" class="form-control" id="mailhost" data-ng-model="mailConfig.mailHost" pattern="^[A-Za-z]{4,5}://[a-zA-Z0-9.]+$" data-ng-disabled="!disabled" required></div>
-		</div>
-		<div class="form-group">
-			<label for="filename" class="col-sm-2 control-label">File name</label>
-			<div class="col-sm-10">
-				<input popover="Name of file to GET"  popover-trigger="focus" type="text" class="form-control" id="filename" data-ng-model="mailConfig.filename" data-ng-disabled="!disabled" required></div>
-		</div>
-		<div class="form-group">
-			<div class="col-sm-offset-2 col-sm-10">
-				<div class="checkbox">
-					<label>
-						<input type="checkbox" data-ng-model="mailConfig.isRcInDefFolder" data-ng-disabled="!disabled">RC is in default folder?</label>
-				</div>
-			</div>
-		</div>
-		<div class="form-group" data-ng-hide="mailConfig.isRcInDefFolder">
-			<label for="rccustom" class="col-sm-2 control-label">RC custom folder</label>
-			<div class="col-sm-10">
-				<input popover="For exemple: mywebmail" popover-trigger="focus" type="text" class="form-control" id="rccustom" data-ng-model="mailConfig.RcCustomFolder" pattern="^[a-zA-Z0-9.]+$" data-ng-disabled="!disabled"></div>
-		</div>
-		<div class="form-group">
-			<div class="col-sm-offset-2 col-sm-10">
-				<div class="checkbox">
-					<label>
-						<input type="checkbox" data-ng-model="mailConfig.isPfInDefFolder" data-ng-disabled="!disabled">Postfix is in default folder?</label>
-				</div>
-			</div>
-		</div>
-		<div class="form-group" data-ng-hide="mailConfig.isPfInDefFolder">
-			<label for="pfcustom" class="col-sm-2 control-label">Postfix custom folder</label>
-			<div class="col-sm-10">
-				<input popover="For exemple: mypostfix" popover-trigger="focus" type="text" class="form-control" id="pfcustom" data-ng-model="mailConfig.PfCustomFolder" pattern="^[a-zA-Z0-9.]+$" data-ng-disabled="!disabled"></div>
-		</div>
-	</form>
-	<p>
-		<button type="button" data-ng-click="manualSynchronization()" class="btn btn-primary btn-xs">Manual synchronization</button>
-		<div class="alert ng-isolate-scope alert-success alert-dismissable" role="alert" type="success" data-ng-show="isSynchronized">
-			<button type="button" class="close" data-ng-click="isSynchronized=false">
-				<span aria-hidden="true">×</span>
-			</button>
-			<span class="ng-scope">The Mailboxes was successfully synchronized!  </span>
-		</div>		
-		<div class="alert ng-isolate-scope alert-danger alert-dismissable" role="alert" type="success" data-ng-show="SynchError">
-			<button type="button" class="close" data-ng-click="SynchError=false">
-				<span aria-hidden="true">×</span>
-			</button>
-			<span class="ng-scope">Synchronization error</span>
-		</div>
-				<div class="alert ng-isolate-scope alert-info alert-dismissable" role="alert" type="danger" data-ng-show="noConfigs">
-			<button type="button" class="close" data-ng-click="noConfigs=false">
-				<span aria-hidden="true">×</span>
-			</button>
-			<span class="ng-scope">You cant synchronize without SERVER CONFIGS!</span>
-		</div>
-	</p>
+    <form class="form-horizontal" id="modalForm" name="mailConfigForm" data-ng-submit="verifyAndSendForm(true, mailConfig)">
+        <div class="form-group">
+            <label for="mailhost" class="col-sm-2 control-label">Mail Host</label>
+            <div class="col-sm-10">
+                <input popover="For example: https://example.org" popover-trigger="focus" type="text" class="form-control" id="mailhost" data-ng-model="mailConfig.mailHost" pattern="^[A-Za-z]{4,5}://[a-zA-Z0-9.]+$" data-ng-disabled="!disabled" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="filename" class="col-sm-2 control-label">File name</label>
+            <div class="col-sm-10">
+                <input popover="Name of file to GET" popover-trigger="focus" type="text" class="form-control" id="filename" data-ng-model="mailConfig.filename" data-ng-disabled="!disabled" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" data-ng-model="mailConfig.isRcInDefFolder" data-ng-disabled="!disabled">RC is in default folder?</label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" data-ng-hide="mailConfig.isRcInDefFolder">
+            <label for="rccustom" class="col-sm-2 control-label">RC custom folder</label>
+            <div class="col-sm-10">
+                <input popover="For exemple: mywebmail" popover-trigger="focus" type="text" class="form-control" id="rccustom" data-ng-model="mailConfig.RcCustomFolder" pattern="^[a-zA-Z0-9.]+$" data-ng-disabled="!disabled">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" data-ng-model="mailConfig.isPfInDefFolder" data-ng-disabled="!disabled">Postfix is in default folder?</label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" data-ng-hide="mailConfig.isPfInDefFolder">
+            <label for="pfcustom" class="col-sm-2 control-label">Postfix custom folder</label>
+            <div class="col-sm-10">
+                <input popover="For exemple: mypostfix" popover-trigger="focus" type="text" class="form-control" id="pfcustom" data-ng-model="mailConfig.PfCustomFolder" pattern="^[a-zA-Z0-9.]+$" data-ng-disabled="!disabled">
+            </div>
+        </div>
+    </form>
+    <p>
+        <button type="button" data-ng-click="manualSynchronization()" class="btn btn-primary btn-xs">Manual synchronization</button>
+        <div class="alert ng-isolate-scope alert-success alert-dismissable" role="alert" type="success" data-ng-show="isSynchronized">
+            <button type="button" class="close" data-ng-click="isSynchronized=false">
+                <span aria-hidden="true">×</span>
+            </button>
+            <span class="ng-scope">The Mailboxes was successfully synchronized!  </span>
+        </div>
+        <div class="alert ng-isolate-scope alert-danger alert-dismissable" role="alert" type="success" data-ng-show="SynchError">
+            <button type="button" class="close" data-ng-click="SynchError=false">
+                <span aria-hidden="true">×</span>
+            </button>
+            <span class="ng-scope">Synchronization error</span>
+        </div>
+        <div class="alert ng-isolate-scope alert-info alert-dismissable" role="alert" type="danger" data-ng-show="noConfigs">
+            <button type="button" class="close" data-ng-click="noConfigs=false">
+                <span aria-hidden="true">×</span>
+            </button>
+            <span class="ng-scope">You cant synchronize without SERVER CONFIGS!</span>
+        </div>
+    </p>
 </div>
