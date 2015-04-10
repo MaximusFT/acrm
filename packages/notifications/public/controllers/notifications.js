@@ -145,5 +145,38 @@ angular.module('mean.usermanager').controller('NotificationsController', ['$scop
             });
         };
 
+        $scope.initUsersByGroup = function() {
+            $log.info('initUsersByGroup');
+            $scope.getHttp3 = $http.get('/api/usersByNotificationGroups').success(function(response) {
+                $log.info(response);
+            }).error(function(err, status) {
+                $log.error(err);
+                $location.url('/errors/' + status);
+            });
+        };
+
+        $scope.getRole = function(roles) {
+            var role;
+            if (roles && roles.length > 1)
+                role = roles[1].substring(0, 1).toUpperCase();
+            else if (roles && roles.length === 1 && roles.indexOf('fired') !== -1)
+                role = 'F';
+            else
+                role = 'N/v';
+            return role;
+        };
+
+        $scope.getStyle = function(roles) {
+            var role = $scope.getRole(roles);
+            if (role === 'N/v')
+                return 'color:red;';
+            if (role === 'A')
+                return 'font-weight:bolder;color:blue;';
+            if (role === 'M')
+                return 'font-weight:bolder;color:gray;';
+            if (role === 'F')
+                return 'opacity:0.25;';
+        };
+
     }
 ]);

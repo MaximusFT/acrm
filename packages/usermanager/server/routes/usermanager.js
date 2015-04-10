@@ -28,4 +28,5 @@ module.exports = function(Usermanager, app, auth, database) {
     app.post('/api/notificationSettings', auth.requiresAdmin, notificationGroups.postNotificationSettings);
     app.get('/api/userNotificationsSettings', auth.requiresLogin, notificationGroups.userNotificationsSettings);
     app.post('/api/setUserNotificationSetting', auth.requiresLogin, notificationGroups.setUserNotificationSetting);
+    app.get('/api/usersByNotificationGroups', auth.requiresAdmin, notificationGroups.usersByNotificationGroups);
 };

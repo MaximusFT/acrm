@@ -221,7 +221,7 @@ exports.userNotificationsSettings = function(req, res) {
                                     var userOption = _.filter(setting.userOptions, function(option) {
                                         return JSON.stringify(option.user) === JSON.stringify(req.user._id);
                                     });
-                                    if(userOption && userOption.length > 0)
+                                    if (userOption && userOption.length > 0)
                                         setting.value = userOption[0].value;
                                 });
                                 var result = _.chain(settings)
@@ -288,6 +288,52 @@ exports.setUserNotificationSetting = function(req, res) {
                 } else {
                     res.status(404).send('Setting was not found');
                 }
+            }
+        });
+};
+
+exports.usersByNotificationGroups = function(req, res) {
+    NotificationGroup
+        .aggregate([{
+            $group: {
+                _id: '$name',
+                users: {
+                    $addToSet: '$assignedTo'
+                }
+            }
+        }, {
+            $sort: {
+                _id: 1
+            }
+        }])
+        .exec(function(err, groups) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                var mGroups = [];
+                _.forEach(groups, function(group) {
+                    console.log(group);
+                    group.users = _.flatten(group.users);
+                    if (group.users.length)
+                        mGroups.push({
+                            group: group._id,
+                            users: _.flatten(group.users, true)
+                        });
+                });
+                NotificationGroup
+                    .populate(mGroups, [{
+                        path: 'users',
+                        select: '_id name username email roles',
+                        model: 'User'
+                    }], function(err, pGroups) {
+                        if (err) {
+                            console.log(err);
+                            return res.status(500).send(err);
+                        } else {
+                            return res.jsonp(pGroups);
+                        }
+                    });
             }
         });
 };
