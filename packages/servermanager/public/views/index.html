@@ -9,7 +9,10 @@
     <!-- END PAGE TITLE -->
     
     <ul class="breadcrumb" data-ng-if="crumbs && crumbs.length">
-        <li data-ng-repeat="crumb in crumbs" class="{{crumb.active ? 'active' : ''}}"><a href="#!/{{crumb.href}}">{{crumb.title}}</a></li>
+        <li data-ng-repeat="crumb in crumbs" class="{{crumb.active ? 'active' : ''}}">
+            <a data-ng-if="!crumb.active" href="#!/{{crumb.href}}">{{crumb.title}}</a>
+            <span data-ng-if="crumb.active">{{crumb.title}}</span>
+        </li>
     </ul>
 
     <!-- PAGE CONTENT WRAPPER -->
@@ -29,7 +32,8 @@
                             <a href="" data-ng-click="selectServer(server, $index)">
                                 <span style="font-family:monospace;">
                                     <i class="glyphicon glyphicon-hdd"></i>
-                                    &nbsp;{{server.ip}} {{server.convName ? ('(<span style="font-family:serif;">' + server.convName + '</span>)') : ''}}
+                                    &nbsp;{{server.ip}}&nbsp;
+                                    <span style="font-family:serif;">{{server.convName ? ('(' + server.convName + ')') : ''}}</span>
                                 </span>
                             </a>
                             <button type="button" class="btn btn-xs btn-danger" style="float:right;margin-top:9px;" data-ng-click="removeServer(server, $index)" data-ng-show="isVisibleRemoveButton[$index] === true">

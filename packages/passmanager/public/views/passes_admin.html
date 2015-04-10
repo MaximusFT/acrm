@@ -1,6 +1,8 @@
 <tabset>
     <tab select="init()">
-        <tab-heading><i class="glyphicon glyphicon-eye-open"></i>All</tab-heading>
+        <tab-heading> <i class="glyphicon glyphicon-eye-open"></i>
+            All
+        </tab-heading>
         <div cg-busy="{promise:getHttp1,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
             <accordion close-others="true">
                 <div data-ng-repeat="group in groups | filter:search:strict" data-ng-init="sectionIndex=$index">
@@ -9,13 +11,19 @@
                             <accordion-group data-ng-repeat="implement in group.implement | filter:search:strict" is-open="implement.Opened" data-ng-init="implementIndex=$index" data-ng-show="implement.passes.length" heading="{{implement.implement==='---' ? 'Uncategorized' : implement.implement}} ({{implement.passes.length}})">
                                 <table class="table table-striped table-bordered table-hover editable-table" data-ng-if="implement.Opened">
                                     <tr>
-                                        <th><i class="glyphicon glyphicon-sort-by-order"></i></th>
-                                        <th><i class="glyphicon glyphicon-ok" data-ng-click="selectAll(sectionIndex, implementIndex)"></i></th>
+                                        <th> <i class="glyphicon glyphicon-sort-by-order"></i>
+                                        </th>
+                                        <th>
+                                            <i class="glyphicon glyphicon-ok" data-ng-click="selectAll(sectionIndex, implementIndex)"></i>
+                                        </th>
                                         <th data-ng-repeat="field in passSchema" data-ng-if="field.inTable">{{field.title}}</th>
                                     </tr>
                                     <tr data-ng-repeat="pass in implement.passes | filter:search:strict" data-ng-init="pid = $index">
-                                        <td><a href="#!/manager/passwords/{{pass['_id']}}"> {{$index+1}} </a></td>
-                                        <td><input type="checkbox" data-ng-model="pass.Selected" data-ng-click="checkPass()"></td>
+                                        <td>
+                                            <a href="#!/manager/passwords/{{pass['_id']}}">{{$index+1}}</a>
+                                        </td>
+                                        <td>
+                                            <input type="checkbox" data-ng-model="pass.Selected" data-ng-click="checkPass()"></td>
                                         <td class="table-editable-cell" data-ng-repeat="field in passSchema" data-ng-if="field.inTable">
                                             <span data-ng-if="(field['type'] == 'text' && field['type'] !== 'password')" class="editable-span" data-ng-editable="update(pass, field['schemaKey'])" data-ng-editable-model="pass[field['schemaKey']]"></span>
                                             <div class="input-group input-group-sm" data-ng-if="field['type'] === 'password'">
@@ -36,81 +44,6 @@
                     </accordion-group>
                 </div>
             </accordion>
-        </div>
-    </tab>
-    <tab data-ng-if="mode === 777">
-        <tab-heading>Add new password</tab-heading>
-        <div class="panel panel-default">
-            <div class="panel-heading">Add new password</div>
-            <div class="panel-body" >
-                <perfect-scrollbar class="scroller heightScroll" wheel-propagation="true" wheel-speed="10" on-scroll="onScroll(scrollTop, scrollHeight)" scrollDown="true" scrollbar-id="addPassFormBar">
-                    <form class="form-horizontal" name="addPassForm" data-ng-submit="addPass(pass)">
-                        <div class="form-group">
-                            <div class="col-sm-10" style="width:100%;">
-                                <input type="text" class="form-control" id="inputGroup3" placeholder="Group" data-ng-model="pass.group" required />
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-sm-10" style="width:100%;">
-                                <input type="text" class="form-control" id="inputImplement3" placeholder="Implement" data-ng-model="pass.implement" required />
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-sm-10" style="width:100%;">
-                                <input type="text" class="form-control" id="inputService3" placeholder="Resource title" data-ng-model="pass.resourceName" required />
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-sm-10" style="width:100%;">
-                                <input type="text" class="form-control" id="inputUrl3" placeholder="URL" data-ng-model="pass.resourceUrl" required />
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-sm-10" style="width:100%;">
-                                <input type="text" class="form-control" id="inputEmail3" placeholder="Email" data-ng-model="pass.email" required />
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-sm-10" style="width:100%;">
-                                <input type="text" class="form-control" id="inputLogin3" placeholder="Login" data-ng-model="pass.login" required />
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-sm-10" style="width:100%;">
-                                <input type="password" class="form-control" id="inputPassword3" placeholder="Password" data-ng-model="pass.hashed_password" required />
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-sm-10" style="width:100%;">
-                                <input type="text" class="form-control" id="inputComment3" placeholder="Comment" data-ng-model="pass.comment" required />
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-sm-10" style="width:100%;">
-                                <div>
-                                    <ui-select style="width:100%;display:inline-table;" data-ng-model="pass.type" data-ng-change="checkPassType(pass)">
-                                        <ui-select-match placeholder="Select type...">{{$select.selected.title}}</ui-select-match>
-                                        <ui-select-choices repeat="type.id as type in passTypes | filter:$select.search">{{type.title}}</ui-select-choices>
-                                    </ui-select>
-                                    <ui-select data-ng-if="pass.type === 0" style="width:100%;display:inline-table;" data-ng-init="initServers()" data-ng-model="pass.forServer" data-ng-change="checkPassType(pass)" cg-busy="{promise:getHttp3,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
-                                        <ui-select-match placeholder="Select server...">{{$select.selected.ip}}</ui-select-match>
-                                        <ui-select-choices repeat="server._id as server in servers | filter:$select.search">{{server.ip}} ({{server.location}})</ui-select-choices>
-                                    </ui-select>
-                                    <ui-select data-ng-if="pass.type === 1" style="width:100%;display:inline-table;" data-ng-init="initSites()" data-ng-model="pass.forSite" data-ng-change="checkPassType(pass)" cg-busy="{promise:getHttp4,message:'Loading. Please wait...',backdrop:false,delay:300,minDuration:700}">
-                                        <ui-select-match placeholder="Select site...">{{$select.selected.title}}</ui-select-match>
-                                        <ui-select-choices repeat="site._id as site in sites | filter:$select.search">{{site.title}} ({{site.uri}})</ui-select-choices>
-                                    </ui-select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-sm-10" style="width:100%;">
-                                <input type="submit" class="btn btn-default" style="width:100%;" value="Add" />
-                            </div>
-                        </div>
-                    </form>
-                </perfect-scrollbar>
-            </div>
         </div>
     </tab>
 </tabset>
