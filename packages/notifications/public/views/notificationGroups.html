@@ -129,22 +129,28 @@
                             <th>Email</th>
                             <th>Username</th>
                             <th>Role</th>
+                            <th>Action</th>
                         </tr>
                         <tr data-ng-repeat="user in group.users | filter:search:strict" style="{{getStyle(user.roles)}}">
                             <td>
-                                <a href="#!/users/{{user.username}}">{{$index+1}}</a>
+                                <a href="#!/users/{{user.username}}">{{$index+1}}.</a>
                             </td>
+                            <td>{{user.name}}</td>
+                            <td>{{user.email}}</td>
+                            <td>{{user.username}}</td>
+                            <td>{{getRole(user.roles)}}</td>
                             <td>
-                                {{user.name}}
-                            </td>
-                            <td>
-                                {{user.email}}
-                            </td>
-                            <td>
-                                {{user.username}}
-                            </td>
-                            <td>
-                                {{getRole(user.roles)}}
+                                <div class="btn-group" dropdown is-open="status.isopen">
+                                    <button type="button" class="btn btn-default dropdown-toggle" dropdown-toggle>
+                                        <i class="glyphicon glyphicon-flash"></i>
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" role="menu">
+                                        <li>
+                                            <a href="" data-ng-click="removeFromNGroup(user._id, group.group)">Remove from group</a>
+                                        </li>
+                                    </ul>
+                                </div>
                             </td>
                         </tr>
                     </table>

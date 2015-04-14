@@ -313,7 +313,6 @@ exports.usersByNotificationGroups = function(req, res) {
             } else {
                 var mGroups = [];
                 _.forEach(groups, function(group) {
-                    console.log(group);
                     group.users = _.flatten(group.users);
                     if (group.users.length)
                         mGroups.push({
@@ -334,6 +333,27 @@ exports.usersByNotificationGroups = function(req, res) {
                             return res.jsonp(pGroups);
                         }
                     });
+            }
+        });
+};
+
+exports.removeFromNGroup = function(req, res) {
+    if (!req.body.user || !req.body.nGroup)
+        return res.status(400).send('Bad request');
+    NotificationGroup
+        .update({
+            name: req.body.nGroup
+        }, {
+            $pull: {
+                assignedTo: req.body.user
+            }
+        }, function(err, updated) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                console.log('updated', updated);
+                return res.status(200).send();
             }
         });
 };

@@ -9,7 +9,7 @@ angular.module('mean.usermanager').controller('NotificationsController', ['$scop
                 $scope.notificationGroups = response;
             }).error(function(err, status) {
                 $log.error(err);
-                $location.url('/errors/' + status);
+                $location.url('/error/' + status);
             });
         };
 
@@ -18,7 +18,7 @@ angular.module('mean.usermanager').controller('NotificationsController', ['$scop
                 $scope.initNGroups();
             }).error(function(err, status) {
                 $log.error(err);
-                $location.url('/errors/' + status);
+                $location.url('/error/' + status);
             });
         };
 
@@ -32,7 +32,7 @@ angular.module('mean.usermanager').controller('NotificationsController', ['$scop
                     //$log.info(response);
                 }).error(function(err, status) {
                     $log.error(err);
-                    $location.url('/errors/' + status);
+                    $location.url('/error/' + status);
                 });
             if (field === 'settings') {
                 $http.post('/api/notificationSettings', {
@@ -47,7 +47,7 @@ angular.module('mean.usermanager').controller('NotificationsController', ['$scop
                     $scope.initNSettings(nGroup);
                 }).error(function(err, status) {
                     $log.error(err);
-                    $location.url('/errors/' + status);
+                    $location.url('/error/' + status);
                 });
             }
         };
@@ -62,7 +62,7 @@ angular.module('mean.usermanager').controller('NotificationsController', ['$scop
                 }, 500);
             }).error(function(err, status) {
                 $log.error(err);
-                $location.url('/errors/' + status);
+                $location.url('/error/' + status);
             });
         };
 
@@ -82,7 +82,7 @@ angular.module('mean.usermanager').controller('NotificationsController', ['$scop
                     $scope.showAssignedToNGroup(nGroup);
                 }).error(function(err, status) {
                     $log.error(err);
-                    $location.url('/errors/' + status);
+                    $location.url('/error/' + status);
                 });
             });
         };
@@ -93,7 +93,7 @@ angular.module('mean.usermanager').controller('NotificationsController', ['$scop
                     $scope.initNGroups();
                 }).error(function(err, status) {
                     $log.error(err);
-                    $location.url('/errors/' + status);
+                    $location.url('/error/' + status);
                 });
             }
         };
@@ -116,7 +116,7 @@ angular.module('mean.usermanager').controller('NotificationsController', ['$scop
                 nGroup.settings = response;
             }).error(function(err, status) {
                 $log.error(err);
-                $location.url('/errors/' + status);
+                $location.url('/error/' + status);
             });
         };
 
@@ -126,7 +126,7 @@ angular.module('mean.usermanager').controller('NotificationsController', ['$scop
                 $scope.nSettings = response;
             }).error(function(err, status) {
                 $log.error(err);
-                $location.url('/errors/' + status);
+                $location.url('/error/' + status);
             });
         };
 
@@ -141,17 +141,17 @@ angular.module('mean.usermanager').controller('NotificationsController', ['$scop
                 //$log.info(response);
             }).error(function(err, status) {
                 $log.error(err);
-                $location.url('/errors/' + status);
+                $location.url('/error/' + status);
             });
         };
 
         $scope.initUsersByGroup = function() {
-            $log.info('initUsersByGroup');
             $scope.getHttp3 = $http.get('/api/usersByNotificationGroups').success(function(response) {
-                $log.info(response);
+                //$log.info(response);
+                $scope.groups = response;
             }).error(function(err, status) {
                 $log.error(err);
-                $location.url('/errors/' + status);
+                $location.url('/error/' + status);
             });
         };
 
@@ -176,6 +176,18 @@ angular.module('mean.usermanager').controller('NotificationsController', ['$scop
                 return 'font-weight:bolder;color:gray;';
             if (role === 'F')
                 return 'opacity:0.25;';
+        };
+
+        $scope.removeFromNGroup = function(user, nGroup) {
+            $http.post('/api/removeFromNGroup', {
+                user: user,
+                nGroup: nGroup
+            }).success(function(response) {
+                $scope.initUsersByGroup();
+            }).error(function(err, status) {
+                $log.error(err);
+                $location.url('/error/' + status);
+            });
         };
 
     }
