@@ -24,14 +24,17 @@ exports.create = function(req, res, next) {
             console.log(err);
             return res.status(500).send(err);
         } else {
-            req.sEvent = {
+            var sEvent = {
                 category: 0,
+                code: 'passmanager::create',
                 level: 'info',
                 targetGroup: ['passAdmins'],
                 title: 'New password for ' + pass.resourceName + ' was created.',
                 link: '/#!/manager/passwords/' + pass._id,
                 initPerson: req.user._id
             };
+            var EventProcessor = require('meanio').events;
+            EventProcessor.emit('notification', sEvent);
             return res.jsonp(pass);
         }
     });
@@ -98,14 +101,17 @@ exports.update = function(req, res) {
                 if (err) {
                     return res.status(500).send(err);
                 } else {
-                    req.sEvent = {
+                    var sEvent = {
                         category: 0,
+                        code: 'passmanager::update',
                         level: 'warning',
                         targetGroup: ['passAdmins'],
                         title: 'Password was modified.',
                         link: '/#!/manager/passwords/' + passId,
                         initPerson: req.user._id
                     };
+                    var EventProcessor = require('meanio').events;
+                    EventProcessor.emit('notification', sEvent);
                     return res.status(200).send();
                 }
             });
@@ -133,8 +139,9 @@ exports.destroy = function(req, res) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
-                req.sEvent = {
+                var sEvent = {
                     category: 0,
+                    code: 'passmanager::destroy',
                     level: 'danger',
                     targetGroup: ['passAdmins'],
                     title: 'Password was removed from system.',
@@ -142,6 +149,8 @@ exports.destroy = function(req, res) {
                     initPerson: req.user._id,
                     extraInfo: pass
                 };
+                var EventProcessor = require('meanio').events;
+                EventProcessor.emit('notification', sEvent);
                 return res.status(200).send();
             }
         });
@@ -365,8 +374,9 @@ exports.delPass = function(req, res) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
-                req.sEvent = {
+                var sEvent = {
                     category: 0,
+                    code: 'passmanager::deletePass',
                     level: 'danger',
                     targetGroup: ['passAdmins'],
                     title: 'Password was removed from system.',
@@ -374,6 +384,8 @@ exports.delPass = function(req, res) {
                     initPerson: req.user._id,
                     extraInfo: pass
                 };
+                var EventProcessor = require('meanio').events;
+                EventProcessor.emit('notification', sEvent);
                 return res.status(200).send();
             }
         });
@@ -514,8 +526,9 @@ exports.provideAccess = function(req, res) {
                                         console.log(err);
                                         return res.status(500).send();
                                     } else {
-                                        req.sEvents = [{
+                                        var sEvents = [{
                                             category: 0,
+                                            code: 'passmanager::provideAccess',
                                             level: 'info',
                                             targetPersons: users,
                                             title: 'You have been assigned access to password' + (passes.length > 1 ? 's.' : '.'),
@@ -523,6 +536,7 @@ exports.provideAccess = function(req, res) {
                                             initPerson: req.user._id
                                         }, {
                                             category: 0,
+                                            code: 'passmanager::provideAccess',
                                             level: 'warning',
                                             targetGroup: ['passAdmins'],
                                             title: 'Users have been assigned access to password' + (passes.length > 1 ? 's.' : '.'),
@@ -530,6 +544,8 @@ exports.provideAccess = function(req, res) {
                                             initPerson: req.user._id,
                                             extraInfo: users
                                         }];
+                                        var EventProcessor = require('meanio').events;
+                                        EventProcessor.emit('notifications', sEvents);
                                         return res.status(200).send();
                                     }
                                 });
@@ -566,8 +582,9 @@ exports.provideAccess = function(req, res) {
                                                     console.log(err);
                                                     return res.status(500).send(err);
                                                 } else {
-                                                    req.sEvents = [{
+                                                    var sEvents = [{
                                                         category: 0,
+                                                        code: 'passmanager::provideAccess',
                                                         level: 'info',
                                                         targetPersons: uids,
                                                         title: 'You have been assigned access to password' + (passes.length > 1 ? 's.' : '.'),
@@ -575,6 +592,7 @@ exports.provideAccess = function(req, res) {
                                                         initPerson: req.user._id
                                                     }, {
                                                         category: 0,
+                                                        code: 'passmanager::provideAccess',
                                                         level: 'warning',
                                                         targetGroup: ['passAdmins'],
                                                         title: 'Users have been assigned access to password' + (passes.length > 1 ? 's.' : '.'),
@@ -582,6 +600,8 @@ exports.provideAccess = function(req, res) {
                                                         initPerson: req.user._id,
                                                         extraInfo: uids
                                                     }];
+                                                    var EventProcessor = require('meanio').events;
+                                                    EventProcessor.emit('notifications', sEvents);
                                                     return res.status(200).send();
                                                 }
                                             });
@@ -645,8 +665,9 @@ exports.provideAccess = function(req, res) {
                                                                         console.log(err);
                                                                         return res.status(500).send();
                                                                     } else {
-                                                                        req.sEvents = [{
+                                                                        var sEvents = [{
                                                                             category: 0,
+                                                                            code: 'passmanager::provideAccess',
                                                                             level: 'info',
                                                                             targetPersons: users,
                                                                             title: 'You have been assigned access to password' + (passes.length > 1 ? 's.' : '.'),
@@ -654,6 +675,7 @@ exports.provideAccess = function(req, res) {
                                                                             initPerson: req.user._id
                                                                         }, {
                                                                             category: 0,
+                                                                            code: 'passmanager::provideAccess',
                                                                             level: 'warning',
                                                                             targetGroup: ['passAdmins'],
                                                                             title: 'Users have been assigned access to password' + (passes.length > 1 ? 's.' : '.'),
@@ -661,6 +683,8 @@ exports.provideAccess = function(req, res) {
                                                                             initPerson: req.user._id,
                                                                             extraInfo: users
                                                                         }];
+                                                                        var EventProcessor = require('meanio').events;
+                                                                        EventProcessor.emit('notifications', sEvents);
                                                                         return res.status(200).send();
                                                                     }
                                                                 });
@@ -728,8 +752,9 @@ exports.provideAccess = function(req, res) {
                                                                     console.log(err);
                                                                     return res.status(500).send(err);
                                                                 } else {
-                                                                    req.sEvents = [{
+                                                                    var sEvents = [{
                                                                         category: 0,
+                                                                        code: 'passmanager::provideAccess',
                                                                         level: 'info',
                                                                         targetPersons: uids,
                                                                         title: 'You have been assigned access to password' + (passes.length > 1 ? 's' : '') + ' by your manager',
@@ -737,6 +762,7 @@ exports.provideAccess = function(req, res) {
                                                                         initPerson: req.user._id
                                                                     }, {
                                                                         category: 0,
+                                                                        code: 'passmanager::provideAccess',
                                                                         level: 'warning',
                                                                         targetGroup: ['passAdmins'],
                                                                         title: 'Users have been assigned access to password' + (passes.length > 1 ? 's' : '') + ' by manager.',
@@ -744,6 +770,8 @@ exports.provideAccess = function(req, res) {
                                                                         initPerson: req.user._id,
                                                                         extraInfo: uids
                                                                     }];
+                                                                    var EventProcessor = require('meanio').events;
+                                                                    EventProcessor.emit('notifications', sEvents);
                                                                     return res.status(200).send();
                                                                 }
                                                             });
@@ -785,8 +813,9 @@ exports.revokeAccess = function(req, res) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
-                req.sEvents = [{
+                var sEvents = [{
                     category: 0,
+                    code: 'passmanager::revokeAccess',
                     level: 'warning',
                     targetPersons: users,
                     title: 'You have been revoked access to password' + (passes.length > 1 ? 's.' : '.'),
@@ -794,6 +823,7 @@ exports.revokeAccess = function(req, res) {
                     initPerson: req.user._id
                 }, {
                     category: 0,
+                    code: 'passmanager::revokeAccess',
                     level: 'info',
                     targetGroup: ['passAdmins'],
                     title: 'User' + (users.length > 1 ? 's have' : 'has') + ' been revoked access to password' + (passes.length > 1 ? 's.' : '.'),
@@ -804,6 +834,8 @@ exports.revokeAccess = function(req, res) {
                         passes: passes
                     }
                 }];
+                var EventProcessor = require('meanio').events;
+                EventProcessor.emit('notifications', sEvents);
                 return res.status(200).send();
             }
         });
@@ -1005,6 +1037,29 @@ exports.denyUserAccessToPass = function(req, res) {
                 return res.status(500).send(err);
             } else {
                 console.log('updated', updated);
+                var sEvents = [{
+                    category: 0,
+                    code: 'passmanager::denyUserAccessToPass',
+                    level: 'warning',
+                    targetPersons: [user],
+                    title: 'You have been revoked access to password.',
+                    link: '/',
+                    initPerson: req.user._id
+                }, {
+                    category: 0,
+                    code: 'passmanager::denyUserAccessToPass',
+                    level: 'info',
+                    targetGroup: ['passAdmins'],
+                    title: 'User has been revoked access to password.',
+                    link: '/#!/manager/passwords',
+                    initPerson: req.user._id,
+                    extraInfo: {
+                        users: user,
+                        passes: pass
+                    }
+                }];
+                var EventProcessor = require('meanio').events;
+                EventProcessor.emit('notifications', sEvents);
                 return res.status(200).send();
             }
         });

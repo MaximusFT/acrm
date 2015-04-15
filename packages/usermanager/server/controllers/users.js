@@ -60,14 +60,17 @@ exports.create = function(req, res, next) {
             console.log(err);
             return res.status(400);
         } else {
-            req.sEvent = {
+            var sEvent = {
                 category: 0,
+                code: 'usermanager::create',
                 level: 'info',
-                targetGroup: ['userManagerAdmins'],
+                targetGroup: ['userManagementAdmins'],
                 title: 'New user was added manually by ACRM user.',
                 link: '/#!/users/' + user.username,
                 initPerson: req.user._id
             };
+            var EventProcessor = require('meanio').events;
+            EventProcessor.emit('notification', sEvent);
             res.jsonp(user);
         }
     });
@@ -116,14 +119,17 @@ exports.update = function(req, res) {
                         error: err
                     });
                 } else {
-                    req.sEvent = {
+                    var sEvent = {
                         category: 0,
+                        code: 'usermanager::update',
                         level: 'warning',
-                        targetGroup: ['userManagerAdmins'],
+                        targetGroup: ['userManagementAdmins'],
                         title: 'User information was modified',
                         link: '/#!/users',
                         initPerson: req.user._id
                     };
+                    var EventProcessor = require('meanio').events;
+                    EventProcessor.emit('notification', sEvent);
                     return res.status(200).send();
                 }
             });
@@ -153,15 +159,18 @@ exports.destroy = function(req, res) {
                             return res.status(500).send(err);
                         } else {
                             console.log(deleted);
-                            req.sEvent = {
+                            var sEvent = {
                                 category: 0,
+                                code: 'usermanager::destroy',
                                 level: 'danger',
-                                targetGroup: ['userManagerAdmins'],
+                                targetGroup: ['userManagementAdmins'],
                                 title: 'User was removed',
                                 link: '/#!/users',
                                 initPerson: req.user._id,
                                 extraInfo: user
                             };
+                            var EventProcessor = require('meanio').events;
+                            EventProcessor.emit('notification', sEvent);
                             return res.status(200).send();
                         }
                     });
@@ -194,15 +203,18 @@ exports.removeUsers = function(req, res) {
                             return res.status(500).send(err);
                         } else {
                             console.log('deleted', deleted);
-                            req.sEvent = {
+                            var sEvent = {
                                 category: 0,
+                                code: 'usermanager::removeUsers',
                                 level: 'danger',
-                                targetGroup: ['userManagerAdmins'],
-                                title: 'Users were removed.',
+                                targetGroup: ['userManagementAdmins'],
+                                title: 'User' + (users.length > 1 ? 's were' : ' was') + ' removed.',
                                 link: '/#!/users',
                                 initPerson: req.user._id,
                                 extraInfo: busers
                             };
+                            var EventProcessor = require('meanio').events;
+                            EventProcessor.emit('notification', sEvent);
                             return res.status(200).send();
                         }
                     });
@@ -494,10 +506,11 @@ exports.assignRole = function(req, res) {
                                             return res.status(500).send(err);
                                         } else {
                                             console.log('updated', updated);
-                                            req.sEvents = [{
+                                            var sEvents = [{
                                                 category: 0,
+                                                code: 'usermanager::assignRole',
                                                 level: 'warning',
-                                                targetGroup: ['userManagerAdmins'],
+                                                targetGroup: ['userManagementAdmins'],
                                                 title: 'User role was modified.',
                                                 link: '/#!/users',
                                                 initPerson: req.user._id,
@@ -507,6 +520,7 @@ exports.assignRole = function(req, res) {
                                                 }
                                             }, {
                                                 category: 0,
+                                                code: 'usermanager::assignRole',
                                                 level: 'warning',
                                                 targetPersons: users,
                                                 title: 'Your role was changed.',
@@ -514,6 +528,8 @@ exports.assignRole = function(req, res) {
                                                 initPerson: req.user._id,
                                                 extraInfo: req.body.params.role
                                             }];
+                                            var EventProcessor = require('meanio').events;
+                                            EventProcessor.emit('notifications', sEvents);
                                             return res.jsonp(role);
                                         }
                                     });
@@ -560,15 +576,18 @@ exports.clearAccesses = function(req, res) {
                             console.log(err);
                             return res.status(500).send(err);
                         } else {
-                            req.sEvent = {
+                            var sEvent = {
                                 category: 0,
+                                code: 'usermanager::clearAccesses',
                                 level: 'warning',
-                                targetGroup: ['userManagerAdmins'],
+                                targetGroup: ['userManagementAdmins'],
                                 title: 'The user has been stripped of all accesses.',
                                 link: '/#!/users',
                                 initPerson: req.user._id,
                                 extraInfo: passes
                             };
+                            var EventProcessor = require('meanio').events;
+                            EventProcessor.emit('notification', sEvent);
                             return res.status(200).send();
                         }
                     });

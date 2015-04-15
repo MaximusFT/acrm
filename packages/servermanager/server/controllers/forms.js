@@ -30,14 +30,17 @@ exports.create = function(req, res) {
             console.log(err);
             return res.status(500).send(err);
         } else {
-            req.sEvent = {
+            var sEvent = {
                 category: 0,
+                code: 'servermanager::form::create',
                 level: 'info',
                 targetGroup: ['infrastructureAdmins', 'clientRequestAdmins'],
                 title: 'New form was added for clients requests processing.',
                 link: '/',
                 initPerson: req.user._id
             };
+            var EventProcessor = require('meanio').events;
+            EventProcessor.emit('notification', sEvent);
             return res.jsonp(newForm);
         }
     });
@@ -95,8 +98,9 @@ exports.update = function(req, res) {
                 return res.status(500).send(err);
             } else {
                 //console.log('updated', updated);
-                req.sEvent = {
+                var sEvent = {
                     category: 0,
+                    code: 'servermanager::form::update',
                     level: 'warning',
                     targetGroup: ['infrastructureAdmins', 'clientRequestAdmins'],
                     title: 'Form information was modified.',
@@ -104,6 +108,8 @@ exports.update = function(req, res) {
                     initPerson: req.user._id,
                     extraInfo: req.body.params.difs
                 };
+                var EventProcessor = require('meanio').events;
+                EventProcessor.emit('notification', sEvent);
                 return res.jsonp(updated);
             }
         });
@@ -129,8 +135,9 @@ exports.delete = function(req, res) {
                                 console.log(err);
                                 return res.status(500).send(err);
                             } else {
-                                req.sEvent = {
+                                var sEvent = {
                                     category: 0,
+                                    code: 'servermanager::form::delete',
                                     level: 'danger',
                                     targetGroup: ['infrastructureAdmins', 'clientRequestAdmins'],
                                     title: 'Form was removed.',
@@ -138,6 +145,8 @@ exports.delete = function(req, res) {
                                     initPerson: req.user._id,
                                     extraInfo: form
                                 };
+                                var EventProcessor = require('meanio').events;
+                                EventProcessor.emit('notification', sEvent);
                                 res.status(200).send();
                             }
                         });

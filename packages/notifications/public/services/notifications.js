@@ -1,7 +1,7 @@
 /*global io:false*/
 'use strict';
 
-var baseUrl = 'localhost:3000'; //'46.36.217.111:3001';
+var baseUrl = '5.101.114.123:3000'; //'46.36.217.111:3000';
 
 angular.module('mean.notifications').factory('NotificationSocket', function($rootScope) {
 	var socket = io.connect(baseUrl);

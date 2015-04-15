@@ -18,6 +18,6 @@ module.exports = function(Depmanager, app, auth, database) {
     app.post('/api/changeParent', auth.requiresManager, departments.changeParent);
 
     app.get('/api/department/users/:department', auth.requiresLogin, users.usersByDepartment);
-    app.post('/api/bindToDep', auth.requiresManager, users.bindToDep, auth.eventHandler);
+    app.post('/api/bindToDep', auth.requiresManager, users.bindToDep);
     app.get('/api/allUsersByDeps', auth.requiresManager, users.allUsersByDeps);
 };

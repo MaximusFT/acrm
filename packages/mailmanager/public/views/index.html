@@ -58,7 +58,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr data-ng-repeat="box in mailbox.data" class="ng-scope">
+                        <tr data-ng-repeat="box in mailbox.data | filter:search" class="ng-scope">
                             <td>{{$index+1}}</td>
                             <td><input type="checkbox" data-ng-model="box.Selected" data-ng-click="checkMail(sectionIndex, $index, box)"></td>
                             <td>{{box.mail}}</td>

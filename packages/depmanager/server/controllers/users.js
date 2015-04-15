@@ -133,14 +133,17 @@ exports.bindToDep = function(req, res) {
                         console.log(err);
                         return res.status(500).send(err);
                     } else {
-                        req.sEvent = {
+                        var sEvent = {
                             category: 0,
+                            code: 'depmanager::bindToDep',
                             level: 'info',
                             targetPersons: _.map(nusers, '_id'),
                             title: 'New employee' + (users.length > 0 ? 's' : '') + ' in the department: ' + _.map(users, 'name').join(', '),
                             link: '/#!/users',
                             initPerson: req.user._id
                         };
+                        var EventProcessor = require('meanio').events;
+                        EventProcessor.emit('notification', sEvent);
                         return res.status(200).send();
                     }
                 });

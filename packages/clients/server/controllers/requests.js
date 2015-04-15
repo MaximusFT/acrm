@@ -726,9 +726,10 @@ exports.processUserRequest = function(req, res) {
                                                 var temp = _.filter(formProcessingReport.actionsPerformed, function(ap) {
                                                     return (ap.action === 'ACRM' && !ap.error) || (ap.action === 'Inside' && ap.res && ap.res.indexOf('formCallback') === -1 && ap.res.indexOf('error') === -1 && !ap.error);
                                                 });
-                                                if (temp.length > 0)
-                                                    req.sEvent = {
+                                                if (temp.length > 0) {
+                                                    var sEvent = {
                                                         category: 0,
+                                                        code: 'clients::sendUserRequest',
                                                         level: 'info',
                                                         targetGroup: ['clientRequestManagers', 'clientRequestAdmins'],
                                                         title: 'New client request from internet.',
@@ -736,6 +737,9 @@ exports.processUserRequest = function(req, res) {
                                                         initGroup: 'clients package',
                                                         extraInfo: temp
                                                     };
+                                                    var EventProcessor = require('meanio').events;
+                                                    EventProcessor.emit('notification', sEvent);
+                                                }
                                                 //END EVENT GENERATING
                                                 return res.jsonp(options);
                                             }

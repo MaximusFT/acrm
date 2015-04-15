@@ -1,8 +1,8 @@
 'use strict';
 
 var mongoose = require('mongoose'),
-    User = mongoose.model('User'),
-    _ = require('lodash');
+    User = mongoose.model('User');
+    //_ = require('lodash');
 
 /**
  * Generic require login routing middleware
@@ -72,19 +72,4 @@ exports.requiresManager = function(req, res, next) {
                 }
             }
         });
-};
-
-exports.eventHandler = function(req, res, next) {
-    //console.log('eventHandler', req.sEvent);
-    if (req.sEvent) {
-        var EventProcessor = require('meanio').events;
-        EventProcessor.emit('notification', req.sEvent);
-    }
-    if (req.sEvents) {
-        _.forEach(req.sEvents, function(event) {
-            var EventProcessor = require('meanio').events;
-            EventProcessor.emit('notification', event);
-        });
-    }
-    next();
 };

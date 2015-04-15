@@ -1,3 +1,11 @@
 .notifications-example h1 {
-  background-color: purple
+    background-color: purple
+}
+
+.notification-bar-title {
+    letter-spacing: 10px;
+    font-size: medium !important;
+    text-align: center;
+    font-weight: bold !important;
+    font-family: serif;
 }

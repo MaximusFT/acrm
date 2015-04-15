@@ -18,14 +18,17 @@ exports.create = function(req, res) {
             console.log(err);
             return res.status(500).send(err);
         } else {
-            req.sEvent = {
+            var sEvent = {
                 category: 0,
+                code: 'servermanager::server::create',
                 level: 'info',
                 targetGroup: ['infrastructureAdmins'],
                 title: 'One more server was added (' + newServer.ip + ').',
                 link: '/#!/servers',
                 initPerson: req.user._id
             };
+            var EventProcessor = require('meanio').events;
+            EventProcessor.emit('notification', sEvent);
             return res.jsonp(newServer);
         }
     });
@@ -119,8 +122,9 @@ exports.deleteServer = function(req, res) {
                                 console.log(err);
                                 return res.status(500).send(err);
                             } else {
-                                req.sEvent = {
+                                var sEvent = {
                                     category: 0,
+                                    code: 'servermanager::server::deleteServer',
                                     level: 'danger',
                                     targetGroup: 'infrastructureAdmins',
                                     title: 'Server was removed.',
@@ -128,6 +132,8 @@ exports.deleteServer = function(req, res) {
                                     initPerson: req.user._id,
                                     extraInfo: server
                                 };
+                                var EventProcessor = require('meanio').events;
+                                EventProcessor.emit('notification', sEvent);
                                 return res.status(200).send();
                             }
                         });
@@ -159,8 +165,9 @@ exports.updateServer = function(req, res) {
                 return res.status(500).send(err);
             } else {
                 //console.log('updated', updated);
-                req.sEvent = {
+                var sEvent = {
                     category: 0,
+                    code: 'servermanager::server::updateServer',
                     level: 'warning',
                     targetGroup: ['infrastructureAdmins'],
                     title: 'Server information was updated',
@@ -168,6 +175,8 @@ exports.updateServer = function(req, res) {
                     initPerson: req.user._id,
                     extraInfo: req.body.params.difs
                 };
+                var EventProcessor = require('meanio').events;
+                EventProcessor.emit('notification', sEvent);
                 return res.jsonp(updated);
             }
         });

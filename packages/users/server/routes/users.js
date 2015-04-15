@@ -9,13 +9,17 @@ module.exports = function(MeanUser, app, auth, database, passport) {
         .get(users.signout);
     app.route('/users/me')
         .get(users.me);
+    app.route('/api/clientId')
+        .get(function(req, res) {
+            res.jsonp(req.user._id);
+        });
 
     // Setting up the users api
     app.route('/register')
-        .post(users.create, auth.eventHandler);
+        .post(users.create);
 
     app.route('/forgot-password')
-        .post(users.forgotpassword, auth.eventHandler);
+        .post(users.forgotpassword);
 
     app.route('/reset/:token')
         .post(users.resetpassword);

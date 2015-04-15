@@ -69,7 +69,7 @@ module.exports = function(grunt) {
         },
         nodemon: {
             dev: {
-                script: 'server.js',
+                script: 'acrm.js',
                 options: {
                     args: [],
                     ignore: ['node_modules/**'],

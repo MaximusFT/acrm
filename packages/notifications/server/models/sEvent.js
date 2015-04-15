@@ -8,10 +8,10 @@ var EventSchema = new Schema({
         type: Number,                   //1 - messages
         required: true                  //2 - tasks
     },
-    /*code: {
+    code: {
         type: String,                   //Generation rule:
         required: true                  //{{package_code}}:{{action_code}}:{{uniq_code}}
-    },*/
+    },
     level: {
         type: String,
         enum: ['info', 'warn', 'danger', 'error'],

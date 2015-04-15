@@ -14,14 +14,17 @@ exports.create = function(req, res) {
             console.log(err);
             return res.status(500).send(err);
         } else {
-            req.sEvent = {
+            var sEvent = {
                 category: 0,
+                code: 'servermanager::site::create',
                 level: 'info',
                 targetGroup: 'infrastructureAdmins',
                 title: 'New site was added.',
                 link: '/#!/servers/site/' + newSite._id,
                 initPerson: req.user._id
             };
+            var EventProcessor = require('meanio').events;
+            EventProcessor.emit('notification', sEvent);
             return res.jsonp(newSite);
         }
     });
@@ -47,8 +50,9 @@ exports.deleteSite = function(req, res) {
                                 console.log(err);
                                 return res.status(500).send(err);
                             } else {
-                                req.sEvent = {
+                                var sEvent = {
                                     category: 0,
+                                    code: 'servermanager::site::deleteSite',
                                     level: 'danger',
                                     targetGroup: ['infrastructureAdmins'],
                                     title: 'Site was removed.',
@@ -56,6 +60,8 @@ exports.deleteSite = function(req, res) {
                                     initPerson: req.user._id,
                                     extraInfo: site
                                 };
+                                var EventProcessor = require('meanio').events;
+                                EventProcessor.emit('notification', sEvent);
                                 return res.status(200).send();
                             }
                         });

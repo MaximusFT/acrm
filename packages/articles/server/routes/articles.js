@@ -6,7 +6,7 @@ module.exports = function(Articles, app, auth) {
 
   app.route('/articles')
     .get(auth.requiresLogin, articles.all)
-    .post(auth.requiresAdmin, articles.create, auth.eventHandler);
+    .post(auth.requiresAdmin, articles.create);
   app.route('/articles/:articleId')
     .get(auth.requiresLogin, articles.show)
     .put(auth.requiresAdmin, articles.update)

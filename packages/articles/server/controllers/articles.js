@@ -32,14 +32,17 @@ exports.create = function(req, res) {
             console.log(err);
             return res.status(500).send(err);
         } else {
-            req.sEvent = {
+            var sEvent = {
                 category: 0,
+                code: 'articles::create',
                 level: 'info',
                 targetGroup: ['users'],
                 title: 'The new message has been posted in the news section.',
                 link: '/#!/news/' + article._id,
                 initPerson: article.user
             };
+            var EventProcessor = require('meanio').events;
+            EventProcessor.emit('notification', sEvent);
             res.jsonp(article);
         }
     });

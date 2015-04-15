@@ -295,14 +295,17 @@ exports.synchronizemailboxes = function(req, res) {
                                                 return res.status(500).send('Error while trying to check modifies in mailboxes');
                                             } else {
                                                 console.log('results', results);
-                                                req.sEvent = {
+                                                var sEvent = {
                                                     category: 0,
+                                                    code: 'mailmanager::synchronizemailboxes',
                                                     level: 'warning',
                                                     targetGroup: ['mailAdmins'],
                                                     title: 'The synchronization of mailboxes was finished. ' + temp.created + ' items were created, ' + temp.updated + ' – updated, ' + temp.deleted + ' marked as removed.',
                                                     link: '/#!/mailmanager',
                                                     initPerson: req.user._id
                                                 };
+                                                var EventProcessor = require('meanio').events;
+                                                EventProcessor.emit('notification', sEvent);
                                                 return res.status(200).send();
                                             }
                                         });
@@ -312,14 +315,17 @@ exports.synchronizemailboxes = function(req, res) {
                                                 console.log(err);
                                                 return res.status(500).send(err);
                                             } else {
-                                                req.sEvent = {
+                                                var sEvent = {
                                                     category: 0,
+                                                    code: 'mailmanager::synchronizemailboxes',
                                                     level: 'warning',
                                                     targetGroup: ['mailAdmins'],
                                                     title: 'The synchronization of mailboxes was finished. ' + postfix.length + ' items were created.',
                                                     link: '/#!/mailmanager',
                                                     initPerson: req.user._id
                                                 };
+                                                var EventProcessor = require('meanio').events;
+                                                EventProcessor.emit('notification', sEvent);
                                                 return res.status(200).send();
                                             }
                                         });

@@ -139,8 +139,9 @@ exports.web_request_form_add = function(req, res, next) {
             console.log(err);
             return res.status(500).send(err);
         } else {
-            req.sEvent = {
+            var sEvent = {
                 category: 0,
+                code: 'clients::web_request_form_add',
                 level: 'info',
                 targetGroup: ['clientRequestManagers', 'clientRequestAdmins'],
                 title: 'New client request from internet (old scheme).',
@@ -148,6 +149,8 @@ exports.web_request_form_add = function(req, res, next) {
                 initGroup: 'clients package',
                 extraInfo: webreq.office_destination
             };
+            var EventProcessor = require('meanio').events;
+            EventProcessor.emit('notification', sEvent);
             return res.jsonp(webreq);
         }
     });

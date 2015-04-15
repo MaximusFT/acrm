@@ -212,14 +212,17 @@ exports.changeGuestMode = function(req, res) {
                                                                         return res.status(500).send(err);
                                                                     } else {
                                                                         console.log('updated', updated);
-                                                                        req.sEvent = {
+                                                                        var sEvent = {
                                                                             category: 0,
+                                                                            code: 'chatmanager::changeGuestMode',
                                                                             level: 'warning',
                                                                             targetGroup: ['finchatAdmins'],
                                                                             title: 'Guest mode in FinChat was ' + (req.body.params.isGuestModeEnabled === true ? 'enabled' : 'disabled') + '.',
                                                                             link: '/#!/manager/chat',
                                                                             initPerson: req.user._id
                                                                         };
+                                                                        var EventProcessor = require('meanio').events;
+                                                                        EventProcessor.emit('notification', sEvent);
                                                                         return res.status(200).send();
                                                                     }
                                                                 });

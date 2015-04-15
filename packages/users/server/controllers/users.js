@@ -161,16 +161,19 @@ exports.create = function(req, res, next) {
             }
             req.logIn(user, function(err) {
                 if (err) return next(err);
-                res.redirect('/');
-                req.sEvent = {
+                var sEvent = {
                     category: 0,
+                    code: 'users::create',
                     level: 'info',
-                    targetGroup: ['admins'],
+                    targetGroup: ['userManagementAdmins'],
                     title: 'User has signed up in system (' + user._id + ')',
                     link: '/#!/users/' + user.username,
                     initGroup: 'users package'
                 };
-                next();
+                var EventProcessor = require('meanio').events;
+                EventProcessor.emit('notification', sEvent);
+                res.redirect('/');
+                //next();
             });
             res.status(200);
         });
@@ -220,8 +223,20 @@ exports.create = function(req, res, next) {
                                             }
                                     }
                                     return res.status(400);
-                                } else
+                                } else {
+                                    var sEvent = {
+                                        category: 0,
+                                        code: 'users::create',
+                                        level: 'info',
+                                        targetGroup: ['admins'],
+                                        title: 'User has signed up in system (' + user._id + ')',
+                                        link: '/#!/users/' + user.username,
+                                        initPerson: req.user._id
+                                    };
+                                    var EventProcessor = require('meanio').events;
+                                    EventProcessor.emit('notification', sEvent);
                                     return res.status(200).send();
+                                }
                             });
                         } else if (curUser.roles.indexOf('manager') !== -1) {
                             user.department = curUser.department;
@@ -255,8 +270,20 @@ exports.create = function(req, res, next) {
                                             }
                                     }
                                     return res.status(400);
-                                } else
+                                } else {
+                                    var sEvent = {
+                                        category: 0,
+                                        code: 'users::create',
+                                        level: 'info',
+                                        targetGroup: ['admins'],
+                                        title: 'User has signed up in system (' + user._id + ')',
+                                        link: '/#!/users/' + user.username,
+                                        initPerson: req.user._id
+                                    };
+                                    var EventProcessor = require('meanio').events;
+                                    EventProcessor.emit('notification', sEvent);
                                     return res.status(200).send();
+                                }
                             });
                         } else {
                             return res.status(403).send([{
@@ -424,14 +451,16 @@ exports.forgotpassword = function(req, res, next) {
                 response.message = 'Mail was successfully sent';
                 response.status = 'success';
             }
-            req.sEvent = {
+            var sEvent = {
                 category: 0,
                 level: 'info',
-                targetGroup: ['userManagerAdmins'],
+                targetGroup: ['userManagementAdmins'],
                 title: 'User has been used the service password recovery.',
                 link: '/#!/users',
                 initPerson: req.user._id
             };
+            var EventProcessor = require('meanio').events;
+            EventProcessor.emit('notification', sEvent);
             return res.jsonp(response);
         }
     );

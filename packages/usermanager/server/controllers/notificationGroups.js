@@ -197,7 +197,7 @@ exports.userNotificationsSettings = function(req, res) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
-                console.log(groups);
+                //console.log(groups);
                 if (groups && groups.length) {
                     NotificationSetting
                         .find({
