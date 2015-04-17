@@ -171,6 +171,10 @@ angular.module('mean.clients').controller('ClientsController', ['$scope', '$http
             title: 'Form URI',
             key: 'formUri',
             type: 'text'
+        }, {
+            title: 'Form ID',
+            key: 'formId',
+            type: 'text'
         }];
 
         $scope.states = [{

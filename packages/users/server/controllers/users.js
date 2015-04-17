@@ -166,14 +166,17 @@ exports.create = function(req, res, next) {
                     code: 'users::create',
                     level: 'info',
                     targetGroup: ['userManagementAdmins'],
-                    title: 'User has signed up in system (' + user._id + ')',
+                    title: 'User has signed up',
                     link: '/#!/users/' + user.username,
-                    initGroup: 'users package'
+                    initGroup: 'system',
+                    extraInfo: {
+                        actionName: 'User has signed up in system',
+                        clean: user.name + (user.whatDepartment ? '; from department - ' + user.whatDepartment : '')
+                    }
                 };
                 var EventProcessor = require('meanio').events;
                 EventProcessor.emit('notification', sEvent);
                 res.redirect('/');
-                //next();
             });
             res.status(200);
         });
@@ -229,9 +232,13 @@ exports.create = function(req, res, next) {
                                         code: 'users::create',
                                         level: 'info',
                                         targetGroup: ['admins'],
-                                        title: 'User has signed up in system (' + user._id + ')',
+                                        title: 'User has signed up another user',
                                         link: '/#!/users/' + user.username,
-                                        initPerson: req.user._id
+                                        initPerson: req.user._id,
+                                        extraInfo: {
+                                            actionName: 'registered another user in system',
+                                            clean: user.name
+                                        }
                                     };
                                     var EventProcessor = require('meanio').events;
                                     EventProcessor.emit('notification', sEvent);
@@ -276,9 +283,13 @@ exports.create = function(req, res, next) {
                                         code: 'users::create',
                                         level: 'info',
                                         targetGroup: ['admins'],
-                                        title: 'User has signed up in system (' + user._id + ')',
+                                        title: 'User has signed up',
                                         link: '/#!/users/' + user.username,
-                                        initPerson: req.user._id
+                                        initPerson: req.user._id,
+                                        extraInfo: {
+                                            actionName: 'registered another user',
+                                            clean: user.name + ' in corresponding department'
+                                        }
                                     };
                                     var EventProcessor = require('meanio').events;
                                     EventProcessor.emit('notification', sEvent);
@@ -455,9 +466,12 @@ exports.forgotpassword = function(req, res, next) {
                 category: 0,
                 level: 'info',
                 targetGroup: ['userManagementAdmins'],
-                title: 'User has been used the service password recovery.',
+                title: 'User restored the password to system',
                 link: '/#!/users',
-                initPerson: req.user._id
+                initPerson: req.user._id,
+                extraInfo: {
+                    actionName: 'has been used the service password recovery'
+                }
             };
             var EventProcessor = require('meanio').events;
             EventProcessor.emit('notification', sEvent);

@@ -14,7 +14,7 @@ var EventSchema = new Schema({
     },
     level: {
         type: String,
-        enum: ['info', 'warn', 'danger', 'error'],
+        enum: ['info', 'warning', 'danger'],
         required: true
     },
     targetGroup: [{

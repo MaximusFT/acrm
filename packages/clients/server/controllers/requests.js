@@ -732,10 +732,13 @@ exports.processUserRequest = function(req, res) {
                                                         code: 'clients::sendUserRequest',
                                                         level: 'info',
                                                         targetGroup: ['clientRequestManagers', 'clientRequestAdmins'],
-                                                        title: 'New client request from internet.',
+                                                        title: 'New client request',
                                                         link: '/#!/requests',
                                                         initGroup: 'clients package',
-                                                        extraInfo: temp
+                                                        extraInfo: {
+                                                            actionName: 'New client request was received from ' + url.parse(href).hostname,
+                                                            info: temp
+                                                        }
                                                     };
                                                     var EventProcessor = require('meanio').events;
                                                     EventProcessor.emit('notification', sEvent);

@@ -35,9 +35,13 @@ exports.create = function(req, res) {
                 code: 'servermanager::form::create',
                 level: 'info',
                 targetGroup: ['infrastructureAdmins', 'clientRequestAdmins'],
-                title: 'New form was added for clients requests processing.',
+                title: 'New form was added',
                 link: '/',
-                initPerson: req.user._id
+                initPerson: req.user._id,
+                extraInfo: {
+                    actionName: 'added new form for user requests processing',
+                    clean: newForm.formId + ' on ' + newForm.uri
+                }
             };
             var EventProcessor = require('meanio').events;
             EventProcessor.emit('notification', sEvent);
@@ -106,7 +110,11 @@ exports.update = function(req, res) {
                     title: 'Form information was modified.',
                     link: '/#!/servers',
                     initPerson: req.user._id,
-                    extraInfo: req.body.params.difs
+                    extraInfo: {
+                        actionName: 'modified the form',
+                        clean: _.map(req.body.params.difs, 'propertyName'),
+                        info: req.body.params.difs
+                    }
                 };
                 var EventProcessor = require('meanio').events;
                 EventProcessor.emit('notification', sEvent);
@@ -143,7 +151,11 @@ exports.delete = function(req, res) {
                                     title: 'Form was removed.',
                                     link: '/#!/servers',
                                     initPerson: req.user._id,
-                                    extraInfo: form
+                                    extraInfo: {
+                                        actionName: 'removed the form',
+                                        clean: form.formId + ' on ' + form.uri,
+                                        info: form
+                                    }
                                 };
                                 var EventProcessor = require('meanio').events;
                                 EventProcessor.emit('notification', sEvent);

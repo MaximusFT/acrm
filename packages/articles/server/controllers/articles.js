@@ -37,9 +37,13 @@ exports.create = function(req, res) {
                 code: 'articles::create',
                 level: 'info',
                 targetGroup: ['users'],
-                title: 'The new message has been posted in the news section.',
+                title: 'News update',
                 link: '/#!/news/' + article._id,
-                initPerson: article.user
+                initPerson: article.user,
+                extraInfo: {
+                    actionName: 'added new article',
+                    clean: article.title
+                }
             };
             var EventProcessor = require('meanio').events;
             EventProcessor.emit('notification', sEvent);

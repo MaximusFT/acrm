@@ -300,9 +300,13 @@ exports.synchronizemailboxes = function(req, res) {
                                                     code: 'mailmanager::synchronizemailboxes',
                                                     level: 'warning',
                                                     targetGroup: ['mailAdmins'],
-                                                    title: 'The synchronization of mailboxes was finished. ' + temp.created + ' items were created, ' + temp.updated + ' – updated, ' + temp.deleted + ' marked as removed.',
+                                                    title: 'The synchronization of mailboxes was finished',
                                                     link: '/#!/mailmanager',
-                                                    initPerson: req.user._id
+                                                    initPerson: req.user._id,
+                                                    extraInfo: {
+                                                        actionName: 'ran the synchronization of mailboxes',
+                                                        clean:  temp.created + ' items were created, ' + temp.updated + ' – updated, ' + temp.deleted + ' – marked as removed'
+                                                    }
                                                 };
                                                 var EventProcessor = require('meanio').events;
                                                 EventProcessor.emit('notification', sEvent);
@@ -320,9 +324,13 @@ exports.synchronizemailboxes = function(req, res) {
                                                     code: 'mailmanager::synchronizemailboxes',
                                                     level: 'warning',
                                                     targetGroup: ['mailAdmins'],
-                                                    title: 'The synchronization of mailboxes was finished. ' + postfix.length + ' items were created.',
+                                                    title: 'The synchronization of mailboxes was finished',
                                                     link: '/#!/mailmanager',
-                                                    initPerson: req.user._id
+                                                    initPerson: req.user._id,
+                                                    extraInfo: {
+                                                        actionName: 'ran the synchronization of mailboxes',
+                                                        clean: postfix.length + ' items were created'
+                                                    }
                                                 };
                                                 var EventProcessor = require('meanio').events;
                                                 EventProcessor.emit('notification', sEvent);

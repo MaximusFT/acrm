@@ -217,9 +217,12 @@ exports.changeGuestMode = function(req, res) {
                                                                             code: 'chatmanager::changeGuestMode',
                                                                             level: 'warning',
                                                                             targetGroup: ['finchatAdmins'],
-                                                                            title: 'Guest mode in FinChat was ' + (req.body.params.isGuestModeEnabled === true ? 'enabled' : 'disabled') + '.',
+                                                                            title: 'Guest mode in FinChat was changed',
                                                                             link: '/#!/manager/chat',
-                                                                            initPerson: req.user._id
+                                                                            initPerson: req.user._id,
+                                                                            extraInfo: {
+                                                                                actionName: (req.body.params.isGuestModeEnabled === true ? 'activated' : 'disactivated') + ' the guest mode'
+                                                                            }
                                                                         };
                                                                         var EventProcessor = require('meanio').events;
                                                                         EventProcessor.emit('notification', sEvent);

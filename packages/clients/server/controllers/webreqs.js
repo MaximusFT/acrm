@@ -5,7 +5,9 @@ var mongoose = require('mongoose'),
     NewWebreq = mongoose.model('NewWebreq'),
     WebreqType = mongoose.model('WebreqType'),
     FormProcessingReport = mongoose.model('FormProcessingReport'),
-    LogWebRequest = mongoose.model('LogWebRequest');
+    LogWebRequest = mongoose.model('LogWebRequest'),
+    url = require('url'),
+    Form = mongoose.model('Form');
 //_ = require('lodash');
 
 exports.web_request_form_add = function(req, res, next) {
@@ -144,10 +146,13 @@ exports.web_request_form_add = function(req, res, next) {
                 code: 'clients::web_request_form_add',
                 level: 'info',
                 targetGroup: ['clientRequestManagers', 'clientRequestAdmins'],
-                title: 'New client request from internet (old scheme).',
+                title: 'New client request',
                 link: '/#!/requests',
                 initGroup: 'clients package',
-                extraInfo: webreq.office_destination
+                extraInfo: {
+                    actionName: 'New client request was received from ' + url.parse(webreq.form_address).hostname,
+                    info: webreq.office_destination
+                }
             };
             var EventProcessor = require('meanio').events;
             EventProcessor.emit('notification', sEvent);
@@ -362,6 +367,80 @@ exports.acrmRequestTypes = function(req, res) {
 };
 
 exports.applyFilters = function(req, res) {
+    function search(query) {
+        NewWebreq
+            .find(query)
+            .skip((page - 1) * 20)
+            .limit(20)
+            //.populate('fromForm', '-actions -comment -formId -name')
+            .populate({
+                path: 'fromForm',
+                select: '-actions -comment -formId -name'
+            })
+            .populate('type')
+            .sort({
+                created: -1
+            })
+            .lean()
+            .exec(function(err, webreqs) {
+                if (err) {
+                    console.log(err);
+                    return res.status(500).send(err);
+                } else {
+                    NewWebreq
+                        .find({
+                            state: 3,
+                            isRead: false
+                        }, {
+                            _id: 1
+                        }, function(err, testUnreadRequests) {
+                            if (err) {
+                                console.log(err);
+                                return res.status(500).send(err);
+                            } else {
+                                NewWebreq
+                                    .find(query, {
+                                        _id: 1
+                                    })
+                                    .exec(function(err, count) {
+                                        if (err) {
+                                            console.log(err);
+                                            return res.status(500).send(err);
+                                        } else {
+                                            if (options.state === 0) {
+                                                NewWebreq
+                                                    .find({
+                                                        state: 0
+                                                    }, {
+                                                        _id: 1
+                                                    }, function(err, allUnreadCount) {
+                                                        if (err) {
+                                                            console.log(err);
+                                                            return res.status(500).send(err);
+                                                        } else {
+                                                            return res.jsonp({
+                                                                webreqs: webreqs,
+                                                                count: Math.ceil(count.length / 20) * 10,
+                                                                allUnreadCount: allUnreadCount.length,
+                                                                testUnreadCount: testUnreadRequests.length
+                                                            });
+                                                        }
+                                                    });
+                                            } else {
+                                                return res.jsonp({
+                                                    webreqs: webreqs,
+                                                    count: Math.ceil(count.length / 20) * 10,
+                                                    testUnreadCount: testUnreadRequests.length
+                                                });
+                                            }
+                                        }
+                                    });
+                            }
+                        });
+                }
+            });
+    }
+
     if (!req.body || !req.body.params || !req.body.params.options)
         return res.status(500).send('Empty query');
     var page = req.body.params.curPage,
@@ -393,83 +472,35 @@ exports.applyFilters = function(req, res) {
             '$gte': options.date.start,
             '$lt': options.date.end
         };
-    /*
-        uri: {
-            '$regex': new RegExp(options.formUri, 'i')
-        }
-    */
-    console.log('query', query);
-    NewWebreq
-        .find(query)
-        .skip((page - 1) * 20)
-        .limit(20)
-        //.populate('fromForm', '-actions -comment -formId -name')
-        .populate({
-            path: 'fromForm',
-            select: '-actions -comment -formId -name'
-        })
-        .populate('type')
-        .sort({
-            created: -1
-        })
-        .lean()
-        .exec(function(err, webreqs) {
-            if (err) {
-                console.log(err);
-                return res.status(500).send(err);
-            } else {
-                NewWebreq
-                    .find({
-                        state: 3,
-                        isRead: false
-                    }, {
-                        _id: 1
-                    }, function(err, testUnreadRequests) {
-                        if (err) {
-                            console.log(err);
-                            return res.status(500).send(err);
-                        } else {
-                            NewWebreq
-                                .find(query, {
-                                    _id: 1
-                                })
-                                .exec(function(err, count) {
-                                    if (err) {
-                                        console.log(err);
-                                        return res.status(500).send(err);
-                                    } else {
-                                        if (options.state === 0) {
-                                            NewWebreq
-                                                .find({
-                                                    state: 0
-                                                }, {
-                                                    _id: 1
-                                                }, function(err, allUnreadCount) {
-                                                    if (err) {
-                                                        console.log(err);
-                                                        return res.status(500).send(err);
-                                                    } else {
-                                                        return res.jsonp({
-                                                            webreqs: webreqs,
-                                                            count: Math.ceil(count.length / 20) * 10,
-                                                            allUnreadCount: allUnreadCount.length,
-                                                            testUnreadCount: testUnreadRequests.length
-                                                        });
-                                                    }
-                                                });
-                                        } else {
-                                            return res.jsonp({
-                                                webreqs: webreqs,
-                                                count: Math.ceil(count.length / 20) * 10,
-                                                testUnreadCount: testUnreadRequests.length
-                                            });
-                                        }
-                                    }
-                                });
-                        }
-                    });
-            }
-        });
+    if (options.formUri || options.formId) {
+        var q = {};
+        if(options.formUri)
+            q.uri = {
+                $regex: options.formUri
+            };
+        if(options.formId)
+            q.formId = options.formId;
+        Form
+            .findOne(q, {
+                _id: 1
+            }, function(err, form) {
+                if(err) {
+                    console.log(err);
+                    return res.status(500).send(err);
+                } else {
+                    if(form) {
+                        query.fromForm = form._id;
+                        console.log('query', query);
+                        search(query);
+                    } else {
+                        return res.jsonp([]);
+                    }
+                }
+            });
+    } else {
+        console.log('query', query);
+        search(query);
+    }
 };
 
 exports.changeWebreqState = function(req, res) {

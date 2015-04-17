@@ -13,10 +13,6 @@ var NotificationSchema = new Schema({
         type: String,
         required: true
     },
-    category: {
-        type: Number,
-        required: true
-    },
     event: {
         type: Schema.ObjectId,
         ref: 'SEvent',
@@ -25,10 +21,6 @@ var NotificationSchema = new Schema({
     state: {                    //0 - unread
         type: Number,           //1 - read
         default: 0              //2 - bookmarked
-    },
-    time: {
-        type: Date,
-        default: Date.now
     }
 });
 

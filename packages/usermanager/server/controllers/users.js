@@ -65,9 +65,13 @@ exports.create = function(req, res, next) {
                 code: 'usermanager::create',
                 level: 'info',
                 targetGroup: ['userManagementAdmins'],
-                title: 'New user was added manually by ACRM user.',
+                title: 'New user was signed up',
                 link: '/#!/users/' + user.username,
-                initPerson: req.user._id
+                initPerson: req.user._id,
+                extraInfo: {
+                    actionName: 'registered new user',
+                    clean: user.username
+                }
             };
             var EventProcessor = require('meanio').events;
             EventProcessor.emit('notification', sEvent);
@@ -108,29 +112,43 @@ exports.update = function(req, res) {
         var up = {};
         up[pair.key] = pair.val;
         User
-            .update({
+            .findOne({
                 _id: userId
-            }, {
-                $set: up
-            })
-            .exec(function(err) {
+            }, function(err, user) {
                 if (err) {
-                    return res.json(500, {
-                        error: err
-                    });
+                    console.log(err);
+                    return res.status(500).send(err);
                 } else {
-                    var sEvent = {
-                        category: 0,
-                        code: 'usermanager::update',
-                        level: 'warning',
-                        targetGroup: ['userManagementAdmins'],
-                        title: 'User information was modified',
-                        link: '/#!/users',
-                        initPerson: req.user._id
-                    };
-                    var EventProcessor = require('meanio').events;
-                    EventProcessor.emit('notification', sEvent);
-                    return res.status(200).send();
+                    User
+                        .update({
+                            _id: userId
+                        }, {
+                            $set: up
+                        })
+                        .exec(function(err) {
+                            if (err) {
+                                return res.json(500, {
+                                    error: err
+                                });
+                            } else {
+                                var sEvent = {
+                                    category: 0,
+                                    code: 'usermanager::update',
+                                    level: 'warning',
+                                    targetGroup: ['userManagementAdmins'],
+                                    title: 'User information was modified',
+                                    link: '/#!/users',
+                                    initPerson: req.user._id,
+                                    extraInfo: {
+                                        actionName: 'modified ' + (JSON.stringify(req.user._id) === JSON.stringify(req.params.userId) ? 'his(her) profile information' : ('profile information about another user' + (user && user.name ? (' ' + user.name) : ''))),
+                                        info: user
+                                    }
+                                };
+                                var EventProcessor = require('meanio').events;
+                                EventProcessor.emit('notification', sEvent);
+                                return res.status(200).send();
+                            }
+                        });
                 }
             });
     }
@@ -167,7 +185,11 @@ exports.destroy = function(req, res) {
                                 title: 'User was removed',
                                 link: '/#!/users',
                                 initPerson: req.user._id,
-                                extraInfo: user
+                                extraInfo: {
+                                    actionName: 'removed the user',
+                                    clean: user.name,
+                                    info: user
+                                }
                             };
                             var EventProcessor = require('meanio').events;
                             EventProcessor.emit('notification', sEvent);
@@ -208,10 +230,14 @@ exports.removeUsers = function(req, res) {
                                 code: 'usermanager::removeUsers',
                                 level: 'danger',
                                 targetGroup: ['userManagementAdmins'],
-                                title: 'User' + (users.length > 1 ? 's were' : ' was') + ' removed.',
+                                title: 'User' + (users.length > 1 ? 's were' : ' was') + ' removed',
                                 link: '/#!/users',
                                 initPerson: req.user._id,
-                                extraInfo: busers
+                                extraInfo: {
+                                    actionName: 'removed the user' + (users.length > 1 ? 's' : ''),
+                                    clean: _.map(busers, 'name').join(', '),
+                                    info: busers
+                                }
                             };
                             var EventProcessor = require('meanio').events;
                             EventProcessor.emit('notification', sEvent);
@@ -477,11 +503,12 @@ exports.assignRole = function(req, res) {
                     if (user.roles.indexOf('manager') !== -1 && role === 'admin')
                         return res.status(403).send('Access denied');
                     User
-                        .findOne({
+                        .find({
                             _id: {
                                 $in: users
                             }
                         }, {
+                            name: 1,
                             roles: 1
                         }, function(err, busers) {
                             if (err) {
@@ -511,22 +538,28 @@ exports.assignRole = function(req, res) {
                                                 code: 'usermanager::assignRole',
                                                 level: 'warning',
                                                 targetGroup: ['userManagementAdmins'],
-                                                title: 'User role was modified.',
+                                                title: 'User role was modified',
                                                 link: '/#!/users',
                                                 initPerson: req.user._id,
                                                 extraInfo: {
-                                                    was: _.map(busers, 'role'),
-                                                    is: roles
+                                                    actionName: 'assigned new role for user' + (users.length > 1 ? 's' : ''),
+                                                    clean: 'users - ' + _.map(busers, 'name').join(', ') + '; role - ' + role,
+                                                    info: _.map(busers, function(buser) {
+                                                        return _.pick(buser, '_id', 'roles');
+                                                    })
                                                 }
                                             }, {
                                                 category: 0,
                                                 code: 'usermanager::assignRole',
                                                 level: 'warning',
                                                 targetPersons: users,
-                                                title: 'Your role was changed.',
+                                                title: 'Your role was changed',
                                                 link: '/#!/users',
                                                 initPerson: req.user._id,
-                                                extraInfo: req.body.params.role
+                                                extraInfo: {
+                                                    actionName: 'changed your role on',
+                                                    clean: role
+                                                }
                                             }];
                                             var EventProcessor = require('meanio').events;
                                             EventProcessor.emit('notifications', sEvents);
@@ -576,18 +609,32 @@ exports.clearAccesses = function(req, res) {
                             console.log(err);
                             return res.status(500).send(err);
                         } else {
-                            var sEvent = {
+                            var sEvents = [{
                                 category: 0,
                                 code: 'usermanager::clearAccesses',
                                 level: 'warning',
                                 targetGroup: ['userManagementAdmins'],
-                                title: 'The user has been stripped of all accesses.',
+                                title: 'The user has been stripped of all accesses',
                                 link: '/#!/users',
                                 initPerson: req.user._id,
-                                extraInfo: passes
-                            };
+                                extraInfo: {
+                                    actionName: 'cleared all user\' accessed to corporate resourses',
+                                    info: passes
+                                }
+                            }, {
+                                category: 0,
+                                code: 'usermanager::clearAccesses',
+                                level: 'danger',
+                                targetPersons: users,
+                                title: 'The user has been stripped of all accesses',
+                                link: '/#!/users',
+                                initPerson: req.user._id,
+                                extraInfo: {
+                                    actionName: 'cleared all your accessed to corporate resourses'
+                                }
+                            }];
                             var EventProcessor = require('meanio').events;
-                            EventProcessor.emit('notification', sEvent);
+                            EventProcessor.emit('notifications', sEvents);
                             return res.status(200).send();
                         }
                     });

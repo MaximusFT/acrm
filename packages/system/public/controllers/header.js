@@ -144,6 +144,7 @@ angular.module('mean.system').controller('HeaderController', ['$scope', '$rootSc
         };
 
         $scope.openNotificationsBar = function(event) {
+            //$log.info(event.target, event.currentTarget);
             var isActive = angular.element('#' + event.currentTarget.id).hasClass('active');
             angular.element('.xn-icon-button').removeClass('active');
             if (!isActive) {
@@ -152,11 +153,11 @@ angular.module('mean.system').controller('HeaderController', ['$scope', '$rootSc
             }
         };
 
-        angular.element('html').on('click', function(event) {
+        /*angular.element('html').on('click', function(event) {
             $scope.counter += 1;
             if(!$scope.html_click_avail && $scope.counter === 2)
                 angular.element('.x-navigation-horizontal li,.x-navigation-minimized li').removeClass('active');
             $scope.counter = $scope.counter === 2 ? 0 : $scope.counter;
-        });
+        });*/
     }
 ]);

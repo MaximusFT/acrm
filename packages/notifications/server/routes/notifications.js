@@ -12,7 +12,20 @@ module.exports = function(Notifications, io) {
             if (err) {
                 console.log('Error:', err);
             } else {
-                notifications.notify(sEvent, function(err) {
+                notifications.notifyOnce(sEvent, function(err) {
+                    if (err)
+                        console.log('Error:', err);
+                }, io);
+            }
+        });
+    }
+
+    function processEvents(events) {
+        notifications.saveEvents(events, function(err, sEvents) {
+            if (err) {
+                console.log('Error:', err);
+            } else {
+                notifications.notifyMulti(sEvents, function(err) {
                     if (err)
                         console.log('Error:', err);
                 }, io);
@@ -24,9 +37,7 @@ module.exports = function(Notifications, io) {
     //--several events
     EventProcessor.on('notifications', function(events) {
         console.log('events catched', events);
-        _.forEach(events, function(event) {
-            processEvent(event);
-        });
+        processEvents(events);
     });
 
     //--one event
@@ -40,9 +51,9 @@ module.exports = function(Notifications, io) {
         console.log('--> One more user connected to notifications');
         socket.emit('connected');
         
-        socket.on('notifications:connect', function(userId) {
-            console.log(userId, 'online');
-            notifications.getEventsForUser(io, userId);
+        socket.on('notifications:connect', function(user) {
+            console.log(user.userName, 'online');
+            notifications.getEventsForUser(io, user.userId);
         });
 
         socket.on('notifications:get', function(userId) {

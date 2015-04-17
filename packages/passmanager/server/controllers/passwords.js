@@ -29,9 +29,13 @@ exports.create = function(req, res, next) {
                 code: 'passmanager::create',
                 level: 'info',
                 targetGroup: ['passAdmins'],
-                title: 'New password for ' + pass.resourceName + ' was created.',
+                title: 'New password was added',
                 link: '/#!/manager/passwords/' + pass._id,
-                initPerson: req.user._id
+                initPerson: req.user._id,
+                extraInfo: {
+                    actionName: 'added new password',
+                    clean: 'for resource ' + pass.resourceName + ' (' + pass.resourceUrl + ')'
+                }
             };
             var EventProcessor = require('meanio').events;
             EventProcessor.emit('notification', sEvent);
@@ -92,27 +96,46 @@ exports.update = function(req, res) {
         var up = {};
         up[pair.key] = pair.val;
         Pass
-            .update({
+            .findOne({
                 _id: passId
-            }, {
-                $set: up
-            })
-            .exec(function(err) {
+            }, function(err, passWas) {
                 if (err) {
+                    console.log(err);
                     return res.status(500).send(err);
                 } else {
-                    var sEvent = {
-                        category: 0,
-                        code: 'passmanager::update',
-                        level: 'warning',
-                        targetGroup: ['passAdmins'],
-                        title: 'Password was modified.',
-                        link: '/#!/manager/passwords/' + passId,
-                        initPerson: req.user._id
-                    };
-                    var EventProcessor = require('meanio').events;
-                    EventProcessor.emit('notification', sEvent);
-                    return res.status(200).send();
+                    if (passWas) {
+                        Pass
+                            .update({
+                                _id: passId
+                            }, {
+                                $set: up
+                            })
+                            .exec(function(err) {
+                                if (err) {
+                                    return res.status(500).send(err);
+                                } else {
+                                    var sEvent = {
+                                        category: 0,
+                                        code: 'passmanager::update',
+                                        level: 'warning',
+                                        targetGroup: ['passAdmins'],
+                                        title: 'Password was modified',
+                                        link: '/#!/manager/passwords/' + passId,
+                                        initPerson: req.user._id,
+                                        extraInfo: {
+                                            actionName: 'modified the password',
+                                            clean: pair.key + ' = ' + pair.val + ' (<-- ' + passWas[pair.key] + ')',
+                                            info: passWas
+                                        }
+                                    };
+                                    var EventProcessor = require('meanio').events;
+                                    EventProcessor.emit('notification', sEvent);
+                                    return res.status(200).send();
+                                }
+                            });
+                    } else {
+                        return res.status(404).send('Password was not found');
+                    }
                 }
             });
     }
@@ -144,10 +167,14 @@ exports.destroy = function(req, res) {
                     code: 'passmanager::destroy',
                     level: 'danger',
                     targetGroup: ['passAdmins'],
-                    title: 'Password was removed from system.',
+                    title: 'Password was removed',
                     link: '/#!/manager/passwords',
                     initPerson: req.user._id,
-                    extraInfo: pass
+                    extraInfo: {
+                        actionName: 'removed the password',
+                        clean: 'for resource ' + pass.resourceName + ' (' + pass.resourceUrl + ')',
+                        info: pass
+                    }
                 };
                 var EventProcessor = require('meanio').events;
                 EventProcessor.emit('notification', sEvent);
@@ -379,10 +406,14 @@ exports.delPass = function(req, res) {
                     code: 'passmanager::deletePass',
                     level: 'danger',
                     targetGroup: ['passAdmins'],
-                    title: 'Password was removed from system.',
+                    title: 'Password was removed',
                     link: '/#!/manager/passwords',
                     initPerson: req.user._id,
-                    extraInfo: pass
+                    extraInfo: {
+                        actionName: 'removed the password',
+                        clean: 'for resource ' + pass.resourceName + ' (' + pass.resourceUrl + ')',
+                        info: pass
+                    }
                 };
                 var EventProcessor = require('meanio').events;
                 EventProcessor.emit('notification', sEvent);
@@ -505,285 +536,360 @@ exports.provideAccess = function(req, res) {
                 return res.status(500).send(err);
             } else {
                 if (curUser) {
-                    if (curUser.roles.indexOf('admin') !== -1) {
-                        if (users) {
-                            Pass
-                                .update({
-                                    _id: {
-                                        $in: passes
-                                    }
-                                }, {
-                                    $addToSet: {
-                                        accessedFor: {
-                                            $each: users
+                    Pass
+                        .find({
+                            _id: {
+                                $in: passes
+                            }
+                        }, {
+                            resourceName: 1,
+                            resourceUrl: 1
+                        }, function(err, ppasses) {
+                            if (err) {
+                                console.log(err);
+                                return res.status(500).send(err);
+                            } else {
+                                User
+                                    .find({
+                                        _id: {
+                                            $in: users
                                         }
-                                    }
-                                }, {
-                                    multi: true
-                                })
-                                .exec(function(err) {
-                                    if (err) {
-                                        console.log(err);
-                                        return res.status(500).send();
-                                    } else {
-                                        var sEvents = [{
-                                            category: 0,
-                                            code: 'passmanager::provideAccess',
-                                            level: 'info',
-                                            targetPersons: users,
-                                            title: 'You have been assigned access to password' + (passes.length > 1 ? 's.' : '.'),
-                                            link: '/',
-                                            initPerson: req.user._id
-                                        }, {
-                                            category: 0,
-                                            code: 'passmanager::provideAccess',
-                                            level: 'warning',
-                                            targetGroup: ['passAdmins'],
-                                            title: 'Users have been assigned access to password' + (passes.length > 1 ? 's.' : '.'),
-                                            link: '/#!/manager/passwords',
-                                            initPerson: req.user._id,
-                                            extraInfo: users
-                                        }];
-                                        var EventProcessor = require('meanio').events;
-                                        EventProcessor.emit('notifications', sEvents);
-                                        return res.status(200).send();
-                                    }
-                                });
-                        }
-                        if (deps) {
-                            User
-                                .find({
-                                    department: {
-                                        $in: deps
-                                    }
-                                }, {
-                                    _id: 1
-                                }, function(err, users) {
-                                    if (err) {
-                                        console.log(err);
-                                        res.status(500).send(err);
-                                    } else {
-                                        var uids = _.map(users, '_id');
-                                        Pass
-                                            .update({
-                                                _id: {
-                                                    $in: passes
-                                                }
-                                            }, {
-                                                $addToSet: {
-                                                    accessedFor: {
-                                                        $each: uids
-                                                    }
-                                                }
-                                            }, {
-                                                multi: true
-                                            }, function(err) {
-                                                if (err) {
-                                                    console.log(err);
-                                                    return res.status(500).send(err);
-                                                } else {
-                                                    var sEvents = [{
-                                                        category: 0,
-                                                        code: 'passmanager::provideAccess',
-                                                        level: 'info',
-                                                        targetPersons: uids,
-                                                        title: 'You have been assigned access to password' + (passes.length > 1 ? 's.' : '.'),
-                                                        link: '/',
-                                                        initPerson: req.user._id
-                                                    }, {
-                                                        category: 0,
-                                                        code: 'passmanager::provideAccess',
-                                                        level: 'warning',
-                                                        targetGroup: ['passAdmins'],
-                                                        title: 'Users have been assigned access to password' + (passes.length > 1 ? 's.' : '.'),
-                                                        link: '/#!/manager/passwords',
-                                                        initPerson: req.user._id,
-                                                        extraInfo: uids
-                                                    }];
-                                                    var EventProcessor = require('meanio').events;
-                                                    EventProcessor.emit('notifications', sEvents);
-                                                    return res.status(200).send();
-                                                }
-                                            });
-                                    }
-                                });
-                        }
-                    } else if (curUser.roles.indexOf('manager') !== -1) {
-                        if (users) {
-                            NewDepartment
-                                .find({
-                                    $or: [{
-                                        _id: curUser.department
                                     }, {
-                                        parents: curUser.department
-                                    }]
-                                }, {
-                                    _id: 1
-                                }, function(err, departments) {
-                                    if (err) {
-                                        console.log(err);
-                                        return res.status(500).send(err);
-                                    } else {
-                                        if (departments && departments.length > 0) {
-                                            User
-                                                .find({
-                                                    $and: [{
-                                                        _id: {
-                                                            $in: users
-                                                        }
-                                                    }, {
-                                                        department: {
-                                                            $in: _.map(departments, '_id')
-                                                        }
-                                                    }]
-                                                }, {
-                                                    _id: 1
-                                                }, function(err, verUsers) {
-                                                    if (err) {
-                                                        console.log(err);
-                                                        return res.status(500).send(err);
-                                                    } else {
-                                                        console.log(verUsers);
-                                                        console.log(users);
-                                                        if (verUsers.length === users.length) {
-                                                            Pass
-                                                                .update({
-                                                                    _id: {
-                                                                        $in: passes
+                                        name: 1
+                                    }, function(err, pusers) {
+                                        if (err) {
+                                            console.log(err);
+                                            return res.status(500).send(err);
+                                        } else {
+
+                                            if (curUser.roles.indexOf('admin') !== -1) {
+                                                if (users) {
+                                                    Pass
+                                                        .update({
+                                                            _id: {
+                                                                $in: passes
+                                                            }
+                                                        }, {
+                                                            $addToSet: {
+                                                                accessedFor: {
+                                                                    $each: users
+                                                                }
+                                                            }
+                                                        }, {
+                                                            multi: true
+                                                        })
+                                                        .exec(function(err) {
+                                                            if (err) {
+                                                                console.log(err);
+                                                                return res.status(500).send();
+                                                            } else {
+
+                                                                var sEvents = [{
+                                                                    category: 0,
+                                                                    code: 'passmanager::provideAccess',
+                                                                    level: 'info',
+                                                                    targetPersons: users,
+                                                                    title: 'New password' + (passes.length > 1 ? 's were' : 'was') + ' shared with you',
+                                                                    link: '/',
+                                                                    initPerson: req.user._id,
+                                                                    extraInfo: {
+                                                                        actionName: 'shared the password' + (passes.length > 1 ? 's' : '') + ' with you',
+                                                                        clean: _.map(ppasses, 'resourceName').join(', ')
                                                                     }
                                                                 }, {
-                                                                    $addToSet: {
-                                                                        accessedFor: {
-                                                                            $each: users
+                                                                    category: 0,
+                                                                    code: 'passmanager::provideAccess',
+                                                                    level: 'warning',
+                                                                    targetGroup: ['passAdmins'],
+                                                                    title: 'Password' + (passes.length > 1 ? 's were' : ' was') + ' assigned to person' + (users.length > 1 ? 's' : ''),
+                                                                    link: '/#!/manager/passwords',
+                                                                    initPerson: req.user._id,
+                                                                    extraInfo: {
+                                                                        actionName: 'shared the password' + (passes.length > 1 ? 's' : '') + ' with user' + (users.length > 1 ? 's' : ''),
+                                                                        clean: 'password' + (passes.length > 1 ? 's' : '') + ' - ' + _.map(ppasses, 'resourceName').join(', ') + '; user' + (passes.length > 1 ? 's' : '') + ' - ' + _.map(pusers, 'name').join(', '),
+                                                                        info: {
+                                                                            passes: passes,
+                                                                            users: users
                                                                         }
                                                                     }
-                                                                }, {
-                                                                    multi: true
-                                                                })
-                                                                .exec(function(err) {
-                                                                    if (err) {
-                                                                        console.log(err);
-                                                                        return res.status(500).send();
-                                                                    } else {
-                                                                        var sEvents = [{
-                                                                            category: 0,
-                                                                            code: 'passmanager::provideAccess',
-                                                                            level: 'info',
-                                                                            targetPersons: users,
-                                                                            title: 'You have been assigned access to password' + (passes.length > 1 ? 's.' : '.'),
-                                                                            link: '/',
-                                                                            initPerson: req.user._id
-                                                                        }, {
-                                                                            category: 0,
-                                                                            code: 'passmanager::provideAccess',
-                                                                            level: 'warning',
-                                                                            targetGroup: ['passAdmins'],
-                                                                            title: 'Users have been assigned access to password' + (passes.length > 1 ? 's.' : '.'),
-                                                                            link: '/#!/manager/passwords',
-                                                                            initPerson: req.user._id,
-                                                                            extraInfo: users
-                                                                        }];
-                                                                        var EventProcessor = require('meanio').events;
-                                                                        EventProcessor.emit('notifications', sEvents);
-                                                                        return res.status(200).send();
-                                                                    }
-                                                                });
-                                                        } else {
-                                                            return res.status(403).send('You cannot provide access to passwords for non-subordinated persons!');
-                                                        }
-                                                    }
-                                                });
-                                        } else {
-                                            return res.status(200).send();
-                                        }
-                                    }
-                                });
-                        }
-                        if (deps) {
-                            NewDepartment
-                                .find({
-                                    $and: [{
-                                        _id: {
-                                            $in: deps
-                                        }
-                                    }, {
-                                        $or: [{
-                                            _id: curUser.department
-                                        }, {
-                                            parents: curUser.department
-                                        }]
-                                    }]
-                                }, {
-                                    _id: 1
-                                }, function(err, departments) {
-                                    if (err) {
-                                        console.log(err);
-                                        return res.status(500).send(err);
-                                    } else {
-                                        if (deps.length === departments.length) {
-                                            User
-                                                .find({
-                                                    department: {
-                                                        $in: deps
-                                                    }
-                                                }, {
-                                                    _id: 1
-                                                }, function(err, users) {
-                                                    if (err) {
-                                                        console.log(err);
-                                                        res.status(500).send(err);
-                                                    } else {
-                                                        var uids = _.map(users, '_id');
-                                                        Pass
-                                                            .update({
-                                                                _id: {
-                                                                    $in: passes
-                                                                }
-                                                            }, {
-                                                                $addToSet: {
-                                                                    accessedFor: {
-                                                                        $each: uids
-                                                                    }
-                                                                }
-                                                            }, {
-                                                                multi: true
-                                                            }, function(err) {
-                                                                if (err) {
-                                                                    console.log(err);
-                                                                    return res.status(500).send(err);
-                                                                } else {
-                                                                    var sEvents = [{
-                                                                        category: 0,
-                                                                        code: 'passmanager::provideAccess',
-                                                                        level: 'info',
-                                                                        targetPersons: uids,
-                                                                        title: 'You have been assigned access to password' + (passes.length > 1 ? 's' : '') + ' by your manager',
-                                                                        link: '/',
-                                                                        initPerson: req.user._id
+                                                                }];
+                                                                var EventProcessor = require('meanio').events;
+                                                                EventProcessor.emit('notifications', sEvents);
+                                                                return res.status(200).send();
+                                                            }
+                                                        });
+                                                }
+                                                if (deps) {
+                                                    User
+                                                        .find({
+                                                            department: {
+                                                                $in: deps
+                                                            }
+                                                        }, {
+                                                            _id: 1
+                                                        }, function(err, users) {
+                                                            if (err) {
+                                                                console.log(err);
+                                                                res.status(500).send(err);
+                                                            } else {
+                                                                var uids = _.map(users, '_id');
+                                                                Pass
+                                                                    .update({
+                                                                        _id: {
+                                                                            $in: passes
+                                                                        }
                                                                     }, {
-                                                                        category: 0,
-                                                                        code: 'passmanager::provideAccess',
-                                                                        level: 'warning',
-                                                                        targetGroup: ['passAdmins'],
-                                                                        title: 'Users have been assigned access to password' + (passes.length > 1 ? 's' : '') + ' by manager.',
-                                                                        link: '/#!/manager/passwords',
-                                                                        initPerson: req.user._id,
-                                                                        extraInfo: uids
-                                                                    }];
-                                                                    var EventProcessor = require('meanio').events;
-                                                                    EventProcessor.emit('notifications', sEvents);
+                                                                        $addToSet: {
+                                                                            accessedFor: {
+                                                                                $each: uids
+                                                                            }
+                                                                        }
+                                                                    }, {
+                                                                        multi: true
+                                                                    }, function(err) {
+                                                                        if (err) {
+                                                                            console.log(err);
+                                                                            return res.status(500).send(err);
+                                                                        } else {
+                                                                            var sEvents = [{
+                                                                                category: 0,
+                                                                                code: 'passmanager::provideAccess',
+                                                                                level: 'info',
+                                                                                targetPersons: uids,
+                                                                                title: 'New password' + (passes.length > 1 ? 's were' : 'was') + ' shared with you',
+                                                                                link: '/',
+                                                                                initPerson: req.user._id,
+                                                                                extraInfo: {
+                                                                                    actionName: 'shared the password' + (passes.length > 1 ? 's' : '') + ' with you',
+                                                                                    clean: _.map(ppasses, 'resourceName').join(', ')
+                                                                                }
+                                                                            }, {
+                                                                                category: 0,
+                                                                                code: 'passmanager::provideAccess',
+                                                                                level: 'warning',
+                                                                                targetGroup: ['passAdmins'],
+                                                                                title: 'User' + (users.length > 1 ? 's have' : ' has') + ' been assigned access to password' + (passes.length > 1 ? 's.' : '.'),
+                                                                                link: '/#!/manager/passwords',
+                                                                                initPerson: req.user._id,
+                                                                                extraInfo: {
+                                                                                    actionName: 'shared the password' + (passes.length > 1 ? 's.' : '.') + ' with user' + (users.length > 1 ? 's' : ''),
+                                                                                    clean: 'passwords - ' + _.map(ppasses, 'resourceName').join(', ') + '; users - ' + _.map(pusers, 'name').join(', '),
+                                                                                    info: {
+                                                                                        passes: passes,
+                                                                                        users: users
+                                                                                    }
+                                                                                }
+                                                                            }];
+                                                                            var EventProcessor = require('meanio').events;
+                                                                            EventProcessor.emit('notifications', sEvents);
+                                                                            return res.status(200).send();
+                                                                        }
+                                                                    });
+                                                            }
+                                                        });
+                                                }
+                                            } else if (curUser.roles.indexOf('manager') !== -1) {
+                                                if (users) {
+                                                    NewDepartment
+                                                        .find({
+                                                            $or: [{
+                                                                _id: curUser.department
+                                                            }, {
+                                                                parents: curUser.department
+                                                            }]
+                                                        }, {
+                                                            _id: 1
+                                                        }, function(err, departments) {
+                                                            if (err) {
+                                                                console.log(err);
+                                                                return res.status(500).send(err);
+                                                            } else {
+                                                                if (departments && departments.length > 0) {
+                                                                    User
+                                                                        .find({
+                                                                            $and: [{
+                                                                                _id: {
+                                                                                    $in: users
+                                                                                }
+                                                                            }, {
+                                                                                department: {
+                                                                                    $in: _.map(departments, '_id')
+                                                                                }
+                                                                            }]
+                                                                        }, {
+                                                                            _id: 1
+                                                                        }, function(err, verUsers) {
+                                                                            if (err) {
+                                                                                console.log(err);
+                                                                                return res.status(500).send(err);
+                                                                            } else {
+                                                                                console.log(verUsers);
+                                                                                console.log(users);
+                                                                                if (verUsers.length === users.length) {
+                                                                                    Pass
+                                                                                        .update({
+                                                                                            _id: {
+                                                                                                $in: passes
+                                                                                            }
+                                                                                        }, {
+                                                                                            $addToSet: {
+                                                                                                accessedFor: {
+                                                                                                    $each: users
+                                                                                                }
+                                                                                            }
+                                                                                        }, {
+                                                                                            multi: true
+                                                                                        })
+                                                                                        .exec(function(err) {
+                                                                                            if (err) {
+                                                                                                console.log(err);
+                                                                                                return res.status(500).send();
+                                                                                            } else {
+                                                                                                var sEvents = [{
+                                                                                                    category: 0,
+                                                                                                    code: 'passmanager::provideAccess',
+                                                                                                    level: 'info',
+                                                                                                    targetPersons: users,
+                                                                                                    title: 'New password' + (passes.length > 1 ? 's were' : 'was') + ' shared with you',
+                                                                                                    link: '/',
+                                                                                                    initPerson: req.user._id,
+                                                                                                    extraInfo: {
+                                                                                                        actionName: 'shared the password' + (passes.length > 1 ? 's' : '') + ' with you',
+                                                                                                        clean: _.map(ppasses, 'resourceName').join(', ')
+                                                                                                    }
+                                                                                                }, {
+                                                                                                    category: 0,
+                                                                                                    code: 'passmanager::provideAccess',
+                                                                                                    level: 'warning',
+                                                                                                    targetGroup: ['passAdmins'],
+                                                                                                    title: 'User' + (users.length > 1 ? 's have' : ' has') + ' been assigned access to password' + (passes.length > 1 ? 's.' : '.'),
+                                                                                                    link: '/#!/manager/passwords',
+                                                                                                    initPerson: req.user._id,
+                                                                                                    extraInfo: {
+                                                                                                        actionName: 'shared the password' + (passes.length > 1 ? 's.' : '.') + ' with user' + (users.length > 1 ? 's' : ''),
+                                                                                                        clean: 'passwords - ' + _.map(ppasses, 'resourceName').join(', ') + '; users - ' + _.map(pusers, 'name').join(', '),
+                                                                                                        info: {
+                                                                                                            passes: passes,
+                                                                                                            users: users
+                                                                                                        }
+                                                                                                    }
+                                                                                                }];
+                                                                                                var EventProcessor = require('meanio').events;
+                                                                                                EventProcessor.emit('notifications', sEvents);
+                                                                                                return res.status(200).send();
+                                                                                            }
+                                                                                        });
+                                                                                } else {
+                                                                                    return res.status(403).send('You cannot provide access to passwords for non-subordinated persons!');
+                                                                                }
+                                                                            }
+                                                                        });
+                                                                } else {
                                                                     return res.status(200).send();
                                                                 }
-                                                            });
-                                                    }
-                                                });
-                                        } else {
-                                            return res.status(403).send('You cannot provite access to passwords for non-subordinated departments!');
+                                                            }
+                                                        });
+                                                }
+                                                if (deps) {
+                                                    NewDepartment
+                                                        .find({
+                                                            $and: [{
+                                                                _id: {
+                                                                    $in: deps
+                                                                }
+                                                            }, {
+                                                                $or: [{
+                                                                    _id: curUser.department
+                                                                }, {
+                                                                    parents: curUser.department
+                                                                }]
+                                                            }]
+                                                        }, {
+                                                            _id: 1
+                                                        }, function(err, departments) {
+                                                            if (err) {
+                                                                console.log(err);
+                                                                return res.status(500).send(err);
+                                                            } else {
+                                                                if (deps.length === departments.length) {
+                                                                    User
+                                                                        .find({
+                                                                            department: {
+                                                                                $in: deps
+                                                                            }
+                                                                        }, {
+                                                                            _id: 1
+                                                                        }, function(err, users) {
+                                                                            if (err) {
+                                                                                console.log(err);
+                                                                                res.status(500).send(err);
+                                                                            } else {
+                                                                                var uids = _.map(users, '_id');
+                                                                                Pass
+                                                                                    .update({
+                                                                                        _id: {
+                                                                                            $in: passes
+                                                                                        }
+                                                                                    }, {
+                                                                                        $addToSet: {
+                                                                                            accessedFor: {
+                                                                                                $each: uids
+                                                                                            }
+                                                                                        }
+                                                                                    }, {
+                                                                                        multi: true
+                                                                                    }, function(err) {
+                                                                                        if (err) {
+                                                                                            console.log(err);
+                                                                                            return res.status(500).send(err);
+                                                                                        } else {
+                                                                                            var sEvents = [{
+                                                                                                category: 0,
+                                                                                                code: 'passmanager::provideAccess',
+                                                                                                level: 'info',
+                                                                                                targetPersons: uids,
+                                                                                                title: 'New password' + (passes.length > 1 ? 's were' : 'was') + ' shared with you',
+                                                                                                link: '/',
+                                                                                                initPerson: req.user._id,
+                                                                                                extraInfo: {
+                                                                                                    actionName: 'shared the password' + (passes.length > 1 ? 's' : '') + ' with you',
+                                                                                                    clean: _.map(ppasses, 'resourceName').join(', ')
+                                                                                                }
+                                                                                            }, {
+                                                                                                category: 0,
+                                                                                                code: 'passmanager::provideAccess',
+                                                                                                level: 'warning',
+                                                                                                targetGroup: ['passAdmins'],
+                                                                                                title: 'User' + (users.length > 1 ? 's have' : ' has') + ' been assigned access to password' + (passes.length > 1 ? 's.' : '.'),
+                                                                                                link: '/#!/manager/passwords',
+                                                                                                initPerson: req.user._id,
+                                                                                                extraInfo: {
+                                                                                                    actionName: 'shared the password' + (passes.length > 1 ? 's.' : '.') + ' with user' + (users.length > 1 ? 's' : ''),
+                                                                                                    clean: 'passwords - ' + _.map(ppasses, 'resourceName').join(', ') + '; users - ' + _.map(pusers, 'name').join(', '),
+                                                                                                    info: {
+                                                                                                        passes: passes,
+                                                                                                        users: users
+                                                                                                    }
+                                                                                                }
+                                                                                            }];
+                                                                                            var EventProcessor = require('meanio').events;
+                                                                                            EventProcessor.emit('notifications', sEvents);
+                                                                                            return res.status(200).send();
+                                                                                        }
+                                                                                    });
+                                                                            }
+                                                                        });
+                                                                } else {
+                                                                    return res.status(403).send('You cannot provite access to passwords for non-subordinated departments!');
+                                                                }
+                                                            }
+                                                        });
+                                                }
+                                            }
                                         }
-                                    }
-                                });
-                        }
-                    }
+                                    });
+                            }
+                        });
                 } else {
                     return res.status(401).send('Invalid user');
                 }
@@ -813,30 +919,66 @@ exports.revokeAccess = function(req, res) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
-                var sEvents = [{
-                    category: 0,
-                    code: 'passmanager::revokeAccess',
-                    level: 'warning',
-                    targetPersons: users,
-                    title: 'You have been revoked access to password' + (passes.length > 1 ? 's.' : '.'),
-                    link: '/',
-                    initPerson: req.user._id
-                }, {
-                    category: 0,
-                    code: 'passmanager::revokeAccess',
-                    level: 'info',
-                    targetGroup: ['passAdmins'],
-                    title: 'User' + (users.length > 1 ? 's have' : 'has') + ' been revoked access to password' + (passes.length > 1 ? 's.' : '.'),
-                    link: '/#!/manager/passwords',
-                    initPerson: req.user._id,
-                    extraInfo: {
-                        users: users,
-                        passes: passes
-                    }
-                }];
-                var EventProcessor = require('meanio').events;
-                EventProcessor.emit('notifications', sEvents);
-                return res.status(200).send();
+                Pass
+                    .find({
+                        _id: {
+                            $in: passes
+                        }
+                    }, {
+                        resourceName: 1
+                    }, function(err, ppasses) {
+                        if (err) {
+                            console.log(err);
+                            return res.status(500).send(err);
+                        } else {
+                            User
+                                .find({
+                                    _id: {
+                                        $in: users
+                                    }
+                                }, {
+                                    name: 1
+                                }, function(err, pusers) {
+                                    if (err) {
+                                        console.log(err);
+                                        return res.status(500).send(err);
+                                    } else {
+                                        var sEvents = [{
+                                            category: 0,
+                                            code: 'passmanager::revokeAccess',
+                                            level: 'warning',
+                                            targetPersons: users,
+                                            title: 'Access to password' + (passes.length > 1 ? 's' : '') + ' was revoked',
+                                            link: '/',
+                                            initPerson: req.user._id,
+                                            extraInfo: {
+                                                actionName: 'revoked access to password' + (passes.length > 1 ? 's' : ''),
+                                                clean: _.map(ppasses, 'resourceName').join(', ')
+                                            }
+                                        }, {
+                                            category: 0,
+                                            code: 'passmanager::revokeAccess',
+                                            level: 'info',
+                                            targetGroup: ['passAdmins'],
+                                            title: 'User' + (users.length > 1 ? 's have' : 'has') + ' been revoked access to password' + (passes.length > 1 ? 's.' : '.'),
+                                            link: '/#!/manager/passwords',
+                                            initPerson: req.user._id,
+                                            extraInfo: {
+                                                actionName: 'revoked access to password' + (passes.length > 1 ? 's' : '') + ' for user' + (users.length > 1 ? 's have' : 'has'),
+                                                clean: 'passwords - ' + _.map(ppasses, 'resourceName').join(', ') + '; users - ' + _.map(pusers, 'name').join(', '),
+                                                info: {
+                                                    passes: passes,
+                                                    users: users
+                                                }
+                                            }
+                                        }];
+                                        var EventProcessor = require('meanio').events;
+                                        EventProcessor.emit('notifications', sEvents);
+                                        return res.status(200).send();
+                                    }
+                                });
+                        }
+                    });
             }
         });
 };
@@ -1037,30 +1179,66 @@ exports.denyUserAccessToPass = function(req, res) {
                 return res.status(500).send(err);
             } else {
                 console.log('updated', updated);
-                var sEvents = [{
-                    category: 0,
-                    code: 'passmanager::denyUserAccessToPass',
-                    level: 'warning',
-                    targetPersons: [user],
-                    title: 'You have been revoked access to password.',
-                    link: '/',
-                    initPerson: req.user._id
-                }, {
-                    category: 0,
-                    code: 'passmanager::denyUserAccessToPass',
-                    level: 'info',
-                    targetGroup: ['passAdmins'],
-                    title: 'User has been revoked access to password.',
-                    link: '/#!/manager/passwords',
-                    initPerson: req.user._id,
-                    extraInfo: {
-                        users: user,
-                        passes: pass
-                    }
-                }];
-                var EventProcessor = require('meanio').events;
-                EventProcessor.emit('notifications', sEvents);
-                return res.status(200).send();
+                Pass
+                    .findOne({
+                        _id: pass
+                    }, {
+                        resourceName: 1
+                    }, function(err, ppass) {
+                        if (err) {
+                            console.log(err);
+                            return res.status(500).send(err);
+                        } else {
+                            User
+                                .findOne({
+                                    _id: user
+                                }, {
+                                    name: 1
+                                }, function(err, puser) {
+                                    if (err) {
+                                        console.log(err);
+                                        return res.status(500).send(err);
+                                    } else {
+                                        var sEvents = [{
+                                            category: 0,
+                                            code: 'passmanager::denyUserAccessToPass',
+                                            level: 'warning',
+                                            targetPersons: [user],
+                                            title: 'Access to password was revoked',
+                                            link: '/',
+                                            initPerson: req.user._id,
+                                            extraInfo: {
+                                                actionName: 'revoked access to the password',
+                                                context: {
+                                                    model: 'Pass',
+                                                    field: 'resourceName',
+                                                    _id: pass
+                                                }
+                                            }
+                                        }, {
+                                            category: 0,
+                                            code: 'passmanager::denyUserAccessToPass',
+                                            level: 'info',
+                                            targetGroup: ['passAdmins'],
+                                            title: 'User has been revoked access to password',
+                                            link: '/#!/manager/passwords',
+                                            initPerson: req.user._id,
+                                            extraInfo: {
+                                                actionName: 'revoked access to the password for user',
+                                                clean: 'password - ' + ppass.resourceName + '; user - ' + puser.name,
+                                                info: {
+                                                    pass: pass,
+                                                    user: user
+                                                }
+                                            }
+                                        }];
+                                        var EventProcessor = require('meanio').events;
+                                        EventProcessor.emit('notifications', sEvents);
+                                        return res.status(200).send();
+                                    }
+                                });
+                        }
+                    });
             }
         });
 };

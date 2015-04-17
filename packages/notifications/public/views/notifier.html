@@ -2,45 +2,34 @@
 	<a href="#">
 		<span class="fa {{notificationBar.icon}}"></span>
 	</a>
-	<div class="informer informer-{{notificationBar.schema}}" data-ng-if="notificationBar.eventsCount > 0">{{notificationBar.eventsCount}}</div>
+	<div class="informer informer-{{notificationBar.schema}}" data-ng-if="notificationBar.unreadCount && notificationBar.unreadCount >
+		0 || notificationBar.bookmarkedCount && notificationBar.bookmarkedCount > 0">{{notificationBar.unreadCount + notificationBar.bookmarkedCount}}
+	</div>
 	<div class="panel panel-primary animated zoomIn xn-drop-left xn-panel-dragging">
 		<div class="panel-heading">
 			<h3 class="panel-title">
 				<span class="fa {{notificationBar.icon}}"></span>
 				{{notificationBar.title}}
 			</h3>
-			<div class="pull-right">
-				<span class="label label-{{notificationBar.schema}}">{{notificationBar.eventsCount}} active</span>
+			<div class="pull-right" data-ng-if="notificationBar.unreadCount && notificationBar.unreadCount >
+				0 || notificationBar.bookmarkedCount && notificationBar.bookmarkedCount > 0">
+				<span data-ng-if="notificationBar.unreadCount && notificationBar.unreadCount >
+					0" class="label label-{{notificationBar.schema}}">{{notificationBar.unreadCount}} unread
+				</span>
+				<span data-ng-if="notificationBar.bookmarkedCount && notificationBar.bookmarkedCount >
+					0" class="label label-primary">{{notificationBar.bookmarkedCount}} bookmarked
+				</span>
 			</div>
 		</div>
-		<div class="panel-body list-group scroll" style="height: 200px;" data-ng-if="notificationBar.id === 'activitiesBar'">
-			<a class="list-group-item" href="#"> <strong>Phasellus augue arcu, elementum</strong>
-				<div class="progress progress-small progress-striped active">
-					<div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width: 50%;">50%</div>
-				</div>
-				<small class="text-muted">John Doe, 25 Sep 2014 / 50%</small>
-			</a>
-			<a class="list-group-item" href="#"> <strong>Aenean ac cursus</strong>
-				<div class="progress progress-small progress-striped active">
-					<div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width: 80%;">80%</div>
-				</div>
-				<small class="text-muted">Dmitry Ivaniuk, 24 Sep 2014 / 80%</small>
-			</a>
-			<a class="list-group-item" href="#">
-				<strong>Lorem ipsum dolor</strong>
-				<div class="progress progress-small progress-striped active">
-					<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100" style="width: 95%;">95%</div>
-				</div>
-				<small class="text-muted">John Doe, 23 Sep 2014 / 95%</small>
-			</a>
-			<a class="list-group-item" href="#">
-				<strong>Cras suscipit ac quam at tincidunt.</strong>
-				<div class="progress progress-small">
-					<div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">100%</div>
-				</div>
-				<small class="text-muted">John Doe, 21 Sep 2014 /</small>
-				<small class="text-success">Done</small>
-			</a>
+		<div class="panel-body list-group list-group-contacts scroll" style="height: 200px;" data-ng-if="notificationBar.id === 'activitiesBar'">
+			<perfect-scrollbar class="scroller heightScroll" wheel-propagation="true" wheel-speed="10" scrollDown="true">
+				<a data-ng-repeat="notification in notificationBar.notifications track by $index" href="" class="list-group-item" style="{{notification.state === 0 ? 'background:bisque;' : (notification.state === 2 ? 'background:orange;' : '')}}">
+					<div class="list-group-status {{notification.event.level}}"></div>
+					<span class="contacts-title">{{notification.event.title}}</span>
+					<p>{{notification.message}}</p>
+					<span class="notification-time">{{notification.event.whenEmited | date:'HH:mm:ss'}}</span>
+				</a>
+			</perfect-scrollbar>
 		</div>
 		<div class="panel-body list-group scroll" style="height: 200px;" data-ng-if="notificationBar.id === 'messagesBar'">
 			<alert type="info">Not supported yet. Coming soon.</alert>
@@ -49,7 +38,7 @@
 			<alert type="info">Not supported yet. Coming soon.</alert>
 		</div>
 		<div class="panel-footer text-center">
-			<a href="">Show all {{notificationBar.view}}</a>
+			<a href="pages-messages.html">Show all {{notificationBar.view}}</a>
 		</div>
 	</div>
 </li>

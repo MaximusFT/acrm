@@ -19,9 +19,13 @@ exports.create = function(req, res) {
                 code: 'servermanager::site::create',
                 level: 'info',
                 targetGroup: 'infrastructureAdmins',
-                title: 'New site was added.',
+                title: 'New site was added',
                 link: '/#!/servers/site/' + newSite._id,
-                initPerson: req.user._id
+                initPerson: req.user._id,
+                extraInfo: {
+                    actionName: 'added new site',
+                    clean: newSite.uri
+                }
             };
             var EventProcessor = require('meanio').events;
             EventProcessor.emit('notification', sEvent);
@@ -55,10 +59,14 @@ exports.deleteSite = function(req, res) {
                                     code: 'servermanager::site::deleteSite',
                                     level: 'danger',
                                     targetGroup: ['infrastructureAdmins'],
-                                    title: 'Site was removed.',
+                                    title: 'Site was removed',
                                     link: '/#!/servers',
                                     initPerson: req.user._id,
-                                    extraInfo: site
+                                    extraInfo: {
+                                        actionName: 'removed the site',
+                                        clean: site.uri,
+                                        info: site
+                                    }
                                 };
                                 var EventProcessor = require('meanio').events;
                                 EventProcessor.emit('notification', sEvent);
@@ -78,17 +86,47 @@ exports.updateSite = function(req, res) {
     var t = {};
     t[req.body.params.key] = req.body.params.val;
     Site
-        .update({
+        .findOne({
             _id: req.params.site
-        }, {
-            $set: t
-        }, function(err, updated) {
+        }, function(err, site) {
             if (err) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
-                console.log('updated', updated);
-                return res.status(200).send();
+                Site
+                    .update({
+                        _id: req.params.site
+                    }, {
+                        $set: t
+                    }, function(err, updated) {
+                        if (err) {
+                            console.log(err);
+                            return res.status(500).send(err);
+                        } else {
+                            console.log('updated', updated);
+                            var sEvent = {
+                                category: 0,
+                                code: 'servermanager::site::updateSite',
+                                level: 'warning',
+                                targetGroup: ['infrastructureAdmins'],
+                                title: 'Site was modified',
+                                link: '/#!/servers/site/' + req.params.site,
+                                initPerson: req.user._id,
+                                extraInfo: {
+                                    actionName: 'removed the site',
+                                    context: {
+                                        model: 'Site',
+                                        field: 'uri',
+                                        _id: req.params.site
+                                    },
+                                    info: site
+                                }
+                            };
+                            var EventProcessor = require('meanio').events;
+                            EventProcessor.emit('notification', sEvent);
+                            return res.status(200).send();
+                        }
+                    });
             }
         });
 };

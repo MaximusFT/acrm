@@ -133,17 +133,37 @@ exports.bindToDep = function(req, res) {
                         console.log(err);
                         return res.status(500).send(err);
                     } else {
-                        var sEvent = {
+                        var sEvents = [{
                             category: 0,
                             code: 'depmanager::bindToDep',
                             level: 'info',
                             targetPersons: _.map(nusers, '_id'),
-                            title: 'New employee' + (users.length > 0 ? 's' : '') + ' in the department: ' + _.map(users, 'name').join(', '),
+                            title: 'New employee' + (users.length > 0 ? 's' : '') + ' in the department',
                             link: '/#!/users',
-                            initPerson: req.user._id
-                        };
+                            initPerson: req.user._id,
+                            extraInfo: {
+                                actionName: ' added new employee' + (users.length > 0 ? 's' : '') + ' to the department',
+                                clean: _.map(users, 'name').join(', ')
+                            }
+                        }, {
+                            category: 0,
+                            code: 'depmanager::bindToDep',
+                            level: 'info',
+                            targetPersons: _.map(users, '_id'),
+                            title: 'You were assigned to the department',
+                            link: '/',
+                            initPerson: req.user._id,
+                            extraInfo: {
+                                actionName: 'assigned you to the department',
+                                context: {
+                                    model: 'NewDepartment',
+                                    field: 'title',
+                                    _id: department
+                                }
+                            }
+                        }];
                         var EventProcessor = require('meanio').events;
-                        EventProcessor.emit('notification', sEvent);
+                        EventProcessor.emit('notifications', sEvents);
                         return res.status(200).send();
                     }
                 });

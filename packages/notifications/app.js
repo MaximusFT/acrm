@@ -10,7 +10,7 @@ Notifications.register(function(app, auth, database, http) {
     Notifications.routes(io);
 
     Notifications.aggregateAsset('css', 'notifications.css');
-    //Notifications.angularDependencies([]);
+    Notifications.angularDependencies(['perfect_scrollbar']);
 
     return Notifications;
 });

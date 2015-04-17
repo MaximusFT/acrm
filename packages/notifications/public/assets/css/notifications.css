@@ -9,3 +9,30 @@
     font-weight: bold !important;
     font-family: serif;
 }
+
+.list-group-status.info:after {
+    background: rgb(114, 114, 202);
+}
+
+.list-group-status.warning:after {
+    background: rgb(159, 226, 86);
+}
+
+.list-group-status.danger:after {
+    background: rgb(203, 93, 93);
+}
+
+.notification-time {
+    text-align: -webkit-right;
+    display: list-item;
+    font-size: x-small;
+    font-family: monospace;
+    color: teal;
+}
+
+.scroller {
+    height: 200px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    position: relative;
+}

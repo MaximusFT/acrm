@@ -23,9 +23,13 @@ exports.create = function(req, res) {
                 code: 'servermanager::server::create',
                 level: 'info',
                 targetGroup: ['infrastructureAdmins'],
-                title: 'One more server was added (' + newServer.ip + ').',
+                title: 'New server was added',
                 link: '/#!/servers',
-                initPerson: req.user._id
+                initPerson: req.user._id,
+                extraInfo: {
+                    actionName: 'added new server',
+                    clean: newServer.ip + (newServer.location ? (' (' + newServer.location + ')') : '')
+                }
             };
             var EventProcessor = require('meanio').events;
             EventProcessor.emit('notification', sEvent);
@@ -130,7 +134,11 @@ exports.deleteServer = function(req, res) {
                                     title: 'Server was removed.',
                                     link: '/#!/servers',
                                     initPerson: req.user._id,
-                                    extraInfo: server
+                                    extraInfo: {
+                                        actionName: 'removed the server',
+                                        clean: server.ip + (server.location ? (' (' + server.location + ')') : ''),
+                                        info: server
+                                    }
                                 };
                                 var EventProcessor = require('meanio').events;
                                 EventProcessor.emit('notification', sEvent);
@@ -173,7 +181,15 @@ exports.updateServer = function(req, res) {
                     title: 'Server information was updated',
                     link: '/#!/servers/' + req.params.server,
                     initPerson: req.user._id,
-                    extraInfo: req.body.params.difs
+                    extraInfo: {
+                        actionName: 'modified the server',
+                        context: {
+                            model: 'Server',
+                            field: 'ip',
+                            _id: req.params.server
+                        },
+                        info: req.body.params.difs
+                    }
                 };
                 var EventProcessor = require('meanio').events;
                 EventProcessor.emit('notification', sEvent);
