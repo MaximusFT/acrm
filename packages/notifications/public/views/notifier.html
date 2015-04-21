@@ -1,5 +1,5 @@
-<li class="xn-icon-button pull-right" data-ng-repeat="notificationBar in notificationBars" id="{{notificationBar.id}}" data-ng-click="openNotificationsBar($event)">
-	<a href="#">
+<li class="xn-icon-button pull-right" data-ng-repeat="notificationBar in notificationBars" click-out="closeThis($event)">
+	<a data-ng-click="openNotificationsBar($event)" id="{{notificationBar.id}}">
 		<span class="fa {{notificationBar.icon}}"></span>
 	</a>
 	<div class="informer informer-{{notificationBar.schema}}" data-ng-if="notificationBar.unreadCount && notificationBar.unreadCount >
@@ -21,20 +21,28 @@
 				</span>
 			</div>
 		</div>
-		<div class="panel-body list-group list-group-contacts scroll" style="height: 200px;" data-ng-if="notificationBar.id === 'activitiesBar'">
-			<perfect-scrollbar class="scroller heightScroll" wheel-propagation="true" wheel-speed="10" scrollDown="true">
-				<a data-ng-repeat="notification in notificationBar.notifications track by $index" href="" class="list-group-item" style="{{notification.state === 0 ? 'background:bisque;' : (notification.state === 2 ? 'background:orange;' : '')}}">
-					<div class="list-group-status {{notification.event.level}}"></div>
-					<span class="contacts-title">{{notification.event.title}}</span>
-					<p>{{notification.message}}</p>
-					<span class="notification-time">{{notification.event.whenEmited | date:'HH:mm:ss'}}</span>
+		<div class="panel-body list-group list-group-contacts scroll" style="height: 300px;" data-ng-if="notificationBar.id === 'activitiesBar'">
+			<perfect-scrollbar class="scroller" style="height:300px;" wheel-propagation="true" wheel-speed="10" scrollDown="true">
+				<a data-ng-repeat="notification in notificationBar.notifications track by $index | orderBy: '-event.whenEmited' | limitTo: 1" href="" class="list-group-item notification-body" style="{{notification.state === 0 ? 'background:bisque;' : (notification.state === 2 ? 'background:orange;' : '')}}" data-ng-mouseenter="isControlsVisible=true;" data-ng-mouseleave="isControlsVisible=false;">
+					<div class="row">
+						<div class="col-md-11">
+							<div class="list-group-status {{notification.event.level}}"></div>
+							<span class="contacts-title">{{notification.event.title}}</span>
+							<p>{{notification.message}}</p>
+						</div>
+						<div class="col-md-1" data-ng-show="isControlsVisible">
+							<span class="fa fa-bookmark notification-control"></span>
+							<span class="fa fa-times notification-control"></span>
+						</div>
+					</div>
+					<span class="notification-time">{{notification.event.whenEmited | date:'medium'}}</span>
 				</a>
 			</perfect-scrollbar>
 		</div>
-		<div class="panel-body list-group scroll" style="height: 200px;" data-ng-if="notificationBar.id === 'messagesBar'">
+		<div class="panel-body list-group scroll" style="height: 300px;" data-ng-if="notificationBar.id === 'messagesBar'">
 			<alert type="info">Not supported yet. Coming soon.</alert>
 		</div>
-		<div class="panel-body list-group scroll" style="height: 200px;" data-ng-if="notificationBar.id === 'tasksBar'">
+		<div class="panel-body list-group scroll" style="height: 300px;" data-ng-if="notificationBar.id === 'tasksBar'">
 			<alert type="info">Not supported yet. Coming soon.</alert>
 		</div>
 		<div class="panel-footer text-center">

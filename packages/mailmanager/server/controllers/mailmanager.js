@@ -57,22 +57,40 @@ exports.getConfig = function(req, res) {
         });
 };
 exports.getAccessibleMails = function(req, res) {
-    mailBox
-        .find({
-            accessedFor: req.user._id,
-            state: 1,
-            deleted: false
+    User
+        .findOne({
+            _id: req.user._id
         }, {
-            mail: 1,
-            domain: 1,
-
-        }, function(err, mails) {
+            roles: 1
+        }, function(err, user) {
             if (err) {
                 console.log(err);
                 return res.status(500).send(err);
+            } else {
+                if (user && user.roles) {
+                    if (user.roles.indexOf('admin') !== -1 || user.roles.indexOf('manager') !== -1 || user.roles.indexOf('employee') !== -1) {
+                        mailBox
+                            .find({
+                                accessedFor: req.user._id,
+                                state: 1,
+                                deleted: false
+                            }, {
+                                mail: 1,
+                                domain: 1,
 
-            } else
-                return res.jsonp(sortMailboxes(mails));
+                            }, function(err, mails) {
+                                if (err) {
+                                    console.log(err);
+                                    return res.status(500).send(err);
+
+                                } else
+                                    return res.jsonp(sortMailboxes(mails));
+                            });
+                    } else
+                        return res.status(403).send('Access denied');
+                } else
+                    return res.status(404).send('User was not found');
+            }
         });
 };
 exports.getAccessibleMailsByName = function(req, res) {
@@ -128,11 +146,70 @@ exports.provideAccessForMailbox = function(req, res) {
             })
             .exec(function(err) {
                 if (err) {
-                    return res.json(500, {
-                        error: err
-                    });
+                    console.log(err);
+                    return res.status(500).send(err);
                 } else {
-                    return res.jsonp('ok');
+                    User
+                        .find({
+                            _id: {
+                                $in: users
+                            }
+                        }, {
+                            name: 1
+                        }, function(err, pusers) {
+                            if (err) {
+                                console.log(err);
+                                return res.status(500).send(err);
+                            } else {
+                                mailBox
+                                    .find({
+                                        _id: {
+                                            $in: mails
+                                        }
+                                    }, {
+                                        mail: 1
+                                    }, function(err, pmails) {
+                                        if (err) {
+                                            console.log(err);
+                                            return res.status(500).send(err);
+                                        } else {
+                                            var sEvents = [{
+                                                category: 0,
+                                                code: 'mailmanager::provideAccessForMailbox',
+                                                level: 'info',
+                                                targetPersons: users,
+                                                title: 'New mailbox' + (mails.length > 1 ? 'es were' : 'was') + ' shared with you',
+                                                link: '/',
+                                                initPerson: req.user._id,
+                                                extraInfo: {
+                                                    actionName: 'shared the mailbox' + (mails.length > 1 ? 'es' : '') + ' with you',
+                                                    clean: _.map(pmails, 'mail').join(', ')
+                                                }
+                                            }, {
+                                                category: 0,
+                                                code: 'mailmanager::provideAccessForMailbox',
+                                                level: 'warning',
+                                                targetGroup: ['passAdmins'],
+                                                title: 'User' + (users.length > 1 ? 's have' : ' has') + ' been assigned access to mailbox' + (mails.length > 1 ? 's.' : '.'),
+                                                link: '/#!/manager/passwords',
+                                                initPerson: req.user._id,
+                                                extraInfo: {
+                                                    actionName: 'shared the mailbox' + (mails.length > 1 ? 'es.' : '.') + ' with user' + (users.length > 1 ? 's' : ''),
+                                                    clean: 'passwords - ' + _.map(pmails, 'mail').join(', ') + '; users - ' + _.map(pusers, 'name').join(', '),
+                                                    info: {
+                                                        mails: mails,
+                                                        users: users
+                                                    }
+                                                }
+                                            }];
+                                            var EventProcessor = require('meanio').events;
+                                            EventProcessor.emit('notifications', sEvents);
+                                            return res.status(200).send();
+                                        }
+                                    });
+
+                            }
+                        });
                 }
             });
     }
@@ -305,7 +382,7 @@ exports.synchronizemailboxes = function(req, res) {
                                                     initPerson: req.user._id,
                                                     extraInfo: {
                                                         actionName: 'ran the synchronization of mailboxes',
-                                                        clean:  temp.created + ' items were created, ' + temp.updated + ' – updated, ' + temp.deleted + ' – marked as removed'
+                                                        clean: temp.created + ' items were created, ' + temp.updated + ' – updated, ' + temp.deleted + ' – marked as removed'
                                                     }
                                                 };
                                                 var EventProcessor = require('meanio').events;

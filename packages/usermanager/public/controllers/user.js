@@ -346,8 +346,9 @@ angular.module('mean.usermanager').controller('UserController', ['$scope', '$win
                 }
             }).success(function(response) {
                 $scope.mailboxes = response;
-            }).error(function(err) {
+            }).error(function(err, status) {
                 $log.error(err);
+                $location.url('/error/' + status);
             });
         };
 

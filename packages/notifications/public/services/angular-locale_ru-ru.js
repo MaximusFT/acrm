@@ -1,5 +1,5 @@
 /* jshint ignore:start */
-'use strict';
+/*'use strict';
 angular.module("ngLocale", [], ["$provide", function($provide) {
     var PLURAL_CATEGORY = {
         ZERO: "zero",
@@ -134,5 +134,5 @@ angular.module("ngLocale", [], ["$provide", function($provide) {
             return PLURAL_CATEGORY.OTHER;
         }
     });
-}]);
+}]);*/
 /* jshint ignore:end */

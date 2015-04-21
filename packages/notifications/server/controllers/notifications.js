@@ -226,13 +226,14 @@ function notify(event, callback, io) {
                                                 console.log('Error occured while notifications were building for broadcast sending');
                                                 return;
                                             } else {
-                                                notifications.push({
-                                                    targetUser: user._id,
-                                                    title: event.title,
-                                                    message: event.title,
-                                                    category: event.category,
-                                                    event: event._id
-                                                });
+                                                if (event.initPerson && event.initPerson !== user || !event.initPerson)
+                                                    notifications.push({
+                                                        targetUser: user._id,
+                                                        title: event.title,
+                                                        message: event.title,
+                                                        category: event.category,
+                                                        event: event._id
+                                                    });
                                             }
                                         });
                                     });
@@ -283,12 +284,14 @@ function notify(event, callback, io) {
                     if (err) {
                         cb(err);
                     } else {
-                        notifications.push({
-                            targetUser: targetPerson,
-                            event: event._id,
-                            message: message,
-                        });
-                        cb(null, message);
+                        if (event.initPerson && event.initPerson !== targetPerson || !event.initPerson) {
+                            notifications.push({
+                                targetUser: targetPerson,
+                                event: event._id,
+                                message: message,
+                            });
+                            cb(null, message);
+                        }
                     }
                 });
             });

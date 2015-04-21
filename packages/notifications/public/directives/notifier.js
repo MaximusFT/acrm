@@ -10,9 +10,9 @@ angular.module('mean.notifications').directive('notifier', function(Global, Noti
         templateUrl: 'notifications/views/notifier.html',
         controller: function($scope, $element, $attrs, $timeout, $location, $http, $log, ngAudio) {
             $scope.global = Global;
-            $scope.infoAlert = ngAudio.load('//mapqo.com/atlant/audio/info.mp3');
-            $scope.warningAlert = ngAudio.load('//mapqo.com/atlant/audio/warning.mp3');
-            $scope.dangerAlert = ngAudio.load('//mapqo.com/atlant/audio/danger.mp3');
+            $scope.infoAlert = ngAudio.load('//mapqo.com/atlant/audio/warning.mp3');
+            $scope.warningAlert = ngAudio.load('//mapqo.com/atlant/audio/danger.mp3');
+            $scope.dangerAlert = ngAudio.load('//mapqo.com/atlant/audio/fail.mp3');
             $scope.notificationBars = [{
                 id: 'tasksBar',
                 view: 'tasks',
@@ -43,7 +43,7 @@ angular.module('mean.notifications').directive('notifier', function(Global, Noti
             }];
 
             $scope.playAlertSound = function(notifications) {
-                /*var infoLevel = true,
+                var infoLevel = true,
                     warningLevel = false,
                     dangerLevel = false;
                 angular.forEach(notifications, function(notification) {
@@ -57,11 +57,12 @@ angular.module('mean.notifications').directive('notifier', function(Global, Noti
                         dangerLevel = true;
                     }
                 });
-                if (dangerLevel === true)
+                //console.log(infoLevel, warningLevel, dangerLevel);
+                if (dangerLevel)
                     $scope.dangerAlert.play();
-                if (warningLevel === true)
+                else if (warningLevel)
                     $scope.warningAlert.play();
-                if (infoLevel === true)*/
+                else
                     $scope.infoAlert.play();
             };
 
@@ -77,6 +78,15 @@ angular.module('mean.notifications').directive('notifier', function(Global, Noti
 
             $scope.formatDate = function(date) {
                 return new Date(date).toLocaleString();
+            };
+
+            $scope.openNotificationsBar = function(event) {
+                var isActive = angular.element('#' + event.currentTarget.id).parent().hasClass('active');
+                angular.element('.xn-icon-button').removeClass('active');
+                if (!isActive) {
+                    angular.element('#' + event.currentTarget.id).parent().addClass('active');
+                    $scope.html_click_avail = true;
+                }
             };
 
             NotificationSocket.on('connected', function() {

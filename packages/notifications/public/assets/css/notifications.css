@@ -30,9 +30,23 @@
     color: teal;
 }
 
-.scroller {
-    height: 200px;
-    overflow-x: hidden;
-    overflow-y: hidden;
-    position: relative;
+.notification-controls {
+    vertical-align: middle;
+    display: table-caption;
+    text-align: end;
+    padding: 0;
+}
+
+.notification-body:hover {
+    background-color: wheat !important;
+    -webkit-box-shadow: 0 0 15px 0 darkgreen;
+    box-shadow: 0 0 15px 0 darkgreen;
+}
+
+.notification-control {
+    font-size: large !important;
+}
+
+.notification-control:hover {
+    color: red;
 }

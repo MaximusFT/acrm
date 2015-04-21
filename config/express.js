@@ -83,7 +83,7 @@ module.exports = function(app, passport, db) {
       host: '5.101.114.123',
       port: 27017,
       username: 'Nikita',
-      password: '65536',
+      password: '1gL43y68X9KG9U6g7E9v55t89a8L9jCe',
       collection: config.sessionCollection,
       auto_reconnect: true,
       clear_interval: 3600
