@@ -35,7 +35,7 @@ module.exports = function(passport) {
         function(email, password, done) {
             User.findOne({
                 email: {
-                    $regex: new RegExp(email, 'i')
+                    $regex: new RegExp('^' + email + '$', 'i')
                 }
             }, function(err, user) {
                 if (err) {

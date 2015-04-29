@@ -20,7 +20,7 @@ var validateUniqueEmail = function(value, callback) {
     User.find({
         $and: [{
             email: {
-                $regex: new RegExp(value, 'i')
+                $regex: new RegExp('^' + value + '$', 'i')
             }
         }, {
             _id: {
