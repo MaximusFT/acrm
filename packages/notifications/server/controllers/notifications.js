@@ -358,7 +358,11 @@ exports.getEventsForUser = function(io, userId) {
                     Notification
                         .find({
                             targetUser: userId,
-                            state: 0
+                            $or: [{
+                                state: 0
+                            }, {
+                                state: 2
+                            }]
                         }, {
                             _id: 1
                         }, function(err, forGeneralCount) {
@@ -369,7 +373,11 @@ exports.getEventsForUser = function(io, userId) {
                                 Notification
                                     .find({
                                         targetUser: userId,
-                                        state: 0
+                                        $or: [{
+                                            state: 0
+                                        }, {
+                                            state: 2
+                                        }]
                                     }, {
                                         targetUser: 0
                                     })
@@ -385,13 +393,19 @@ exports.getEventsForUser = function(io, userId) {
                                         } else {
                                             if (unreadNotifications.length < N) {
                                                 console.log('1');
-                                                console.log('unreadNotifications', unreadNotifications);
+                                                // console.log('unreadNotifications', unreadNotifications);
                                                 Notification
                                                     .find({
                                                         targetUser: userId,
-                                                        state: {
-                                                            $ne: 0
-                                                        }
+                                                        $and: [{
+                                                            state: {
+                                                                $ne: 0
+                                                            }
+                                                        }, {
+                                                            state: {
+                                                                $ne: 2
+                                                            }
+                                                        }]
                                                     })
                                                     .populate('event', '-targetGroup -targetPersons -extraInfo -initPerson -initGroup')
                                                     .limit(N - unreadNotifications.length)
@@ -403,7 +417,7 @@ exports.getEventsForUser = function(io, userId) {
                                                             console.log(err);
                                                             return;
                                                         } else {
-                                                            console.log('processedNotifications', processedNotifications);
+                                                            // console.log('processedNotifications', processedNotifications);
                                                             var notifications = unreadNotifications.concat(processedNotifications);
                                                             notifications = _.sortBy(notifications, 'time');
                                                             console.log('1', 'notifications:init:' + userId, notifications.length);
@@ -429,4 +443,23 @@ exports.getEventsForUser = function(io, userId) {
                 }
             }
         });
+};
+
+exports.setNotificationState = function(opt) {
+    if (opt && opt.state && opt.notification) {
+        Notification
+            .update({
+                _id: opt.notification
+            }, {
+                $set: {
+                    state: opt.state
+                }
+            }, function(err, updated) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log('updated', updated);
+                }
+            });
+    }
 };

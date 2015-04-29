@@ -13,34 +13,7 @@ angular.module('mean.notifications').directive('notifier', function(Global, Noti
             $scope.infoAlert = ngAudio.load('//mapqo.com/atlant/audio/warning.mp3');
             $scope.warningAlert = ngAudio.load('//mapqo.com/atlant/audio/danger.mp3');
             $scope.dangerAlert = ngAudio.load('//mapqo.com/atlant/audio/fail.mp3');
-            $scope.notificationBars = [{
-                id: 'tasksBar',
-                view: 'tasks',
-                schema: 'danger',
-                title: 'Tasks',
-                icon: 'fa-tasks',
-                notifications: [],
-                unreadCount: 0,
-                bookmarkedCount: 0
-            }, {
-                id: 'messagesBar',
-                view: 'messages',
-                schema: 'info',
-                title: 'Messages',
-                icon: 'fa-comments',
-                notifications: [],
-                unreadCount: 0,
-                bookmarkedCount: 0
-            }, {
-                id: 'activitiesBar',
-                view: 'activities',
-                schema: 'warning',
-                title: 'Notifications',
-                icon: 'fa-bell-o',
-                notifications: [],
-                unreadCount: 0,
-                bookmarkedCount: 0
-            }];
+            $scope.notifications = [];
 
             $scope.playAlertSound = function(notifications) {
                 var infoLevel = true,
@@ -66,16 +39,6 @@ angular.module('mean.notifications').directive('notifier', function(Global, Noti
                     $scope.infoAlert.play();
             };
 
-            $scope.getUnreadCount = function(notificationBar) {
-                console.log('getUnreadCount');
-                var count = 0;
-                angular.forEach(notificationBar.notifications, function(notification) {
-                    if (notification.state === 0)
-                        count += 1;
-                });
-                return count;
-            };
-
             $scope.formatDate = function(date) {
                 return new Date(date).toLocaleString();
             };
@@ -90,10 +53,10 @@ angular.module('mean.notifications').directive('notifier', function(Global, Noti
             };
 
             $scope.setNotificationState = function(notification, state) {
-                NotificationSocket.emit('notification:setBookmark', {
-                    notification: notification._id,
-                    state: state
-                });
+                // NotificationSocket.emit('notification:setBookmark', {
+                //     notification: notification._id,
+                //     state: state
+                // });
                 if (state === 1) {
                     var catIndex = notification.event.category === 0 ? 2 : (notification.event.category === 1 ? 1 : (notification.event.category === 2 ? 0 : -1));
                     if (catIndex !== -1) {
@@ -128,21 +91,18 @@ angular.module('mean.notifications').directive('notifier', function(Global, Noti
                         console.log('init notifications', initPack);
                         var rret = false;
                         angular.forEach(initPack.notifications, function(notification) {
-                            var index = notification.event.category === 0 ? 2 : (notification.event.category === 1 ? 1 : (notification.event.category === 2 ? 0 : -1));
-                            if (index !== -1) {
-                                var ret = false;
-                                angular.forEach($scope.notificationBars[index].notifications, function(notif) {
-                                    if (notification._id === notif._id)
-                                        ret = true;
-                                });
-                                if (ret === false) {
-                                    rret = true;
-                                    $scope.notificationBars[index].notifications.push(notification);
-                                    if (notification.state === 0)
-                                        $scope.notificationBars[index].unreadCount = initPack.unreadCount;
-                                    if (notification.state === 2)
-                                        $scope.notificationBars[index].bookmarkedCount += 1;
-                                }
+                            var ret = false;
+                            angular.forEach($scope.notifications, function(notif) {
+                                if (notification._id === notif._id)
+                                    ret = true;
+                            });
+                            if (ret === false) {
+                                rret = true;
+                                notification.time = notification.event.whenEmited;
+                                $scope.notifications.push(notification);
+                                $scope.unreadCount = initPack.unreadCount;
+                                if (notification.state === 2)
+                                    $scope.bookmarkedCount += 1;
                             }
                             if (rret === true)
                                 $scope.playAlertSound(initPack.notifications);
@@ -154,6 +114,36 @@ angular.module('mean.notifications').directive('notifier', function(Global, Noti
                     //$location.url('/error/' + status);
                 });
             });
+
+            $scope.isInformer = function(index) {
+                // notifications
+                if (index === 3) {
+                    var ret = false;
+                    angular.forEach($scope.notifications, function(notification) {
+                        if (notification.state === 0 || notification.state === 2)
+                            ret = true;
+                    });
+                    return ret;
+                }
+            };
+
+            $scope.getInformer = function(index) {
+                // notifications
+                if (index === 3) {
+                    var unread = 0,
+                        bookmarked = 0;
+                    angular.forEach($scope.notifications, function(notification) {
+                        if (notification.state === 0)
+                            unread += 1;
+                        if (notification.state === 2)
+                            bookmarked += 1;
+                    });
+                    return {
+                        unread: unread,
+                        bookmarked: bookmarked
+                    };
+                }
+            };
 
         }
     };

@@ -626,7 +626,7 @@ exports.clearAccesses = function(req, res) {
                                 code: 'usermanager::clearAccesses',
                                 level: 'danger',
                                 targetPersons: users,
-                                title: 'The user has been stripped of all accesses',
+                                title: 'You have been stripped of all accesses',
                                 link: '/#!/users',
                                 initPerson: req.user._id,
                                 extraInfo: {

@@ -1,29 +1,66 @@
-<li class="xn-icon-button pull-right" data-ng-repeat="notificationBar in notificationBars" click-out="closeThis($event)">
-	<a data-ng-click="openNotificationsBar($event)" id="{{notificationBar.id}}">
-		<span class="fa {{notificationBar.icon}}"></span>
+<li class="xn-icon-button pull-right">
+	<a data-ng-click="openNotificationsBar($event)" id="tasks-bar">
+		<span class="fa fa-tasks"></span>
 	</a>
-	<div class="informer informer-{{notificationBar.schema}}" data-ng-if="notificationBar.unreadCount && notificationBar.unreadCount >
-		0 || notificationBar.bookmarkedCount && notificationBar.bookmarkedCount > 0">{{notificationBar.unreadCount + notificationBar.bookmarkedCount}}
-	</div>
 	<div class="panel panel-primary animated zoomIn xn-drop-left xn-panel-dragging">
 		<div class="panel-heading">
 			<h3 class="panel-title">
-				<span class="fa {{notificationBar.icon}}"></span>
-				{{notificationBar.title}}
+				<span class="fa fa-tasks"></span>
+				Tasks
 			</h3>
-			<div class="pull-right" data-ng-if="notificationBar.unreadCount && notificationBar.unreadCount >
-				0 || notificationBar.bookmarkedCount && notificationBar.bookmarkedCount > 0">
-				<span data-ng-if="notificationBar.unreadCount && notificationBar.unreadCount >
-					0" class="label label-{{notificationBar.schema}}">{{notificationBar.unreadCount}} unread
+		</div>
+		<div class="panel-body list-group scroll" style="height: 300px;">
+			<alert type="info">Not supported yet. Coming soon.</alert>
+		</div>
+		<div class="panel-footer text-center">
+			<a href="pages-messages.html" data-ng-disabled="true">Show all tasks</a>
+		</div>
+	</div>
+</li>
+
+<li class="xn-icon-button pull-right">
+	<a data-ng-click="openNotificationsBar($event)" id="messages-bar">
+		<span class="fa fa-comments"></span>
+	</a>
+	<div class="panel panel-primary animated zoomIn xn-drop-left xn-panel-dragging">
+		<div class="panel-heading">
+			<h3 class="panel-title">
+				<span class="fa fa-comments"></span>
+				Messages
+			</h3>
+		</div>
+		<div class="panel-body list-group scroll" style="height: 300px;">
+			<alert type="info">Not supported yet. Coming soon.</alert>
+		</div>
+		<div class="panel-footer text-center">
+			<a href="pages-messages.html" data-ng-disabled="true">Show all messages</a>
+		</div>
+	</div>
+</li>
+
+<li class="xn-icon-button pull-right">
+	<a data-ng-click="openNotificationsBar($event)" id="notifications-bar">
+		<span class="fa fa-bell-o"></span>
+	</a>
+	<div class="informer informer-warning" data-ng-if="isInformer(3)">{{getInformer(3).unread}}</div>
+	<div class="panel panel-primary animated zoomIn xn-drop-left xn-panel-dragging">
+		<div class="panel-heading">
+			<h3 class="panel-title">
+				<span class="fa fa-bell-o"></span>
+				Notifications
+			</h3>
+			<div class="pull-right" data-ng-if="isInformer(3)">
+				<span data-ng-if="getInformer(3).unread >
+					0" class="label label-warning">{{getInformer(3).unread}} unread
 				</span>
-				<span data-ng-if="notificationBar.bookmarkedCount && notificationBar.bookmarkedCount >
-					0" class="label label-primary">{{notificationBar.bookmarkedCount}} bookmarked
+				<span data-ng-if="getInformer(3).bookmarked >
+					0" class="label label-primary">{{getInformer(3).bookmarked}} bookmarked
 				</span>
 			</div>
 		</div>
-		<div class="panel-body list-group list-group-contacts scroll" style="height: 300px;" data-ng-if="notificationBar.id === 'activitiesBar'">
+		<div class="panel-body list-group list-group-contacts scroll" style="height: 300px;">
 			<perfect-scrollbar class="scroller" style="height:300px;" wheel-propagation="true" wheel-speed="10" scrollDown="true">
-				<a data-ng-repeat="notification in notificationBar.notifications track by $index | orderBy: '-event.whenEmited' | limitTo: 1" href="" class="list-group-item notification-body" style="{{notification.state === 0 ? 'background:bisque;' : (notification.state === 2 ? 'background:orange;' : '')}}" data-ng-mouseenter="isControlsVisible=true;" data-ng-mouseleave="isControlsVisible=false;">
+				<a data-ng-repeat="notification in notifications track by $index" class="list-group-item {{notification.state === 2 ? 'list-group-item-bookmarked' : ''}} notification-body" style="{{notification.state === 0 ? 'background:bisque;' : (notification.state === 2 ? 'background:orange;' : '')}}" data-ng-mouseenter="isControlsVisible=true;" data-ng-mouseleave="isControlsVisible=false;" href="" id="notification-{{notification._id}}">
 					<div class="row">
 						<div class="col-md-11">
 							<div class="list-group-status {{notification.event.level}}"></div>
@@ -31,22 +68,16 @@
 							<p>{{notification.message}}</p>
 						</div>
 						<div class="col-md-1" data-ng-show="isControlsVisible">
-							<span class="fa fa-bookmark notification-control"></span>
-							<span class="fa fa-times notification-control"></span>
+							<span class="fa fa-bookmark notification-control" data-ng-click="setNotificationState(notification, 2)" title="Set bookmark"></span>
+							<span class="fa fa-times notification-control" data-ng-click="setNotificationState(notification, 1)" title="Hide"></span>
 						</div>
 					</div>
 					<span class="notification-time">{{notification.event.whenEmited | date:'medium'}}</span>
 				</a>
 			</perfect-scrollbar>
 		</div>
-		<div class="panel-body list-group scroll" style="height: 300px;" data-ng-if="notificationBar.id === 'messagesBar'">
-			<alert type="info">Not supported yet. Coming soon.</alert>
-		</div>
-		<div class="panel-body list-group scroll" style="height: 300px;" data-ng-if="notificationBar.id === 'tasksBar'">
-			<alert type="info">Not supported yet. Coming soon.</alert>
-		</div>
 		<div class="panel-footer text-center">
-			<a href="pages-messages.html">Show all {{notificationBar.view}}</a>
+			<a href="pages-messages.html">Show all notifications</a>
 		</div>
 	</div>
 </li>

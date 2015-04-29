@@ -60,6 +60,14 @@ module.exports = function(Notifications, io) {
             notifications.getEventsForUser(io, userId);
         });
 
+        socket.on('notification:setBookmark', function(opt) {
+            notifications.setNotificationState(opt);
+        });
+
+        socket.on('notification:setRead', function(opt) {
+            notifications.setNotificationState(opt);
+        });
+
         socket.on('disconnect', function() {
             console.log('Notifications - user disconnected');
         });
