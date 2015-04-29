@@ -89,6 +89,25 @@ angular.module('mean.notifications').directive('notifier', function(Global, Noti
                 }
             };
 
+            $scope.setNotificationState = function(notification, state) {
+                NotificationSocket.emit('notification:setBookmark', {
+                    notification: notification._id,
+                    state: state
+                });
+                if (state === 1) {
+                    var catIndex = notification.event.category === 0 ? 2 : (notification.event.category === 1 ? 1 : (notification.event.category === 2 ? 0 : -1));
+                    if (catIndex !== -1) {
+                        console.log(catIndex);
+                        console.log(angular.element('#notification-' + notification._id).addClass('removed-item'));
+                        $timeout(function() {
+                            angular.element('#notification-' + notification._id).remove();
+                        }, 1000);
+                    }
+                } else if (state === 2) {
+                    notification.state = state;
+                }
+            };
+
             NotificationSocket.on('connected', function() {
                 $http.get('/api/clientId').success(function(response) {
                     $scope.clientId = response;
