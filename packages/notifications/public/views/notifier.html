@@ -42,7 +42,7 @@
 	<a data-ng-click="openNotificationsBar($event)" id="notifications-bar">
 		<span class="fa fa-bell-o"></span>
 	</a>
-	<div class="informer informer-warning" data-ng-if="isInformer(3)">{{getInformer(3).unread}}</div>
+	<div class="informer informer-warning" data-ng-if="unreadCount > 0">{{unreadCount}}</div>
 	<div class="panel panel-primary animated zoomIn xn-drop-left xn-panel-dragging">
 		<div class="panel-heading">
 			<h3 class="panel-title">
@@ -59,8 +59,8 @@
 			</div>
 		</div>
 		<div class="panel-body list-group list-group-contacts scroll" style="height: 300px;">
-			<perfect-scrollbar class="scroller" style="height:300px;" wheel-propagation="true" wheel-speed="10" scrollDown="true">
-				<a data-ng-repeat="notification in notifications track by $index" class="list-group-item {{notification.state === 2 ? 'list-group-item-bookmarked' : ''}} notification-body" style="{{notification.state === 0 ? 'background:rgb(245, 244, 237);color:red;' : (notification.state === 2 ? 'background:rgb(222, 218, 228);color:rgb(72, 72, 161)' : 'color:grey;')}}" data-ng-mouseenter="isControlsVisible=true;" data-ng-mouseleave="isControlsVisible=false;" href="" id="notification-{{notification._id}}">
+			<perfect-scrollbar class="scroller" style="height:300px;" wheel-propagation="true" wheel-speed="10" scrollDown="true" data-ng-if="notifications && notifications.length">
+				<div data-ng-repeat="notification in notifications track by $index" class="list-group-item {{notification.state === 2 ? 'list-group-item-bookmarked' : ''}} notification-body" style="{{notification.state === 0 ? 'background:rgb(245, 244, 237);color:rgb(98, 36, 36);' : (notification.state === 2 ? 'background:rgb(222, 218, 228);color:rgb(72, 72, 161)' : 'color:grey;')}}" data-ng-mouseenter="isControlsVisible=true;" data-ng-mouseleave="isControlsVisible=false;">
 					<div class="row">
 						<div class="col-md-11">
 							<div class="list-group-status {{notification.event.level}}"></div>
@@ -68,19 +68,23 @@
 							<p>{{notification.message}}</p>
 						</div>
 						<div class="col-md-1" data-ng-if="notification.state !== 1" data-ng-show="isControlsVisible">
-							<span class="fa fa-bookmark notification-control" data-ng-click="setNotificationState(notification, 2)" title="Set bookmark"></span>
-							<span class="fa fa-times notification-control" data-ng-click="setNotificationState(notification, 1)" title="Hide"></span>
+							<span class="fa fa-bookmark notification-control" data-ng-if="notification.state !== 2" data-ng-click="setNotificationState(notification, 2)" title="Set bookmark" style="color: blue;"></span>
+							<span class="fa fa-times notification-control" data-ng-click="setNotificationState(notification, 1)" title="Hide" style="color:red;"></span>
 						</div>
-						<div class="col-md-1" data-ng-if="notification.state !== 1" data-ng-show="!isControlsVisible">
-							<span class="fa fa-clock-o notification-control" style="{{notification.state === 2 ? 'color:rgb(72, 72, 161);' : (notification.state === 0 ? 'color:red;' : '')}}"></span>
+						<div class="col-md-1" data-ng-if="notification.state !== 1 && notification.state !== 2" data-ng-show="!isControlsVisible">
+							<span class="fa fa-clock-o notification-control {{notification.event.level}}"></span>
 						</div>
 						<div class="col-md-1" data-ng-if="notification.state === 1">
-							<span class="fa fa-check-square-o notification-control" style="color:grey"></span>
+							<span class="fa fa-check-square-o notification-control" style="color:grey;cursor:default;"></span>
+						</div>
+						<div class="col-md-1" data-ng-if="notification.state === 2" data-ng-hide="isControlsVisible">
+							<span class="fa fa-bookmark notification-control" style="color:rgb(72, 72, 161)"></span>
 						</div>
 					</div>
 					<span class="notification-time">{{notification.event.whenEmited | date:'medium'}}</span>
-				</a>
+				</div>
 			</perfect-scrollbar>
+			<alert type="info" data-ng-if="!notifications || !notifications.length">You have not anyone notification.</alert>
 		</div>
 		<div class="panel-footer text-center">
 			<a href="pages-messages.html">Show all notifications</a>

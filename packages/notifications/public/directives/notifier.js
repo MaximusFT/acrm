@@ -16,26 +16,30 @@ angular.module('mean.notifications').directive('notifier', function(Global, Noti
             $scope.notifications = [];
 
             $scope.playAlertSound = function(notifications) {
-                var infoLevel = true,
+                var infoLevel = false,
                     warningLevel = false,
                     dangerLevel = false;
                 angular.forEach(notifications, function(notification) {
-                    if (notification.event.level === 'warning' && !dangerLevel) {
-                        infoLevel = false;
-                        warningLevel = true;
-                    }
-                    if (notification.event.level === 'danger') {
-                        infoLevel = false;
-                        warningLevel = false;
-                        dangerLevel = true;
+                    if (notification.state === 0 || notification.state === 2) {
+                        if (notification.event.level === 'info' && !warningLevel && !dangerLevel)
+                            infoLevel = true;
+                        if (notification.event.level === 'warning' && !dangerLevel) {
+                            infoLevel = false;
+                            warningLevel = true;
+                        }
+                        if (notification.event.level === 'danger') {
+                            infoLevel = false;
+                            warningLevel = false;
+                            dangerLevel = true;
+                        }
                     }
                 });
-                //console.log(infoLevel, warningLevel, dangerLevel);
+                // console.log(infoLevel, warningLevel, dangerLevel);
                 if (dangerLevel)
                     $scope.dangerAlert.play();
                 else if (warningLevel)
                     $scope.warningAlert.play();
-                else
+                else if (infoLevel)
                     $scope.infoAlert.play();
             };
 
@@ -52,29 +56,63 @@ angular.module('mean.notifications').directive('notifier', function(Global, Noti
                 }
             };
 
-            // angular.element('#notification-5541ce9573b56bfa041ece6b').on('remove', function() {
-            //     alert('Element was removed');
-            // });
+            function sortNotifications(a, b) {
+                return a.state !== 2 && b.state === 2 ? 1 : 
+                    (a.state === 2 && b.state !== 2 ? -1 : 
+                        (a.state !== 1 && b.state === 1 ? -1 : 
+                            (a.state === 1 && b.state !== 1 ? 1 : 
+                                (a.event.whenEmited > b.event.whenEmited ? -1 : 
+                                    (a.event.whenEmited < b.event.whenEmited ? 1 : 0)
+                                )
+                            )
+                        )
+                    );
+            }
+
+            function updateUnreadCount() {
+                $http.post('/api/generalUnreadNotifications').success(function(response) {
+                    $scope.unreadCount = response;
+                }).error(function(err, status) {
+                    $log.error(err);
+                });
+            }
 
             $scope.setNotificationState = function(notification, state) {
                 NotificationSocket.emit('notification:setBookmark', {
                     notification: notification._id,
                     state: state
                 });
-                if (state === 1) {
-                    var catIndex = notification.event.category === 0 ? 2 : (notification.event.category === 1 ? 1 : (notification.event.category === 2 ? 0 : -1));
-                    if (catIndex !== -1) {
-                            angular.forEach($scope.notifications, function(notif, index) {
-                                if (notif._id === notification._id)
-                                    $scope.notifications.splice(index, 1);
-                            });
-                    }
-                } else if (state === 2) {
-                    notification.state = state;
-                }
+                notification.state = state;
+                $scope.notifications.sort(sortNotifications);
+                updateUnreadCount();
             };
 
+            function getNotificationsForUser() {
+                $http.post('/api/notificationsForUser').success(function(response) {
+                    $scope.unreadCount = response.unreadCount;
+                    var rret = false;
+                    angular.forEach(response.notifications, function(notification) {
+                        var ret = false;
+                        angular.forEach($scope.notifications, function(notif) {
+                            if (notification._id === notif._id)
+                                ret = true;
+                        });
+                        if (ret === false) {
+                            rret = true;
+                            $scope.notifications.push(notification);
+                            if (notification.state === 2)
+                                $scope.bookmarkedCount += 1;
+                        }
+                        if (rret === true)
+                            $scope.playAlertSound(response.notifications);
+                    });
+                }).error(function(err, status) {
+                    $log.error(err);
+                });
+            }
+
             NotificationSocket.on('connected', function() {
+                console.log('connection with notification server was established');
                 $http.get('/api/clientId').success(function(response) {
                     $scope.clientId = response;
                     //help to identify client on server
@@ -85,33 +123,14 @@ angular.module('mean.notifications').directive('notifier', function(Global, Noti
 
                     //listening for sygnal about new notifications
                     NotificationSocket.on('newNotification:' + $scope.clientId, function(notification) {
-                        NotificationSocket.emit('notifications:get', $scope.clientId);
+                        //NotificationSocket.emit('notifications:get', $scope.clientId);
+                        getNotificationsForUser();
                     });
 
                     //listening of user notifications
-                    console.log('notifications:init:' + $scope.clientId);
-                    NotificationSocket.on('notifications:init:' + $scope.clientId, function(initPack) {
-                        console.log('init notifications', initPack);
-                        var rret = false;
-                        angular.forEach(initPack.notifications, function(notification) {
-                            var ret = false;
-                            angular.forEach($scope.notifications, function(notif) {
-                                if (notification._id === notif._id)
-                                    ret = true;
-                            });
-                            if (ret === false) {
-                                rret = true;
-                                notification.time = notification.event.whenEmited;
-                                $scope.notifications.push(notification);
-                                $scope.unreadCount = initPack.unreadCount;
-                                if (notification.state === 2)
-                                    $scope.bookmarkedCount += 1;
-                            }
-                            if (rret === true)
-                                $scope.playAlertSound(initPack.notifications);
-                        });
+                    NotificationSocket.on('notifications:init', function() {
+                        getNotificationsForUser();
                     });
-
                 }).error(function(err, status) {
                     $log.error(err);
                     //$location.url('/error/' + status);
@@ -148,8 +167,9 @@ angular.module('mean.notifications').directive('notifier', function(Global, Noti
                 }
             };
 
-            $scope.$watchCollection('notifications', function() {
-                console.log('change on notifications');
+            $scope.$watchCollection('notifications', function(newVal, oldVal) {
+                $scope.notifications.sort(sortNotifications);
+                updateUnreadCount();
             });
 
         }

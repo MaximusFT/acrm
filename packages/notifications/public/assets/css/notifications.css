@@ -45,6 +45,19 @@
 
 .notification-control {
     font-size: large !important;
+    cursor: pointer;
+}
+
+.notification-control.info {
+    color: rgb(114, 114, 202);
+}
+
+.notification-control.warning {
+    color: rgb(159, 226, 86);
+}
+
+.notification-control.danger {
+    color: rgb(203, 93, 93);
 }
 
 .notification-control:hover {

@@ -4,6 +4,8 @@ var mongoose = require('mongoose'),
     NotificationGroup = mongoose.model('NotificationGroup'),
     User = mongoose.model('User'),
     NotificationSetting = mongoose.model('NotificationSetting'),
+    Notification = mongoose.model('Notification'),
+    async = require('async'),
     _ = require('lodash');
 
 exports.create = function(req, res, next) {
@@ -187,56 +189,75 @@ exports.postNotificationSettings = function(req, res) {
 };
 
 exports.userNotificationsSettings = function(req, res) {
-    NotificationGroup
-        .find({
-            assignedTo: req.user._id
+    User
+        .findOne({
+            _id: req.user._id
         }, {
-            _id: 1
-        }, function(err, groups) {
+            roles: 1
+        }, function(err, currentUser) {
             if (err) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
-                //console.log(groups);
-                if (groups && groups.length) {
-                    NotificationSetting
+                if (currentUser) {
+                    NotificationGroup
                         .find({
-                            group: {
-                                $in: _.map(groups, '_id')
-                            }
-                        })
-                        .populate('group', '-assignedTo')
-                        .sort({
-                            name: 1
-                        })
-                        .lean()
-                        .exec(function(err, settings) {
+                            $or: [{
+                                assignedTo: req.user._id
+                            }, {
+                                name: (currentUser.roles.indexOf('admins') !== -1 ? 'admins' : 'users')
+                            }]
+                        }, {
+                            _id: 1
+                        }, function(err, groups) {
                             if (err) {
                                 console.log(err);
                                 return res.status(500).send(err);
                             } else {
-                                //return res.jsonp(settings);
-                                _.forEach(settings, function(setting) {
-                                    setting.group = setting.group.name + (setting.group.comment ? (' (' + setting.group.comment + ')') : '');
-                                    var userOption = _.filter(setting.userOptions, function(option) {
-                                        return JSON.stringify(option.user) === JSON.stringify(req.user._id);
-                                    });
-                                    if (userOption && userOption.length > 0)
-                                        setting.value = userOption[0].value;
-                                });
-                                var result = _.chain(settings)
-                                    .groupBy('group')
-                                    .pairs()
-                                    .map(function(currentItem) {
-                                        return _.object(_.zip(['group', 'settings'], currentItem));
-                                    })
-                                    .value();
-                                return res.jsonp(result);
+                                //console.log(groups);
+                                if (groups && groups.length) {
+                                    NotificationSetting
+                                        .find({
+                                            group: {
+                                                $in: _.map(groups, '_id')
+                                            }
+                                        })
+                                        .populate('group', '-assignedTo')
+                                        .sort({
+                                            name: 1
+                                        })
+                                        .lean()
+                                        .exec(function(err, settings) {
+                                            if (err) {
+                                                console.log(err);
+                                                return res.status(500).send(err);
+                                            } else {
+                                                //return res.jsonp(settings);
+                                                _.forEach(settings, function(setting) {
+                                                    setting.group = setting.group.name + (setting.group.comment ? (' (' + setting.group.comment + ')') : '');
+                                                    var userOption = _.filter(setting.userOptions, function(option) {
+                                                        return JSON.stringify(option.user) === JSON.stringify(req.user._id);
+                                                    });
+                                                    if (userOption && userOption.length > 0)
+                                                        setting.value = userOption[0].value;
+                                                });
+                                                var result = _.chain(settings)
+                                                    .groupBy('group')
+                                                    .pairs()
+                                                    .map(function(currentItem) {
+                                                        return _.object(_.zip(['group', 'settings'], currentItem));
+                                                    })
+                                                    .value();
+                                                return res.jsonp(result);
+                                            }
+                                        });
+                                } else {
+                                    return res.jsonp([]);
+                                }
                             }
                         });
-                } else {
-                    return res.jsonp([]);
-                }
+                } else
+                    return res.status(404).send('User was not found');
             }
         });
 };
@@ -355,5 +376,135 @@ exports.removeFromNGroup = function(req, res) {
                 console.log('updated', updated);
                 return res.status(200).send();
             }
+        });
+};
+
+exports.getEventsForUser = function(req, res) {
+    var N = 10,
+        userId = req.user._id;
+    async.waterfall([
+        function(callback) {
+            User
+                .findOne({
+                    _id: userId
+                }, {
+                    name: 1,
+                    roles: 1,
+                    department: 1
+                }, function(err, user) {
+                    if (err)
+                        callback(err);
+                    else {
+                        if (user)
+                            callback(null);
+                        else {
+                            console.log('Getting last notifications for user:', user.name);
+                            callback('User was not found: ' + __dirname);
+                        }
+                    }
+                });
+        },
+        function(callback) {
+            Notification
+                .find({
+                    targetUser: userId,
+                    $or: [{
+                        state: 0
+                    }, {
+                        state: 2
+                    }]
+                }, {
+                    _id: 1
+                }, function(err, forGeneralCount) {
+                    if (err)
+                        callback(err);
+                    else
+                        callback(null, forGeneralCount.length);
+                });
+        },
+        function(generalCount, callback) {
+            Notification
+                .find({
+                    targetUser: userId,
+                    $or: [{
+                        state: 0
+                    }, {
+                        state: 2
+                    }]
+                }, {
+                    targetUser: 0
+                })
+                .populate('event', '-targetGroup -targetPersons -extraInfo -initPerson -initGroup')
+                .sort({
+                    'event.whenEmited': -1
+                })
+                .limit(N)
+                .exec(function(err, uBnotifications) {
+                    if (err)
+                        callback(err);
+                    else {
+                        callback(null, uBnotifications, generalCount);
+                    }
+                });
+        },
+        function(uBnotifications, generalCount, callback) {
+            Notification
+                .find({
+                    targetUser: userId,
+                    $and: [{
+                        state: {
+                            $ne: 0
+                        }
+                    }, {
+                        state: {
+                            $ne: 2
+                        }
+                    }]
+                })
+                .populate('event', '-targetGroup -targetPersons -extraInfo -initPerson -initGroup')
+                .sort({
+                    'event.whenEmited': -1
+                })
+                .limit((N - uBnotifications.length) <= 0 ? 0 : (N - uBnotifications.length))
+                .exec(function(err, rNotifications) {
+                    if (err)
+                        callback(err);
+                    else {
+                        callback(null, uBnotifications, generalCount, rNotifications);
+                    }
+                });
+        },
+        function(uBnotifications, generalCount, rNotifications, callback) {
+            callback(null, {
+                notifications: uBnotifications.concat(rNotifications),
+                unreadCount: generalCount
+            });
+        }
+    ], function(err, results) {
+        if (err) {
+            console.log('Error while getting last notifications for user ' + userId, err);
+            return res.status(500).send(err);
+        } else
+            return res.jsonp(results);
+    });
+};
+
+exports.generalUnreadNotifications = function(req, res) {
+    Notification
+        .find({
+            targetUser: req.user._id,
+            $or: [{
+                state: 0
+            }, {
+                state: 2
+            }]
+        }, {
+            _id: 1
+        }, function(err, forGeneralCount) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else
+                return res.jsonp(forGeneralCount.length);
         });
 };

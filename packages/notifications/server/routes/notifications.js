@@ -50,14 +50,14 @@ module.exports = function(Notifications, io) {
     io.on('connection', function(socket) {
         console.log('--> One more user connected to notifications');
         socket.emit('connected');
-        
+
         socket.on('notifications:connect', function(user) {
             console.log(user.userName, 'online');
-            notifications.getEventsForUser(io, user.userId);
+            socket.emit('notifications:init');
         });
 
         socket.on('notifications:get', function(userId) {
-            notifications.getEventsForUser(io, userId);
+            socket.emit('notifications:init');
         });
 
         socket.on('notification:setBookmark', function(opt) {
@@ -69,7 +69,7 @@ module.exports = function(Notifications, io) {
         });
 
         socket.on('disconnect', function() {
-            console.log('Notifications - user disconnected');
+            console.log('<-- Notifications - user disconnected');
         });
 
     });

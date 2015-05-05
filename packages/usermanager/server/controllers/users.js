@@ -609,33 +609,48 @@ exports.clearAccesses = function(req, res) {
                             console.log(err);
                             return res.status(500).send(err);
                         } else {
-                            var sEvents = [{
-                                category: 0,
-                                code: 'usermanager::clearAccesses',
-                                level: 'warning',
-                                targetGroup: ['userManagementAdmins'],
-                                title: 'The user has been stripped of all accesses',
-                                link: '/#!/users',
-                                initPerson: req.user._id,
-                                extraInfo: {
-                                    actionName: 'cleared all user\' accessed to corporate resourses',
-                                    info: passes
-                                }
-                            }, {
-                                category: 0,
-                                code: 'usermanager::clearAccesses',
-                                level: 'danger',
-                                targetPersons: users,
-                                title: 'You have been stripped of all accesses',
-                                link: '/#!/users',
-                                initPerson: req.user._id,
-                                extraInfo: {
-                                    actionName: 'cleared all your accessed to corporate resourses'
-                                }
-                            }];
-                            var EventProcessor = require('meanio').events;
-                            EventProcessor.emit('notifications', sEvents);
-                            return res.status(200).send();
+                            User
+                                .find({
+                                    _id: {
+                                        $in: users
+                                    }
+                                }, {
+                                    name: 1
+                                }, function(err, pusers) {
+                                    if (err) {
+                                        console.log(err);
+                                        return res.status(500).send(err);
+                                    } else {
+                                        var sEvents = [{
+                                            category: 0,
+                                            code: 'usermanager::clearAccesses',
+                                            level: 'warning',
+                                            targetGroup: ['userManagementAdmins'],
+                                            title: 'The user has been stripped of all accesses',
+                                            link: '/#!/users',
+                                            initPerson: req.user._id,
+                                            extraInfo: {
+                                                actionName: 'has revoked all user' + (users.length > 1 ? 's' : '') + '  access to corporate resources',
+                                                clean: _.map(pusers, 'name').join(', '),
+                                                info: passes
+                                            }
+                                        }, {
+                                            category: 0,
+                                            code: 'usermanager::clearAccesses',
+                                            level: 'danger',
+                                            targetPersons: users,
+                                            title: 'You have been stripped of all accesses',
+                                            link: '/#!/users',
+                                            initPerson: req.user._id,
+                                            extraInfo: {
+                                                clean: 'has revoked all your access to corporate resources'
+                                            }
+                                        }];
+                                        var EventProcessor = require('meanio').events;
+                                        EventProcessor.emit('notifications', sEvents);
+                                        return res.status(200).send();
+                                    }
+                                });
                         }
                     });
             }

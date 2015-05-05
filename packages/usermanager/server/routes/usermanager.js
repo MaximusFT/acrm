@@ -30,4 +30,6 @@ module.exports = function(Usermanager, app, auth, database) {
     app.post('/api/setUserNotificationSetting', auth.requiresLogin, notificationGroups.setUserNotificationSetting);
     app.get('/api/usersByNotificationGroups', auth.requiresAdmin, notificationGroups.usersByNotificationGroups);
     app.post('/api/removeFromNGroup', auth.requiresAdmin, notificationGroups.removeFromNGroup);
+    app.post('/api/notificationsForUser', auth.requiresLogin, notificationGroups.getEventsForUser);
+    app.post('/api/generalUnreadNotifications', auth.requiresLogin, notificationGroups.generalUnreadNotifications);
 };
