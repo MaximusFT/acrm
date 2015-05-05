@@ -38,6 +38,8 @@ function saveRequestInAcrm(actions, data, analyticsData, formId, callback) {
     requestData.analyticsInfo = analyticsData;
     if (options.comment)
         requestData.comment = options.comment;
+    else
+        requestData.comment = '';
     var tmpE = _.filter(data, function(d) {
         return d.htmlId === options.email;
     });
@@ -71,25 +73,25 @@ function saveRequestInAcrm(actions, data, analyticsData, formId, callback) {
         if (tmp.length > 0) {
             if (tmp[0].value && (chkb.ifTrue1 || chkb.ifTrue2 || chkb.ifTrue3)) {
                 if (chkb.ifTrue1)
-                    requestData.comment += ' ' + chkb.ifTrue1;
+                    requestData.comment += (requestData.comment ? ' ' : '') + chkb.ifTrue1;
                 var tmpIT2 = _.filter(data, function(tdd) {
                     return tdd.htmlId === chkb.ifTrue2;
                 });
                 if (tmpIT2.length > 0)
-                    requestData.comment += ' ' + tmpIT2[0].value;
+                    requestData.comment += (requestData.comment ? ' ' : '') + tmpIT2[0].value;
                 if (chkb.ifTrue3)
-                    requestData.comment += ' ' + chkb.ifTrue3;
+                    requestData.comment += (requestData.comment ? ' ' : '') + chkb.ifTrue3;
             }
             if (!tmp[0].value && (chkb.ifFalse1 || chkb.ifFalse2 || chkb.ifFalse3)) {
                 if (chkb.ifFalse1)
-                    requestData.comment += ' ' + chkb.ifFalse1;
+                    requestData.comment += (requestData.comment ? ' ' : '') + chkb.ifFalse1;
                 var tmpIF2 = _.filter(data, function(tdd) {
                     return tdd.htmlId === chkb.ifFalse2;
                 });
                 if (tmpIF2.length > 0)
-                    requestData.comment += ' ' + tmpIF2[0].value;
+                    requestData.comment += (requestData.comment ? ' ' : '') + tmpIF2[0].value;
                 if (chkb.ifFalse3)
-                    requestData.comment += ' ' + chkb.ifFalse3;
+                    requestData.comment += (requestData.comment ? ' ' : '') + chkb.ifFalse3;
             }
         }
     });

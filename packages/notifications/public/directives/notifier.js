@@ -52,19 +52,22 @@ angular.module('mean.notifications').directive('notifier', function(Global, Noti
                 }
             };
 
+            // angular.element('#notification-5541ce9573b56bfa041ece6b').on('remove', function() {
+            //     alert('Element was removed');
+            // });
+
             $scope.setNotificationState = function(notification, state) {
-                // NotificationSocket.emit('notification:setBookmark', {
-                //     notification: notification._id,
-                //     state: state
-                // });
+                NotificationSocket.emit('notification:setBookmark', {
+                    notification: notification._id,
+                    state: state
+                });
                 if (state === 1) {
                     var catIndex = notification.event.category === 0 ? 2 : (notification.event.category === 1 ? 1 : (notification.event.category === 2 ? 0 : -1));
                     if (catIndex !== -1) {
-                        console.log(catIndex);
-                        console.log(angular.element('#notification-' + notification._id).addClass('removed-item'));
-                        $timeout(function() {
-                            angular.element('#notification-' + notification._id).remove();
-                        }, 1000);
+                            angular.forEach($scope.notifications, function(notif, index) {
+                                if (notif._id === notification._id)
+                                    $scope.notifications.splice(index, 1);
+                            });
                     }
                 } else if (state === 2) {
                     notification.state = state;
@@ -144,6 +147,10 @@ angular.module('mean.notifications').directive('notifier', function(Global, Noti
                     };
                 }
             };
+
+            $scope.$watchCollection('notifications', function() {
+                console.log('change on notifications');
+            });
 
         }
     };
