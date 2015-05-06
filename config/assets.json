@@ -6,7 +6,8 @@
                 "bower_components/angular-ui-tree/dist/angular-ui-tree.min.css",
                 "bower_components/angular-ui-select/dist/select.min.css",
                 "bower_components/ng-tags-input/ng-tags-input.min.css",
-                "bower_components/perfect-scrollbar/min/perfect-scrollbar.min.css"
+                "bower_components/perfect-scrollbar/min/perfect-scrollbar.min.css",
+                "bower_components/angular-material/angular-material.min.css"
             ]
         },
         "js": {
@@ -28,7 +29,10 @@
                 "bower_components/angular-audio/app/angular.audio.js",
                 "bower_components/perfect-scrollbar/min/perfect-scrollbar.min.js",
                 "bower_components/perfect-scrollbar/min/perfect-scrollbar.with-mousewheel.min.js",
-                "bower_components/angular-perfect-scrollbar/src/angular-perfect-scrollbar.js"
+                "bower_components/angular-perfect-scrollbar/src/angular-perfect-scrollbar.js",
+                "bower_components/angular-material/angular-material.min.js",
+                "bower_components/angular-animate/angular-animate.min.js",
+                "bower_components/angular-aria/angular-aria.min.js"
             ]
         }
     }
