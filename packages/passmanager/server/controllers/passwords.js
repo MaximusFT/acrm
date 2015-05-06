@@ -191,9 +191,8 @@ exports.all = function(req, res) {
     Pass.find().sort('group').exec(
         function(err, pass) {
             if (err) {
-                return res.render('error', {
-                    status: 500
-                });
+                console.log(err);
+                return res.status(500).send(err);
             } else {
                 return res.jsonp(pass);
             }

@@ -8,15 +8,13 @@
         <a href="#" class="profile-mini">
             <img src="//mapqo.com/addon/img/avatar.jpg" alt="{{global.user.name}}" />
         </a>
-        <div class="profile">
-            <div class="profile-image" data-ng-mouseover="showAvContr()" data-ng-mouseleave="hideAvContr()">
-                <img src="//mapqo.com/addon/img/avatar.jpg" alt="{{global.user.name}}" />
+        <div class="profile" data-ng-mouseover="showAvContr()" data-ng-mouseleave="hideAvContr()">
+            <div class="profile-image">
+                <img src="//mapqo.com/addon/img/avatar.jpg" alt="{{global.user.name}}" data-ng-mouseover="showAvContr()" data-ng-mouseleave="hideAvContr()" />
             </div>
-            <!--<div id="owner_photo_bubble_wrap" data-ng-mouseover="showAvContr()" data-ng-mouseleave="hideAvContr()">
-                <div class="owner_photo_bubble_action owner_photo_bubble_action_update">
-                    <span class="owner_photo_bubble_action_in">Change</span>
-                </div>
-            </div>-->
+            <div data-ng-show="changeUserPhoto" style="text-align:center;padding:6px;">
+                <span class="change-profile-photo" style="cursor:pointer;opacity:0.85;" data-ng-click="browsePhotoLoader()">Change profile photo</span>
+            </div>
             <div class="profile-data">
                 <div class="profile-data-name">{{global.user.name}}</div>
                 <div class="profile-data-title">{{role}}</div>

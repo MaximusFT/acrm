@@ -178,7 +178,7 @@ exports.provideAccessForMailbox = function(req, res) {
                                                 code: 'mailmanager::provideAccessForMailbox',
                                                 level: 'info',
                                                 targetPersons: users,
-                                                title: 'New mailbox' + (mails.length > 1 ? 'es were' : 'was') + ' shared with you',
+                                                title: 'New mailbox' + (mails.length > 1 ? 'es were' : ' was') + ' shared with you',
                                                 link: '/',
                                                 initPerson: req.user._id,
                                                 extraInfo: {
@@ -191,11 +191,11 @@ exports.provideAccessForMailbox = function(req, res) {
                                                 level: 'warning',
                                                 targetGroup: ['passAdmins'],
                                                 title: 'User' + (users.length > 1 ? 's have' : ' has') + ' been assigned access to mailbox' + (mails.length > 1 ? 's.' : '.'),
-                                                link: '/#!/manager/passwords',
+                                                link: '/#!/mail/u',
                                                 initPerson: req.user._id,
                                                 extraInfo: {
                                                     actionName: 'shared the mailbox' + (mails.length > 1 ? 'es.' : '.') + ' with user' + (users.length > 1 ? 's' : ''),
-                                                    clean: 'passwords - ' + _.map(pmails, 'mail').join(', ') + '; users - ' + _.map(pusers, 'name').join(', '),
+                                                    clean: 'mailboxes - ' + _.map(pmails, 'mail').join(', ') + '; users - ' + _.map(pusers, 'name').join(', '),
                                                     info: {
                                                         mails: mails,
                                                         users: users
@@ -218,27 +218,87 @@ exports.provideAccessForMailbox = function(req, res) {
 exports.revokeAccessForMailbox = function(req, res) {
     var users = req.body.users;
     var mails = req.body.mails;
-    mailBox
-        .update({
+    User
+        .find({
             _id: {
-                $in: mails
+                $in: users
             }
         }, {
-            $pullAll: {
-                'accessedFor': users
-            }
-        }, {
-            multi: true
-        })
-        .exec(function(err) {
+            name: 1
+        }, function(err, pusers) {
             if (err) {
                 console.log(err);
                 return res.status(500).send(err);
             } else {
-                return res.jsonp('ok');
+                mailBox
+                    .update({
+                        _id: {
+                            $in: mails
+                        }
+                    }, {
+                        $pullAll: {
+                            accessedFor: users
+                        }
+                    }, {
+                        multi: true
+                    })
+                    .exec(function(err) {
+                        if (err) {
+                            console.log(err);
+                            return res.status(500).send(err);
+                        } else {
+                            mailBox
+                                .find({
+                                    _id: {
+                                        $in: mails
+                                    }
+                                }, {
+                                    mail: 1
+                                }, function(err, pmails) {
+                                    if (err) {
+                                        console.log(err);
+                                        return res.status(500).send(err);
+                                    } else {
+                                        var sEvents = [{
+                                            category: 0,
+                                            code: 'mailmanager::revokeAccessForMailbox',
+                                            level: 'info',
+                                            targetPersons: users,
+                                            title: 'Acess to the mailbox' + (mails.length > 1 ? 'es were' : ' was') + ' revoked',
+                                            link: '/',
+                                            initPerson: req.user._id,
+                                            extraInfo: {
+                                                actionName: 'revoked your access to the mailbox' + (mails.length > 1 ? 'es' : ''),
+                                                clean: _.map(pmails, 'mail').join(', ')
+                                            }
+                                        }, {
+                                            category: 0,
+                                            code: 'mailmanager::revokeAccessForMailbox',
+                                            level: 'warning',
+                                            targetGroup: ['passAdmins'],
+                                            title: 'User' + (users.length > 1 ? 's have' : ' has') + ' been revoked access to the mailbox' + (mails.length > 1 ? 'es.' : '.'),
+                                            link: '/#!/mail/u',
+                                            initPerson: req.user._id,
+                                            extraInfo: {
+                                                actionName: 'revoked the mailbox' + (mails.length > 1 ? 'es.' : '.') + ' for user' + (users.length > 1 ? 's' : ''),
+                                                clean: 'mailboxes - ' + _.map(pmails, 'mail').join(', ') + '; users - ' + _.map(pusers, 'name').join(', '),
+                                                info: {
+                                                    mails: mails,
+                                                    users: users
+                                                }
+                                            }
+                                        }];
+                                        var EventProcessor = require('meanio').events;
+                                        EventProcessor.emit('notifications', sEvents);
+                                        return res.status(200).send();
+                                    }
+                                });
+                        }
+                    });
             }
         });
 };
+
 exports.synchronizemailboxes = function(req, res) {
     PackConfig
         .findOne({

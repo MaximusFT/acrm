@@ -1,13 +1,16 @@
 .body-full-height body .BlockContent {
     height: 100%;
 }
+
 .content-frame-fixed {
     width: 20%;
     position: fixed;
     top: 150px;
 }
+
 @media only screen and (max-width: 1024px) {
-    .page-container .page-content .content-frame .content-frame-left, .page-container .page-content .content-frame .content-frame-right {
+    .page-container .page-content .content-frame .content-frame-left,
+    .page-container .page-content .content-frame .content-frame-right {
         width: 100%;
         display: none;
         position: relative;
@@ -16,6 +19,11 @@
 }
 
 .angular-ui-tree-placeholder {
-  background: #f0f9ff !important;
-  border: 2px dashed #bed2db !important;
+    background: #f0f9ff !important;
+    border: 2px dashed #bed2db !important;
+}
+
+.change-profile-photo:hover {
+    opacity: 1;
+    color: white;
 }

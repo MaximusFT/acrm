@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('mean.system').controller('AsideController', ['$scope', '$rootScope', '$cookies', '$http', '$log', '$location', 'Global', 'Menus',
-    function($scope, $rootScope, $cookies, $http, $log, $location, Global, Menus) {
+angular.module('mean.system').controller('AsideController', ['$scope', '$rootScope', '$cookies', '$http', '$log', '$location', 'modalService', 'Global', 'Menus',
+    function($scope, $rootScope, $cookies, $http, $log, $location, modalService, Global, Menus) {
         $scope.global = Global;
         $scope.menus = {};
 
@@ -60,14 +60,31 @@ angular.module('mean.system').controller('AsideController', ['$scope', '$rootSco
                 angular.element('.xn-openable').removeClass('active');
         };
 
-        /*$scope.showAvContr = function() {
-            $log.info('show');
-            angular.element('.owner_photo_bubble_action').css('opacity', '1');
+        $scope.showAvContr = function() {
+            // $log.info('show');
+            // angular.element('.owner_photo_bubble_action').css('opacity', '1');
+            $scope.changeUserPhoto = true;
         };
 
         $scope.hideAvContr = function() {
-            $log.info('hide');
-            angular.element('.owner_photo_bubble_action').css('opacity', '0');
-        };*/
+            // $log.info('hide');
+            // angular.element('.owner_photo_bubble_action').css('opacity', '0');
+            $scope.changeUserPhoto = false;
+        };
+
+        $scope.browsePhotoLoader = function() {
+            // $log.info('lal');
+            var modalOptions = {
+                closeButtonText: 'Cancel',
+                actionButtonText: 'Confirm',
+                headerText: 'Choose profile photo',
+                bodyText: 'Specify the image.',
+                type: 14
+            };
+
+            modalService.showModal({}, modalOptions).then(function(result) {
+                $log.info(result);
+            });
+        };
     }
 ]);

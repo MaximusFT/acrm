@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('mean.usermanager').controller('NotificationsController', ['$scope', '$location', '$http', '$log', '$timeout', 'modalService', 'Global', 'ScrollTo',
+angular.module('mean.notifications').controller('NotificationsController', ['$scope', '$location', '$http', '$log', '$timeout', 'modalService', 'Global', 'ScrollTo',
     function($scope, $location, $http, $log, $timeout, modalService, Global, ScrollTo) {
         $scope.global = Global;
 

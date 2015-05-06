@@ -175,4 +175,9 @@ angular.module('mean.passmanager').controller('ModalInstanceCtrl', function($sco
             return action.res.RESPONSE && action.res.RESPONSE.status && typeof action.res.RESPONSE.status === 'object' && action.res.RESPONSE.status.length > 0 && action.res.RESPONSE.status[0] !== '1';
         }
     };
+
+    $scope.onFileSelect = function(files) {
+        $log.info('files', files);
+    };
+
 });

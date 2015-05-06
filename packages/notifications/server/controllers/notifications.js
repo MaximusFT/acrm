@@ -86,7 +86,7 @@ function actionPlusContext(event, cb) {
             msg += ' ' + event.extraInfo.clean;
         if (event.extraInfo.context) {
             if (event.extraInfo.context.model && event.extraInfo.context.field && event.extraInfo.context._id) {
-                mongoose.model(event.context.model)
+                mongoose.model(event.extraInfo.context.model)
                     .findOne({
                         _id: event.extraInfo.context._id
                     }, function(err, context) {
@@ -146,7 +146,7 @@ function checkUserNotificationsOptionsAndNotificate(results, io, callback) {
                             }, {
                                 roles: 1
                             }, function(err, curUser) {
-                                if(err)
+                                if (err)
                                     wfCallback(err);
                                 else
                                     wfCallback(null, curUser);
@@ -211,6 +211,10 @@ function checkUserNotificationsOptionsAndNotificate(results, io, callback) {
                         if (settings) {
                             if (sEvent.code) {
                                 var notificationSettings = _.filter(settings, function(setting) {
+                                    var codes = setting.code.split(',');
+                                    _.forEach(codes, function(code) {
+                                        code = code.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+                                    });
                                     return setting.code === sEvent.code;
                                 });
                                 if (notificationSettings.length > 0) {
@@ -245,7 +249,7 @@ function checkUserNotificationsOptionsAndNotificate(results, io, callback) {
                                         state: 1
                                     }
                                 }, function(err, numEffected) {
-                                    if(err) {
+                                    if (err) {
                                         cb(err);
                                     } else {
                                         cb(null, 'notification for user', notification.targetUser, 'was skipped by user options');

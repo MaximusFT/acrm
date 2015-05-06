@@ -11,6 +11,7 @@
 						<label>
 							<input type="checkbox" data-ng-model="setting.value" data-ng-change="onSettingChanged(setting)">
 							{{setting.name}}
+							<em data-ng-if="setting.def"><small>&nbsp;(not defined, enabled by default)</small></em>
 						</label>
 					</div>
 				</div>

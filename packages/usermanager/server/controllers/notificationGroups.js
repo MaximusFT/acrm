@@ -240,6 +240,10 @@ exports.userNotificationsSettings = function(req, res) {
                                                     });
                                                     if (userOption && userOption.length > 0)
                                                         setting.value = userOption[0].value;
+                                                    else {
+                                                        setting.value = true;
+                                                        setting.def = true;
+                                                    }
                                                 });
                                                 var result = _.chain(settings)
                                                     .groupBy('group')

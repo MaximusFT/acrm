@@ -8,6 +8,9 @@ angular.module('mean.notifications').config(['$stateProvider',
         }).state('notifications settings', {
         	url: '/users/:username/notifications-settings',
         	templateUrl: 'notifications/views/notificationsSettings.html'
+        }).state('notifications view', {
+        	url: '/notifications',
+        	templateUrl: 'notifications/views/notificationsView.html'
         });
     }
 ]);
