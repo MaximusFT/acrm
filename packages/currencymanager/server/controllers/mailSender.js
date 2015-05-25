@@ -1,6 +1,7 @@
 'use strict';
 
 var request = require('request');
+	// _ = require('lodash');
 
 exports.sendInstructions = function(req, res) {
 	if(!req.body.user)
@@ -19,7 +20,7 @@ exports.sendInstructions = function(req, res) {
         	return res.status(resp.statusCode).send(error);
         } else {
             console.log('result', body);      
-            return res.jsonp(body);      
+            return res.jsonp(body.trim());      
         }
     });
 };
