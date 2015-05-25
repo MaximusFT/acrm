@@ -1,0 +1,10 @@
+<section data-ng-controller="MailSenderController" style="padding: 20px;">
+	<legend>Mail sender</legend>
+	<p>Type name, surname and email of instructions recipient:</p>
+	<form data-ng-submit="sendInstructions(user)">
+		<input type="text" data-ng-model="user.name" placeholder="Name" required />
+		<input type="text" data-ng-model="user.surname" placeholder="Surname" />
+		<input type="email" data-ng-model="user.email" placeholder="Email" required />
+		<input class="btn btn-primary" type="submit" value="Send instructions" />
+	</form>
+</section>

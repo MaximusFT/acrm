@@ -96,7 +96,7 @@ function saveRequestInAcrm(actions, data, analyticsData, formId, callback) {
         }
     });
 
-    if (analyticsData && analyticsData.ip && analyticsData.ip === '195.138.91.97') {
+    if (analyticsData && analyticsData.ip && (analyticsData.ip === '195.138.91.97' || analyticsData.ip === '195.138.79.100' || analyticsData.ip === '195.138.79.98')) {
         requestData.state = 3;
         requestData.isRead = false;
     }
@@ -773,7 +773,7 @@ exports.requestTypes = function(req, res) {
         title: 'Хочу учиться в офисе'
     }, {
         id: 3,
-        title: ' Хочу инвестировать (ПерсТрейдер)'
+        title: 'Хочу инвестировать (ПерсТрейдер)'
     }, {
         id: 4,
         title: 'Хочу учиться дистанционно в Москве'
@@ -855,5 +855,17 @@ exports.requestTypes = function(req, res) {
     }, {
         id: 49,
         title: 'Финансовая справочная'
+    }, {
+        id: 52,
+        title: 'АБТ: Хочу учиться в офисе'
+    }, {
+        id: 53,
+        title: 'АБТ: Хочу учиться дистанционно'
+    }, {
+        id: 54,
+        title: 'АБТ: Регистрация на вебинар'
+    }, {
+        id: 55,
+        title: 'АБТ: Обратный звонок'
     }]);
 };

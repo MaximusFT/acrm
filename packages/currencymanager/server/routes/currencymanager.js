@@ -7,4 +7,7 @@ module.exports = function(Currencymanager, app, auth, database) {
     app.get('/api/getCurrencyPredictions', auth.requiresLogin, curmanager.getCurrencyPredictions);
     app.get('/api/getCurrencyPredictionsOutside', curmanager.getCurrencyPredictionsOutside);
     app.post('/api/saveCurrencyPredictions', auth.requiresLogin, curmanager.saveCurrencyPredictions);
+
+    var mailSender = require('../controllers/mailSender');
+    app.post('/api/sendInstructions', auth.requiresLogin, mailSender.sendInstructions);
 };
