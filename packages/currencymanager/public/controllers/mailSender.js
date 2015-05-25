@@ -19,10 +19,16 @@ angular.module('mean.currencymanager').controller('MailSenderController', ['$sco
             $http.post('/api/sendInstructions', {
                 user: user
             }).success(function(response) {
-                $log.info(response);
+                // $log.info(response);
+                $scope.response = response;
+                $scope.isSent = true;
             }).error(function(err, status) {
                 $log.error(err, status);
             });
+        };
+
+        $scope.setSentFalse = function() {
+            $scope.isSent = false;
         };
     }
 ]);
