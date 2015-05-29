@@ -302,9 +302,9 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
                         if (!actionData.config.comment) {
                             $scope.errors.push('Empty comment field (Send to Inside)');
                         }
-                        if (!actionData.config.email) {
-                            $scope.errors.push('Empty email field (Send to Inside)');
-                        }
+                        // if (!actionData.config.email) {
+                        //     $scope.errors.push('Empty email field (Send to Inside)');
+                        // }
                         if (actionData.isCheckboxes && (!actionData.config.checkboxes || actionData.config.checkboxes.length === 0)) {
                             $scope.errors.push('Empty checkboxes data (Send to Inside)');
                         }

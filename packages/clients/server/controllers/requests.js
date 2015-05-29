@@ -40,14 +40,17 @@ function saveRequestInAcrm(actions, data, analyticsData, formId, callback) {
         requestData.comment = options.comment;
     else
         requestData.comment = '';
-    var tmpE = _.filter(data, function(d) {
-        return d.htmlId === options.email;
-    });
-    if (tmpE.length === 0 || !tmpE[0].value) {
-        response.error = 'Empty email value';
-        return callback(response);
+    if (options.email) {
+        var tmpE = _.filter(data, function(d) {
+            return d.htmlId === options.email;
+        });
+        // if (tmpE.length === 0 || !tmpE[0].value) {
+        //     response.error = 'Empty email value';
+        //     return callback(response);
+        // }
+        if (tmpE.length > 0)
+            requestData.email = tmpE[0].value;
     }
-    requestData.email = tmpE[0].value;
     var tmpN = _.filter(data, function(d) {
         return d.htmlId === options.name;
     });
@@ -126,10 +129,10 @@ function sendToInside(actions, data, analyticsData, callback) {
     }
     var options = temp[0].config;
 
-    if (!options.email) {
-        response.error = 'Empty email option';
-        return callback(response);
-    }
+    // if (!options.email) {
+    //     response.error = 'Empty email option';
+    //     return callback(response);
+    // }
     var postData = {};
     if (!options.isOfficeIdField) {
         postData.office_id = options.officeId;
@@ -168,11 +171,12 @@ function sendToInside(actions, data, analyticsData, callback) {
     var tmpE = _.filter(data, function(d) {
         return d.htmlId === options.email;
     });
-    if (tmpE.length === 0) {
-        response.error = 'Empty email value';
-        return callback(response);
-    }
-    postData.email = tmpE[0].value;
+    // if (tmpE.length === 0) {
+    //     response.error = 'Empty email value';
+    //     return callback(response);
+    // }
+    if (tmpE.length > 0)
+        postData.email = tmpE[0].value;
     var tmpN = _.filter(data, function(d) {
         return d.htmlId === options.name;
     });
