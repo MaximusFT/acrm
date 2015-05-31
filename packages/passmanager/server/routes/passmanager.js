@@ -9,7 +9,7 @@ module.exports = function(Passmanager, app, auth, database) {
     app.post('/api/passes', auth.requiresManager, passwords.create);
     app.put('/api/passes/:passId', auth.requiresManager, passwords.update);
     app.delete('/api/passes/:passId', auth.requiresAdmin, passwords.destroy);
-    app.get('/api/getGroups', auth.requiresManager, passwords.groups);
+    app.get('/api/getGroups', auth.requiresAdmin, passwords.groups);
     app.get('/api/getAcsGroups', auth.requiresManager, passwords.acsgroups);
     app.get('/api/getPassesByGroup', auth.requiresManager, passwords.passesByGroup);
     app.delete('/api/deletePass', auth.requiresAdmin, passwords.delPass);

@@ -225,87 +225,22 @@ function groupBy(data) {
 }
 
 exports.groups = function(req, res) {
-    User.findOne({
-        _id: req.user._id
-    }, {
-        '_id': 0,
-        'department': 1,
-        'roles': 1
+    Pass.find({}, {
+        'accessedFor': 0
+    }).sort({
+        'group': 1,
+        'implement': 1,
+        'resourceName': 1,
+        'email': 1
     }).exec(
-        function(err, user) {
+        function(err, pass) {
             if (err) {
-                res.render('error', {
+                return res.render('error', {
                     status: 500
                 });
             } else {
-                var roles = user.roles;
-                if (roles.indexOf('admin') !== -1) {
-                    Pass.find({}, {
-                        'accessedFor': 0
-                    }).sort({
-                        'group': 1,
-                        'implement': 1,
-                        'resourceName': 1,
-                        'email': 1
-                    }).exec(
-                        function(err, pass) {
-                            if (err) {
-                                return res.render('error', {
-                                    status: 500
-                                });
-                            } else {
-                                var result = groupBy(pass);
-                                return res.jsonp(result);
-                            }
-                        });
-                }
-                if (roles.indexOf('manager') !== -1) {
-                    Pass.find({}, {
-                        'group': 1,
-                        'implement': 1,
-                        'resourceName': 1,
-                        'resourceUrl': 1
-                    }).sort({
-                        'group': 1,
-                        'implement': 1,
-                        'resourceName': 1,
-                        'email': 1
-                    }).exec(
-                        function(err, passes) {
-                            if (err) {
-                                return res.render('error', {
-                                    status: 500
-                                });
-                            } else {
-                                var result = groupBy(passes);
-                                return res.jsonp(result);
-                            }
-                        });
-                }
-                if (roles.indexOf('employee') !== -1) {
-                    Pass.find({
-                        accessedFor: {
-                            $in: [req.user._id]
-                        }
-                    }, {
-                        'accessedFor': 0
-                    }).sort({
-                        'group': 1,
-                        'implement': 1,
-                        'resourceName': 1,
-                        'email': 1
-                    }).exec(
-                        function(err, pass) {
-                            if (err) {
-                                return res.render('error', {
-                                    status: 500
-                                });
-                            } else {
-                                var result = groupBy(pass);
-                                return res.jsonp(result);
-                            }
-                        });
-                }
+                var result = groupBy(pass);
+                return res.jsonp(result);
             }
         });
 };
