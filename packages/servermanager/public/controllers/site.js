@@ -448,7 +448,11 @@ angular.module('mean.servermanager').controller('SiteController', ['$scope', '$h
         };
 
         $scope.addOfficeIdOptions = function(config) {
+            if (!config.officeIdFieldOptions.values)
+                config.officeIdFieldOptions.values = [];
             config.officeIdFieldOptions.values.push('');
+            if (!config.officeIdFieldOptions.officeIds)
+                config.officeIdFieldOptions.officeIds = [];
             config.officeIdFieldOptions.officeIds.push('');
         };
 

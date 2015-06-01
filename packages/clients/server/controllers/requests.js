@@ -147,19 +147,24 @@ function sendToInside(actions, data, analyticsData, callback) {
             return callback(response);
         }
         //console.log(tmpOf);
-        _.forEach(options.officeIdFieldOptions.officeIds, function(officeId, index) {
-            //console.log(options.officeIdFieldOptions.officeIds[index], typeof options.officeIdFieldOptions.officeIds[index]);
-            if (tmpOf[0].value === options.officeIdFieldOptions.values[index]) {
-                var parsed = parseInt(options.officeIdFieldOptions.officeIds[index]);
-                //console.log('parsed', parsed);
-                if (!isNaN(parsed)) {
-                    postData.office_id = parsed;
-                } else {
-                    response.error = 'Office ID is NaN (' + tmpOf[0].value + ')';
-                    return callback(response);
+        if (options.officeIdOptType === 'byValue') {
+            postData.office_id = tmpOf[0].value;
+        }
+        if (options.officeIdOptType === 'byAccord') {
+            _.forEach(options.officeIdFieldOptions.officeIds, function(officeId, index) {
+                //console.log(options.officeIdFieldOptions.officeIds[index], typeof options.officeIdFieldOptions.officeIds[index]);
+                if (tmpOf[0].value === options.officeIdFieldOptions.values[index]) {
+                    var parsed = parseInt(options.officeIdFieldOptions.officeIds[index]);
+                    //console.log('parsed', parsed);
+                    if (!isNaN(parsed)) {
+                        postData.office_id = parsed;
+                    } else {
+                        response.error = 'Office ID is NaN (' + tmpOf[0].value + ')';
+                        return callback(response);
+                    }
                 }
-            }
-        });
+            });
+        }
         if (!postData.office_id) {
             //console.log('nope2');
             response.error = 'Empty office ID field value';

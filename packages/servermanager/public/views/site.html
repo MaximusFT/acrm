@@ -254,46 +254,72 @@
                                         <i data-ng-show="action.config.isOfficeIdField" class="glyphicon glyphicon-plus" data-ng-click="addOfficeIdOptions(action.config)" style="float:right;cursor:pointer;"></i>
                                     </div>
                                     <div data-ng-if="action.config.isOfficeIdField">
-                                        <div style="float:right;">
-                                            <label for="irm3">Remove mode</label>
-                                            <input id="irm3" type="checkbox" class="btn" data-ng-model="removeMode3" />
+                                        <div class="form-group">
+                                            <div class="col-md-6">
+                                                <label class="check">
+                                                    <div style="position: relative;">
+                                                        <input type="radio" name="officeIdOptType" data-ng-model="action.config.officeIdOptType" value="byValue" />
+                                                    </div>
+                                                    By value
+                                                </label>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="check">
+                                                    <div style="position: relative;">
+                                                        <input type="radio" name="officeIdOptType" data-ng-model="action.config.officeIdOptType" value="byAccord" />
+                                                    </div>
+                                                    By according values
+                                                </label>
+                                            </div>
                                         </div>
-                                        <table class="table table-striped table-bordered table-hover editable-table">
-                                            <tr>
-                                                <th>Field</th>
-                                                <th style="text-align:center;">
-                                                    <i class="fa fa-arrows-h"></i>
-                                                </th>
-                                            </tr>
-                                            <tr>
-                                                <td class="table-editable-cell">
-                                                    <ui-select class="col-md-6" style="width:100%;" data-ng-model="action.config.officeIdFieldOptions.field" data-ng-change="updateBindedData()">
-                                                    <ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
-                                                    <ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}} ({{data.comment ? data.comment : '?'}})</ui-select-choices>
-                                                    </ui-select>
-                                                </td>
-                                                <td class="table-editable-cell">
-                                                    <table class="table table-striped table-bordered table-hover editable-table">
-                                                        <tr>
-                                                            <th>Value</th>
-                                                            <th>OfficeID</th>
-                                                            <th data-ng-show="removeMode3">Remove</th>
-                                                        </tr>
-                                                        <tr data-ng-repeat="val in action.config.officeIdFieldOptions.values track by $index">
-                                                            <td class="table-editable-cell">
-                                                                <span class="editable-span" style="display:block;" data-ng-editable="updateBindedData()" data-ng-editable-model="action.config.officeIdFieldOptions.values[$index]"></span>
-                                                            </td>
-                                                            <td class="table-editable-cell">
-                                                                <span class="editable-span" style="display:block;" data-ng-editable="updateBindedData()" data-ng-editable-model="action.config.officeIdFieldOptions.officeIds[$index]"></span>
-                                                            </td>
-                                                            <td data-ng-show="removeMode3">
-                                                                <i class="glyphicon glyphicon-trash btn btn-xs btn-danger" data-ng-click="removeOfficeIdOptions(action.config, $index)"></i>
-                                                            </td>
-                                                        </tr>
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                        </table>
+                                        <div data-ng-if="action.config.officeIdOptType === 'byValue'">
+                                            <ui-select class="col-md-6" style="width:100%;" data-ng-model="action.config.officeIdFieldOptions.field" data-ng-change="updateBindedData()">
+                                                <ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
+                                                <ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}} ({{data.comment ? data.comment : '?'}})</ui-select-choices>
+                                            </ui-select>
+                                        </div>
+                                        <div data-ng-if="action.config.officeIdOptType === 'byAccord'">
+                                            <div style="float:right;">
+                                                <label for="irm3">Remove mode</label>
+                                                <input id="irm3" type="checkbox" class="btn" data-ng-model="removeMode3" />
+                                            </div>
+                                            <table class="table table-striped table-bordered table-hover editable-table">
+                                                <tr>
+                                                    <th>Field</th>
+                                                    <th style="text-align:center;">
+                                                        <i class="fa fa-arrows-h"></i>
+                                                    </th>
+                                                </tr>
+                                                <tr>
+                                                    <td class="table-editable-cell">
+                                                        <ui-select class="col-md-6" style="width:100%;" data-ng-model="action.config.officeIdFieldOptions.field" data-ng-change="updateBindedData()">
+                                                            <ui-select-match placeholder="Select field...">{{$select.selected.htmlId}}</ui-select-match>
+                                                            <ui-select-choices repeat="data.htmlId as data in bindedData | filter:$select.search">{{data.htmlId}} ({{data.comment ? data.comment : '?'}})</ui-select-choices>
+                                                        </ui-select>
+                                                    </td>
+                                                    <td class="table-editable-cell">
+                                                        <table class="table table-striped table-bordered table-hover editable-table">
+                                                            <tr>
+                                                                <th>Value</th>
+                                                                <th>OfficeID</th>
+                                                                <th data-ng-show="removeMode3">Remove</th>
+                                                            </tr>
+                                                            <tr data-ng-repeat="val in action.config.officeIdFieldOptions.values track by $index">
+                                                                <td class="table-editable-cell">
+                                                                    <span class="editable-span" style="display:block;" data-ng-editable="updateBindedData()" data-ng-editable-model="action.config.officeIdFieldOptions.values[$index]"></span>
+                                                                </td>
+                                                                <td class="table-editable-cell">
+                                                                    <span class="editable-span" style="display:block;" data-ng-editable="updateBindedData()" data-ng-editable-model="action.config.officeIdFieldOptions.officeIds[$index]"></span>
+                                                                </td>
+                                                                <td data-ng-show="removeMode3">
+                                                                    <i class="glyphicon glyphicon-trash btn btn-xs btn-danger" data-ng-click="removeOfficeIdOptions(action.config, $index)"></i>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                                 <div data-ng-if="action.name === 'Send to Inside' || action.name === 'Save in ACRM'">
