@@ -135,31 +135,42 @@ exports.delete = function(req, res) {
                 return res.status(500).send(err);
             } else {
                 if (form) {
-                    Form
+                    FormBindedData
                         .remove({
-                            _id: req.params.form
-                        }, function(err) {
+                            form: req.params.form
+                        }, function(err, numAffected) {
                             if (err) {
                                 console.log(err);
                                 return res.status(500).send(err);
                             } else {
-                                var sEvent = {
-                                    category: 0,
-                                    code: 'servermanager::form::delete',
-                                    level: 'danger',
-                                    targetGroup: ['infrastructureAdmins', 'clientRequestAdmins'],
-                                    title: 'Form was removed.',
-                                    link: '/#!/servers',
-                                    initPerson: req.user._id,
-                                    extraInfo: {
-                                        actionName: 'removed the form',
-                                        clean: form.formId + ' on ' + form.uri,
-                                        info: form
-                                    }
-                                };
-                                var EventProcessor = require('meanio').events;
-                                EventProcessor.emit('notification', sEvent);
-                                res.status(200).send();
+                                console.log(numAffected + ' formBindedData removed');
+                                Form
+                                    .remove({
+                                        _id: req.params.form
+                                    }, function(err) {
+                                        if (err) {
+                                            console.log(err);
+                                            return res.status(500).send(err);
+                                        } else {
+                                            var sEvent = {
+                                                category: 0,
+                                                code: 'servermanager::form::delete',
+                                                level: 'danger',
+                                                targetGroup: ['infrastructureAdmins', 'clientRequestAdmins'],
+                                                title: 'Form was removed.',
+                                                link: '/#!/servers',
+                                                initPerson: req.user._id,
+                                                extraInfo: {
+                                                    actionName: 'removed the form',
+                                                    clean: form.formId + ' on ' + form.uri,
+                                                    info: form
+                                                }
+                                            };
+                                            var EventProcessor = require('meanio').events;
+                                            EventProcessor.emit('notification', sEvent);
+                                            res.status(200).send();
+                                        }
+                                    });
                             }
                         });
                 } else {
