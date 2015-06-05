@@ -6,24 +6,24 @@ module.exports = function(servers, app, auth, database) {
         sites = require('../controllers/sites.js'),
         forms = require('../controllers/forms.js');
 
-    app.post('/api/server', auth.requiresAdmin, servermgr.create);
-    app.get('/api/servers_', auth.requiresAdmin, servermgr.servers);
-    app.get('/api/server', auth.requiresAdmin, servermgr.server);
-    app.delete('/api/server', auth.requiresAdmin, servermgr.deleteServer);
-    app.put('/api/server/:server', auth.requiresAdmin, servermgr.updateServer);
+    app.post('/api/server', auth.requiresAdminAndKostya, servermgr.create);
+    app.get('/api/servers_', auth.requiresAdminAndKostya, servermgr.servers);
+    app.get('/api/server', auth.requiresAdminAndKostya, servermgr.server);
+    app.delete('/api/server', auth.requiresAdminAndKostya, servermgr.deleteServer);
+    app.put('/api/server/:server', auth.requiresAdminAndKostya, servermgr.updateServer);
 
-    app.post('/api/site', auth.requiresAdmin, sites.create);
-    app.get('/api/sites', auth.requiresAdmin, sites.sites);
-    app.delete('/api/site/:site', auth.requiresAdmin, sites.deleteSite);
-    app.put('/api/site/:site', auth.requiresAdmin, sites.updateSite);
-    app.get('/api/site/:site', auth.requiresAdmin, sites.getSite);
+    app.post('/api/site', auth.requiresAdminAndKostya, sites.create);
+    app.get('/api/sites', auth.requiresAdminAndKostya, sites.sites);
+    app.delete('/api/site/:site', auth.requiresAdminAndKostya, sites.deleteSite);
+    app.put('/api/site/:site', auth.requiresAdminAndKostya, sites.updateSite);
+    app.get('/api/site/:site', auth.requiresAdminAndKostya, sites.getSite);
 
-    app.get('/api/forms', auth.requiresAdmin, forms.forms);
-    app.post('/api/form', auth.requiresAdmin, forms.create);
-    app.get('/api/form', auth.requiresAdmin, forms.form);
-    app.delete('/api/form/:form', auth.requiresAdmin, forms.delete);
-    app.put('/api/form/:form', auth.requiresAdmin, forms.update);
+    app.get('/api/forms', auth.requiresAdminAndKostya, forms.forms);
+    app.post('/api/form', auth.requiresAdminAndKostya, forms.create);
+    app.get('/api/form', auth.requiresAdminAndKostya, forms.form);
+    app.delete('/api/form/:form', auth.requiresAdminAndKostya, forms.delete);
+    app.put('/api/form/:form', auth.requiresAdminAndKostya, forms.update);
 
-    app.post('/api/formData', auth.requiresAdmin, forms.formData);
-    app.delete('/api/formData/:formData', auth.requiresAdmin, forms.deleteFormData);
+    app.post('/api/formData', auth.requiresAdminAndKostya, forms.formData);
+    app.delete('/api/formData/:formData', auth.requiresAdminAndKostya, forms.deleteFormData);
 };

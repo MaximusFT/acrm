@@ -145,22 +145,29 @@ exports.getSite = function(req, res) {
                 return res.status(500).send(err);
             } else {
                 if (site) {
-                    Pass
-                        .find({
-                            forSite: site._id
-                        }, {
-                            accessedFor: 0
-                        }, function(err, passes) {
-                            if (err) {
-                                console.log(err);
-                                return res.status(500).send(err);
-                            } else {
-                                return res.jsonp({
-                                    site: site,
-                                    passwords: passes
-                                });
-                            }
+                    if (JSON.stringify(req.user._id) === JSON.stringify(mongoose.Types.ObjectId('5485718617cbc47241ef8fe9')) || JSON.stringify(req.user._id) === JSON.stringify(mongoose.Types.ObjectId('545b5546cdc04778266abf2d'))) {
+                        return res.jsonp({
+                            site: site,
+                            passwords: []
                         });
+                    } else {
+                        Pass
+                            .find({
+                                forSite: site._id
+                            }, {
+                                accessedFor: 0
+                            }, function(err, passes) {
+                                if (err) {
+                                    console.log(err);
+                                    return res.status(500).send(err);
+                                } else {
+                                    return res.jsonp({
+                                        site: site,
+                                        passwords: passes
+                                    });
+                                }
+                            });
+                    }
                 } else
                     return res.status(500).send('Site was not found');
             }
