@@ -1,3 +1,3 @@
 'use strict';
 
-angular.module('mean.currencymanager', []);
+angular.module('mean.currencymanager', ['textAngular']);

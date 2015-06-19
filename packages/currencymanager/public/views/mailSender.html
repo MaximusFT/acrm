@@ -1,16 +1,55 @@
 <section data-ng-controller="MailSenderController" style="padding: 20px;">
 	<legend>Mail sender</legend>
-	<div data-ng-if="!isSent">
-		<p>Type name, surname and email of instructions recipient:</p>
-		<form data-ng-submit="sendInstructions(user)">
-			<input type="text" data-ng-model="user.name" placeholder="Name" required />
-			<input type="text" data-ng-model="user.surname" placeholder="Surname" />
-			<input type="email" data-ng-model="user.email" placeholder="Email" required />
-			<input class="btn btn-primary" type="submit" value="Send instructions" />
-		</form>
+
+	<div class="panel panel-default">
+		<div class="panel-heading">MetaTrader instructions</div>
+		<div class="panel-body">
+			<div data-ng-if="!isSent">
+				<p>Type name, surname and email of instructions recipient:</p>
+				<form data-ng-submit="sendInstructions(user)">
+					<input type="text" data-ng-model="user.name" placeholder="Name" required />
+					<input type="text" data-ng-model="user.surname" placeholder="Surname" />
+					<input type="email" data-ng-model="user.email" placeholder="Email" required />
+					<input class="btn btn-primary" type="submit" value="{{ isSending ? 'Wait. Sending...' : 'Send instrcutions' }}" data-ng-disabled="isSending" />
+				</form>
+			</div>
+			<alert type="{{ !response ? 'success' : 'warning' }}" data-ng-if="isSent" close="setSentFalse()">
+				<span data-ng-if="!response">Email was successfully sent</span>
+				<span data-ng-if="response">Some error has occured: {{response}}</span>
+			</alert>
+		</div>
 	</div>
-	<alert type="{{ !response ? 'success' : 'warning' }}" data-ng-if="isSent" close="setSentFalse()">
-		<span data-ng-if="!response">Email was successfully sent</span>
-		<span data-ng-if="response">Some error has occured: {{response}}</span>
-	</alert>
+	<br />
+	<div class="panel panel-default">
+		<div class="panel-heading">ABT (недозвон)</div>
+		<div class="panel-body">
+			<div data-ng-if="!isSent2">
+				<p>Type recipient and text:</p>
+				<form class="form-horizontal" data-ng-submit="sendInstructions2(data)">
+					<div class="form-group">
+						<label for="inputEmail" class="col-sm-2 control-label">Email</label>
+						<div class="col-sm-10">
+							<input type="email" class="form-control" id="inputEmail" placeholder="Email" data-ng-model="data.email" required />
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputPassword3" class="col-sm-2 control-label">Text</label>
+						<div class="col-sm-10">
+							<!-- <textarea type="text" class="form-control" data-ng-model="data.text" placeholder="Text" required></textarea> -->
+							<text-angular data-ng-model="data.text"></text-angular>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-offset-10 col-sm-2">
+							<button type="submit" class="btn btn-primary" data-ng-disabled="isSending2">{{ isSending2 ? 'Wait. Sending...' : 'Send' }}</button>
+						</div>
+					</div>
+				</form>
+			</div>
+			<alert type="{{ !response2 ? 'success' : 'warning' }}" data-ng-if="isSent2" close="setSentFalse2()">
+				<span data-ng-if="!response2">Email was successfully sent</span>
+				<span data-ng-if="response2">Some error has occured: {{response2}}</span>
+			</alert>
+		</div>
+	</div>
 </section>

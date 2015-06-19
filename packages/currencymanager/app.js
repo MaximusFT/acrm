@@ -16,6 +16,8 @@ Currencymanager.register(function(app, auth, database) {
   //We enable routing. By default the Package Object is passed to the routes
   Currencymanager.routes(app, auth, database);
 
+  Currencymanager.angularDependencies(['textAngular']);
+
   //We are adding a link to the main menu for all authenticated users
   /*Currencymanager.menus.add({
     title: 'Currency Manager',

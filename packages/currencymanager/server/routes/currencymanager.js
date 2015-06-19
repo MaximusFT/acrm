@@ -10,4 +10,5 @@ module.exports = function(Currencymanager, app, auth, database) {
 
     var mailSender = require('../controllers/mailSender');
     app.post('/api/sendInstructions', auth.requiresLogin, mailSender.sendInstructions);
+    app.post('/api/sendInstructions2', auth.requiresLogin, mailSender.sendInstructions2);
 };
