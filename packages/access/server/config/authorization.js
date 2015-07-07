@@ -64,7 +64,7 @@ exports.requiresAdminAndKostya = function(req, res, next) {
                 return res.status(500).send(err);
             } else {
                 if(user) {
-                    if(user.roles && user.roles.indexOf('admin') === -1 && JSON.stringify(user._id) !== JSON.stringify(mongoose.Types.ObjectId('5485718617cbc47241ef8fe9')) && JSON.stringify(user._id) !== JSON.stringify(mongoose.Types.ObjectId('545b5546cdc04778266abf2d')))
+                    if(user.roles && user.roles.indexOf('admin') === -1 && JSON.stringify(user._id) !== JSON.stringify(mongoose.Types.ObjectId('5593f8bb9987a6e472b07b17')))
                         return res.status(403).send('Access denied');
                     next();
                 } else {
