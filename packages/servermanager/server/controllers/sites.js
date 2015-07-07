@@ -145,7 +145,7 @@ exports.getSite = function(req, res) {
                 return res.status(500).send(err);
             } else {
                 if (site) {
-                    if (JSON.stringify(req.user._id) === JSON.stringify(mongoose.Types.ObjectId('5485718617cbc47241ef8fe9')) || JSON.stringify(req.user._id) === JSON.stringify(mongoose.Types.ObjectId('545b5546cdc04778266abf2d'))) {
+                    if (JSON.stringify(req.user._id) === JSON.stringify(mongoose.Types.ObjectId('5593f8bb9987a6e472b07b17')) || JSON.stringify(req.user._id) === JSON.stringify(mongoose.Types.ObjectId('545b5546cdc04778266abf2d'))) {
                         return res.jsonp({
                             site: site,
                             passwords: []
