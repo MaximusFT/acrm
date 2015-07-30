@@ -16,4 +16,5 @@ module.exports = function(Mailmanager, app, auth, database) {
     app.get ('/api/getMailConfig', auth.requiresLogin, mailmanager.getConfig);
     app.post ('/api/getOneMailbox', auth.requiresLogin, mailmanager.getOneMailbox);
     app.get ('/api/searchMailboxes', auth.requiresLogin, mailmanager.searchMailboxes);
+    app.post('/api/deassignMailbox', auth.requiresAdmin, mailmanager.deassignMailbox);
 };

@@ -590,3 +590,24 @@ exports.updateConfig = function(req, res) {
             }
         });
 };
+
+exports.deassignMailbox = function(req, res) {
+    if (!req.body.mailbox)
+        return res.status(400).send('Bad query');
+    mailBox
+        .update({
+            _id: req.body.mailbox
+        }, {
+            $set: {
+                accessedFor: []
+            }
+        }, function(err, numAffected) {
+            if (err) {
+                console.log(err);
+                return res.status(500).send(err);
+            } else {
+                console.log('updated', numAffected);
+                return res.status(200).send();
+            }
+        });
+};

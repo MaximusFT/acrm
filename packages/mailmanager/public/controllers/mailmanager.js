@@ -254,6 +254,18 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
             });
         };
 
+        $scope.clearAccess = function(mailbox) {
+            // $log.info(mailbox);
+            $http.post('/api/deassignMailbox', {
+                mailbox: mailbox._id
+            }).success(function(response) {
+                $log.info(response);
+            }).error(function(err, status) {
+                $log.error(err, status);
+                $location.url('/error/' + status);
+            });
+        };
+
 
     }
 ]);
