@@ -336,7 +336,7 @@ exports.getNewDeps = function(req, res) {
                                     console.log(err);
                                     return res.status(500).send(err);
                                 } else {
-                                    if (user.roles.indexOf('admin') !== -1 || JSON.stringify(user._id) === JSON.stringify('5593f8bb9987a6e472b07b17')) {
+                                    if (user.roles.indexOf('admin') !== -1 || JSON.stringify(user._id) === JSON.stringify('5593f8bb9987a6e472b07b17') || JSON.stringify(user._id) === JSON.stringify('5485718617cbc47241ef8fe9')) {
                                         NewDepartment
                                             .find({
                                                 _id: {
@@ -420,7 +420,7 @@ exports.getNewDeps = function(req, res) {
                                 }
                             });
                     } else {
-                        if (user.roles.indexOf('admin') !== -1 || JSON.stringify(user._id) === JSON.stringify('5593f8bb9987a6e472b07b17')) {
+                        if (user.roles.indexOf('admin') !== -1 || JSON.stringify(user._id) === JSON.stringify('5593f8bb9987a6e472b07b17') || JSON.stringify(user._id) === JSON.stringify('5485718617cbc47241ef8fe9')) {
                             NewDepartment
                                 .find()
                                 .lean()
