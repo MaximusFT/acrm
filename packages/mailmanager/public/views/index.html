@@ -27,7 +27,7 @@
                     <div class="btn-toolbar" role="toolbar">
                         <div class="btn-group-vertical btn-block" role="group">
                             <a class="btn btn-warning" data-ng-disabled="isSomeSelected" data-ng-click="assignToPerson()">Assign to person</a>
-                            <a class="btn btn-danger" data-ng-disabled="isSomeSelected" data-ng-click="remove()">Remove selected</a>
+                            <!-- <a class="btn btn-danger" data-ng-disabled="isSomeSelected" data-ng-click="remove()">Remove selected</a> -->
                             <a class="btn btn-primary" data-ng-disabled="isSomeSelected" data-ng-click="revoke()">Revoke selected</a>
                         </div>
                         <div class="btn-group-vertical btn-block" role="group">
@@ -71,7 +71,7 @@
                                 <tr data-ng-repeat="box in mailbox.data | filter:search" class="ng-scope">
                                     <td>{{$index+1}}</td>
                                     <td>
-                                        <input type="checkbox" data-ng-model="box.Selected" data-ng-click="checkMail(sectionIndex, $index, box)"></td>
+                                        <input type="checkbox" data-ng-model="box.Selected" data-ng-change="checkMail()"></td>
                                     <td>{{box.mail}}</td>
                                     <td>
                                         <progressbar class="progress-striped active" value="box.quota" type="success"> <b style="color:black">{{box.quota}}%</b>

@@ -11,7 +11,7 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
         $scope.mailboxes = [];
         $scope.domains = [];
         $scope.isSomeSelected = true;
-        $scope.isMailSelected = [];
+        // $scope.isMailSelected = [];
         $scope.tempdomain = '';
         $scope.domainAddState = false;
         $scope.autologinStatus = true;
@@ -20,50 +20,78 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
             isFirstOpen: true,
             isFirstDisabled: false
         };
-        $scope.checkMail = function(sectionIndex, index, mail) {
-            if (!$scope.isMailSelected[sectionIndex])
-                $scope.isMailSelected[sectionIndex] = [];
-            if (mail.Selected === false)
-                $scope.isMailSelected[sectionIndex][index] = false;
-            if (mail.Selected === true)
-                $scope.isMailSelected[sectionIndex][index] = true;
-            $scope.isSomeSelected = checkSelections();
-
-        };
 
         function checkSelections() {
             var ret = false;
-            $scope.isMailSelected.forEach(function(group) {
-                angular.forEach(group, function(mail) {
-                    if (mail === true)
+            angular.forEach($scope.mailboxes, function(mailbox) {
+                angular.forEach(mailbox.data, function(box) {
+                    if (box.Selected === true)
                         ret = true;
                 });
             });
             return !ret;
         }
 
+        $scope.checkMail = function(sectionIndex, index, box) {
+            // if (!$scope.isMailSelected[sectionIndex])
+            //     $scope.isMailSelected[sectionIndex] = [];
+            // if (mail.Selected === false)
+            //     $scope.isMailSelected[sectionIndex][index] = false;
+            // if (mail.Selected === true)
+            //     $scope.isMailSelected[sectionIndex][index] = true;
+            $scope.isSomeSelected = checkSelections();
+        };
+
         function unselectAll() {
-            angular.forEach($scope.mailboxes, function(group) {
-                angular.forEach(group.data, function(mail) {
-                    if (mail.Selected === true) {
-                        mail.Selected = false;
+            angular.forEach($scope.mailboxes, function(mailbox) {
+                angular.forEach(mailbox.data, function(box) {
+                    if (box.Selected === true) {
+                        box.Selected = false;
                     }
 
                 });
             });
-            $scope.isMailSelected = [];
+            // $scope.isMailSelected = [];
             $scope.isSomeSelected = true;
         }
+
+        function getSelected() {
+            var mails = [];
+             angular.forEach($scope.mailboxes, function(mailbox) {
+                angular.forEach(mailbox.data, function(box) {
+                    if (box.Selected === true)
+                        mails.push(box._id);
+                });
+            });
+            $log.debug(mails);
+            return mails;
+        }
+
         $scope.selectAll = function(sectionIndex) {
-            var clear;
-            if ($scope.isMailSelected[sectionIndex] && $scope.isMailSelected[sectionIndex][0] === true)
-                clear = false;
-            else
-                clear = true;
-            for (var i = 0; i < $scope.mailboxes[sectionIndex].data.length; i += 1) {
-                $scope.mailboxes[sectionIndex].data[i].Selected = clear;
-                $scope.checkMail(sectionIndex, i, $scope.mailboxes[sectionIndex].data[i]);
-            }
+            // var clear;
+            // if ($scope.isMailSelected[sectionIndex] && $scope.isMailSelected[sectionIndex][0] === true)
+            //     clear = false;
+            // else
+            //     clear = true;
+            // for (var i = 0; i < $scope.mailboxes[sectionIndex].data.length; i += 1) {
+            //     $scope.mailboxes[sectionIndex].data[i].Selected = clear;
+            //     $scope.checkMail(sectionIndex, i, $scope.mailboxes[sectionIndex].data[i]);
+            // }
+             var ret = false;
+            // checking is already the selection in section
+            angular.forEach($scope.mailboxes, function(mailbox) {
+                angular.forEach(mailbox.data, function(box) {
+                    if (box.Selected === true) {
+                        ret = true;
+                    }
+                });
+            });
+            // if selection exists - remove it, doesn't exist – select all
+            angular.forEach($scope.mailboxes, function(mailbox) {
+                angular.forEach(mailbox.data, function(box) {
+                    box.Selected = !ret;
+                });
+            });
             $scope.isSomeSelected = checkSelections();
         };
         $scope.sortbyfield = function(sectionIndex, field) {
@@ -71,9 +99,9 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
                 return a[field] < b[field] ? 1 : -1;
             });
         };
-        $scope.remove = function() {
-            unselectAll();
-        };
+        // $scope.remove = function() {
+        //     unselectAll();
+        // };
         $scope.revoke = function() {
             var modalOptions = {
                 closeButtonText: 'Cancel',
@@ -84,16 +112,7 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
             };
 
             modalService.showModal({}, modalOptions).then(function(result) {
-                var mails = [];
-                angular.forEach($scope.isMailSelected, function(group, gind) {
-                    angular.forEach(group, function(mail, pind) {
-                        if (mail === true) {
-
-                            mails.splice(mails.length, 0, $scope.mailboxes[gind].data[pind]._id);
-
-                        }
-                    });
-                });
+                var mails = getSelected();
                 $http({
                         url: '/api/revokeAccessForMailbox',
                         method: 'POST',
@@ -143,16 +162,7 @@ angular.module('mean.mailmanager').controller('MailmanagerController', ['$scope'
             };
 
             modalService.showModal({}, modalOptions).then(function(result) {
-                var mails = [];
-                angular.forEach($scope.isMailSelected, function(group, gind) {
-                    angular.forEach(group, function(mail, pind) {
-                        if (mail === true) {
-
-                            mails.splice(mails.length, 0, $scope.mailboxes[gind].data[pind]._id);
-
-                        }
-                    });
-                });
+                var mails = getSelected();
                 $http({
                         url: '/api/provideAccessForMailbox',
                         method: 'POST',
