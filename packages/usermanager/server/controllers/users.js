@@ -395,24 +395,21 @@ exports.searchUsers = function(req, res) {
                                 $regex: new RegExp(val, 'i')
                             }
                         }])
-                        .lean()
                         .populate('department')
+                        .lean()
                         .exec(function(err, users) {
                             if (err) {
-                                res.render('error', {
-                                    status: 500
-                                });
+                                console.log(err);
+                                res.status(500).send(err);
                             } else {
-                                _(users).forEach(function(u, uid) {
-                                    if (u.department && u.department.title)
-                                        u.department = u.department.title;
-                                    if (uid === users.length - 1)
-                                        return res.jsonp(users);
+                                _.forEach(users, function(user) {
+                                    if (user.department && user.department.title)
+                                        user.department = user.department.title;
                                 });
+                                return res.jsonp(users);
                             }
                         });
-                }
-                if (roles.indexOf('manager') !== -1) {
+                } else if (roles.indexOf('manager') !== -1) {
                     NewDepartment
                         .find({
                             $or: [{
@@ -451,26 +448,24 @@ exports.searchUsers = function(req, res) {
                                             $regex: val
                                         }
                                     }])
-                                    .lean()
                                     .populate('department')
+                                    .lean()
                                     .exec(function(err, users) {
                                         if (err) {
                                             console.log(err);
                                             return res.status(500).send(err);
                                         } else {
-                                            _(users).forEach(function(u, uid) {
-                                                u.department = u.department.name;
-                                                if (uid === users.length - 1)
-                                                    return res.jsonp(users);
+                                            _.forEach(users, function(user) {
+                                                if (user.department && user.department.title)
+                                                    user.department = user.department.title;
                                             });
+                                            return res.jsonp(users);
                                         }
                                     });
                             }
                         });
-                }
-                if (roles.indexOf('employee') !== -1) {
+                } else
                     return res.status(403).send('Access denied');
-                }
             }
         });
 };
